@@ -162,10 +162,6 @@ function finishVerification() {
   successPanel.hidden = false;
 
   sessionStorage.setItem("arbifyAccess", "granted");
-
-  verificationTimer = window.setTimeout(() => {
-    window.location.href = HOME_PAGE;
-  }, 900);
 }
 
 function verifyAccessKey(key) {
