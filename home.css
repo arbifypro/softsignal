@@ -2287,8 +2287,8 @@ body {
       transparent 36%
     ),
     rgba(1, 2, 7, 0.72);
-  backdrop-filter: blur(6px) saturate(0.78) brightness(0.58);
-  -webkit-backdrop-filter: blur(6px) saturate(0.78) brightness(0.58);
+  backdrop-filter: blur(3px) saturate(0.78) brightness(0.58);
+  -webkit-backdrop-filter: blur(3px) saturate(0.78) brightness(0.58);
 }
 
 .subid-modal.is-open {
@@ -2299,7 +2299,7 @@ body {
 body.subid-modal-open .topbar,
 body.subid-modal-open .content,
 body.subid-modal-open .bottom-nav {
-  filter: blur(2px) saturate(0.72) brightness(0.62);
+  filter: blur(1px) saturate(0.72) brightness(0.62);
   pointer-events: none;
   transform: scale(0.985);
   transform-origin: center center;
