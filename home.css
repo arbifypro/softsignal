@@ -3106,3 +3106,39 @@ body.subid-modal-open .bottom-nav {
     border-radius: 23px;
   }
 }
+
+/* Блокуємо головну сторінку, поки відкрите вікно SUBID */
+html:has(body.subid-modal-open),
+body.subid-modal-open {
+  width: 100%;
+  height: 100%;
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+}
+
+body.subid-modal-open {
+  position: fixed !important;
+  inset: 0 !important;
+}
+
+body.subid-modal-open .page-shell,
+body.subid-modal-open .pulse-app,
+body.subid-modal-open .content {
+  height: 100% !important;
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+}
+
+body.subid-modal-open .topbar,
+body.subid-modal-open .content,
+body.subid-modal-open .bottom-nav {
+  touch-action: none;
+}
+
+body.subid-modal-open .subid-modal {
+  overscroll-behavior: none;
+}
+
+body.subid-modal-open .subid-modal-backdrop {
+  touch-action: none;
+}
