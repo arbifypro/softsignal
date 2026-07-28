@@ -6,6 +6,9 @@ if (sessionStorage.getItem("arbifyAccess") !== "granted") {
 
 const SCAN_DURATION = 4600;
 const RESULT_REVEAL_DELAY = 420;
+const SUBID_VERIFY_DELAY = 1200;
+const SUBID_SUCCESS_DELAY = 850;
+const SUBID_STORAGE_KEY = "arbifyVerifiedSubId";
 
 const slotCards = document.querySelectorAll(".slot-card");
 const signalButton = document.querySelector("#signalButton");
@@ -14,6 +17,29 @@ const allSlotsButton = document.querySelector("#allSlotsButton");
 const navItems = document.querySelectorAll(".nav-item");
 const toast = document.querySelector("#toast");
 const toastText = document.querySelector("#toastText");
+
+const subIdModal = document.querySelector("#subIdModal");
+const subIdModalBackdrop = document.querySelector(
+  ".subid-modal-backdrop"
+);
+const subIdDialog = document.querySelector(".subid-dialog");
+const subIdCloseButton = document.querySelector(
+  "#subIdCloseButton"
+);
+const subIdFormView = document.querySelector("#subIdFormView");
+const subIdSuccessView = document.querySelector(
+  "#subIdSuccessView"
+);
+const subIdForm = document.querySelector("#subIdForm");
+const subIdField = document.querySelector("#subIdField");
+const subIdInput = document.querySelector("#subIdInput");
+const subIdMessage = document.querySelector("#subIdMessage");
+const subIdVerifyButton = document.querySelector(
+  "#subIdVerifyButton"
+);
+const subIdVerifyText = document.querySelector(
+  "#subIdVerifyText"
+);
 
 const signalOverlay = document.querySelector("#signalOverlay");
 const signalOverlayTitle = document.querySelector("#signalOverlayTitle");
@@ -85,6 +111,9 @@ const scanStages = [
 ];
 
 let toastTimer;
+let subIdVerifyTimer;
+let subIdSuccessTimer;
+let subIdCloseTimer;
 let scanFrame;
 let resultRevealTimer;
 let selectedSlot = getSelectedSlot();
@@ -101,10 +130,123 @@ function showToast(message) {
   }, 2400);
 }
 
+function normalizeSubId(value) {
+  return value
+    .trim()
+    .replace(/\s+/g, "")
+    .slice(0, 64);
+}
+
+function resetSubIdModal() {
+  subIdDialog.classList.remove(
+    "is-checking",
+    "is-success"
+  );
+
+  subIdField.classList.remove(
+    "has-error",
+    "is-checking"
+  );
+
+  subIdFormView.hidden = false;
+  subIdSuccessView.hidden = true;
+  subIdMessage.innerHTML = "&nbsp;";
+  subIdVerifyButton.disabled = false;
+  subIdVerifyText.textContent = "ПЕРЕВІРИТИ SUBID";
+}
+
+function openSubIdModal() {
+  window.clearTimeout(toastTimer);
+  window.clearTimeout(subIdCloseTimer);
+
+  toast.classList.remove("is-visible");
+  resetSubIdModal();
+
+  subIdInput.value = "";
+  subIdModal.hidden = false;
+
+  document.body.classList.add(
+    "subid-modal-open"
+  );
+
+  window.requestAnimationFrame(() => {
+    subIdModal.classList.add("is-open");
+  });
+}
+
+function closeSubIdModal(afterClose) {
+  window.clearTimeout(subIdVerifyTimer);
+  window.clearTimeout(subIdSuccessTimer);
+  window.clearTimeout(subIdCloseTimer);
+
+  subIdInput.blur();
+  subIdModal.classList.remove("is-open");
+
+  document.body.classList.remove(
+    "subid-modal-open"
+  );
+
+  subIdCloseTimer = window.setTimeout(() => {
+    subIdModal.hidden = true;
+    resetSubIdModal();
+
+    if (typeof afterClose === "function") {
+      afterClose();
+    }
+  }, 220);
+}
+
+function showSubIdError(message) {
+  subIdDialog.classList.remove("is-checking");
+  subIdField.classList.remove("is-checking");
+
+  void subIdField.offsetWidth;
+
+  subIdField.classList.add("has-error");
+  subIdMessage.textContent = message;
+  subIdVerifyButton.disabled = false;
+  subIdVerifyText.textContent = "ПЕРЕВІРИТИ SUBID";
+  subIdInput.focus();
+}
+
+function startSubIdVerification(subId) {
+  subIdInput.blur();
+  subIdMessage.innerHTML = "&nbsp;";
+  subIdField.classList.remove("has-error");
+  subIdField.classList.add("is-checking");
+  subIdDialog.classList.add("is-checking");
+  subIdVerifyButton.disabled = true;
+  subIdVerifyText.textContent = "ПЕРЕВІРЯЄМО...";
+
+  /*
+   * ДЕМО-ПЕРЕВІРКА:
+   * зараз будь-який непорожній SUBID вважається правильним.
+   * Пізніше цей таймер замінимо запитом до серверного API,
+   * яке перевірятиме реєстрацію через Keitaro.
+   */
+  subIdVerifyTimer = window.setTimeout(() => {
+    sessionStorage.setItem(
+      SUBID_STORAGE_KEY,
+      subId
+    );
+
+    subIdDialog.classList.remove("is-checking");
+    subIdDialog.classList.add("is-success");
+    subIdField.classList.remove("is-checking");
+    subIdFormView.hidden = true;
+    subIdSuccessView.hidden = false;
+
+    subIdSuccessTimer = window.setTimeout(() => {
+      closeSubIdModal(() => {
+        startSignalFlow();
+      });
+    }, SUBID_SUCCESS_DELAY);
+  }, SUBID_VERIFY_DELAY);
+}
+
 function getSelectedSlot() {
   const selectedCard =
-    document.querySelector(".slot-card.is-selected") ||
-    slotCards[0];
+    document.querySelector(".slot-card.is-selected") || slotCards[0];
 
   const image = selectedCard.querySelector("img");
 
@@ -115,17 +257,12 @@ function getSelectedSlot() {
 }
 
 function randomItem(items) {
-  return items[
-    Math.floor(
-      Math.random() * items.length
-    )
-  ];
+  return items[Math.floor(Math.random() * items.length)];
 }
 
 function createSignal(slot) {
   const profile =
-    signalProfiles[slot.name] ||
-    signalProfiles["Thunder Crown"];
+    signalProfiles[slot.name] || signalProfiles["Thunder Crown"];
 
   return {
     slotName: slot.name,
@@ -148,13 +285,10 @@ function saveSignal(signal) {
 function setScanStage(percent) {
   const currentStage = [...scanStages]
     .reverse()
-    .find((stage) => {
-      return percent >= stage.from;
-    });
+    .find((stage) => percent >= stage.from);
 
   if (currentStage) {
-    scanStatus.textContent =
-      currentStage.message;
+    scanStatus.textContent = currentStage.message;
   }
 }
 
@@ -162,28 +296,18 @@ function prepareScan(slot) {
   selectedSlot = slot;
   activeSignal = null;
 
-  signalOverlayTitle.textContent =
-    "НОВИЙ СИГНАЛ";
-
+  signalOverlayTitle.textContent = "НОВИЙ СИГНАЛ";
   scanSlotImage.src = slot.image;
   scanSlotName.textContent = slot.name;
-
-  scanStatus.textContent =
-    scanStages[0].message;
-
+  scanStatus.textContent = scanStages[0].message;
   scanPercent.textContent = "0%";
   scanProgress.style.width = "0%";
 
   resultView.hidden = true;
   scanView.hidden = false;
 
-  signalOverlay.classList.remove(
-    "is-result"
-  );
-
-  signalOverlay.classList.add(
-    "is-scanning"
-  );
+  signalOverlay.classList.remove("is-result");
+  signalOverlay.classList.add("is-scanning");
 }
 
 function openSignalOverlay() {
@@ -191,15 +315,10 @@ function openSignalOverlay() {
   toast.classList.remove("is-visible");
 
   signalOverlay.hidden = false;
-
-  document.body.classList.add(
-    "signal-overlay-open"
-  );
+  document.body.classList.add("signal-overlay-open");
 
   window.requestAnimationFrame(() => {
-    signalOverlay.classList.add(
-      "is-open"
-    );
+    signalOverlay.classList.add("is-open");
   });
 }
 
@@ -220,9 +339,7 @@ function closeSignalOverlay() {
     "is-result"
   );
 
-  document.body.classList.remove(
-    "signal-overlay-open"
-  );
+  document.body.classList.remove("signal-overlay-open");
 
   window.setTimeout(() => {
     signalOverlay.hidden = true;
@@ -233,57 +350,36 @@ function closeSignalOverlay() {
 
 function fillResult(signal) {
   resultSlotImage.src = signal.slotImage;
-
-  resultSlotName.textContent =
-    signal.slotName;
-
-  resultBet.textContent =
-    signal.bet;
-
-  resultSpins.textContent =
-    String(signal.spins);
-
-  resultDuration.textContent =
-    signal.duration;
+  resultSlotName.textContent = signal.slotName;
+  resultBet.textContent = signal.bet;
+  resultSpins.textContent = String(signal.spins);
+  resultDuration.textContent = signal.duration;
 
   resultRisk.innerHTML = `
     <span></span>
     ${signal.risk}
   `;
 
-  resultRisk.dataset.level =
-    signal.risk.toLowerCase();
+  resultRisk.dataset.level = signal.risk.toLowerCase();
 }
 
 function showSignalResult() {
-  activeSignal =
-    createSignal(selectedSlot);
-
+  activeSignal = createSignal(selectedSlot);
   saveSignal(activeSignal);
   fillResult(activeSignal);
 
   scanPercent.textContent = "100%";
   scanProgress.style.width = "100%";
+  scanStatus.textContent = "Сигнал успішно сформовано";
 
-  scanStatus.textContent =
-    "Сигнал успішно сформовано";
+  resultRevealTimer = window.setTimeout(() => {
+    scanView.hidden = true;
+    resultView.hidden = false;
 
-  resultRevealTimer =
-    window.setTimeout(() => {
-      scanView.hidden = true;
-      resultView.hidden = false;
-
-      signalOverlayTitle.textContent =
-        "СИГНАЛ ГОТОВИЙ";
-
-      signalOverlay.classList.remove(
-        "is-scanning"
-      );
-
-      signalOverlay.classList.add(
-        "is-result"
-      );
-    }, RESULT_REVEAL_DELAY);
+    signalOverlayTitle.textContent = "СИГНАЛ ГОТОВИЙ";
+    signalOverlay.classList.remove("is-scanning");
+    signalOverlay.classList.add("is-result");
+  }, RESULT_REVEAL_DELAY);
 }
 
 function runScan() {
@@ -292,56 +388,28 @@ function runScan() {
   const startedAt = performance.now();
 
   function updateScan(currentTime) {
-    const elapsed =
-      currentTime - startedAt;
+    const elapsed = currentTime - startedAt;
+    const rawProgress = Math.min(elapsed / SCAN_DURATION, 1);
+    const easedProgress = 1 - Math.pow(1 - rawProgress, 1.45);
 
-    const rawProgress =
-      Math.min(
-        elapsed / SCAN_DURATION,
-        1
-      );
+    const percent = Math.min(
+      Math.floor(easedProgress * 100),
+      rawProgress < 1 ? 99 : 100
+    );
 
-    const easedProgress =
-      1 -
-      Math.pow(
-        1 - rawProgress,
-        1.45
-      );
-
-    const percent =
-      Math.min(
-        Math.floor(
-          easedProgress * 100
-        ),
-        rawProgress < 1
-          ? 99
-          : 100
-      );
-
-    scanPercent.textContent =
-      `${percent}%`;
-
-    scanProgress.style.width =
-      `${percent}%`;
-
+    scanPercent.textContent = `${percent}%`;
+    scanProgress.style.width = `${percent}%`;
     setScanStage(percent);
 
     if (rawProgress < 1) {
-      scanFrame =
-        window.requestAnimationFrame(
-          updateScan
-        );
-
+      scanFrame = window.requestAnimationFrame(updateScan);
       return;
     }
 
     showSignalResult();
   }
 
-  scanFrame =
-    window.requestAnimationFrame(
-      updateScan
-    );
+  scanFrame = window.requestAnimationFrame(updateScan);
 }
 
 function startSignalFlow() {
@@ -355,113 +423,130 @@ function startSignalFlow() {
 slotCards.forEach((card) => {
   card.addEventListener("click", () => {
     slotCards.forEach((item) => {
-      item.classList.remove(
-        "is-selected"
-      );
+      item.classList.remove("is-selected");
     });
 
-    card.classList.add(
-      "is-selected"
-    );
+    card.classList.add("is-selected");
+    selectedSlot = getSelectedSlot();
 
-    selectedSlot =
-      getSelectedSlot();
-
-    showToast(
-      `${selectedSlot.name} обрано`
-    );
+    showToast(`${selectedSlot.name} обрано`);
   });
 });
 
-signalButton.addEventListener(
-  "click",
-  startSignalFlow
-);
+signalButton.addEventListener("click", () => {
+  const verifiedSubId = sessionStorage.getItem(
+    SUBID_STORAGE_KEY
+  );
 
-signalBackButton.addEventListener(
-  "click",
-  () => {
-    closeSignalOverlay();
+  if (verifiedSubId) {
+    startSignalFlow();
+    return;
   }
-);
 
-resultNewButton.addEventListener(
-  "click",
-  () => {
-    prepareScan(
-      getSelectedSlot()
+  openSubIdModal();
+});
+
+subIdInput.addEventListener("input", () => {
+  subIdField.classList.remove("has-error");
+  subIdMessage.innerHTML = "&nbsp;";
+});
+
+subIdForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  if (subIdVerifyButton.disabled) {
+    return;
+  }
+
+  const subId = normalizeSubId(
+    subIdInput.value
+  );
+
+  subIdInput.value = subId;
+
+  if (!subId) {
+    showSubIdError(
+      "Введіть свій SUBID для перевірки"
     );
 
-    runScan();
+    return;
   }
-);
 
-resultActionButton.addEventListener(
-  "click",
-  () => {
-    if (!activeSignal) {
-      return;
-    }
+  startSubIdVerification(subId);
+});
 
-    const message =
-      `Сигнал для ${activeSignal.slotName} активовано на ` +
-      activeSignal.duration;
+subIdCloseButton.addEventListener("click", () => {
+  closeSubIdModal();
+});
 
-    closeSignalOverlay();
+subIdModalBackdrop.addEventListener("click", () => {
+  closeSubIdModal();
+});
 
-    window.setTimeout(() => {
-      showToast(message);
-    }, 240);
+signalBackButton.addEventListener("click", () => {
+  closeSignalOverlay();
+});
+
+resultNewButton.addEventListener("click", () => {
+  prepareScan(getSelectedSlot());
+  runScan();
+});
+
+resultActionButton.addEventListener("click", () => {
+  if (!activeSignal) {
+    return;
   }
-);
 
-notificationButton.addEventListener(
-  "click",
-  () => {
-    showToast(
-      "Нових сповіщень поки немає"
-    );
-  }
-);
+  const message =
+    `Сигнал для ${activeSignal.slotName} активовано на ` +
+    activeSignal.duration;
 
-allSlotsButton.addEventListener(
-  "click",
-  () => {
-    showToast(
-      "Повний каталог додамо пізніше"
-    );
-  }
-);
+  closeSignalOverlay();
+
+  window.setTimeout(() => {
+    showToast(message);
+  }, 240);
+});
+
+notificationButton.addEventListener("click", () => {
+  showToast("Нових сповіщень поки немає");
+});
+
+allSlotsButton.addEventListener("click", () => {
+  showToast("Повний каталог додамо пізніше");
+});
 
 navItems.forEach((item) => {
   item.addEventListener("click", () => {
-    const sectionName =
-      item.dataset.section;
+    const sectionName = item.dataset.section;
 
     if (sectionName !== "Головна") {
-      showToast(
-        `Розділ «${sectionName}» готується`
-      );
+      showToast(`Розділ «${sectionName}» готується`);
     }
   });
 });
 
-document.addEventListener(
-  "keydown",
-  (event) => {
-    if (
-      event.key === "Escape" &&
-      !signalOverlay.hidden
-    ) {
-      closeSignalOverlay();
-    }
+document.addEventListener("keydown", (event) => {
+  if (
+    event.key === "Escape" &&
+    !subIdModal.hidden
+  ) {
+    closeSubIdModal();
+    return;
   }
-);
 
-window.addEventListener(
-  "beforeunload",
-  () => {
-    window.clearTimeout(toastTimer);
-    stopScanning();
+  if (
+    event.key === "Escape" &&
+    !signalOverlay.hidden
+  ) {
+    closeSignalOverlay();
   }
-);
+});
+
+window.addEventListener("beforeunload", () => {
+  window.clearTimeout(toastTimer);
+  window.clearTimeout(subIdVerifyTimer);
+  window.clearTimeout(subIdSuccessTimer);
+  window.clearTimeout(subIdCloseTimer);
+  stopScanning();
+});
