@@ -2991,3 +2991,278 @@ body.subid-modal-open .bottom-nav {
     border-radius: 23px;
   }
 }
+
+/* =========================================================
+   ПЛАВНА ПОЯВА ВІКНА SUBID
+   ========================================================= */
+
+.subid-modal {
+  transition:
+    opacity 360ms ease,
+    visibility 360ms ease;
+}
+
+.subid-modal-backdrop {
+  opacity: 0;
+  transform: scale(1.035);
+  transition:
+    opacity 420ms ease,
+    transform 650ms cubic-bezier(0.16, 0.84, 0.26, 1);
+}
+
+.subid-modal.is-open .subid-modal-backdrop {
+  opacity: 1;
+  transform: scale(1);
+}
+
+body.subid-modal-open .topbar,
+body.subid-modal-open .content,
+body.subid-modal-open .bottom-nav {
+  transition:
+    filter 420ms ease,
+    transform 520ms cubic-bezier(0.16, 0.84, 0.26, 1),
+    opacity 360ms ease;
+}
+
+.subid-dialog {
+  filter: blur(9px);
+  transform: translateY(34px) scale(0.91);
+  transition:
+    opacity 220ms ease,
+    transform 250ms ease,
+    filter 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+  will-change: transform, opacity, filter;
+}
+
+.subid-modal.is-open .subid-dialog {
+  animation:
+    subIdDialogEntrance
+    620ms
+    cubic-bezier(0.16, 0.84, 0.26, 1.08)
+    both;
+}
+
+.subid-modal.is-open .subid-dialog:focus-within {
+  animation: none;
+  filter: blur(0);
+  opacity: 1;
+  transform:
+    translateY(clamp(-70px, -7vh, -34px))
+    scale(1);
+}
+
+.subid-close-button,
+.subid-icon,
+.subid-kicker,
+.subid-form-view h2,
+.subid-description,
+.subid-form,
+.subid-hint {
+  opacity: 0;
+}
+
+.subid-modal.is-open .subid-close-button {
+  animation:
+    subIdItemEntrance
+    360ms
+    300ms
+    ease-out
+    both;
+}
+
+.subid-modal.is-open .subid-icon {
+  animation:
+    subIdIconEntrance
+    560ms
+    150ms
+    cubic-bezier(0.16, 0.84, 0.26, 1.12)
+    both;
+}
+
+.subid-modal.is-open .subid-kicker {
+  animation:
+    subIdItemEntrance
+    420ms
+    230ms
+    ease-out
+    both;
+}
+
+.subid-modal.is-open .subid-form-view h2 {
+  animation:
+    subIdItemEntrance
+    440ms
+    285ms
+    ease-out
+    both;
+}
+
+.subid-modal.is-open .subid-description {
+  animation:
+    subIdItemEntrance
+    440ms
+    335ms
+    ease-out
+    both;
+}
+
+.subid-modal.is-open .subid-form {
+  animation:
+    subIdItemEntrance
+    460ms
+    385ms
+    ease-out
+    both;
+}
+
+.subid-modal.is-open .subid-hint {
+  animation:
+    subIdItemEntrance
+    440ms
+    445ms
+    ease-out
+    both;
+}
+
+.subid-icon::before {
+  position: absolute;
+  inset: -9px;
+  border: 1px solid rgba(190, 91, 255, 0.18);
+  border-radius: 27px;
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+}
+
+.subid-modal.is-open .subid-icon::before {
+  animation:
+    subIdIconRing
+    2.2s
+    650ms
+    ease-out
+    infinite;
+}
+
+.subid-dialog::before {
+  animation:
+    subIdGlowBreath
+    3.6s
+    ease-in-out
+    infinite;
+}
+
+.subid-dialog.is-success .subid-icon {
+  display: none;
+}
+
+@keyframes subIdDialogEntrance {
+  0% {
+    opacity: 0;
+    filter: blur(10px);
+    transform:
+      translateY(34px)
+      scale(0.91);
+  }
+
+  68% {
+    opacity: 1;
+    filter: blur(0);
+    transform:
+      translateY(-4px)
+      scale(1.012);
+  }
+
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+@keyframes subIdIconEntrance {
+  0% {
+    opacity: 0;
+    filter: blur(7px);
+    transform:
+      translateY(13px)
+      rotate(-7deg)
+      scale(0.68);
+  }
+
+  70% {
+    opacity: 1;
+    filter: blur(0);
+    transform:
+      translateY(-2px)
+      rotate(2deg)
+      scale(1.06);
+  }
+
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform:
+      translateY(0)
+      rotate(0)
+      scale(1);
+  }
+}
+
+@keyframes subIdItemEntrance {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateY(11px);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes subIdIconRing {
+  0% {
+    opacity: 0.62;
+    transform: scale(0.82);
+  }
+
+  75%,
+  100% {
+    opacity: 0;
+    transform: scale(1.32);
+  }
+}
+
+@keyframes subIdGlowBreath {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform:
+      translateX(-50%)
+      scale(0.92);
+  }
+
+  50% {
+    opacity: 1;
+    transform:
+      translateX(-50%)
+      scale(1.08);
+  }
+}
+
+@media (max-height: 650px) {
+  .subid-modal.is-open .subid-dialog:focus-within {
+    animation: none;
+    filter: blur(0);
+    opacity: 1;
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
