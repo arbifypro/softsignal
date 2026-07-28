@@ -13,7 +13,6 @@
       content="Головна панель платформи ARBIFY PULSE."
     />
 
-    <!-- Чорний інтерфейс браузера на iPhone та Android -->
     <meta name="theme-color" content="#020307" />
 
     <meta
@@ -35,7 +34,6 @@
       content="#020307"
     />
 
-    <!-- Запуск через іконку на iPhone -->
     <meta
       name="apple-mobile-web-app-capable"
       content="yes"
@@ -75,7 +73,6 @@
       as="image"
     />
 
-    <!-- Чорний фон і блокування масштабування -->
     <style>
       :root {
         color-scheme: dark;
@@ -422,6 +419,257 @@
             </p>
           </div>
         </div>
+
+        <section
+          class="signal-overlay"
+          id="signalOverlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="signalOverlayTitle"
+          hidden
+        >
+          <header class="signal-overlay-header">
+            <button
+              class="signal-back-button"
+              id="signalBackButton"
+              type="button"
+              aria-label="Повернутися на головну"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m15 5-7 7 7 7"></path>
+              </svg>
+            </button>
+
+            <p id="signalOverlayTitle">
+              НОВИЙ СИГНАЛ
+            </p>
+
+            <span
+              class="signal-header-spacer"
+              aria-hidden="true"
+            ></span>
+          </header>
+
+          <div
+            class="scan-view"
+            id="scanView"
+          >
+            <div class="scan-slot">
+              <img
+                id="scanSlotImage"
+                src="assets/mythic-thunder.webp"
+                alt=""
+              />
+
+              <div>
+                <span>АНАЛІЗ СЛОТА</span>
+
+                <strong id="scanSlotName">
+                  Thunder Crown
+                </strong>
+              </div>
+            </div>
+
+            <div
+              class="scan-radar"
+              aria-hidden="true"
+            >
+              <span
+                class="scan-ring scan-ring-one"
+              ></span>
+
+              <span
+                class="scan-ring scan-ring-two"
+              ></span>
+
+              <span
+                class="scan-ring scan-ring-three"
+              ></span>
+
+              <span
+                class="scan-line scan-line-horizontal"
+              ></span>
+
+              <span
+                class="scan-line scan-line-vertical"
+              ></span>
+
+              <span class="scan-sweep"></span>
+
+              <span class="scan-center">
+                <span></span>
+              </span>
+            </div>
+
+            <div class="scan-copy">
+              <p class="scan-kicker">
+                PULSE CORE ANALYSIS
+              </p>
+
+              <h2>
+                СКАНУВАННЯ...
+              </h2>
+
+              <p id="scanStatus">
+                Підключення до аналітичного ядра
+              </p>
+
+              <strong id="scanPercent">
+                0%
+              </strong>
+            </div>
+
+            <div
+              class="scan-progress"
+              aria-hidden="true"
+            >
+              <span id="scanProgress"></span>
+            </div>
+
+            <p class="scan-wait">
+              Зачекай декілька секунд
+              <span></span>
+            </p>
+          </div>
+
+          <div
+            class="result-view"
+            id="resultView"
+            hidden
+          >
+            <div class="result-success-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 32 32"
+                fill="none"
+              >
+                <path
+                  d="m8.5 16.5 5 5 10-11"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+              </svg>
+            </div>
+
+            <p class="result-kicker">
+              СИГНАЛ ГОТОВИЙ
+            </p>
+
+            <h2>
+              Можна починати
+            </h2>
+
+            <div class="result-slot-card">
+              <img
+                id="resultSlotImage"
+                src="assets/mythic-thunder.webp"
+                alt=""
+              />
+
+              <div>
+                <span>
+                  ОБРАНИЙ СЛОТ
+                </span>
+
+                <strong id="resultSlotName">
+                  Thunder Crown
+                </strong>
+              </div>
+            </div>
+
+            <div class="result-details">
+              <div class="result-row">
+                <span>
+                  Рекомендована ставка
+                </span>
+
+                <strong id="resultBet">
+                  ₴20
+                </strong>
+              </div>
+
+              <div class="result-row">
+                <span>
+                  Кількість обертань
+                </span>
+
+                <strong id="resultSpins">
+                  12
+                </strong>
+              </div>
+
+              <div class="result-row">
+                <span>
+                  Рівень ризику
+                </span>
+
+                <strong
+                  class="result-risk"
+                  id="resultRisk"
+                >
+                  <span></span>
+                  СЕРЕДНІЙ
+                </strong>
+              </div>
+
+              <div class="result-row">
+                <span>
+                  Тривалість сигналу
+                </span>
+
+                <strong id="resultDuration">
+                  03:00
+                </strong>
+              </div>
+            </div>
+
+            <button
+              class="result-action-button"
+              id="resultActionButton"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="m13.5 2-6 11h5l-2 9 7-12h-5l1-8Z"
+                ></path>
+              </svg>
+
+              <span>
+                ПОЧАТИ СИГНАЛ
+              </span>
+            </button>
+
+            <button
+              class="result-new-button"
+              id="resultNewButton"
+              type="button"
+            >
+              СТВОРИТИ НОВИЙ СИГНАЛ
+            </button>
+
+            <p class="result-warning">
+              18+ · Результат гри залежить від випадковості
+            </p>
+          </div>
+        </section>
 
         <nav
           class="bottom-nav"
