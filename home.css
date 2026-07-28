@@ -8,6 +8,9 @@
   --green: #21e780;
   --panel: rgba(9, 10, 18, 0.88);
   --line: rgba(255, 255, 255, 0.08);
+
+  color-scheme: dark;
+  background-color: #020307;
 }
 
 * {
@@ -15,14 +18,17 @@
 }
 
 html {
-  background: var(--background);
+  min-height: 100%;
+  background: #020307 !important;
+  background-color: #020307 !important;
+  overscroll-behavior: none;
 }
 
 body {
+  min-height: 100%;
   margin: 0;
-  background:
-    radial-gradient(circle at 50% -10%, rgba(105, 37, 186, 0.13), transparent 32rem),
-    #020307;
+  background: #020307 !important;
+  background-color: #020307 !important;
   color: var(--foreground);
   font-family:
     Inter,
@@ -30,6 +36,7 @@ body {
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
+  overscroll-behavior: none;
 }
 
 button,
@@ -43,11 +50,14 @@ button {
 
 .page-shell {
   position: relative;
+  min-height: 100vh;
   min-height: 100svh;
   overflow: hidden;
   display: grid;
   place-items: start center;
   isolation: isolate;
+  background: #020307;
+  background-color: #020307;
 }
 
 .ambient {
@@ -76,11 +86,15 @@ button {
 .pulse-app {
   position: relative;
   width: min(100%, 430px);
+  min-height: 100vh;
   min-height: 100svh;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 76% 5%, rgba(125, 44, 255, 0.08), transparent 14rem),
-    linear-gradient(180deg, #06070d 0%, #020309 54%, #05060c 100%);
+  background: linear-gradient(
+    180deg,
+    #06070d 0%,
+    #020309 54%,
+    #05060c 100%
+  );
 }
 
 .app-noise {
@@ -93,14 +107,7 @@ button {
 }
 
 .top-glow {
-  position: absolute;
-  z-index: 1;
-  top: 0;
-  left: 17%;
-  width: 66%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(191, 95, 255, 0.8), transparent);
-  box-shadow: 0 0 24px rgba(157, 55, 255, 0.7);
+  display: none !important;
 }
 
 .topbar,
@@ -115,7 +122,11 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: max(10px, env(safe-area-inset-top)) 20px 0;
+  padding:
+    max(10px, env(safe-area-inset-top))
+    20px
+    0;
+  background-color: #06070d;
 }
 
 .mini-brand {
@@ -133,21 +144,34 @@ button {
   border-radius: 50%;
   color: var(--gold);
   background:
-    radial-gradient(circle, rgba(244, 196, 78, 0.1), transparent 65%),
+    radial-gradient(
+      circle,
+      rgba(244, 196, 78, 0.1),
+      transparent 65%
+    ),
     #08090f;
-  box-shadow: inset 0 0 16px rgba(244, 196, 78, 0.05);
+  box-shadow:
+    inset 0 0 16px
+    rgba(244, 196, 78, 0.05);
 }
 
 .crown {
   width: 25px;
   height: 20px;
-  filter: drop-shadow(0 0 6px rgba(244, 196, 78, 0.35));
+  filter:
+    drop-shadow(
+      0 0 6px
+      rgba(244, 196, 78, 0.35)
+    );
 }
 
 .brand-name {
   margin: 0;
   color: #fff1bc;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
   font-size: 16px;
   letter-spacing: 0.2em;
   line-height: 1;
@@ -206,7 +230,10 @@ button {
 }
 
 .content {
-  padding: 10px 18px calc(104px + env(safe-area-inset-bottom));
+  padding:
+    10px
+    18px
+    calc(104px + env(safe-area-inset-bottom));
 }
 
 .access-card {
@@ -216,7 +243,11 @@ button {
   border: 1px solid rgba(255, 255, 255, 0.075);
   border-radius: 17px;
   background:
-    linear-gradient(135deg, rgba(21, 23, 35, 0.92), rgba(7, 8, 14, 0.88)),
+    linear-gradient(
+      135deg,
+      rgba(21, 23, 35, 0.92),
+      rgba(7, 8, 14, 0.88)
+    ),
     #090a11;
   box-shadow:
     0 18px 40px rgba(0, 0, 0, 0.26),
@@ -269,7 +300,9 @@ button {
   height: 8px;
   border-radius: 50%;
   background: var(--green);
-  box-shadow: 0 0 11px rgba(33, 231, 128, 0.85);
+  box-shadow:
+    0 0 11px
+    rgba(33, 231, 128, 0.85);
 }
 
 .live-dot::after {
@@ -309,7 +342,12 @@ button {
 .access-divider {
   height: 1px;
   margin: 15px 0 13px;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.07), transparent);
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.07),
+      transparent
+    );
 }
 
 .system-row {
@@ -328,7 +366,9 @@ button {
   border: 1px solid rgba(153, 71, 255, 0.3);
   border-radius: 50%;
   background: rgba(137, 51, 255, 0.08);
-  box-shadow: inset 0 0 10px rgba(141, 66, 255, 0.18);
+  box-shadow:
+    inset 0 0 10px
+    rgba(141, 66, 255, 0.18);
 }
 
 .system-orb span {
@@ -437,7 +477,9 @@ button {
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 14px;
   background: #0d0e17;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+  box-shadow:
+    0 10px 24px
+    rgba(0, 0, 0, 0.24);
   transition:
     transform 190ms ease,
     border-color 190ms ease,
@@ -449,14 +491,21 @@ button {
   height: 100%;
   display: block;
   object-fit: cover;
-  transition: transform 420ms cubic-bezier(0.2, 0.75, 0.2, 1);
+  transition:
+    transform 420ms
+    cubic-bezier(0.2, 0.75, 0.2, 1);
 }
 
 .slot-image-wrap::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 52%, rgba(0, 0, 0, 0.26));
+  background:
+    linear-gradient(
+      180deg,
+      transparent 52%,
+      rgba(0, 0, 0, 0.26)
+    );
   pointer-events: none;
 }
 
@@ -468,7 +517,13 @@ button {
   width: 40%;
   height: 160%;
   transform: rotate(18deg);
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.18),
+      transparent
+    );
   transition: left 500ms ease;
   pointer-events: none;
 }
@@ -482,11 +537,28 @@ button {
   height: 20px;
   display: grid;
   place-items: center;
-  border: 1px solid color-mix(in srgb, var(--slot-accent) 72%, white);
+  border:
+    1px solid
+    color-mix(
+      in srgb,
+      var(--slot-accent) 72%,
+      white
+    );
   border-radius: 50%;
   color: white;
-  background: color-mix(in srgb, var(--slot-accent) 77%, #170929);
-  box-shadow: 0 0 14px color-mix(in srgb, var(--slot-accent) 60%, transparent);
+  background:
+    color-mix(
+      in srgb,
+      var(--slot-accent) 77%,
+      #170929
+    );
+  box-shadow:
+    0 0 14px
+    color-mix(
+      in srgb,
+      var(--slot-accent) 60%,
+      transparent
+    );
   font-size: 10px;
   font-weight: 900;
   opacity: 0;
@@ -511,7 +583,12 @@ button {
 
 .slot-card:hover .slot-image-wrap {
   transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--slot-accent) 46%, transparent);
+  border-color:
+    color-mix(
+      in srgb,
+      var(--slot-accent) 46%,
+      transparent
+    );
 }
 
 .slot-card:hover img {
@@ -523,11 +600,26 @@ button {
 }
 
 .slot-card.is-selected .slot-image-wrap {
-  border-color: color-mix(in srgb, var(--slot-accent) 72%, white);
+  border-color:
+    color-mix(
+      in srgb,
+      var(--slot-accent) 72%,
+      white
+    );
   box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--slot-accent) 20%, transparent),
+    0 0 0 1px
+    color-mix(
+      in srgb,
+      var(--slot-accent) 20%,
+      transparent
+    ),
     0 12px 28px rgba(0, 0, 0, 0.3),
-    0 0 25px color-mix(in srgb, var(--slot-accent) 13%, transparent);
+    0 0 25px
+    color-mix(
+      in srgb,
+      var(--slot-accent) 13%,
+      transparent
+    );
 }
 
 .slot-card.is-selected .selected-check {
@@ -553,8 +645,16 @@ button {
   border: 1px solid rgba(153, 66, 255, 0.24);
   border-radius: 19px;
   background:
-    radial-gradient(circle at 15% 50%, rgba(141, 66, 255, 0.14), transparent 38%),
-    linear-gradient(135deg, rgba(15, 10, 27, 0.98), rgba(6, 7, 13, 0.98));
+    radial-gradient(
+      circle at 15% 50%,
+      rgba(141, 66, 255, 0.14),
+      transparent 38%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(15, 10, 27, 0.98),
+      rgba(6, 7, 13, 0.98)
+    );
   box-shadow:
     0 18px 38px rgba(0, 0, 0, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.03);
@@ -565,7 +665,13 @@ button {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(115deg, transparent 28%, rgba(177, 81, 255, 0.07), transparent 67%);
+  background:
+    linear-gradient(
+      115deg,
+      transparent 28%,
+      rgba(177, 81, 255, 0.07),
+      transparent 67%
+    );
   transform: translateX(-100%);
   animation: cardShine 5s ease-in-out infinite;
   pointer-events: none;
@@ -594,7 +700,11 @@ button {
   border: 1px solid rgba(180, 93, 255, 0.28);
   border-radius: 50%;
   background:
-    radial-gradient(circle, rgba(110, 31, 203, 0.12), transparent 63%),
+    radial-gradient(
+      circle,
+      rgba(110, 31, 203, 0.12),
+      transparent 63%
+    ),
     #080710;
   box-shadow:
     inset 0 0 30px rgba(134, 47, 239, 0.13),
@@ -645,8 +755,17 @@ button {
 .radar-sweep {
   inset: 50% 50% 0 0;
   transform-origin: 100% 0;
-  background: conic-gradient(from 268deg, rgba(176, 82, 255, 0.62), transparent 30deg);
-  filter: drop-shadow(0 0 5px rgba(182, 92, 255, 0.85));
+  background:
+    conic-gradient(
+      from 268deg,
+      rgba(176, 82, 255, 0.62),
+      transparent 30deg
+    );
+  filter:
+    drop-shadow(
+      0 0 5px
+      rgba(182, 92, 255, 0.85)
+    );
   animation: radarSpin 3.2s linear infinite;
 }
 
@@ -658,7 +777,9 @@ button {
   border: 1px solid rgba(217, 169, 255, 0.55);
   border-radius: 50%;
   background: rgba(117, 35, 215, 0.24);
-  box-shadow: 0 0 18px rgba(170, 73, 255, 0.62);
+  box-shadow:
+    0 0 18px
+    rgba(170, 73, 255, 0.62);
 }
 
 .radar-core span {
@@ -727,7 +848,12 @@ button {
   border: 1px solid rgba(207, 139, 255, 0.22);
   border-radius: 10px;
   color: #fff;
-  background: linear-gradient(180deg, #9f43ef, #6b16c7);
+  background:
+    linear-gradient(
+      180deg,
+      #9f43ef,
+      #6b16c7
+    );
   box-shadow:
     0 7px 20px rgba(112, 26, 200, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.22);
@@ -750,7 +876,9 @@ button {
 }
 
 .signal-button:active {
-  transform: translateY(1px) scale(0.98);
+  transform:
+    translateY(1px)
+    scale(0.98);
 }
 
 .signal-button:disabled {
@@ -799,16 +927,28 @@ button {
   right: 0;
   bottom: 0;
   left: 0;
-  height: calc(78px + env(safe-area-inset-bottom));
-  padding: 8px 14px env(safe-area-inset-bottom);
+  height:
+    calc(
+      78px + env(safe-area-inset-bottom)
+    );
+  padding:
+    8px
+    14px
+    env(safe-area-inset-bottom);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   align-items: start;
   border-top: 1px solid rgba(255, 255, 255, 0.075);
   background:
-    linear-gradient(180deg, rgba(8, 9, 15, 0.9), rgba(4, 5, 10, 0.98)),
+    linear-gradient(
+      180deg,
+      rgba(8, 9, 15, 0.96),
+      rgba(4, 5, 10, 1)
+    ),
     #05060b;
-  box-shadow: 0 -14px 30px rgba(0, 0, 0, 0.28);
+  box-shadow:
+    0 -14px 30px
+    rgba(0, 0, 0, 0.28);
   backdrop-filter: blur(18px);
 }
 
@@ -819,7 +959,13 @@ button {
   left: 4%;
   width: 22%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, #9f4dff, transparent);
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      #9f4dff,
+      transparent
+    );
   opacity: 0.65;
 }
 
@@ -863,8 +1009,15 @@ button {
 }
 
 .nav-item.is-active .nav-icon {
-  background: radial-gradient(circle, rgba(158, 66, 255, 0.2), transparent 70%);
-  text-shadow: 0 0 12px rgba(174, 73, 255, 0.6);
+  background:
+    radial-gradient(
+      circle,
+      rgba(158, 66, 255, 0.2),
+      transparent 70%
+    );
+  text-shadow:
+    0 0 12px
+    rgba(174, 73, 255, 0.6);
 }
 
 .nav-item.is-active::after {
@@ -875,14 +1028,19 @@ button {
   height: 2px;
   border-radius: 999px;
   background: #a84bff;
-  box-shadow: 0 0 9px rgba(168, 75, 255, 0.85);
+  box-shadow:
+    0 0 9px
+    rgba(168, 75, 255, 0.85);
 }
 
 .toast {
   position: absolute;
   z-index: 20;
   left: 50%;
-  bottom: calc(88px + env(safe-area-inset-bottom));
+  bottom:
+    calc(
+      88px + env(safe-area-inset-bottom)
+    );
   width: max-content;
   max-width: calc(100% - 36px);
   padding: 11px 14px;
@@ -893,7 +1051,9 @@ button {
   border-radius: 12px;
   color: #dbd7e3;
   background: rgba(18, 14, 26, 0.96);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.38);
+  box-shadow:
+    0 15px 35px
+    rgba(0, 0, 0, 0.38);
   backdrop-filter: blur(16px);
   font-size: 10px;
   text-align: center;
@@ -924,6 +1084,7 @@ button {
     opacity: 0.8;
     transform: scale(0.7);
   }
+
   80%,
   100% {
     opacity: 0;
@@ -942,15 +1103,54 @@ button {
   48% {
     transform: translateX(-100%);
   }
+
   68%,
   100% {
     transform: translateX(100%);
   }
 }
 
+/* Телефони: повністю чорний фон системних областей */
+@media (max-width: 559px) {
+  html,
+  body,
+  .page-shell {
+    background: #020307 !important;
+    background-color: #020307 !important;
+  }
+
+  .ambient {
+    display: none !important;
+  }
+
+  .pulse-app {
+    min-height: 100vh;
+    min-height: 100svh;
+    background:
+      linear-gradient(
+        180deg,
+        #06070d 0%,
+        #020309 54%,
+        #05060c 100%
+      ) !important;
+  }
+}
+
+/* Комп’ютери та великі екрани */
 @media (min-width: 560px) {
+  body {
+    background:
+      radial-gradient(
+        circle at 50% -10%,
+        rgba(105, 37, 186, 0.13),
+        transparent 32rem
+      ),
+      #020307 !important;
+  }
+
   .page-shell {
     padding: 22px 0;
+    background: transparent;
   }
 
   .pulse-app {
@@ -983,15 +1183,14 @@ button {
   .signal-card {
     min-height: 151px;
     margin-top: 20px;
+    grid-template-columns:
+      94px
+      minmax(0, 1fr);
   }
 
   .radar {
     width: 92px;
     height: 92px;
-  }
-
-  .signal-card {
-    grid-template-columns: 94px minmax(0, 1fr);
   }
 }
 
