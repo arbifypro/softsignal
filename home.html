@@ -5,7 +5,7 @@
 
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
 
     <meta
@@ -13,16 +13,47 @@
       content="Головна панель платформи ARBIFY PULSE."
     />
 
-    <!-- Колір браузера та системної панелі -->
+    <!-- Чорний інтерфейс браузера на iPhone та Android -->
     <meta name="theme-color" content="#020307" />
+
+    <meta
+      name="theme-color"
+      content="#020307"
+      media="(prefers-color-scheme: light)"
+    />
+
+    <meta
+      name="theme-color"
+      content="#020307"
+      media="(prefers-color-scheme: dark)"
+    />
+
     <meta name="color-scheme" content="dark" />
 
-    <!-- Налаштування верхньої панелі iPhone -->
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="mobile-web-app-capable" content="yes" />
+    <meta
+      name="msapplication-navbutton-color"
+      content="#020307"
+    />
+
+    <!-- Запуск через іконку на iPhone -->
+    <meta
+      name="apple-mobile-web-app-capable"
+      content="yes"
+    />
+
+    <meta
+      name="mobile-web-app-capable"
+      content="yes"
+    />
+
     <meta
       name="apple-mobile-web-app-status-bar-style"
       content="black"
+    />
+
+    <meta
+      name="apple-mobile-web-app-title"
+      content="ARBIFY PULSE"
     />
 
     <title>ARBIFY PULSE — Головна</title>
@@ -34,17 +65,33 @@
     />
 
     <link
+      rel="manifest"
+      href="manifest.json"
+    />
+
+    <link
       rel="preload"
       href="assets/mythic-thunder.webp"
       as="image"
     />
 
-    <!-- Чорний фон застосовується ще до завантаження CSS -->
+    <!-- Чорний фон і блокування масштабування -->
     <style>
+      :root {
+        color-scheme: dark;
+        background-color: #020307;
+      }
+
       html,
       body {
         margin: 0;
+        min-width: 100%;
+        min-height: 100%;
+        background: #020307 !important;
         background-color: #020307 !important;
+        touch-action: pan-y;
+        -ms-touch-action: pan-y;
+        overscroll-behavior: none;
       }
     </style>
 
@@ -109,8 +156,13 @@
             </span>
 
             <div>
-              <p class="brand-name">ARBIFY</p>
-              <p class="brand-pulse">— PULSE —</p>
+              <p class="brand-name">
+                ARBIFY
+              </p>
+
+              <p class="brand-pulse">
+                — PULSE —
+              </p>
             </div>
           </div>
 
@@ -146,7 +198,9 @@
           <section class="access-card">
             <div class="access-card-top">
               <div>
-                <p class="micro-label">СТАТУС ДОСТУПУ</p>
+                <p class="micro-label">
+                  СТАТУС ДОСТУПУ
+                </p>
 
                 <p class="access-status">
                   <span class="live-dot"></span>
@@ -168,19 +222,31 @@
               </span>
 
               <p>
-                <strong>Pulse Core онлайн</strong>
-                <span>Система готова до аналізу</span>
+                <strong>
+                  Pulse Core онлайн
+                </strong>
+
+                <span>
+                  Система готова до аналізу
+                </span>
               </p>
 
-              <span class="online-pill">ONLINE</span>
+              <span class="online-pill">
+                ONLINE
+              </span>
             </div>
           </section>
 
           <section class="slots-section">
             <div class="section-title-row">
               <div>
-                <p class="eyebrow">ОБЕРИ ГРУ</p>
-                <h1>Популярні слоти</h1>
+                <p class="eyebrow">
+                  ОБЕРИ ГРУ
+                </p>
+
+                <h1>
+                  Популярні слоти
+                </h1>
               </div>
 
               <button
