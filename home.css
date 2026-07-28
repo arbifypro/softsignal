@@ -1227,3 +1227,27 @@ body::-webkit-scrollbar,
   height: 0;
   background: transparent;
 }
+
+/* Повністю статична головна сторінка без вертикального гортання */
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+
+body {
+  position: fixed;
+  inset: 0;
+}
+
+.page-shell,
+.pulse-app {
+  height: 100vh;
+  height: 100svh;
+  height: 100dvh;
+  min-height: 0 !important;
+  max-height: 100dvh;
+  overflow: hidden !important;
+}
