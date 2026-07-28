@@ -420,6 +420,187 @@
           </div>
         </div>
 
+        <!-- Вікно перевірки SUBID -->
+        <section
+          class="subid-modal"
+          id="subIdModal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="subIdModalTitle"
+          hidden
+        >
+          <div
+            class="subid-modal-backdrop"
+            aria-hidden="true"
+          ></div>
+
+          <div class="subid-dialog">
+            <button
+              class="subid-close-button"
+              id="subIdCloseButton"
+              type="button"
+              aria-label="Закрити перевірку SUBID"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              >
+                <path d="M6 6l12 12M18 6 6 18"></path>
+              </svg>
+            </button>
+
+            <div class="subid-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 32 32"
+                fill="none"
+              >
+                <path
+                  d="M12.5 18.5a6 6 0 1 1 4.4 3.4"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                ></path>
+
+                <path
+                  d="M17 17 27 7M22 7h5v5"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+              </svg>
+            </div>
+
+            <div
+              class="subid-form-view"
+              id="subIdFormView"
+            >
+              <p class="subid-kicker">
+                ПЕРЕВІРКА РЕЄСТРАЦІЇ
+              </p>
+
+              <h2 id="subIdModalTitle">
+                Введіть свій SUBID
+              </h2>
+
+              <p class="subid-description">
+                Вкажіть SUBID, який був доданий до вашого
+                персонального посилання на реєстрацію.
+              </p>
+
+              <form
+                class="subid-form"
+                id="subIdForm"
+                novalidate
+              >
+                <label
+                  class="subid-field"
+                  id="subIdField"
+                >
+                  <span class="sr-only">
+                    Ваш SUBID
+                  </span>
+
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle
+                      cx="8"
+                      cy="15.5"
+                      r="3.5"
+                    ></circle>
+
+                    <path
+                      d="m10.6 13 7.6-7.6M16 7.7l2.3 2.3M18.2 5.5l1.7 1.7"
+                    ></path>
+                  </svg>
+
+                  <input
+                    id="subIdInput"
+                    type="text"
+                    placeholder="Введіть ваш SUBID"
+                    maxlength="64"
+                    autocomplete="off"
+                    autocapitalize="off"
+                    spellcheck="false"
+                  />
+                </label>
+
+                <p
+                  class="subid-message"
+                  id="subIdMessage"
+                  aria-live="polite"
+                >
+                  &nbsp;
+                </p>
+
+                <button
+                  class="subid-verify-button"
+                  id="subIdVerifyButton"
+                  type="submit"
+                >
+                  <span class="subid-button-loader"></span>
+
+                  <span id="subIdVerifyText">
+                    ПЕРЕВІРИТИ SUBID
+                  </span>
+                </button>
+              </form>
+
+              <p class="subid-hint">
+                SUBID знаходиться в кінці вашого
+                реєстраційного посилання
+              </p>
+            </div>
+
+            <div
+              class="subid-success-view"
+              id="subIdSuccessView"
+              hidden
+            >
+              <div class="subid-success-check">
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 32 32"
+                  fill="none"
+                >
+                  <path
+                    d="m8.5 16.5 5 5 10-11"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>
+                </svg>
+              </div>
+
+              <p>
+                РЕЄСТРАЦІЮ ПІДТВЕРДЖЕНО
+              </p>
+
+              <h2>
+                Доступ дозволено
+              </h2>
+
+              <span>
+                Запускаємо аналіз вибраного слота
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Повноекранний процес сканування -->
         <section
           class="signal-overlay"
           id="signalOverlay"
