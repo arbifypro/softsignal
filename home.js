@@ -19,24 +19,32 @@ const toast = document.querySelector("#toast");
 const toastText = document.querySelector("#toastText");
 
 const subIdModal = document.querySelector("#subIdModal");
+
 const subIdModalBackdrop = document.querySelector(
   ".subid-modal-backdrop"
 );
+
 const subIdDialog = document.querySelector(".subid-dialog");
+
 const subIdCloseButton = document.querySelector(
   "#subIdCloseButton"
 );
+
 const subIdFormView = document.querySelector("#subIdFormView");
+
 const subIdSuccessView = document.querySelector(
   "#subIdSuccessView"
 );
+
 const subIdForm = document.querySelector("#subIdForm");
 const subIdField = document.querySelector("#subIdField");
 const subIdInput = document.querySelector("#subIdInput");
 const subIdMessage = document.querySelector("#subIdMessage");
+
 const subIdVerifyButton = document.querySelector(
   "#subIdVerifyButton"
 );
+
 const subIdVerifyText = document.querySelector(
   "#subIdVerifyText"
 );
@@ -246,7 +254,8 @@ function startSubIdVerification(subId) {
 
 function getSelectedSlot() {
   const selectedCard =
-    document.querySelector(".slot-card.is-selected") || slotCards[0];
+    document.querySelector(".slot-card.is-selected") ||
+    slotCards[0];
 
   const image = selectedCard.querySelector("img");
 
@@ -257,12 +266,17 @@ function getSelectedSlot() {
 }
 
 function randomItem(items) {
-  return items[Math.floor(Math.random() * items.length)];
+  return items[
+    Math.floor(
+      Math.random() * items.length
+    )
+  ];
 }
 
 function createSignal(slot) {
   const profile =
-    signalProfiles[slot.name] || signalProfiles["Thunder Crown"];
+    signalProfiles[slot.name] ||
+    signalProfiles["Thunder Crown"];
 
   return {
     slotName: slot.name,
@@ -285,10 +299,13 @@ function saveSignal(signal) {
 function setScanStage(percent) {
   const currentStage = [...scanStages]
     .reverse()
-    .find((stage) => percent >= stage.from);
+    .find((stage) => {
+      return percent >= stage.from;
+    });
 
   if (currentStage) {
-    scanStatus.textContent = currentStage.message;
+    scanStatus.textContent =
+      currentStage.message;
   }
 }
 
@@ -296,18 +313,28 @@ function prepareScan(slot) {
   selectedSlot = slot;
   activeSignal = null;
 
-  signalOverlayTitle.textContent = "НОВИЙ СИГНАЛ";
+  signalOverlayTitle.textContent =
+    "НОВИЙ СИГНАЛ";
+
   scanSlotImage.src = slot.image;
   scanSlotName.textContent = slot.name;
-  scanStatus.textContent = scanStages[0].message;
+
+  scanStatus.textContent =
+    scanStages[0].message;
+
   scanPercent.textContent = "0%";
   scanProgress.style.width = "0%";
 
   resultView.hidden = true;
   scanView.hidden = false;
 
-  signalOverlay.classList.remove("is-result");
-  signalOverlay.classList.add("is-scanning");
+  signalOverlay.classList.remove(
+    "is-result"
+  );
+
+  signalOverlay.classList.add(
+    "is-scanning"
+  );
 }
 
 function openSignalOverlay() {
@@ -315,10 +342,15 @@ function openSignalOverlay() {
   toast.classList.remove("is-visible");
 
   signalOverlay.hidden = false;
-  document.body.classList.add("signal-overlay-open");
+
+  document.body.classList.add(
+    "signal-overlay-open"
+  );
 
   window.requestAnimationFrame(() => {
-    signalOverlay.classList.add("is-open");
+    signalOverlay.classList.add(
+      "is-open"
+    );
   });
 }
 
@@ -339,7 +371,9 @@ function closeSignalOverlay() {
     "is-result"
   );
 
-  document.body.classList.remove("signal-overlay-open");
+  document.body.classList.remove(
+    "signal-overlay-open"
+  );
 
   window.setTimeout(() => {
     signalOverlay.hidden = true;
@@ -349,67 +383,118 @@ function closeSignalOverlay() {
 }
 
 function fillResult(signal) {
-  resultSlotImage.src = signal.slotImage;
-  resultSlotName.textContent = signal.slotName;
-  resultBet.textContent = signal.bet;
-  resultSpins.textContent = String(signal.spins);
-  resultDuration.textContent = signal.duration;
+  resultSlotImage.src =
+    signal.slotImage;
+
+  resultSlotName.textContent =
+    signal.slotName;
+
+  resultBet.textContent =
+    signal.bet;
+
+  resultSpins.textContent =
+    String(signal.spins);
+
+  resultDuration.textContent =
+    signal.duration;
 
   resultRisk.innerHTML = `
     <span></span>
     ${signal.risk}
   `;
 
-  resultRisk.dataset.level = signal.risk.toLowerCase();
+  resultRisk.dataset.level =
+    signal.risk.toLowerCase();
 }
 
 function showSignalResult() {
-  activeSignal = createSignal(selectedSlot);
+  activeSignal =
+    createSignal(selectedSlot);
+
   saveSignal(activeSignal);
   fillResult(activeSignal);
 
   scanPercent.textContent = "100%";
   scanProgress.style.width = "100%";
-  scanStatus.textContent = "Сигнал успішно сформовано";
 
-  resultRevealTimer = window.setTimeout(() => {
-    scanView.hidden = true;
-    resultView.hidden = false;
+  scanStatus.textContent =
+    "Сигнал успішно сформовано";
 
-    signalOverlayTitle.textContent = "СИГНАЛ ГОТОВИЙ";
-    signalOverlay.classList.remove("is-scanning");
-    signalOverlay.classList.add("is-result");
-  }, RESULT_REVEAL_DELAY);
+  resultRevealTimer =
+    window.setTimeout(() => {
+      scanView.hidden = true;
+      resultView.hidden = false;
+
+      signalOverlayTitle.textContent =
+        "СИГНАЛ ГОТОВИЙ";
+
+      signalOverlay.classList.remove(
+        "is-scanning"
+      );
+
+      signalOverlay.classList.add(
+        "is-result"
+      );
+    }, RESULT_REVEAL_DELAY);
 }
 
 function runScan() {
   stopScanning();
 
-  const startedAt = performance.now();
+  const startedAt =
+    performance.now();
 
   function updateScan(currentTime) {
-    const elapsed = currentTime - startedAt;
-    const rawProgress = Math.min(elapsed / SCAN_DURATION, 1);
-    const easedProgress = 1 - Math.pow(1 - rawProgress, 1.45);
+    const elapsed =
+      currentTime - startedAt;
 
-    const percent = Math.min(
-      Math.floor(easedProgress * 100),
-      rawProgress < 1 ? 99 : 100
-    );
+    const rawProgress =
+      Math.min(
+        elapsed / SCAN_DURATION,
+        1
+      );
 
-    scanPercent.textContent = `${percent}%`;
-    scanProgress.style.width = `${percent}%`;
+    const easedProgress =
+      1 -
+      Math.pow(
+        1 - rawProgress,
+        1.45
+      );
+
+    const percent =
+      Math.min(
+        Math.floor(
+          easedProgress * 100
+        ),
+        rawProgress < 1
+          ? 99
+          : 100
+      );
+
+    scanPercent.textContent =
+      `${percent}%`;
+
+    scanProgress.style.width =
+      `${percent}%`;
+
     setScanStage(percent);
 
     if (rawProgress < 1) {
-      scanFrame = window.requestAnimationFrame(updateScan);
+      scanFrame =
+        window.requestAnimationFrame(
+          updateScan
+        );
+
       return;
     }
 
     showSignalResult();
   }
 
-  scanFrame = window.requestAnimationFrame(updateScan);
+  scanFrame =
+    window.requestAnimationFrame(
+      updateScan
+    );
 }
 
 function startSignalFlow() {
@@ -423,153 +508,245 @@ function startSignalFlow() {
 slotCards.forEach((card) => {
   card.addEventListener("click", () => {
     slotCards.forEach((item) => {
-      item.classList.remove("is-selected");
+      item.classList.remove(
+        "is-selected"
+      );
     });
 
-    card.classList.add("is-selected");
-    selectedSlot = getSelectedSlot();
+    card.classList.add(
+      "is-selected"
+    );
 
-    showToast(`${selectedSlot.name} обрано`);
+    selectedSlot =
+      getSelectedSlot();
+
+    showToast(
+      `${selectedSlot.name} обрано`
+    );
   });
 });
 
-signalButton.addEventListener("click", () => {
-  const verifiedSubId = sessionStorage.getItem(
-    SUBID_STORAGE_KEY
-  );
+signalButton.addEventListener(
+  "click",
+  () => {
+    const verifiedSubId =
+      sessionStorage.getItem(
+        SUBID_STORAGE_KEY
+      );
 
-  if (verifiedSubId) {
-    startSignalFlow();
-    return;
+    if (verifiedSubId) {
+      startSignalFlow();
+      return;
+    }
+
+    openSubIdModal();
   }
+);
 
-  openSubIdModal();
-});
-
-subIdInput.addEventListener("input", () => {
-  subIdField.classList.remove("has-error");
-  subIdMessage.innerHTML = "&nbsp;";
-});
-
-subIdForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-
-  if (subIdVerifyButton.disabled) {
-    return;
-  }
-
-  const subId = normalizeSubId(
-    subIdInput.value
-  );
-
-  subIdInput.value = subId;
-
-  if (!subId) {
-    showSubIdError(
-      "Введіть свій SUBID для перевірки"
+subIdInput.addEventListener(
+  "input",
+  () => {
+    subIdField.classList.remove(
+      "has-error"
     );
 
-    return;
+    subIdMessage.innerHTML =
+      "&nbsp;";
   }
+);
 
-  startSubIdVerification(subId);
-});
+subIdForm.addEventListener(
+  "submit",
+  (event) => {
+    event.preventDefault();
 
-subIdCloseButton.addEventListener("click", () => {
-  closeSubIdModal();
-});
+    if (
+      subIdVerifyButton.disabled
+    ) {
+      return;
+    }
 
-subIdModalBackdrop.addEventListener("click", () => {
-  closeSubIdModal();
-});
+    const subId =
+      normalizeSubId(
+        subIdInput.value
+      );
 
-signalBackButton.addEventListener("click", () => {
-  closeSignalOverlay();
-});
+    subIdInput.value = subId;
 
-resultNewButton.addEventListener("click", () => {
-  prepareScan(getSelectedSlot());
-  runScan();
-});
+    if (!subId) {
+      showSubIdError(
+        "Введіть свій SUBID для перевірки"
+      );
 
-resultActionButton.addEventListener("click", () => {
-  if (!activeSignal) {
-    return;
+      return;
+    }
+
+    startSubIdVerification(subId);
   }
+);
 
-  const message =
-    `Сигнал для ${activeSignal.slotName} активовано на ` +
-    activeSignal.duration;
+subIdCloseButton.addEventListener(
+  "click",
+  () => {
+    closeSubIdModal();
+  }
+);
 
-  closeSignalOverlay();
+subIdModalBackdrop.addEventListener(
+  "click",
+  () => {
+    closeSubIdModal();
+  }
+);
 
-  window.setTimeout(() => {
-    showToast(message);
-  }, 240);
-});
+signalBackButton.addEventListener(
+  "click",
+  () => {
+    closeSignalOverlay();
+  }
+);
 
-notificationButton.addEventListener("click", () => {
-  showToast("Нових сповіщень поки немає");
-});
+resultNewButton.addEventListener(
+  "click",
+  () => {
+    prepareScan(
+      getSelectedSlot()
+    );
 
-allSlotsButton.addEventListener("click", () => {
-  showToast("Повний каталог додамо пізніше");
-});
+    runScan();
+  }
+);
 
+resultActionButton.addEventListener(
+  "click",
+  () => {
+    if (!activeSignal) {
+      return;
+    }
+
+    const message =
+      `Сигнал для ${activeSignal.slotName} активовано на ` +
+      activeSignal.duration;
+
+    closeSignalOverlay();
+
+    window.setTimeout(() => {
+      showToast(message);
+    }, 240);
+  }
+);
+
+notificationButton.addEventListener(
+  "click",
+  () => {
+    showToast(
+      "Нових сповіщень поки немає"
+    );
+  }
+);
+
+allSlotsButton.addEventListener(
+  "click",
+  () => {
+    showToast(
+      "Повний каталог додамо пізніше"
+    );
+  }
+);
+
+/*
+ * Нижня навігація.
+ * Кнопка «Сигнали» відкриває LIVE-стрічку.
+ */
 navItems.forEach((item) => {
   item.addEventListener("click", () => {
-    const sectionName = item.dataset.section;
+    const sectionName =
+      item.dataset.section;
 
-    if (sectionName !== "Головна") {
-      showToast(`Розділ «${sectionName}» готується`);
+    if (
+      sectionName === "Сигнали"
+    ) {
+      window.location.href =
+        "signals.html";
+
+      return;
+    }
+
+    if (
+      sectionName !== "Головна"
+    ) {
+      showToast(
+        `Розділ «${sectionName}» готується`
+      );
     }
   });
 });
 
-document.addEventListener("keydown", (event) => {
-  if (
-    event.key === "Escape" &&
-    !subIdModal.hidden
-  ) {
-    closeSubIdModal();
-    return;
-  }
+document.addEventListener(
+  "keydown",
+  (event) => {
+    if (
+      event.key === "Escape" &&
+      !subIdModal.hidden
+    ) {
+      closeSubIdModal();
+      return;
+    }
 
-  if (
-    event.key === "Escape" &&
-    !signalOverlay.hidden
-  ) {
-    closeSignalOverlay();
+    if (
+      event.key === "Escape" &&
+      !signalOverlay.hidden
+    ) {
+      closeSignalOverlay();
+    }
   }
-});
+);
 
-window.addEventListener("beforeunload", () => {
-  window.clearTimeout(toastTimer);
-  window.clearTimeout(subIdVerifyTimer);
-  window.clearTimeout(subIdSuccessTimer);
-  window.clearTimeout(subIdCloseTimer);
-  stopScanning();
-});
+window.addEventListener(
+  "beforeunload",
+  () => {
+    window.clearTimeout(
+      toastTimer
+    );
+
+    window.clearTimeout(
+      subIdVerifyTimer
+    );
+
+    window.clearTimeout(
+      subIdSuccessTimer
+    );
+
+    window.clearTimeout(
+      subIdCloseTimer
+    );
+
+    stopScanning();
+  }
+);
 
 /*
  * Реальна висота екрана під час відкритої клавіатури.
  * Потрібно для iPhone Safari та Telegram WebView.
  */
 function syncSubIdVisualViewport() {
-  const viewport = window.visualViewport;
+  const viewport =
+    window.visualViewport;
 
   const viewportHeight =
-    viewport?.height || window.innerHeight;
+    viewport?.height ||
+    window.innerHeight;
 
   const viewportTop =
     viewport?.offsetTop || 0;
 
-  const coveredHeight = Math.max(
-    0,
-    window.innerHeight -
-      viewportHeight -
-      viewportTop
-  );
+  const coveredHeight =
+    Math.max(
+      0,
+      window.innerHeight -
+        viewportHeight -
+        viewportTop
+    );
 
   document.documentElement.style.setProperty(
     "--subid-visual-height",
