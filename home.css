@@ -3266,3 +3266,213 @@ body.subid-modal-open .bottom-nav {
       scale(1);
   }
 }
+
+/* =========================================================
+   FIX: стабільна анімація SUBID для iPhone Safari
+   ========================================================= */
+
+.subid-modal {
+  isolation: isolate;
+}
+
+.subid-modal-backdrop {
+  position: absolute;
+}
+
+.subid-dialog {
+  filter: none !important;
+  -webkit-filter: none !important;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translate3d(0, 34px, 0) scale(0.91);
+}
+
+.subid-modal.is-open .subid-dialog {
+  filter: none !important;
+  -webkit-filter: none !important;
+  animation:
+    subIdDialogEntranceStable
+    620ms
+    cubic-bezier(0.16, 0.84, 0.26, 1.08)
+    both !important;
+}
+
+.subid-close-button,
+.subid-icon,
+.subid-kicker,
+.subid-form-view h2,
+.subid-description,
+.subid-form,
+.subid-hint {
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+.subid-modal.is-open .subid-close-button {
+  animation:
+    subIdItemEntranceStable
+    360ms
+    300ms
+    ease-out
+    both !important;
+}
+
+.subid-modal.is-open .subid-icon {
+  animation:
+    subIdIconEntranceStable
+    560ms
+    150ms
+    cubic-bezier(0.16, 0.84, 0.26, 1.12)
+    both !important;
+}
+
+.subid-modal.is-open .subid-kicker {
+  animation:
+    subIdItemEntranceStable
+    420ms
+    230ms
+    ease-out
+    both !important;
+}
+
+.subid-modal.is-open .subid-form-view h2 {
+  animation:
+    subIdItemEntranceStable
+    440ms
+    285ms
+    ease-out
+    both !important;
+}
+
+.subid-modal.is-open .subid-description {
+  animation:
+    subIdItemEntranceStable
+    440ms
+    335ms
+    ease-out
+    both !important;
+}
+
+.subid-modal.is-open .subid-form {
+  animation:
+    subIdItemEntranceStable
+    460ms
+    385ms
+    ease-out
+    both !important;
+}
+
+.subid-modal.is-open .subid-hint {
+  animation:
+    subIdItemEntranceStable
+    440ms
+    445ms
+    ease-out
+    both !important;
+}
+
+.subid-dialog::before {
+  background:
+    radial-gradient(
+      circle,
+      rgba(153, 61, 255, 0.2),
+      rgba(153, 61, 255, 0.07) 45%,
+      transparent 72%
+    );
+  filter: none !important;
+  -webkit-filter: none !important;
+  animation: none !important;
+  opacity: 0.9;
+  transform: translate3d(-50%, 0, 0);
+}
+
+.subid-field,
+.subid-field input,
+.subid-verify-button,
+.subid-verify-button span {
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+@keyframes subIdDialogEntranceStable {
+  0% {
+    opacity: 0;
+    transform:
+      translate3d(0, 34px, 0)
+      scale(0.91);
+  }
+
+  68% {
+    opacity: 1;
+    transform:
+      translate3d(0, -4px, 0)
+      scale(1.012);
+  }
+
+  100% {
+    opacity: 1;
+    transform:
+      translate3d(0, 0, 0)
+      scale(1);
+  }
+}
+
+@keyframes subIdIconEntranceStable {
+  0% {
+    opacity: 0;
+    transform:
+      translate3d(0, 13px, 0)
+      rotate(-7deg)
+      scale(0.68);
+  }
+
+  70% {
+    opacity: 1;
+    transform:
+      translate3d(0, -2px, 0)
+      rotate(2deg)
+      scale(1.06);
+  }
+
+  100% {
+    opacity: 1;
+    transform:
+      translate3d(0, 0, 0)
+      rotate(0)
+      scale(1);
+  }
+}
+
+@keyframes subIdItemEntranceStable {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 11px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.subid-modal.is-open .subid-dialog:focus-within {
+  filter: none !important;
+  -webkit-filter: none !important;
+  animation: none !important;
+  opacity: 1;
+  transform:
+    translate3d(
+      0,
+      clamp(-70px, -7vh, -34px),
+      0
+    )
+    scale(1);
+}
+
+@media (max-height: 650px) {
+  .subid-modal.is-open .subid-dialog:focus-within {
+    transform:
+      translate3d(0, 0, 0)
+      scale(1);
+  }
+}
