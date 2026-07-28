@@ -625,3 +625,85 @@ footer {
     display: none;
   }
 }
+
+/* Ідеальне центрування логотипа при відкритій клавіатурі */
+@media (max-width: 760px) {
+  body:has(#accessKey:focus) .brand {
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    padding:
+      max(16px, env(safe-area-inset-top))
+      20px
+      8px;
+    overflow: visible;
+    transform: none !important;
+  }
+
+  body:has(#accessKey:focus) .brand-emblem {
+    width: 34px;
+    height: 27px;
+    margin: 0 auto;
+  }
+
+  body:has(#accessKey:focus) .crown-mark {
+    display: block;
+    width: 32px;
+    margin: 0 auto;
+  }
+
+  body:has(#accessKey:focus) .brand-copy {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    flex-direction: column;
+    overflow: visible;
+    text-align: center;
+    transform: none !important;
+  }
+
+  body:has(#accessKey:focus) .brand-name {
+    display: block;
+    width: 100%;
+    margin: 4px 0 0;
+    padding-left: 0.16em;
+    font-size: 27px;
+    line-height: 1.1;
+    letter-spacing: 0.16em;
+    text-align: center;
+    text-indent: 0;
+    white-space: nowrap;
+  }
+
+  body:has(#accessKey:focus) .brand-subline {
+    width: 100%;
+    justify-content: center;
+    margin-top: 6px;
+  }
+
+  body:has(#accessKey:focus) .brand-subline span {
+    width: 30px;
+    flex: 0 0 30px;
+  }
+
+  body:has(#accessKey:focus) .brand-tag {
+    display: block;
+    width: 100%;
+    margin-top: 5px;
+    padding-left: 0.18em;
+    font-size: 7px;
+    text-align: center;
+    text-indent: 0;
+  }
+
+  body:has(#accessKey:focus) .hero-visual {
+    display: none !important;
+  }
+
+  body:has(#accessKey:focus) .access-panel {
+    padding:
+      34px
+      24px
+      8px;
+  }
+}
