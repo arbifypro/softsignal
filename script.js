@@ -317,9 +317,11 @@ accessForm.addEventListener("submit", async (event) => {
     "false"
   );
 
-  startVerification();
+  accessKey.blur();
+ resetPagePosition();
+ startVerification();
 
-  const result = await verifyAccessKey(key);
+ const result = await verifyAccessKey(key);
 
   if (result.valid) {
     finishVerification();
