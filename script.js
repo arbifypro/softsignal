@@ -30,6 +30,7 @@ const supportPopover = document.querySelector("#supportPopover");
 const footer = document.querySelector("footer");
 
 let verificationTimer;
+let stableAppHeight = window.innerHeight;
 
 function preventPageZoom() {
   const preventGesture = (event) => {
@@ -46,8 +47,8 @@ function preventPageZoom() {
   });
 
   /*
-   * Блокує масштабування двома пальцями на iPhone та Android.
-   * Вертикальна прокрутка одним пальцем залишається доступною.
+   * Блокує масштабування двома пальцями
+   * на iPhone та Android.
    */
   document.addEventListener(
     "touchmove",
@@ -99,12 +100,24 @@ function preventPageZoom() {
   );
 }
 
+function resetPagePosition() {
+  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+}
+
 function setAppHeight() {
-  const height = window.visualViewport?.height || window.innerHeight;
+  /*
+   * Коли поле активне, клавіатура не повинна
+   * змінювати зафіксовану висоту застосунку.
+   */
+  if (document.activeElement !== accessKey) {
+    stableAppHeight = window.innerHeight;
+  }
 
   document.documentElement.style.setProperty(
     "--app-height",
-    `${height}px`
+    `${stableAppHeight}px`
   );
 }
 
@@ -117,7 +130,11 @@ function normalizeKey(value) {
 }
 
 function clearMessage() {
-  keyField.classList.remove("has-error", "is-validating");
+  keyField.classList.remove(
+    "has-error",
+    "is-validating"
+  );
+
   formMessage.innerHTML = "&nbsp;";
 }
 
@@ -137,7 +154,12 @@ function showKeyError(message) {
 
   keyField.classList.add("has-error");
   formMessage.textContent = message;
-  accessKey.focus();
+
+  accessKey.focus({
+    preventScroll: true,
+  });
+
+  resetPagePosition();
 }
 
 function startVerification() {
@@ -145,6 +167,7 @@ function startVerification() {
 
   keyField.classList.add("is-validating");
   app.classList.add("is-checking");
+
   accessButton.disabled = true;
 
   accessButton.innerHTML = `
@@ -161,7 +184,10 @@ function finishVerification() {
   accessPanel.hidden = true;
   successPanel.hidden = false;
 
-  sessionStorage.setItem("arbifyAccess", "granted");
+  /*
+   * Автоматичного переходу тут більше немає.
+   * Перехід виконається лише після натискання кнопки.
+   */
 }
 
 function verifyAccessKey(key) {
@@ -232,7 +258,9 @@ accessKey.addEventListener("input", () => {
 
   const length = normalizedValue.length;
 
-  keyLength.textContent = length ? `${length}/32` : "";
+  keyLength.textContent = length
+    ? `${length}/32`
+    : "";
 
   keyField.classList.toggle(
     "has-value",
@@ -242,15 +270,29 @@ accessKey.addEventListener("input", () => {
   clearMessage();
 });
 
+/*
+ * Не прокручуємо сторінку до поля.
+ * Після відкриття клавіатури повертаємо сторінку на початок.
+ */
 accessKey.addEventListener("focus", () => {
-  if (window.innerWidth <= 760) {
-    window.setTimeout(() => {
-      accessPanel.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-    }, 280);
-  }
+  resetPagePosition();
+
+  window.setTimeout(
+    resetPagePosition,
+    80
+  );
+
+  window.setTimeout(
+    resetPagePosition,
+    350
+  );
+});
+
+accessKey.addEventListener("blur", () => {
+  window.setTimeout(() => {
+    resetPagePosition();
+    setAppHeight();
+  }, 400);
 });
 
 accessForm.addEventListener("submit", async (event) => {
@@ -261,7 +303,10 @@ accessForm.addEventListener("submit", async (event) => {
   accessKey.value = key;
 
   if (key.length !== 6) {
-    showKeyError("Ключ має складатися з 6 символів");
+    showKeyError(
+      "Ключ має складатися з 6 символів"
+    );
+
     return;
   }
 
@@ -317,7 +362,11 @@ resetButton.addEventListener("click", () => {
   successPanel.hidden = true;
   accessPanel.hidden = false;
 
-  accessKey.focus();
+  resetPagePosition();
+
+  accessKey.focus({
+    preventScroll: true,
+  });
 });
 
 continueButton.addEventListener("click", () => {
@@ -340,20 +389,37 @@ supportButton.addEventListener("click", () => {
   );
 });
 
+/*
+ * Не дозволяємо браузеру зрушувати документ.
+ */
 window.addEventListener(
-  "resize",
-  setAppHeight
+  "scroll",
+  resetPagePosition,
+  {
+    passive: true,
+  }
 );
 
-window.visualViewport?.addEventListener(
-  "resize",
-  setAppHeight
-);
+window.addEventListener("resize", () => {
+  setAppHeight();
+  resetPagePosition();
+});
+
+window.addEventListener("orientationchange", () => {
+  accessKey.blur();
+
+  window.setTimeout(() => {
+    stableAppHeight = window.innerHeight;
+    setAppHeight();
+    resetPagePosition();
+  }, 400);
+});
 
 preventPageZoom();
 configureSupport();
 addResponsibleNotice();
 setAppHeight();
+resetPagePosition();
 
 window.requestAnimationFrame(() => {
   window.requestAnimationFrame(() => {
