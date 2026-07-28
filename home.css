@@ -1210,3 +1210,20 @@ button {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Приховуємо смугу прокрутки, але залишаємо саму прокрутку */
+html,
+body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.page-shell::-webkit-scrollbar,
+.pulse-app::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  background: transparent;
+}
