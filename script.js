@@ -11,6 +11,7 @@ const TELEGRAM_USERNAME = "YOUR_USERNAME";
  * Справжню перевірку ключа пізніше підключимо через серверне API.
  */
 const DEMO_VERIFY_DELAY = 1650;
+const VALID_ACCESS_KEY = "K7X4Q9";
 
 const app = document.querySelector(".signal-app");
 const accessForm = document.querySelector("#accessForm");
@@ -81,23 +82,33 @@ function finishVerification() {
   successPanel.hidden = false;
 }
 
-function verifyAccessKey(key) {
-  /*
-   * ДЕМО: зараз приймається будь-який ключ довжиною від 6 символів.
-   * Пізніше тут буде запит до API:
-   *
-   * return fetch("/api/verify-key", {
-   *   method: "POST",
-   *   headers: { "Content-Type": "application/json" },
-   *   body: JSON.stringify({ key }),
-   * }).then((response) => response.json());
-   */
-  return new Promise((resolve) => {
-    verificationTimer = window.setTimeout(() => {
-      resolve({ valid: key.length >= 6 });
-    }, DEMO_VERIFY_DELAY);
-  });
-}
+document.addEventListener('DOMContentLoaded', () => {
+    const loginBtn = document.getElementById('login-btn');
+    const keyInput = document.getElementById('access-key');
+
+    // Обробка натискання на кнопку "УВІЙТИ"
+    loginBtn.addEventListener('click', () => {
+        const key = keyInput.value.trim();
+
+        if (key === '') {
+            // Анімація для порожнього поля
+            keyInput.style.borderColor = '#EF4444';
+            setTimeout(() => {
+                keyInput.style.borderColor = '#2e2e48';
+            }, 1500);
+        } else {
+            // Тимчасова імітація успішного входу
+            loginBtn.innerText = 'ВХІД...';
+            loginBtn.style.opacity = '0.7';
+            
+            setTimeout(() => {
+                alert('Успішний вхід! Зараз тут відкриється Головна сторінка.');
+                loginBtn.innerText = 'УВІЙТИ';
+                loginBtn.style.opacity = '1';
+            }, 1000);
+        }
+    });
+});
 
 function configureSupport() {
   const usernameConfigured =
