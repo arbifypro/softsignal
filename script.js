@@ -6,8 +6,13 @@
  */
 const TELEGRAM_USERNAME = "YOUR_USERNAME";
 
+/*
+ * Це поки демонстраційна перевірка інтерфейсу.
+ * Справжню перевірку ключа пізніше підключимо через серверне API.
+ */
 const DEMO_VERIFY_DELAY = 1650;
 const VALID_ACCESS_KEY = "K7X4Q9";
+const HOME_PAGE = "home.html";
 
 const app = document.querySelector(".signal-app");
 const accessForm = document.querySelector("#accessForm");
@@ -19,6 +24,7 @@ const keyField = document.querySelector("#keyField");
 const keyLength = document.querySelector("#keyLength");
 const formMessage = document.querySelector("#formMessage");
 const resetButton = document.querySelector("#resetButton");
+const continueButton = document.querySelector("#continueButton");
 const supportButton = document.querySelector("#supportButton");
 const supportPopover = document.querySelector("#supportPopover");
 const footer = document.querySelector("footer");
@@ -27,11 +33,7 @@ let verificationTimer;
 
 function setAppHeight() {
   const height = window.visualViewport?.height || window.innerHeight;
-
-  document.documentElement.style.setProperty(
-    "--app-height",
-    `${height}px`
-  );
+  document.documentElement.style.setProperty("--app-height", `${height}px`);
 }
 
 function normalizeKey(value) {
@@ -57,9 +59,7 @@ function restoreAccessButton() {
 
 function showKeyError(message) {
   keyField.classList.remove("has-error");
-
   void keyField.offsetWidth;
-
   keyField.classList.add("has-error");
   formMessage.textContent = message;
   accessKey.focus();
@@ -67,11 +67,9 @@ function showKeyError(message) {
 
 function startVerification() {
   clearMessage();
-
   keyField.classList.add("is-validating");
   app.classList.add("is-checking");
   accessButton.disabled = true;
-
   accessButton.innerHTML = `
     <span class="button-loader"></span>
     <span>ПЕРЕВІРЯЄМО КЛЮЧ</span>
@@ -82,26 +80,27 @@ function finishVerification() {
   keyField.classList.remove("is-validating");
   app.classList.remove("is-checking");
   app.classList.add("is-success");
-
   accessPanel.hidden = true;
   successPanel.hidden = false;
+
+  sessionStorage.setItem("arbifyAccess", "granted");
+
+  verificationTimer = window.setTimeout(() => {
+    window.location.href = HOME_PAGE;
+  }, 900);
 }
 
 function verifyAccessKey(key) {
   return new Promise((resolve) => {
     verificationTimer = window.setTimeout(() => {
-      resolve({
-        valid: key === VALID_ACCESS_KEY,
-      });
+      resolve({ valid: key === VALID_ACCESS_KEY });
     }, DEMO_VERIFY_DELAY);
   });
 }
 
 function configureSupport() {
   const usernameConfigured =
-    TELEGRAM_USERNAME &&
-    TELEGRAM_USERNAME !== "YOUR_USERNAME";
-
+    TELEGRAM_USERNAME && TELEGRAM_USERNAME !== "YOUR_USERNAME";
   const telegramUrl = usernameConfigured
     ? `https://t.me/${TELEGRAM_USERNAME.replace("@", "")}`
     : "#";
@@ -111,7 +110,6 @@ function configureSupport() {
       Не можеш увійти? Напиши менеджеру — він допоможе отримати
       або відновити ключ.
     </p>
-
     <a
       class="telegram-button"
       id="telegramSupportLink"
@@ -123,14 +121,11 @@ function configureSupport() {
     </a>
   `;
 
-  const telegramSupportLink = document.querySelector(
-    "#telegramSupportLink"
-  );
+  const telegramSupportLink = document.querySelector("#telegramSupportLink");
 
   if (!usernameConfigured) {
     telegramSupportLink.addEventListener("click", (event) => {
       event.preventDefault();
-
       supportPopover.querySelector("p").textContent =
         "Спочатку вкажи username менеджера у файлі script.js.";
     });
@@ -139,10 +134,8 @@ function configureSupport() {
 
 function addResponsibleNotice() {
   const notice = document.createElement("p");
-
   notice.className = "responsible-note";
   notice.textContent = "18+ · Грай відповідально";
-
   footer.appendChild(notice);
 }
 
@@ -154,20 +147,15 @@ accessKey.addEventListener("input", () => {
   }
 
   const length = normalizedValue.length;
-
   keyLength.textContent = length ? `${length}/32` : "";
   keyField.classList.toggle("has-value", length > 0);
-
   clearMessage();
 });
 
 accessKey.addEventListener("focus", () => {
   if (window.innerWidth <= 760) {
     window.setTimeout(() => {
-      accessPanel.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
+      accessPanel.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 280);
   }
 });
@@ -185,7 +173,6 @@ accessForm.addEventListener("submit", async (event) => {
 
   supportPopover.hidden = true;
   supportButton.setAttribute("aria-expanded", "false");
-
   startVerification();
 
   const result = await verifyAccessKey(key);
@@ -197,54 +184,36 @@ accessForm.addEventListener("submit", async (event) => {
 
   app.classList.remove("is-checking");
   keyField.classList.remove("is-validating");
-
   restoreAccessButton();
-
-  showKeyError(
-    "Цей ключ не знайдено або його термін дії завершився"
-  );
+  showKeyError("Цей ключ не знайдено або його термін дії завершився");
 });
 
 resetButton.addEventListener("click", () => {
   window.clearTimeout(verificationTimer);
-
   accessKey.value = "";
   keyLength.textContent = "";
   formMessage.innerHTML = "&nbsp;";
-
-  keyField.classList.remove(
-    "has-error",
-    "has-value",
-    "is-validating"
-  );
-
+  keyField.classList.remove("has-error", "has-value", "is-validating");
   app.classList.remove("is-checking", "is-success");
-
   restoreAccessButton();
-
   successPanel.hidden = true;
   accessPanel.hidden = false;
-
   accessKey.focus();
+});
+
+continueButton.addEventListener("click", () => {
+  sessionStorage.setItem("arbifyAccess", "granted");
+  window.location.href = HOME_PAGE;
 });
 
 supportButton.addEventListener("click", () => {
   const willOpen = supportPopover.hidden;
-
   supportPopover.hidden = !willOpen;
-
-  supportButton.setAttribute(
-    "aria-expanded",
-    String(willOpen)
-  );
+  supportButton.setAttribute("aria-expanded", String(willOpen));
 });
 
 window.addEventListener("resize", setAppHeight);
-
-window.visualViewport?.addEventListener(
-  "resize",
-  setAppHeight
-);
+window.visualViewport?.addEventListener("resize", setAppHeight);
 
 configureSupport();
 addResponsibleNotice();
