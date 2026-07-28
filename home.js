@@ -550,3 +550,93 @@ window.addEventListener("beforeunload", () => {
   window.clearTimeout(subIdCloseTimer);
   stopScanning();
 });
+
+/*
+ * Реальна висота екрана під час відкритої клавіатури.
+ * Потрібно для iPhone Safari та Telegram WebView.
+ */
+function syncSubIdVisualViewport() {
+  const viewport = window.visualViewport;
+
+  const viewportHeight =
+    viewport?.height || window.innerHeight;
+
+  const viewportTop =
+    viewport?.offsetTop || 0;
+
+  const coveredHeight = Math.max(
+    0,
+    window.innerHeight -
+      viewportHeight -
+      viewportTop
+  );
+
+  document.documentElement.style.setProperty(
+    "--subid-visual-height",
+    `${viewportHeight}px`
+  );
+
+  document.documentElement.style.setProperty(
+    "--subid-visual-top",
+    `${viewportTop}px`
+  );
+
+  const keyboardIsOpen =
+    !subIdModal.hidden &&
+    coveredHeight >
+      Math.max(
+        120,
+        window.innerHeight * 0.18
+      );
+
+  document.body.classList.toggle(
+    "subid-keyboard-open",
+    keyboardIsOpen
+  );
+}
+
+function scheduleSubIdViewportSync() {
+  syncSubIdVisualViewport();
+
+  window.setTimeout(
+    syncSubIdVisualViewport,
+    80
+  );
+
+  window.setTimeout(
+    syncSubIdVisualViewport,
+    260
+  );
+
+  window.setTimeout(
+    syncSubIdVisualViewport,
+    420
+  );
+}
+
+subIdInput.addEventListener(
+  "focus",
+  scheduleSubIdViewportSync
+);
+
+subIdInput.addEventListener(
+  "blur",
+  scheduleSubIdViewportSync
+);
+
+window.visualViewport?.addEventListener(
+  "resize",
+  syncSubIdVisualViewport
+);
+
+window.visualViewport?.addEventListener(
+  "scroll",
+  syncSubIdVisualViewport
+);
+
+window.addEventListener(
+  "orientationchange",
+  scheduleSubIdViewportSync
+);
+
+syncSubIdVisualViewport();
