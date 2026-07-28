@@ -1,3 +1,18 @@
+"use strict";
+
+/*
+ * Вкажи username менеджера БЕЗ символу @.
+ * Приклад: const TELEGRAM_USERNAME = "arbify_support";
+ */
+const TELEGRAM_USERNAME = "YOUR_USERNAME";
+
+/*
+ * Це поки демонстраційна перевірка інтерфейсу.
+ * Справжню перевірку ключа пізніше підключимо через серверне API.
+ */
+const DEMO_VERIFY_DELAY = 1650;
+
+const app = document.querySelector(".signal-app");
 const accessForm = document.querySelector("#accessForm");
 const accessPanel = document.querySelector("#accessPanel");
 const successPanel = document.querySelector("#successPanel");
@@ -9,54 +24,179 @@ const formMessage = document.querySelector("#formMessage");
 const resetButton = document.querySelector("#resetButton");
 const supportButton = document.querySelector("#supportButton");
 const supportPopover = document.querySelector("#supportPopover");
+const footer = document.querySelector("footer");
 
 let verificationTimer;
 
-accessKey.addEventListener("input", () => {
-  const length = accessKey.value.length;
-  keyLength.textContent = length ? `${length}/32` : "";
-  keyField.classList.remove("has-error");
+function setAppHeight() {
+  const height = window.visualViewport?.height || window.innerHeight;
+  document.documentElement.style.setProperty("--app-height", `${height}px`);
+}
+
+function normalizeKey(value) {
+  return value
+    .toUpperCase()
+    .replace(/\s+/g, "")
+    .replace(/[^A-ZА-ЯІЇЄҐ0-9-]/g, "")
+    .slice(0, 32);
+}
+
+function clearMessage() {
+  keyField.classList.remove("has-error", "is-validating");
   formMessage.innerHTML = "&nbsp;";
-});
+}
 
-accessForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const key = accessKey.value.trim();
-
-  if (key.length < 6) {
-    keyField.classList.remove("has-error");
-    void keyField.offsetWidth;
-    keyField.classList.add("has-error");
-    formMessage.textContent =
-      "Введи коректний ключ — щонайменше 6 символів";
-    accessKey.focus();
-    return;
-  }
-
-  accessButton.disabled = true;
-  accessButton.innerHTML =
-    '<span class="button-loader"></span><span>ПЕРЕВІРЯЄМО КЛЮЧ</span>';
-  supportPopover.hidden = true;
-  supportButton.setAttribute("aria-expanded", "false");
-
-  clearTimeout(verificationTimer);
-  verificationTimer = setTimeout(() => {
-    accessPanel.hidden = true;
-    successPanel.hidden = false;
-  }, 1450);
-});
-
-resetButton.addEventListener("click", () => {
-  clearTimeout(verificationTimer);
-  accessKey.value = "";
-  keyLength.textContent = "";
-  formMessage.innerHTML = "&nbsp;";
-  keyField.classList.remove("has-error");
+function restoreAccessButton() {
   accessButton.disabled = false;
   accessButton.innerHTML = `
     <span class="button-sheen"></span>
     <span class="button-label">УВІЙТИ</span>
   `;
+}
+
+function showKeyError(message) {
+  keyField.classList.remove("has-error");
+  void keyField.offsetWidth;
+  keyField.classList.add("has-error");
+  formMessage.textContent = message;
+  accessKey.focus();
+}
+
+function startVerification() {
+  clearMessage();
+  keyField.classList.add("is-validating");
+  app.classList.add("is-checking");
+  accessButton.disabled = true;
+  accessButton.innerHTML = `
+    <span class="button-loader"></span>
+    <span>ПЕРЕВІРЯЄМО КЛЮЧ</span>
+  `;
+}
+
+function finishVerification() {
+  keyField.classList.remove("is-validating");
+  app.classList.remove("is-checking");
+  app.classList.add("is-success");
+  accessPanel.hidden = true;
+  successPanel.hidden = false;
+}
+
+function verifyAccessKey(key) {
+  /*
+   * ДЕМО: зараз приймається будь-який ключ довжиною від 6 символів.
+   * Пізніше тут буде запит до API:
+   *
+   * return fetch("/api/verify-key", {
+   *   method: "POST",
+   *   headers: { "Content-Type": "application/json" },
+   *   body: JSON.stringify({ key }),
+   * }).then((response) => response.json());
+   */
+  return new Promise((resolve) => {
+    verificationTimer = window.setTimeout(() => {
+      resolve({ valid: key.length >= 6 });
+    }, DEMO_VERIFY_DELAY);
+  });
+}
+
+function configureSupport() {
+  const usernameConfigured =
+    TELEGRAM_USERNAME && TELEGRAM_USERNAME !== "YOUR_USERNAME";
+  const telegramUrl = usernameConfigured
+    ? `https://t.me/${TELEGRAM_USERNAME.replace("@", "")}`
+    : "#";
+
+  supportPopover.innerHTML = `
+    <p>
+      Не можеш увійти? Напиши менеджеру — він допоможе отримати
+      або відновити ключ.
+    </p>
+    <a
+      class="telegram-button"
+      id="telegramSupportLink"
+      href="${telegramUrl}"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      НАПИСАТИ В TELEGRAM
+    </a>
+  `;
+
+  const telegramSupportLink = document.querySelector("#telegramSupportLink");
+
+  if (!usernameConfigured) {
+    telegramSupportLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      supportPopover.querySelector("p").textContent =
+        "Спочатку вкажи username менеджера у файлі script.js.";
+    });
+  }
+}
+
+function addResponsibleNotice() {
+  const notice = document.createElement("p");
+  notice.className = "responsible-note";
+  notice.textContent = "18+ · Грай відповідально";
+  footer.appendChild(notice);
+}
+
+accessKey.addEventListener("input", () => {
+  const normalizedValue = normalizeKey(accessKey.value);
+
+  if (accessKey.value !== normalizedValue) {
+    accessKey.value = normalizedValue;
+  }
+
+  const length = normalizedValue.length;
+  keyLength.textContent = length ? `${length}/32` : "";
+  keyField.classList.toggle("has-value", length > 0);
+  clearMessage();
+});
+
+accessKey.addEventListener("focus", () => {
+  if (window.innerWidth <= 760) {
+    window.setTimeout(() => {
+      accessPanel.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 280);
+  }
+});
+
+accessForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const key = normalizeKey(accessKey.value);
+  accessKey.value = key;
+
+  if (key.length < 6) {
+    showKeyError("Введи коректний ключ — щонайменше 6 символів");
+    return;
+  }
+
+  supportPopover.hidden = true;
+  supportButton.setAttribute("aria-expanded", "false");
+  startVerification();
+
+  const result = await verifyAccessKey(key);
+
+  if (result.valid) {
+    finishVerification();
+    return;
+  }
+
+  app.classList.remove("is-checking");
+  keyField.classList.remove("is-validating");
+  restoreAccessButton();
+  showKeyError("Цей ключ не знайдено або його термін дії завершився");
+});
+
+resetButton.addEventListener("click", () => {
+  window.clearTimeout(verificationTimer);
+  accessKey.value = "";
+  keyLength.textContent = "";
+  formMessage.innerHTML = "&nbsp;";
+  keyField.classList.remove("has-error", "has-value", "is-validating");
+  app.classList.remove("is-checking", "is-success");
+  restoreAccessButton();
   successPanel.hidden = true;
   accessPanel.hidden = false;
   accessKey.focus();
@@ -66,4 +206,17 @@ supportButton.addEventListener("click", () => {
   const willOpen = supportPopover.hidden;
   supportPopover.hidden = !willOpen;
   supportButton.setAttribute("aria-expanded", String(willOpen));
+});
+
+window.addEventListener("resize", setAppHeight);
+window.visualViewport?.addEventListener("resize", setAppHeight);
+
+configureSupport();
+addResponsibleNotice();
+setAppHeight();
+
+window.requestAnimationFrame(() => {
+  window.requestAnimationFrame(() => {
+    document.body.classList.add("page-loaded");
+  });
 });

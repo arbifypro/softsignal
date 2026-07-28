@@ -1,13 +1,16 @@
-# ARBIFY PULSE — українська версія
+# ARBIFY PULSE 2.0 — українська версія
 
-Готовий статичний перший екран для завантаження на GitHub.
+Готовий статичний перший екран для завантаження на GitHub. У версії 2.0
+додані анімації інтерфейсу, покращена мобільна адаптація, Telegram-підтримка
+та демонстраційна перевірка ключа.
 
 ## Структура
 
 ```text
-arbify-pulse-ua/
+ARBIFY-PULSE-2.0/
 ├── index.html
 ├── style.css
+├── effects.css
 ├── script.js
 ├── README.md
 └── assets/
@@ -19,6 +22,9 @@ arbify-pulse-ua/
 
 Відкрий `index.html` у браузері. Для тесту введи будь-який ключ довжиною від
 6 символів, наприклад `PULSE-2026`.
+
+Перед публікацією відкрий `script.js` і заміни `YOUR_USERNAME` у рядку
+`const TELEGRAM_USERNAME = "YOUR_USERNAME";` на username менеджера без `@`.
 
 ## Як завантажити на GitHub
 
