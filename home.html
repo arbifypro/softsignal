@@ -2,26 +2,64 @@
 <html lang="uk">
   <head>
     <meta charset="UTF-8" />
+
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
+
     <meta
       name="description"
       content="Головна панель платформи ARBIFY PULSE."
     />
+
+    <!-- Колір браузера та системної панелі -->
     <meta name="theme-color" content="#020307" />
+    <meta name="color-scheme" content="dark" />
+
+    <!-- Налаштування верхньої панелі iPhone -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black"
+    />
+
     <title>ARBIFY PULSE — Головна</title>
-    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="preload" href="assets/mythic-thunder.webp" as="image" />
+
+    <link
+      rel="icon"
+      href="assets/favicon.svg"
+      type="image/svg+xml"
+    />
+
+    <link
+      rel="preload"
+      href="assets/mythic-thunder.webp"
+      as="image"
+    />
+
+    <!-- Чорний фон застосовується ще до завантаження CSS -->
+    <style>
+      html,
+      body {
+        margin: 0;
+        background-color: #020307 !important;
+      }
+    </style>
+
     <link rel="stylesheet" href="home.css" />
   </head>
+
   <body>
     <main class="page-shell">
       <div class="ambient ambient-one"></div>
       <div class="ambient ambient-two"></div>
 
-      <section class="pulse-app" aria-label="Головна ARBIFY PULSE">
+      <section
+        class="pulse-app"
+        aria-label="Головна ARBIFY PULSE"
+      >
         <div class="app-noise"></div>
 
         <header class="topbar">
@@ -39,15 +77,34 @@
                   stroke-width="2.4"
                   stroke-linejoin="round"
                 ></path>
+
                 <path
                   d="M12 42h40M14 36h36"
                   stroke="currentColor"
                   stroke-width="2.4"
                   stroke-linecap="round"
                 ></path>
-                <circle cx="5" cy="11" r="2.5" fill="currentColor"></circle>
-                <circle cx="32" cy="3" r="2.5" fill="currentColor"></circle>
-                <circle cx="59" cy="11" r="2.5" fill="currentColor"></circle>
+
+                <circle
+                  cx="5"
+                  cy="11"
+                  r="2.5"
+                  fill="currentColor"
+                ></circle>
+
+                <circle
+                  cx="32"
+                  cy="3"
+                  r="2.5"
+                  fill="currentColor"
+                ></circle>
+
+                <circle
+                  cx="59"
+                  cy="11"
+                  r="2.5"
+                  fill="currentColor"
+                ></circle>
               </svg>
             </span>
 
@@ -75,8 +132,12 @@
               <path
                 d="M6.2 10.2c0-3.6 2.1-6.2 5.8-6.2s5.8 2.6 5.8 6.2v4l1.7 2.4h-15l1.7-2.4v-4Z"
               ></path>
-              <path d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"></path>
+
+              <path
+                d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"
+              ></path>
             </svg>
+
             <span class="notification-dot"></span>
           </button>
         </header>
@@ -86,6 +147,7 @@
             <div class="access-card-top">
               <div>
                 <p class="micro-label">СТАТУС ДОСТУПУ</p>
+
                 <p class="access-status">
                   <span class="live-dot"></span>
                   АКТИВНИЙ
@@ -101,11 +163,15 @@
             <div class="access-divider"></div>
 
             <div class="system-row">
-              <span class="system-orb"><span></span></span>
+              <span class="system-orb">
+                <span></span>
+              </span>
+
               <p>
                 <strong>Pulse Core онлайн</strong>
                 <span>Система готова до аналізу</span>
               </p>
+
               <span class="online-pill">ONLINE</span>
             </div>
           </section>
@@ -117,8 +183,13 @@
                 <h1>Популярні слоти</h1>
               </div>
 
-              <button class="text-link" id="allSlotsButton" type="button">
+              <button
+                class="text-link"
+                id="allSlotsButton"
+                type="button"
+              >
                 Усі
+
                 <svg
                   aria-hidden="true"
                   viewBox="0 0 24 24"
@@ -141,11 +212,18 @@
                 style="--slot-accent: #8d4cff"
               >
                 <span class="slot-image-wrap">
-                  <img src="assets/mythic-thunder.webp" alt="" />
+                  <img
+                    src="assets/mythic-thunder.webp"
+                    alt=""
+                  />
+
                   <span class="slot-shine"></span>
                   <span class="selected-check">✓</span>
                 </span>
-                <span class="slot-name">Thunder Crown</span>
+
+                <span class="slot-name">
+                  Thunder Crown
+                </span>
               </button>
 
               <button
@@ -155,11 +233,18 @@
                 style="--slot-accent: #ff4ecb"
               >
                 <span class="slot-image-wrap">
-                  <img src="assets/candy-spiral.webp" alt="" />
+                  <img
+                    src="assets/candy-spiral.webp"
+                    alt=""
+                  />
+
                   <span class="slot-shine"></span>
                   <span class="selected-check">✓</span>
                 </span>
-                <span class="slot-name">Candy Spiral</span>
+
+                <span class="slot-name">
+                  Candy Spiral
+                </span>
               </button>
 
               <button
@@ -169,26 +254,57 @@
                 style="--slot-accent: #21d4ff"
               >
                 <span class="slot-image-wrap">
-                  <img src="assets/gem-rocket.webp" alt="" />
+                  <img
+                    src="assets/gem-rocket.webp"
+                    alt=""
+                  />
+
                   <span class="slot-shine"></span>
                   <span class="selected-check">✓</span>
                 </span>
-                <span class="slot-name">Gem Rocket</span>
+
+                <span class="slot-name">
+                  Gem Rocket
+                </span>
               </button>
             </div>
           </section>
 
-          <section class="signal-card" id="signalCard">
+          <section
+            class="signal-card"
+            id="signalCard"
+          >
             <div class="signal-card-glow"></div>
 
-            <div class="radar" aria-hidden="true">
-              <span class="radar-circle radar-circle-one"></span>
-              <span class="radar-circle radar-circle-two"></span>
-              <span class="radar-circle radar-circle-three"></span>
-              <span class="radar-cross radar-cross-x"></span>
-              <span class="radar-cross radar-cross-y"></span>
+            <div
+              class="radar"
+              aria-hidden="true"
+            >
+              <span
+                class="radar-circle radar-circle-one"
+              ></span>
+
+              <span
+                class="radar-circle radar-circle-two"
+              ></span>
+
+              <span
+                class="radar-circle radar-circle-three"
+              ></span>
+
+              <span
+                class="radar-cross radar-cross-x"
+              ></span>
+
+              <span
+                class="radar-cross radar-cross-y"
+              ></span>
+
               <span class="radar-sweep"></span>
-              <span class="radar-core"><span></span></span>
+
+              <span class="radar-core">
+                <span></span>
+              </span>
             </div>
 
             <div class="signal-copy">
@@ -196,13 +312,21 @@
                 <span></span>
                 PULSE ANALYSIS
               </p>
-              <h2 id="signalTitle">НОВИЙ СИГНАЛ</h2>
+
+              <h2 id="signalTitle">
+                НОВИЙ СИГНАЛ
+              </h2>
+
               <p id="signalDescription">
                 Запусти аналіз для вибраного слота
               </p>
             </div>
 
-            <button class="signal-button" id="signalButton" type="button">
+            <button
+              class="signal-button"
+              id="signalButton"
+              type="button"
+            >
               <svg
                 aria-hidden="true"
                 viewBox="0 0 24 24"
@@ -212,20 +336,36 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <path d="m13.5 2-6 11h5l-2 9 7-12h-5l1-8Z"></path>
+                <path
+                  d="m13.5 2-6 11h5l-2 9 7-12h-5l1-8Z"
+                ></path>
               </svg>
-              <span id="signalButtonText">ЗАПУСТИТИ</span>
+
+              <span id="signalButtonText">
+                ЗАПУСТИТИ
+              </span>
             </button>
           </section>
 
           <div class="responsible-line">
             <span>18+</span>
-            <p>Грай відповідально. Результат гри залежить від випадковості.</p>
+
+            <p>
+              Грай відповідально. Результат гри залежить
+              від випадковості.
+            </p>
           </div>
         </div>
 
-        <nav class="bottom-nav" aria-label="Головне меню">
-          <button class="nav-item is-active" type="button" data-section="Головна">
+        <nav
+          class="bottom-nav"
+          aria-label="Головне меню"
+        >
+          <button
+            class="nav-item is-active"
+            type="button"
+            data-section="Головна"
+          >
             <span class="nav-icon">
               <svg
                 aria-hidden="true"
@@ -236,14 +376,24 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <path d="m3.5 10.4 8.5-7 8.5 7"></path>
-                <path d="M5.8 9.2v10.2h12.4V9.2M9.5 19.4v-6.2h5v6.2"></path>
+                <path
+                  d="m3.5 10.4 8.5-7 8.5 7"
+                ></path>
+
+                <path
+                  d="M5.8 9.2v10.2h12.4V9.2M9.5 19.4v-6.2h5v6.2"
+                ></path>
               </svg>
             </span>
+
             <span>Головна</span>
           </button>
 
-          <button class="nav-item" type="button" data-section="Сигнали">
+          <button
+            class="nav-item"
+            type="button"
+            data-section="Сигнали"
+          >
             <span class="nav-icon">
               <svg
                 aria-hidden="true"
@@ -255,16 +405,25 @@
                 stroke-linejoin="round"
               >
                 <path d="M12 4v16"></path>
-                <path d="M7.8 7.4a6 6 0 0 0 0 9.2M16.2 7.4a6 6 0 0 1 0 9.2"></path>
+
+                <path
+                  d="M7.8 7.4a6 6 0 0 0 0 9.2M16.2 7.4a6 6 0 0 1 0 9.2"
+                ></path>
+
                 <path
                   d="M4.7 4.3a10.2 10.2 0 0 0 0 15.4M19.3 4.3a10.2 10.2 0 0 1 0 15.4"
                 ></path>
               </svg>
             </span>
+
             <span>Сигнали</span>
           </button>
 
-          <button class="nav-item" type="button" data-section="Бонуси">
+          <button
+            class="nav-item"
+            type="button"
+            data-section="Бонуси"
+          >
             <span class="nav-icon">
               <svg
                 aria-hidden="true"
@@ -275,16 +434,24 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <path d="M4 10.2h16v10H4zM3 6.8h18v3.4H3zM12 6.8v13.4"></path>
+                <path
+                  d="M4 10.2h16v10H4zM3 6.8h18v3.4H3zM12 6.8v13.4"
+                ></path>
+
                 <path
                   d="M11.7 6.7C9.8 6.9 7 6.5 7 4.5 7 2.2 11 3 11.7 6.7ZM12.3 6.7c1.9.2 4.7-.2 4.7-2.2 0-2.3-4-1.5-4.7 2.2Z"
                 ></path>
               </svg>
             </span>
+
             <span>Бонуси</span>
           </button>
 
-          <button class="nav-item" type="button" data-section="Профіль">
+          <button
+            class="nav-item"
+            type="button"
+            data-section="Профіль"
+          >
             <span class="nav-icon">
               <svg
                 aria-hidden="true"
@@ -295,15 +462,28 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <circle cx="12" cy="8" r="4"></circle>
-                <path d="M4.8 20c.7-4 3.1-6 7.2-6s6.5 2 7.2 6"></path>
+                <circle
+                  cx="12"
+                  cy="8"
+                  r="4"
+                ></circle>
+
+                <path
+                  d="M4.8 20c.7-4 3.1-6 7.2-6s6.5 2 7.2 6"
+                ></path>
               </svg>
             </span>
+
             <span>Профіль</span>
           </button>
         </nav>
 
-        <div class="toast" id="toast" role="status" aria-live="polite">
+        <div
+          class="toast"
+          id="toast"
+          role="status"
+          aria-live="polite"
+        >
           <span class="toast-dot"></span>
           <span id="toastText"></span>
         </div>
