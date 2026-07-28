@@ -5,7 +5,7 @@
 
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
 
     <meta
@@ -15,11 +15,13 @@
 
     <!-- Чорний інтерфейс браузера на iPhone та Android -->
     <meta name="theme-color" content="#020307" />
+
     <meta
       name="theme-color"
       content="#020307"
       media="(prefers-color-scheme: light)"
     />
+
     <meta
       name="theme-color"
       content="#020307"
@@ -27,6 +29,7 @@
     />
 
     <meta name="color-scheme" content="dark" />
+
     <meta
       name="msapplication-navbutton-color"
       content="#020307"
@@ -37,14 +40,17 @@
       name="apple-mobile-web-app-capable"
       content="yes"
     />
+
     <meta
       name="mobile-web-app-capable"
       content="yes"
     />
+
     <meta
       name="apple-mobile-web-app-status-bar-style"
       content="black"
     />
+
     <meta
       name="apple-mobile-web-app-title"
       content="ARBIFY PULSE"
@@ -69,7 +75,7 @@
       as="image"
     />
 
-    <!-- Чорний фон ще до завантаження основних стилів -->
+    <!-- Основний фон і блокування масштабування -->
     <style>
       :root {
         color-scheme: dark;
@@ -79,8 +85,13 @@
       html,
       body {
         margin: 0;
+        min-width: 100%;
         min-height: 100%;
+        background: #020307 !important;
         background-color: #020307 !important;
+        touch-action: pan-y;
+        -ms-touch-action: pan-y;
+        overscroll-behavior: none;
       }
     </style>
 
