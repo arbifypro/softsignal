@@ -552,3 +552,76 @@ footer {
     animation: none !important;
   }
 }
+
+/* Компактний статичний режим під час введення ключа */
+@media (max-width: 760px) {
+  body:has(#accessKey:focus) .brand {
+    padding:
+      max(8px, env(safe-area-inset-top))
+      20px
+      2px;
+  }
+
+  body:has(#accessKey:focus) .brand-emblem {
+    width: 28px;
+    height: 21px;
+  }
+
+  body:has(#accessKey:focus) .crown-mark {
+    width: 26px;
+  }
+
+  body:has(#accessKey:focus) .brand-name {
+    margin-top: 2px;
+    font-size: 22px;
+  }
+
+  body:has(#accessKey:focus) .brand-subline {
+    margin-top: 4px;
+  }
+
+  body:has(#accessKey:focus) .brand-tag {
+    display: none;
+  }
+
+  body:has(#accessKey:focus) .hero-visual {
+    height: 88px;
+    flex-basis: 88px;
+    margin-top: 0;
+  }
+
+  body:has(#accessKey:focus) .hero-art {
+    width: 130%;
+    height: 165%;
+  }
+
+  body:has(#accessKey:focus) .access-panel {
+    width: 100%;
+    padding:
+      6px
+      24px
+      8px;
+  }
+
+  body:has(#accessKey:focus) .section-heading > p {
+    display: none;
+  }
+
+  body:has(#accessKey:focus) form {
+    margin-top: 9px;
+  }
+
+  body:has(#accessKey:focus) .key-field,
+  body:has(#accessKey:focus) .access-button {
+    height: 48px;
+  }
+
+  body:has(#accessKey:focus) .form-message {
+    min-height: 19px;
+    padding-top: 4px;
+  }
+
+  body:has(#accessKey:focus) footer {
+    display: none;
+  }
+}
