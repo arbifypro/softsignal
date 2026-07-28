@@ -31,9 +31,81 @@ const footer = document.querySelector("footer");
 
 let verificationTimer;
 
+function preventPageZoom() {
+  const preventGesture = (event) => {
+    event.preventDefault();
+  };
+
+  /*
+   * Блокує масштабування двома пальцями в Safari на iPhone.
+   */
+  ["gesturestart", "gesturechange", "gestureend"].forEach((eventName) => {
+    document.addEventListener(eventName, preventGesture, {
+      passive: false,
+    });
+  });
+
+  /*
+   * Блокує масштабування двома пальцями на iPhone та Android.
+   * Вертикальна прокрутка одним пальцем залишається доступною.
+   */
+  document.addEventListener(
+    "touchmove",
+    (event) => {
+      if (event.touches.length > 1) {
+        event.preventDefault();
+      }
+    },
+    {
+      passive: false,
+    }
+  );
+
+  /*
+   * Блокує збільшення сторінки подвійним натисканням.
+   */
+  let lastTouchEnd = 0;
+
+  document.addEventListener(
+    "touchend",
+    (event) => {
+      const now = Date.now();
+
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+
+      lastTouchEnd = now;
+    },
+    {
+      passive: false,
+    }
+  );
+
+  /*
+   * Блокує масштабування через Ctrl + колесо
+   * або жест трекпада на комп’ютері.
+   */
+  window.addEventListener(
+    "wheel",
+    (event) => {
+      if (event.ctrlKey) {
+        event.preventDefault();
+      }
+    },
+    {
+      passive: false,
+    }
+  );
+}
+
 function setAppHeight() {
   const height = window.visualViewport?.height || window.innerHeight;
-  document.documentElement.style.setProperty("--app-height", `${height}px`);
+
+  document.documentElement.style.setProperty(
+    "--app-height",
+    `${height}px`
+  );
 }
 
 function normalizeKey(value) {
@@ -51,6 +123,7 @@ function clearMessage() {
 
 function restoreAccessButton() {
   accessButton.disabled = false;
+
   accessButton.innerHTML = `
     <span class="button-sheen"></span>
     <span class="button-label">УВІЙТИ</span>
@@ -59,7 +132,9 @@ function restoreAccessButton() {
 
 function showKeyError(message) {
   keyField.classList.remove("has-error");
+
   void keyField.offsetWidth;
+
   keyField.classList.add("has-error");
   formMessage.textContent = message;
   accessKey.focus();
@@ -67,9 +142,11 @@ function showKeyError(message) {
 
 function startVerification() {
   clearMessage();
+
   keyField.classList.add("is-validating");
   app.classList.add("is-checking");
   accessButton.disabled = true;
+
   accessButton.innerHTML = `
     <span class="button-loader"></span>
     <span>ПЕРЕВІРЯЄМО КЛЮЧ</span>
@@ -80,6 +157,7 @@ function finishVerification() {
   keyField.classList.remove("is-validating");
   app.classList.remove("is-checking");
   app.classList.add("is-success");
+
   accessPanel.hidden = true;
   successPanel.hidden = false;
 
@@ -93,14 +171,18 @@ function finishVerification() {
 function verifyAccessKey(key) {
   return new Promise((resolve) => {
     verificationTimer = window.setTimeout(() => {
-      resolve({ valid: key === VALID_ACCESS_KEY });
+      resolve({
+        valid: key === VALID_ACCESS_KEY,
+      });
     }, DEMO_VERIFY_DELAY);
   });
 }
 
 function configureSupport() {
   const usernameConfigured =
-    TELEGRAM_USERNAME && TELEGRAM_USERNAME !== "YOUR_USERNAME";
+    TELEGRAM_USERNAME &&
+    TELEGRAM_USERNAME !== "YOUR_USERNAME";
+
   const telegramUrl = usernameConfigured
     ? `https://t.me/${TELEGRAM_USERNAME.replace("@", "")}`
     : "#";
@@ -110,6 +192,7 @@ function configureSupport() {
       Не можеш увійти? Напиши менеджеру — він допоможе отримати
       або відновити ключ.
     </p>
+
     <a
       class="telegram-button"
       id="telegramSupportLink"
@@ -121,11 +204,14 @@ function configureSupport() {
     </a>
   `;
 
-  const telegramSupportLink = document.querySelector("#telegramSupportLink");
+  const telegramSupportLink = document.querySelector(
+    "#telegramSupportLink"
+  );
 
   if (!usernameConfigured) {
     telegramSupportLink.addEventListener("click", (event) => {
       event.preventDefault();
+
       supportPopover.querySelector("p").textContent =
         "Спочатку вкажи username менеджера у файлі script.js.";
     });
@@ -134,8 +220,10 @@ function configureSupport() {
 
 function addResponsibleNotice() {
   const notice = document.createElement("p");
+
   notice.className = "responsible-note";
   notice.textContent = "18+ · Грай відповідально";
+
   footer.appendChild(notice);
 }
 
@@ -147,15 +235,24 @@ accessKey.addEventListener("input", () => {
   }
 
   const length = normalizedValue.length;
+
   keyLength.textContent = length ? `${length}/32` : "";
-  keyField.classList.toggle("has-value", length > 0);
+
+  keyField.classList.toggle(
+    "has-value",
+    length > 0
+  );
+
   clearMessage();
 });
 
 accessKey.addEventListener("focus", () => {
   if (window.innerWidth <= 760) {
     window.setTimeout(() => {
-      accessPanel.scrollIntoView({ behavior: "smooth", block: "center" });
+      accessPanel.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
     }, 280);
   }
 });
@@ -164,6 +261,7 @@ accessForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const key = normalizeKey(accessKey.value);
+
   accessKey.value = key;
 
   if (key.length !== 6) {
@@ -172,7 +270,12 @@ accessForm.addEventListener("submit", async (event) => {
   }
 
   supportPopover.hidden = true;
-  supportButton.setAttribute("aria-expanded", "false");
+
+  supportButton.setAttribute(
+    "aria-expanded",
+    "false"
+  );
+
   startVerification();
 
   const result = await verifyAccessKey(key);
@@ -183,44 +286,83 @@ accessForm.addEventListener("submit", async (event) => {
   }
 
   app.classList.remove("is-checking");
-  keyField.classList.remove("is-validating");
+
+  keyField.classList.remove(
+    "is-validating"
+  );
+
   restoreAccessButton();
-  showKeyError("Цей ключ не знайдено або його термін дії завершився");
+
+  showKeyError(
+    "Цей ключ не знайдено або його термін дії завершився"
+  );
 });
 
 resetButton.addEventListener("click", () => {
   window.clearTimeout(verificationTimer);
+
   accessKey.value = "";
   keyLength.textContent = "";
   formMessage.innerHTML = "&nbsp;";
-  keyField.classList.remove("has-error", "has-value", "is-validating");
-  app.classList.remove("is-checking", "is-success");
+
+  keyField.classList.remove(
+    "has-error",
+    "has-value",
+    "is-validating"
+  );
+
+  app.classList.remove(
+    "is-checking",
+    "is-success"
+  );
+
   restoreAccessButton();
+
   successPanel.hidden = true;
   accessPanel.hidden = false;
+
   accessKey.focus();
 });
 
 continueButton.addEventListener("click", () => {
-  sessionStorage.setItem("arbifyAccess", "granted");
+  sessionStorage.setItem(
+    "arbifyAccess",
+    "granted"
+  );
+
   window.location.href = HOME_PAGE;
 });
 
 supportButton.addEventListener("click", () => {
   const willOpen = supportPopover.hidden;
+
   supportPopover.hidden = !willOpen;
-  supportButton.setAttribute("aria-expanded", String(willOpen));
+
+  supportButton.setAttribute(
+    "aria-expanded",
+    String(willOpen)
+  );
 });
 
-window.addEventListener("resize", setAppHeight);
-window.visualViewport?.addEventListener("resize", setAppHeight);
+window.addEventListener(
+  "resize",
+  setAppHeight
+);
 
+window.visualViewport?.addEventListener(
+  "resize",
+  setAppHeight
+);
+
+preventPageZoom();
 configureSupport();
 addResponsibleNotice();
 setAppHeight();
 
 window.requestAnimationFrame(() => {
   window.requestAnimationFrame(() => {
-    document.body.classList.add("page-loaded");
+    document.body.classList.add(
+      "page-loaded"
+    );
   });
 });
