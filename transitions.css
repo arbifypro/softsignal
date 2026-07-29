@@ -136,43 +136,36 @@ html.pulse-page-leaving .pulse-page-transition::after {
 html.pulse-page-entering body > .page-shell {
   animation: pulse-fallback-page-in 340ms
     var(--pulse-transition-easing) both;
-  transform-origin: 50% 50%;
-  will-change: opacity, transform;
+  will-change: opacity;
 }
 
 @keyframes pulse-native-page-out {
   from {
     opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
   }
 
   to {
     opacity: 0.18;
-    transform: translate3d(0, 0, 0) scale(0.994);
   }
 }
 
 @keyframes pulse-native-page-in {
   from {
     opacity: 0;
-    transform: translate3d(0, 5px, 0) scale(0.998);
   }
 
   to {
     opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
 @keyframes pulse-fallback-page-in {
   from {
     opacity: 0;
-    transform: translate3d(0, 5px, 0) scale(0.998);
   }
 
   to {
     opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
