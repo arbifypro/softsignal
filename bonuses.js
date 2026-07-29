@@ -1935,3 +1935,83 @@ enableNotificationsTask =
   };
 
 pulseNotifyClaimableTasks();
+
+/*
+ * =========================================================
+ * PULSE — ПІДКЛЮЧЕННЯ СТОРІНКИ ПРОФІЛЮ
+ * Цей блок має бути в самому кінці bonuses.js.
+ * =========================================================
+ */
+
+const PULSE_PROFILE_COMPLETED_KEY =
+  "arbifyProfileCompleted";
+
+const pulseOriginalProfileVerification =
+  getTaskVerificationResult;
+
+getTaskVerificationResult = function (taskId) {
+  if (taskId === "complete-profile") {
+    const profileCompleted =
+      sessionStorage.getItem(
+        PULSE_PROFILE_COMPLETED_KEY
+      ) === "true";
+
+    return {
+      valid: profileCompleted,
+      message: profileCompleted
+        ? ""
+        : "Спочатку відкрий сторінку профілю через нижнє меню.",
+    };
+  }
+
+  return pulseOriginalProfileVerification(
+    taskId
+  );
+};
+
+/*
+ * Старий обробник кнопки профілю знаходиться вище.
+ * Цей обробник пропускає користувача за справжнім
+ * посиланням profile.html.
+ */
+profileNavigation.addEventListener(
+  "click",
+  (event) => {
+    event.stopImmediatePropagation();
+  },
+  {
+    capture: true,
+  }
+);
+
+function pulseSynchronizeProfileTask() {
+  const taskId = "complete-profile";
+  const record = getTaskRecord(taskId);
+
+  const profileCompleted =
+    sessionStorage.getItem(
+      PULSE_PROFILE_COMPLETED_KEY
+    ) === "true";
+
+  if (
+    !profileCompleted ||
+    record.status === "completed"
+  ) {
+    return;
+  }
+
+  const shouldNotify =
+    record.status !== "claimable";
+
+  record.status = "claimable";
+  record.verifiedAt = Date.now();
+
+  saveRewardsState();
+  renderTask(taskId);
+
+  if (shouldNotify) {
+    pulseNotifyTaskOnce(taskId);
+  }
+}
+
+pulseSynchronizeProfileTask();
