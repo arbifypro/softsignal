@@ -31,10 +31,12 @@
     <meta name="msapplication-navbutton-color" content="#020307" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
+
     <meta
       name="apple-mobile-web-app-status-bar-style"
       content="black"
     />
+
     <meta
       name="apple-mobile-web-app-title"
       content="ARBIFY PULSE"
@@ -54,29 +56,50 @@
       :root {
         color-scheme: dark;
         background: #020307;
+        background-color: #020307;
       }
 
       html,
       body {
-        margin: 0;
+        width: 100%;
         min-width: 100%;
+        max-width: 100%;
+        height: 100%;
         min-height: 100%;
-        background: #020307;
+        margin: 0;
+        overflow: hidden;
+        background: #020307 !important;
+        background-color: #020307 !important;
+        touch-action: pan-y;
+        -ms-touch-action: pan-y;
         overscroll-behavior: none;
       }
 
       body {
-        opacity: 0;
+        opacity: 1 !important;
       }
 
-      body.page-ready {
-        opacity: 1;
-        transition: opacity 220ms ease;
+      .page-shell {
+        width: 100vw !important;
+        max-width: none !important;
+      }
+
+      .pulse-app,
+      .profile-app {
+        width: min(100vw, 430px) !important;
+        max-width: 430px !important;
       }
     </style>
 
-    <link rel="stylesheet" href="profile.css" />
-    <link rel="stylesheet" href="notifications.css" />
+    <link
+      rel="stylesheet"
+      href="profile.css?v=20260729-2"
+    />
+
+    <link
+      rel="stylesheet"
+      href="notifications.css"
+    />
   </head>
 
   <body>
@@ -277,6 +300,7 @@
 
               <span class="member-level">
                 LVL
+
                 <strong id="profileLevel">
                   1
                 </strong>
@@ -284,7 +308,9 @@
             </div>
 
             <div class="member-progress-copy">
-              <span>ПРОГРЕС РІВНЯ</span>
+              <span>
+                ПРОГРЕС РІВНЯ
+              </span>
 
               <strong id="profileLevelProgress">
                 0 / 300 PULSE
@@ -293,12 +319,12 @@
 
             <div
               class="member-progress-track"
+              id="profileLevelTrack"
               role="progressbar"
               aria-label="Прогрес рівня"
               aria-valuemin="0"
               aria-valuemax="300"
               aria-valuenow="0"
-              id="profileLevelTrack"
             >
               <span id="profileLevelBar"></span>
             </div>
@@ -310,7 +336,9 @@
           >
             <div class="section-title-row">
               <div>
-                <p>ДОСТУП</p>
+                <p>
+                  ДОСТУП
+                </p>
 
                 <h2 id="accessCardTitle">
                   Статус акаунта
@@ -325,7 +353,9 @@
 
             <div class="access-details">
               <div>
-                <span>КЛЮЧ ДОСТУПУ</span>
+                <span>
+                  КЛЮЧ ДОСТУПУ
+                </span>
 
                 <strong id="profileAccessKey">
                   K7••••
@@ -333,7 +363,9 @@
               </div>
 
               <div>
-                <span>SUBID</span>
+                <span>
+                  SUBID
+                </span>
 
                 <strong id="profileSubId">
                   Не підтверджено
@@ -352,13 +384,17 @@
               </span>
 
               <div>
-                <span>БАЛАНС</span>
+                <span>
+                  БАЛАНС
+                </span>
 
                 <strong id="profilePulseBalance">
                   0
                 </strong>
 
-                <small>PULSE</small>
+                <small>
+                  PULSE
+                </small>
               </div>
             </article>
 
@@ -373,19 +409,29 @@
                   stroke-linecap="round"
                 >
                   <path d="M12 5v14"></path>
-                  <path d="M8 8a5.7 5.7 0 0 0 0 8"></path>
-                  <path d="M16 8a5.7 5.7 0 0 1 0 8"></path>
+
+                  <path
+                    d="M8 8a5.7 5.7 0 0 0 0 8"
+                  ></path>
+
+                  <path
+                    d="M16 8a5.7 5.7 0 0 1 0 8"
+                  ></path>
                 </svg>
               </span>
 
               <div>
-                <span>СИГНАЛИ</span>
+                <span>
+                  СИГНАЛИ
+                </span>
 
                 <strong id="profileSignalCount">
                   0
                 </strong>
 
-                <small>створено</small>
+                <small>
+                  створено
+                </small>
               </div>
             </article>
 
@@ -413,13 +459,17 @@
               </span>
 
               <div>
-                <span>ЗАВДАННЯ</span>
+                <span>
+                  ЗАВДАННЯ
+                </span>
 
                 <strong id="profileTaskCount">
                   0
                 </strong>
 
-                <small>виконано</small>
+                <small>
+                  виконано
+                </small>
               </div>
             </article>
           </section>
@@ -430,7 +480,9 @@
           >
             <div class="section-title-row settings-title">
               <div>
-                <p>НАЛАШТУВАННЯ</p>
+                <p>
+                  НАЛАШТУВАННЯ
+                </p>
 
                 <h2 id="settingsTitle">
                   Акаунт
@@ -607,7 +659,9 @@
           </button>
 
           <div class="responsible-line">
-            <span>18+</span>
+            <span>
+              18+
+            </span>
 
             <p>
               Грай відповідально. Результат гри залежить від випадковості.
@@ -644,7 +698,9 @@
               </svg>
             </span>
 
-            <span>Головна</span>
+            <span>
+              Головна
+            </span>
           </a>
 
           <a
@@ -682,7 +738,9 @@
               </svg>
             </span>
 
-            <span>Сигнали</span>
+            <span>
+              Сигнали
+            </span>
           </a>
 
           <a
@@ -710,7 +768,9 @@
               </svg>
             </span>
 
-            <span>Бонуси</span>
+            <span>
+              Бонуси
+            </span>
           </a>
 
           <a
@@ -741,7 +801,9 @@
               </svg>
             </span>
 
-            <span>Профіль</span>
+            <span>
+              Профіль
+            </span>
           </a>
         </nav>
 
