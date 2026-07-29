@@ -2433,3 +2433,11 @@ body {
     padding-top: 4px;
   }
 }
+
+/* Зливаємо верхню панель із чорним фоном застосунку */
+.topbar {
+  border-bottom: 0 !important;
+  background: #020307 !important;
+  background-color: #020307 !important;
+  box-shadow: none !important;
+}
