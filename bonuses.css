@@ -2441,3 +2441,14 @@ body {
   background-color: #06070d !important;
   box-shadow: none !important;
 }
+
+/*
+ * Верхня панель більше не створює окрему темну смугу.
+ * Крізь неї безперервно видно основний фон застосунку.
+ */
+.rewards-app .topbar {
+  border-bottom: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
