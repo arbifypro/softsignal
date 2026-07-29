@@ -2,6 +2,7 @@
 <html lang="uk">
   <head>
     <meta charset="UTF-8" />
+
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
@@ -44,26 +45,42 @@
       :root {
         color-scheme: dark;
         background: #020307;
+        background-color: #020307;
       }
 
       html,
       body {
-        margin: 0;
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+        height: 100%;
         min-height: 100%;
-        background: #020307;
+        margin: 0;
+        overflow: hidden;
+        background: #020307 !important;
+        background-color: #020307 !important;
+        touch-action: pan-y;
+        -ms-touch-action: pan-y;
+        overscroll-behavior: none;
       }
 
       body {
-        opacity: 0;
+        opacity: 1 !important;
       }
 
-      body.page-ready {
-        opacity: 1;
-        transition: opacity 220ms ease;
+      .page-shell {
+        width: 100vw !important;
+        max-width: none !important;
+      }
+
+      .pulse-app,
+      .signals-app {
+        width: min(100vw, 430px) !important;
+        max-width: 430px !important;
       }
     </style>
 
-    <link rel="stylesheet" href="signals.css" />
+    <link rel="stylesheet" href="signals.css?v=20260729-2" />
     <link rel="stylesheet" href="notifications.css" />
   </head>
 
@@ -143,7 +160,7 @@
               ></path>
             </svg>
 
-                        <span
+            <span
               class="notification-dot"
               aria-hidden="true"
             ></span>
