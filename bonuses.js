@@ -17,10 +17,21 @@
 const TELEGRAM_BOT_USERNAME = "YOUR_BOT_USERNAME";
 const TELEGRAM_CHANNEL_USERNAME = "YOUR_CHANNEL_USERNAME";
 
-const STORAGE_KEY = "arbifyRewardsStateV1";
+/*
+ * V2 починає чесний прогрес із нуля.
+ * Старі демонстраційні нагороди з V1 більше не підтягуються.
+ */
+const STORAGE_KEY = "arbifyRewardsStateV2";
 const VERIFICATION_DELAY = 1600;
 const TOAST_DURATION = 2600;
 const REWARD_TOAST_DURATION = 2800;
+const WEEKLY_REWARD = 300;
+
+const VERIFIED_SUBID_KEY = "arbifyVerifiedSubId";
+const LAST_SIGNAL_KEY = "arbifyLastSignal";
+const VIEWED_LIVE_KEY = "arbifyViewedLiveSignals";
+const FAVORITE_SLOTS_KEY = "arbifyFavoriteSlots";
+const SIGNAL_COUNT_KEY = "arbifyCreatedSignalCount";
 
 /*
  * Захист сторінки.
@@ -121,8 +132,9 @@ taskCards.forEach((card) => {
 
 function createDefaultState() {
   return {
-    balance: 420,
-    weeklyProgress: 4,
+    balance: 0,
+    weeklyProgress: 0,
+    weeklyRewardClaimed: false,
     tasks: {
       "telegram-bot": {
         status: "available",
@@ -166,9 +178,9 @@ function createDefaultState() {
     },
 
     progress: {
-      favoriteSlots: 1,
+      favoriteSlots: 0,
       favoriteSlotsMaximum: 3,
-      signalMaster: 3,
+      signalMaster: 0,
       signalMasterMaximum: 10,
     },
   };
@@ -774,6 +786,30 @@ function showVerificationSuccess(taskId) {
 
   verificationActionButton.hidden = false;
   verificationActionButton.dataset.taskId = taskId;
+  verificationActionButton.dataset.mode = "claim";
+}
+
+function showVerificationFailure(taskId, message) {
+  verificationIcon.classList.add("is-error");
+
+  if (verificationSuccessPath) {
+    verificationSuccessPath.setAttribute(
+      "d",
+      "m10 10 12 12M22 10 10 22"
+    );
+  }
+
+  verificationTitle.textContent =
+    "Завдання не виконано";
+
+  verificationDescription.textContent = message;
+
+  verificationActionButton.textContent =
+    "ЗРОЗУМІЛО";
+
+  verificationActionButton.hidden = false;
+  verificationActionButton.dataset.taskId = taskId;
+  verificationActionButton.dataset.mode = "close";
 }
 
 function closeVerificationOverlay() {
@@ -798,6 +834,158 @@ function closeVerificationOverlay() {
   }, 260);
 }
 
+function readFavoriteSlotsCount() {
+  try {
+    const storedValue =
+      localStorage.getItem(FAVORITE_SLOTS_KEY) ||
+      sessionStorage.getItem(FAVORITE_SLOTS_KEY);
+
+    if (!storedValue) {
+      return 0;
+    }
+
+    const parsedValue = JSON.parse(storedValue);
+
+    return Array.isArray(parsedValue)
+      ? parsedValue.length
+      : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function readCreatedSignalCount() {
+  const storedValue =
+    localStorage.getItem(SIGNAL_COUNT_KEY) ||
+    sessionStorage.getItem(SIGNAL_COUNT_KEY);
+
+  const parsedValue = Number(storedValue);
+
+  if (Number.isFinite(parsedValue) && parsedValue > 0) {
+    return Math.floor(parsedValue);
+  }
+
+  return sessionStorage.getItem(LAST_SIGNAL_KEY)
+    ? 1
+    : 0;
+}
+
+function getTaskVerificationResult(taskId) {
+  if (taskId === "telegram-bot") {
+    return {
+      valid: false,
+      message:
+        "Перевірку запуску Telegram-бота підключимо через Telegram Mini App. До цього моменту PULSE не нараховуються.",
+    };
+  }
+
+  if (taskId === "telegram-channel") {
+    return {
+      valid: false,
+      message:
+        "Підписку на Telegram-канал має підтвердити наш сервер. Зараз це завдання не нараховує PULSE.",
+    };
+  }
+
+  if (taskId === "complete-profile") {
+    return {
+      valid: false,
+      message:
+        "Сторінку профілю ще не підключено. Завдання стане доступним після її створення.",
+    };
+  }
+
+  if (taskId === "notifications") {
+    const notificationsEnabled =
+      "Notification" in window &&
+      Notification.permission === "granted";
+
+    return {
+      valid: notificationsEnabled,
+      message: notificationsEnabled
+        ? ""
+        : "Спочатку дозволь сповіщення для застосунку.",
+    };
+  }
+
+  if (taskId === "confirm-subid") {
+    const verifiedSubId =
+      sessionStorage.getItem(VERIFIED_SUBID_KEY);
+
+    return {
+      valid: Boolean(verifiedSubId),
+      message:
+        "Спочатку введи та підтвердь SUBID на головній сторінці.",
+    };
+  }
+
+  if (taskId === "favorite-slots") {
+    const favoriteCount = readFavoriteSlotsCount();
+
+    rewardsState.progress.favoriteSlots =
+      Math.min(
+        favoriteCount,
+        rewardsState.progress.favoriteSlotsMaximum
+      );
+
+    return {
+      valid:
+        favoriteCount >=
+        rewardsState.progress.favoriteSlotsMaximum,
+      message:
+        `Зараз в обраному ${favoriteCount} із ` +
+        `${rewardsState.progress.favoriteSlotsMaximum} слотів.`,
+    };
+  }
+
+  if (taskId === "first-signal") {
+    const hasSignal =
+      Boolean(sessionStorage.getItem(LAST_SIGNAL_KEY));
+
+    return {
+      valid: hasSignal,
+      message:
+        "Спочатку створи свій перший сигнал на головній сторінці.",
+    };
+  }
+
+  if (taskId === "view-live") {
+    const viewedLive =
+      sessionStorage.getItem(VIEWED_LIVE_KEY) === "true";
+
+    return {
+      valid: viewedLive,
+      message:
+        "Спочатку відкрий сторінку LIVE-сигналів.",
+    };
+  }
+
+  if (taskId === "signal-master") {
+    const signalCount = readCreatedSignalCount();
+
+    rewardsState.progress.signalMaster =
+      Math.min(
+        signalCount,
+        rewardsState.progress.signalMasterMaximum
+      );
+
+    return {
+      valid:
+        signalCount >=
+        rewardsState.progress.signalMasterMaximum,
+      message:
+        `Створено ${signalCount} із ` +
+        `${rewardsState.progress.signalMasterMaximum} сигналів.`,
+    };
+  }
+
+  return {
+    valid: false,
+    message:
+      "Для цього завдання ще не налаштована перевірка.",
+  };
+}
+
 function verifyTask(taskId) {
   const meta = taskMeta.get(taskId);
 
@@ -813,42 +1001,34 @@ function verifyTask(taskId) {
 
   openVerificationOverlay(taskId);
 
-  /*
-   * ДЕМОПЕРЕВІРКА.
-   *
-   * Тут пізніше буде запит до сервера:
-   *
-   * fetch(`/api/tasks/${taskId}/verify`, {
-   *   method: "POST",
-   *   headers: {
-   *     "Content-Type": "application/json",
-   *   },
-   *   body: JSON.stringify({
-   *     telegramInitData:
-   *       window.Telegram?.WebApp?.initData,
-   *   }),
-   * });
-   */
-
   verificationTimer = window.setTimeout(() => {
     const record = getTaskRecord(taskId);
+    const result =
+      getTaskVerificationResult(taskId);
+
+    if (!result.valid) {
+      record.status = "checkable";
+
+      saveRewardsState();
+      renderTask(taskId);
+      renderTaskProgress();
+
+      setTaskMessage(
+        taskId,
+        result.message,
+        "is-error"
+      );
+
+      showVerificationFailure(
+        taskId,
+        result.message
+      );
+
+      return;
+    }
 
     record.status = "claimable";
     record.verifiedAt = Date.now();
-
-    /*
-     * У демоверсії після перевірки
-     * заповнюємо прогрес завдання.
-     */
-    if (taskId === "favorite-slots") {
-      rewardsState.progress.favoriteSlots =
-        rewardsState.progress.favoriteSlotsMaximum;
-    }
-
-    if (taskId === "signal-master") {
-      rewardsState.progress.signalMaster =
-        rewardsState.progress.signalMasterMaximum;
-    }
 
     saveRewardsState();
     renderTask(taskId);
@@ -883,6 +1063,19 @@ function claimTaskReward(taskId) {
     weeklyNodes.length
   );
 
+  let receivedReward = meta.reward;
+  let weeklyGoalCompleted = false;
+
+  if (
+    rewardsState.weeklyProgress >= weeklyNodes.length &&
+    !rewardsState.weeklyRewardClaimed
+  ) {
+    rewardsState.weeklyRewardClaimed = true;
+    rewardsState.balance += WEEKLY_REWARD;
+    receivedReward += WEEKLY_REWARD;
+    weeklyGoalCompleted = true;
+  }
+
   saveRewardsState();
 
   renderTask(taskId);
@@ -893,9 +1086,16 @@ function claimTaskReward(taskId) {
     rewardsState.balance
   );
 
-  showRewardToast(meta.reward);
+  showRewardToast(receivedReward);
 
   window.setTimeout(() => {
+    if (weeklyGoalCompleted) {
+      showToast(
+        `Тижневу ціль виконано: +${WEEKLY_REWARD} PULSE`
+      );
+      return;
+    }
+
     showToast(
       `Нагороду +${meta.reward} PULSE зараховано`
     );
@@ -967,9 +1167,8 @@ function openTelegramTask(taskId) {
     }
   }
 
-  prepareTaskForChecking(taskId);
-
   if (url) {
+    prepareTaskForChecking(taskId);
     openTelegramLink(url);
 
     showToast(
@@ -980,11 +1179,11 @@ function openTelegramTask(taskId) {
   }
 
   /*
-   * Поки username не вказано,
-   * залишаємо демонстраційну поведінку.
+   * Поки username і серверна перевірка не підключені,
+   * завдання не зараховується.
    */
   showToast(
-    "Telegram-посилання підключимо на фінальному етапі"
+    "Telegram-посилання і перевірку підключимо на фінальному етапі"
   );
 }
 
@@ -1001,16 +1200,13 @@ async function enableNotificationsTask() {
   clearTaskMessage(taskId);
 
   if (!("Notification" in window)) {
-    record.status = "claimable";
-    record.verifiedAt = Date.now();
-
-    saveRewardsState();
-    renderTask(taskId);
-
-    showToast(
-      "Сповіщення активовано у демонстраційному режимі"
+    setTaskMessage(
+      taskId,
+      "Цей браузер не підтримує перевірку сповіщень",
+      "is-error"
     );
 
+    showToast("Не вдалося активувати сповіщення");
     return;
   }
 
@@ -1063,19 +1259,13 @@ async function enableNotificationsTask() {
       "is-error"
     );
   } catch (error) {
-    /*
-     * Деякі мобільні браузери не підтримують
-     * звичайний Notification API.
-     */
-    record.status = "claimable";
-    record.verifiedAt = Date.now();
-
-    saveRewardsState();
-    renderTask(taskId);
-
-    showToast(
-      "Сповіщення підключимо через Telegram Mini App"
+    setTaskMessage(
+      taskId,
+      "Перевірка сповіщень буде доступна у Telegram Mini App",
+      "is-error"
     );
+
+    showToast("Сповіщення поки не підтверджено");
   }
 }
 
@@ -1087,6 +1277,13 @@ async function enableNotificationsTask() {
 
 function navigateToTaskPage(taskId, pageUrl) {
   prepareTaskForChecking(taskId);
+
+  if (taskId === "view-live") {
+    sessionStorage.setItem(
+      VIEWED_LIVE_KEY,
+      "true"
+    );
+  }
 
   showToast(
     "Після виконання повернися та натисни «Перевірити»"
@@ -1279,7 +1476,7 @@ function synchronizeExistingActivity() {
    * на головній сторінці.
    */
   const lastSignal =
-    sessionStorage.getItem("arbifyLastSignal");
+    sessionStorage.getItem(LAST_SIGNAL_KEY);
 
   const firstSignalRecord =
     getTaskRecord("first-signal");
@@ -1293,9 +1490,72 @@ function synchronizeExistingActivity() {
 
     rewardsState.progress.signalMaster =
       Math.max(
-        rewardsState.progress.signalMaster,
+        readCreatedSignalCount(),
         1
       );
+  }
+
+  const subIdRecord =
+    getTaskRecord("confirm-subid");
+
+  if (
+    sessionStorage.getItem(VERIFIED_SUBID_KEY) &&
+    subIdRecord.status !== "completed"
+  ) {
+    subIdRecord.status = "claimable";
+    subIdRecord.verifiedAt = Date.now();
+  }
+
+  const liveRecord =
+    getTaskRecord("view-live");
+
+  if (
+    sessionStorage.getItem(VIEWED_LIVE_KEY) === "true" &&
+    liveRecord.status !== "completed"
+  ) {
+    liveRecord.status = "claimable";
+    liveRecord.verifiedAt = Date.now();
+  }
+
+  const favoriteCount = readFavoriteSlotsCount();
+
+  rewardsState.progress.favoriteSlots =
+    Math.min(
+      favoriteCount,
+      rewardsState.progress.favoriteSlotsMaximum
+    );
+
+  const favoriteRecord =
+    getTaskRecord("favorite-slots");
+
+  if (
+    favoriteCount >=
+      rewardsState.progress.favoriteSlotsMaximum &&
+    favoriteRecord.status !== "completed"
+  ) {
+    favoriteRecord.status = "claimable";
+    favoriteRecord.verifiedAt = Date.now();
+  }
+
+  const createdSignalCount =
+    readCreatedSignalCount();
+
+  rewardsState.progress.signalMaster =
+    Math.min(
+      createdSignalCount,
+      rewardsState.progress.signalMasterMaximum
+    );
+
+  const signalMasterRecord =
+    getTaskRecord("signal-master");
+
+  if (
+    createdSignalCount >=
+      rewardsState.progress.signalMasterMaximum &&
+    signalMasterRecord.status !== "completed"
+  ) {
+    signalMasterRecord.status = "claimable";
+    signalMasterRecord.verifiedAt = Date.now();
   }
 
   /*
@@ -1344,6 +1604,14 @@ taskFilters.forEach((button) => {
 verificationActionButton.addEventListener(
   "click",
   () => {
+    if (
+      verificationActionButton.dataset.mode ===
+      "close"
+    ) {
+      closeVerificationOverlay();
+      return;
+    }
+
     const taskId =
       verificationActionButton.dataset.taskId ||
       activeVerificationTaskId;
