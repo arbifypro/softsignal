@@ -2437,7 +2437,7 @@ body {
 /* Зливаємо верхню панель із чорним фоном застосунку */
 .topbar {
   border-bottom: 0 !important;
-  background: #020307 !important;
-  background-color: #020307 !important;
+  background: #06070d !important;
+  background-color: #06070d !important;
   box-shadow: none !important;
 }
