@@ -1201,6 +1201,7 @@ svg {
 
 /* =========================================================
    ТОЧНЕ ВИРІВНЮВАННЯ ПРОФІЛЮ ПІД ГОЛОВНУ СТОРІНКУ
+   Цей блок має залишатися в самому кінці profile.css
    ========================================================= */
 
 :root {
@@ -1258,6 +1259,8 @@ body {
     );
   box-shadow: none;
 }
+
+/* Шапка як на головній сторінці */
 
 .topbar {
   position: relative;
@@ -1367,6 +1370,8 @@ body {
   box-sizing: content-box;
 }
 
+/* Прокручується лише вміст профілю */
+
 .content {
   position: relative;
   z-index: 2;
@@ -1389,6 +1394,8 @@ body {
   width: 0;
   height: 0;
 }
+
+/* Нижнє меню як на головній сторінці */
 
 .bottom-nav {
   position: absolute;
@@ -1484,11 +1491,15 @@ body {
   transform: translateX(-50%);
 }
 
+/* Мобільна версія */
+
 @media (max-width: 559px) {
   .ambient {
     display: none !important;
   }
 }
+
+/* Вигляд на комп’ютері */
 
 @media (min-width: 560px) {
   .page-shell {
