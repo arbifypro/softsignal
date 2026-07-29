@@ -1065,32 +1065,30 @@ function configureFilters() {
 }
 
 function configureNavigation() {
-  navigationItems.forEach(
-    (item) => {
-      const sectionName =
-        item.dataset.section;
+  navigationItems.forEach((item) => {
+    const sectionName = item.dataset.section;
+    const destination = item.getAttribute("href");
 
-      if (
-        sectionName ===
-          "Головна" ||
-        sectionName ===
-          "Сигнали"
-      ) {
-        return;
-      }
-
-      item.addEventListener(
-        "click",
-        (event) => {
-          event.preventDefault();
-
-          showToast(
-            `Розділ «${sectionName}» готується`
-          );
-        }
-      );
+    /*
+     * Якщо пункт має справжнє посилання,
+     * дозволяємо браузеру відкрити сторінку.
+     */
+    if (destination && destination !== "#") {
+      return;
     }
-  );
+
+    /*
+     * Повідомлення показуємо лише для розділів,
+     * які ще не мають окремої сторінки.
+     */
+    item.addEventListener("click", (event) => {
+      event.preventDefault();
+
+      showToast(
+        `Розділ «${sectionName}» готується`
+      );
+    });
+  });
 }
 
 function configurePageActions() {
