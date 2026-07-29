@@ -2434,27 +2434,31 @@ body {
   }
 }
 
-/* Зливаємо верхню панель із чорним фоном застосунку */
-.topbar {
-  border-bottom: 0 !important;
+/* =========================================================
+   ЄДИНИЙ ФОН І ШАПКА ЯК НА ГОЛОВНІЙ СТОРІНЦІ
+   ========================================================= */
+
+.rewards-app .topbar {
+  border: 0 !important;
   background: #06070d !important;
   background-color: #06070d !important;
+  background-image: none !important;
   box-shadow: none !important;
 }
 
-/*
- * Верхня панель більше не створює окрему темну смугу.
- * Крізь неї безперервно видно основний фон застосунку.
- */
-.rewards-app .topbar {
-  border-bottom: 0 !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  box-shadow: none !important;
+.rewards-app .app-noise {
+  position: absolute;
+  inset: 0;
+  z-index: 0 !important;
+  max-width: none;
+  margin: 0;
+  opacity: 0.18 !important;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.08'/%3E%3C/svg%3E") !important;
 }
 
-/* Вирівнювання фону Бонусів із Головною сторінкою */
 @media (max-width: 559px) {
+  :root,
   html,
   body,
   .page-shell {
@@ -2478,23 +2482,6 @@ body {
     flex: 0 0 82px !important;
     height: 82px !important;
     min-height: 82px !important;
-    border: 0 !important;
-    background: #06070d !important;
-    background-color: #06070d !important;
-    background-image: none !important;
-    box-shadow: none !important;
     isolation: isolate;
   }
-
-  .rewards-app .app-noise {
-    z-index: 0 !important;
-    opacity: 0.18 !important;
-  }
-}
-
-/* Точна гладка текстура з головної сторінки */
-.rewards-app .app-noise {
-  z-index: 0 !important;
-  opacity: 0.18 !important;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.08'/%3E%3C/svg%3E") !important;
 }
