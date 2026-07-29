@@ -96,12 +96,14 @@
                   stroke-width="2.4"
                   stroke-linejoin="round"
                 ></path>
+
                 <path
                   d="M12 42h40M14 36h36"
                   stroke="currentColor"
                   stroke-width="2.4"
                   stroke-linecap="round"
                 ></path>
+
                 <circle cx="5" cy="11" r="2.5" fill="currentColor"></circle>
                 <circle cx="32" cy="3" r="2.5" fill="currentColor"></circle>
                 <circle cx="59" cy="11" r="2.5" fill="currentColor"></circle>
@@ -132,7 +134,10 @@
               <path
                 d="M6.2 10.2c0-3.6 2.1-6.2 5.8-6.2s5.8 2.6 5.8 6.2v4l1.7 2.4h-15l1.7-2.4v-4Z"
               ></path>
-              <path d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"></path>
+
+              <path
+                d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"
+              ></path>
             </svg>
 
             <span class="notification-dot"></span>
@@ -179,6 +184,7 @@
             <div class="stat-item">
               <span>АКТИВНІ</span>
               <strong id="activeSignalsCount">—</strong>
+
               <small class="stat-live">
                 <span aria-hidden="true"></span>
                 зараз
@@ -209,7 +215,9 @@
                 <h2 id="feedTitle">LIVE-стрічка</h2>
               </div>
 
-              <span class="demo-mode-badge" id="feedModeBadge">DEMO LIVE</span>
+              <span class="demo-mode-badge" id="feedModeBadge">
+                DEMO LIVE
+              </span>
             </div>
 
             <div class="filter-scroller" aria-label="Фільтри сигналів">
@@ -337,6 +345,7 @@
                 stroke-linejoin="round"
               >
                 <path d="m3.5 10.4 8.5-7 8.5 7"></path>
+
                 <path
                   d="M5.8 9.2v10.2h12.4V9.2M9.5 19.4v-6.2h5v6.2"
                 ></path>
@@ -373,7 +382,11 @@
             <span>Сигнали</span>
           </a>
 
-          <a class="nav-item" href="#" data-section="Бонуси">
+          <a
+            class="nav-item"
+            href="bonuses.html"
+            data-section="Бонуси"
+          >
             <span class="nav-icon">
               <svg
                 aria-hidden="true"
@@ -384,7 +397,10 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <path d="M4 10.2h16v10H4zM3 6.8h18v3.4H3zM12 6.8v13.4"></path>
+                <path
+                  d="M4 10.2h16v10H4zM3 6.8h18v3.4H3zM12 6.8v13.4"
+                ></path>
+
                 <path
                   d="M11.7 6.7C9.8 6.9 7 6.5 7 4.5 7 2.2 11 3 11.7 6.7ZM12.3 6.7c1.9.2 4.7-.2 4.7-2.2 0-2.3-4-1.5-4.7 2.2Z"
                 ></path>
@@ -406,7 +422,10 @@
                 stroke-linejoin="round"
               >
                 <circle cx="12" cy="8" r="4"></circle>
-                <path d="M4.8 20c.7-4 3.1-6 7.2-6s6.5 2 7.2 6"></path>
+
+                <path
+                  d="M4.8 20c.7-4 3.1-6 7.2-6s6.5 2 7.2 6"
+                ></path>
               </svg>
             </span>
 
@@ -414,7 +433,12 @@
           </a>
         </nav>
 
-        <div class="toast" id="toast" role="status" aria-live="polite">
+        <div
+          class="toast"
+          id="toast"
+          role="status"
+          aria-live="polite"
+        >
           <span class="toast-dot" aria-hidden="true"></span>
           <span id="toastText"></span>
         </div>
