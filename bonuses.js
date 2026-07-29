@@ -102,10 +102,6 @@ const toastText = document.querySelector("#toastText");
 const rewardToast = document.querySelector("#rewardToast");
 const rewardToastValue = document.querySelector("#rewardToastValue");
 
-const profileNavigation = document.querySelector(
-  '.nav-item[data-section="Профіль"]'
-);
-
 /*
  * =========================================================
  * ПОЧАТКОВІ ДАНІ
@@ -1958,21 +1954,6 @@ getTaskVerificationResult = function (taskId) {
   );
 };
 
-/*
- * Старий обробник кнопки профілю знаходиться вище.
- * Цей обробник пропускає користувача за справжнім
- * посиланням profile.html.
- */
-profileNavigation.addEventListener(
-  "click",
-  (event) => {
-    event.stopImmediatePropagation();
-  },
-  {
-    capture: true,
-  }
-);
-
 function pulseSynchronizeProfileTask() {
   const taskId = "complete-profile";
   const record = getTaskRecord(taskId);
@@ -2004,22 +1985,3 @@ function pulseSynchronizeProfileTask() {
 }
 
 pulseSynchronizeProfileTask();
-
-document.addEventListener(
-  "click",
-  (event) => {
-    const profileLink = event.target.closest(
-      '.bottom-nav a[href="profile.html"]'
-    );
-
-    if (!profileLink) {
-      return;
-    }
-
-    event.preventDefault();
-    event.stopImmediatePropagation();
-
-    window.location.assign("profile.html");
-  },
-  true
-);
