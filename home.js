@@ -817,3 +817,160 @@ window.addEventListener(
 );
 
 syncSubIdVisualViewport();
+
+/*
+ * =========================================================
+ * PULSE — СПОВІЩЕННЯ ГОЛОВНОЇ СТОРІНКИ
+ * Цей блок має бути в самому кінці home.js.
+ * =========================================================
+ */
+
+const PULSE_SIGNAL_COUNT_KEY =
+  "arbifyCreatedSignalCount";
+
+const PULSE_SUBID_NOTICE_KEY =
+  "arbifySubIdNoticeSent";
+
+function pulseHomeUseNotifications(action) {
+  if (window.PulseNotifications) {
+    action(window.PulseNotifications);
+    return;
+  }
+
+  document.addEventListener(
+    "pulse:notifications-ready",
+    () => {
+      if (window.PulseNotifications) {
+        action(window.PulseNotifications);
+      }
+    },
+    {
+      once: true,
+    }
+  );
+}
+
+function pulseIncrementSignalCount() {
+  const currentValue = Number(
+    localStorage.getItem(
+      PULSE_SIGNAL_COUNT_KEY
+    )
+  );
+
+  const nextValue =
+    Number.isFinite(currentValue) &&
+    currentValue > 0
+      ? Math.floor(currentValue) + 1
+      : 1;
+
+  localStorage.setItem(
+    PULSE_SIGNAL_COUNT_KEY,
+    String(nextValue)
+  );
+
+  return nextValue;
+}
+
+function pulseMaskSubId(subId) {
+  const normalizedValue =
+    String(subId || "").trim();
+
+  if (normalizedValue.length <= 4) {
+    return normalizedValue;
+  }
+
+  return (
+    normalizedValue.slice(0, 2) +
+    "•".repeat(
+      Math.min(
+        normalizedValue.length - 4,
+        6
+      )
+    ) +
+    normalizedValue.slice(-2)
+  );
+}
+
+const pulseOriginalStartSubIdVerification =
+  startSubIdVerification;
+
+startSubIdVerification = function (subId) {
+  const alreadyVerified =
+    Boolean(
+      sessionStorage.getItem(
+        SUBID_STORAGE_KEY
+      )
+    );
+
+  pulseOriginalStartSubIdVerification(subId);
+
+  if (alreadyVerified) {
+    return;
+  }
+
+  window.setTimeout(() => {
+    const verifiedSubId =
+      sessionStorage.getItem(
+        SUBID_STORAGE_KEY
+      );
+
+    const noticeWasSent =
+      sessionStorage.getItem(
+        PULSE_SUBID_NOTICE_KEY
+      ) === "true";
+
+    if (
+      !verifiedSubId ||
+      noticeWasSent
+    ) {
+      return;
+    }
+
+    sessionStorage.setItem(
+      PULSE_SUBID_NOTICE_KEY,
+      "true"
+    );
+
+    pulseHomeUseNotifications(
+      (notificationsApi) => {
+        notificationsApi.add({
+          type: "success",
+          category: "SUBID ПІДТВЕРДЖЕНО",
+          title:
+            "Реєстрацію знайдено",
+          message:
+            `SUBID ${pulseMaskSubId(verifiedSubId)} успішно підтверджено. ` +
+            "Доступ до створення сигналів відкрито.",
+        });
+      }
+    );
+  }, SUBID_VERIFY_DELAY + 80);
+};
+
+const pulseOriginalShowSignalResult =
+  showSignalResult;
+
+showSignalResult = function () {
+  pulseOriginalShowSignalResult();
+
+  if (!activeSignal) {
+    return;
+  }
+
+  const signalCount =
+    pulseIncrementSignalCount();
+
+  pulseHomeUseNotifications(
+    (notificationsApi) => {
+      notificationsApi.addSignal({
+        title:
+          `Сигнал для ${activeSignal.slotName} готовий`,
+        message:
+          `Ставка ${activeSignal.bet} · ` +
+          `${activeSignal.spins} обертань · ` +
+          `ризик ${activeSignal.risk.toLowerCase()}. ` +
+          `Усього створено сигналів: ${signalCount}.`,
+      });
+    }
+  );
+};
