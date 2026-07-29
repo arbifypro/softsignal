@@ -3,6 +3,7 @@
    ========================================================= */
 
 :root {
+  --app-height: 100dvh;
   --background: #020307;
   --background-soft: #070710;
   --panel: rgba(12, 11, 24, 0.94);
@@ -31,8 +32,8 @@
   --border-bright: rgba(188, 79, 255, 0.55);
   --border-soft: rgba(255, 255, 255, 0.075);
 
-  --app-width: 720px;
-  --nav-height: 94px;
+  --app-width: 430px;
+  --nav-height: 78px;
 
   font-family:
     Inter,
@@ -46,10 +47,6 @@
   color-scheme: dark;
 }
 
-/* =========================================================
-   БАЗОВІ СТИЛІ
-   ========================================================= */
-
 *,
 *::before,
 *::after {
@@ -58,7 +55,7 @@
 
 html {
   width: 100%;
-  min-height: 100%;
+  height: 100%;
   background: var(--background);
   scrollbar-width: none;
   -webkit-text-size-adjust: 100%;
@@ -76,11 +73,10 @@ body::-webkit-scrollbar,
 
 body {
   width: 100%;
+  height: 100%;
   min-width: 320px;
-  min-height: 100vh;
-  min-height: 100svh;
   margin: 0;
-  overflow-x: hidden;
+  overflow: hidden;
   color: var(--text);
   background:
     radial-gradient(
@@ -89,7 +85,7 @@ body {
       transparent 37%
     ),
     var(--background);
-  overscroll-behavior-x: none;
+  overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -136,16 +132,19 @@ svg {
   display: none !important;
 }
 
-/* =========================================================
-   ОСНОВНА ОБОЛОНКА
-   ========================================================= */
+/* Основна оболонка */
 
 .page-shell {
   position: relative;
   width: 100%;
+  height: var(--app-height);
   min-height: 100vh;
   min-height: 100svh;
+  min-height: 100dvh;
   overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
   background:
     radial-gradient(
       circle at 50% 9%,
@@ -159,14 +158,13 @@ svg {
 .pulse-app {
   position: relative;
   z-index: 2;
-  width: 100%;
-  max-width: var(--app-width);
-  min-height: 100vh;
-  min-height: 100svh;
-  margin: 0 auto;
+  width: min(100%, var(--app-width));
+  height: 100%;
+  min-height: 0;
+  margin: 0;
   overflow: hidden;
-  border-right: 1px solid rgba(255, 255, 255, 0.025);
-  border-left: 1px solid rgba(255, 255, 255, 0.025);
+  display: flex;
+  flex-direction: column;
   background:
     linear-gradient(180deg, rgba(8, 8, 16, 0.46), rgba(2, 3, 7, 0.82)),
     var(--background);
@@ -177,7 +175,7 @@ svg {
 }
 
 .app-noise {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: -1;
   max-width: var(--app-width);
@@ -188,7 +186,7 @@ svg {
 }
 
 .ambient {
-  position: fixed;
+  position: absolute;
   z-index: 0;
   border-radius: 50%;
   opacity: 0.34;
@@ -215,93 +213,111 @@ svg {
 .content {
   position: relative;
   z-index: 2;
+  min-height: 0;
+  flex: 1 1 auto;
   padding:
-    4px
-    24px
-    calc(var(--nav-height) + 64px + env(safe-area-inset-bottom));
+    10px
+    18px
+    calc(104px + env(safe-area-inset-bottom));
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
 }
 
-/* =========================================================
-   ШАПКА
-   ========================================================= */
+.content::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Шапка */
 
 .topbar {
   position: relative;
-  z-index: 10;
+  z-index: 20;
+  flex: 0 0 auto;
+  height: 82px;
+  min-height: 82px;
   display: flex;
-  min-height: 104px;
   align-items: center;
   justify-content: space-between;
   padding:
-    max(18px, env(safe-area-inset-top))
-    24px
-    12px;
+    max(10px, env(safe-area-inset-top))
+    20px
+    0;
+  background: #06070d;
 }
 
 .mini-brand {
   display: inline-flex;
   align-items: center;
-  gap: 13px;
-  border-radius: 14px;
+  gap: 10px;
+  border-radius: 12px;
 }
 
 .brand-mark {
   display: grid;
-  width: 52px;
-  height: 52px;
-  flex: 0 0 52px;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
   place-items: center;
-  border: 1px solid rgba(243, 201, 92, 0.28);
+  border: 1px solid rgba(244, 196, 78, 0.2);
   border-radius: 50%;
   color: var(--gold);
   background:
-    radial-gradient(circle at 50% 40%, rgba(243, 201, 92, 0.09), transparent 65%),
-    rgba(8, 8, 13, 0.8);
+    radial-gradient(
+      circle,
+      rgba(244, 196, 78, 0.1),
+      transparent 65%
+    ),
+    #08090f;
   box-shadow:
-    0 0 0 5px rgba(243, 201, 92, 0.018),
-    0 0 25px rgba(243, 201, 92, 0.08);
+    inset 0 0 16px rgba(244, 196, 78, 0.05);
 }
 
 .crown {
-  width: 34px;
-  height: 28px;
-  filter: drop-shadow(0 0 7px rgba(243, 201, 92, 0.3));
+  width: 25px;
+  height: 20px;
+  filter: drop-shadow(0 0 6px rgba(244, 196, 78, 0.35));
 }
 
 .brand-copy {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .brand-name {
-  color: #f6f1e7;
+  margin: 0;
+  color: #fff1bc;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 25px;
-  letter-spacing: 0.17em;
+  font-size: 16px;
+  letter-spacing: 0.2em;
   line-height: 1;
 }
 
 .brand-pulse {
-  margin-top: 8px;
+  margin: 5px 0 0;
   color: var(--gold);
-  font-size: 9px;
-  font-weight: 750;
-  letter-spacing: 0.31em;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  line-height: 1;
 }
 
 .icon-button {
   display: grid;
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
   place-items: center;
-  border: 1px solid var(--border-soft);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 50%;
-  color: #dbd8e4;
-  background: rgba(10, 10, 18, 0.82);
-  box-shadow:
-    0 10px 28px rgba(0, 0, 0, 0.32),
-    inset 0 0 20px rgba(116, 42, 178, 0.025);
+  color: #e4e1ec;
+  background: rgba(10, 11, 19, 0.88);
+  box-shadow: none;
   transition:
     border-color 160ms ease,
     color 160ms ease,
@@ -309,8 +325,8 @@ svg {
 }
 
 .icon-button svg {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
 }
 
 .icon-button:active {
@@ -324,19 +340,17 @@ svg {
 .notification-dot {
   position: absolute;
   top: 7px;
-  right: 6px;
-  width: 9px;
-  height: 9px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
   border: 2px solid #080910;
   border-radius: 50%;
   background: #ff3571;
-  box-shadow: 0 0 10px rgba(255, 53, 113, 0.75);
-  animation: notification-pulse 2.3s ease-in-out infinite;
+  box-sizing: content-box;
+  box-shadow: none;
 }
 
-/* =========================================================
-   ЗАГОЛОВОК СТОРІНКИ
-   ========================================================= */
+/* Заголовок */
 
 .rewards-heading {
   margin-top: 4px;
@@ -382,9 +396,7 @@ svg {
   line-height: 1.55;
 }
 
-/* =========================================================
-   КАРТКА БАЛАНСУ
-   ========================================================= */
+/* Картка балансу */
 
 .balance-card {
   position: relative;
@@ -538,12 +550,7 @@ svg {
   position: absolute;
   inset: 0 auto 0 0;
   border-radius: inherit;
-  background: linear-gradient(
-    90deg,
-    #7215d7,
-    #b937ff 55%,
-    #ef9bff
-  );
+  background: linear-gradient(90deg, #7215d7, #b937ff 55%, #ef9bff);
   box-shadow:
     0 0 10px rgba(184, 52, 255, 0.7),
     0 0 24px rgba(154, 38, 239, 0.35);
@@ -639,9 +646,7 @@ svg {
   animation: ring-rotation 12s linear infinite reverse;
 }
 
-/* =========================================================
-   ЗАВДАННЯ
-   ========================================================= */
+/* Завдання */
 
 .tasks-section {
   margin-top: 34px;
@@ -780,7 +785,7 @@ svg {
   align-items: center;
   gap: 13px;
   overflow: hidden;
-  padding: 15px 15px;
+  padding: 15px;
   border: 1px solid rgba(160, 61, 236, 0.19);
   border-radius: 19px;
   background:
@@ -1136,9 +1141,7 @@ svg {
   content: "✓";
 }
 
-/* =========================================================
-   ТИЖНЕВА ЦІЛЬ
-   ========================================================= */
+/* Тижнева ціль */
 
 .weekly-card {
   position: relative;
@@ -1311,9 +1314,7 @@ svg {
     0 0 13px rgba(189, 70, 255, 0.45);
 }
 
-/* =========================================================
-   ВІДПОВІДАЛЬНА ГРА
-   ========================================================= */
+/* Відповідальна гра */
 
 .responsible-line {
   display: flex;
@@ -1341,49 +1342,51 @@ svg {
   line-height: 1.4;
 }
 
-/* =========================================================
-   НИЖНЄ МЕНЮ
-   ========================================================= */
+/* Нижнє меню */
 
 .bottom-nav {
-  position: fixed;
+  position: absolute;
   right: 0;
   bottom: 0;
-  left: 50%;
-  z-index: 60;
+  left: 0;
+  z-index: 30;
   display: grid;
-  width: min(100%, var(--app-width));
-  min-height: calc(var(--nav-height) + env(safe-area-inset-bottom));
+  width: 100%;
+  height: calc(78px + env(safe-area-inset-bottom));
+  min-height: 0;
   grid-template-columns: repeat(4, 1fr);
   align-items: start;
   padding:
-    13px
-    10px
-    max(11px, env(safe-area-inset-bottom));
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
-  background: rgba(5, 5, 12, 0.93);
-  box-shadow:
-    0 -14px 35px rgba(0, 0, 0, 0.38),
-    inset 0 1px 0 rgba(154, 55, 227, 0.025);
-  backdrop-filter: blur(18px) saturate(1.15);
-  -webkit-backdrop-filter: blur(18px) saturate(1.15);
-  transform: translateX(-50%);
+    8px
+    14px
+    env(safe-area-inset-bottom);
+  border-top: 1px solid rgba(255, 255, 255, 0.075);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(8, 9, 15, 0.96),
+      rgba(4, 5, 10, 1)
+    ),
+    #05060b;
+  box-shadow: 0 -14px 30px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
 .nav-item {
   position: relative;
   display: flex;
   min-width: 0;
-  min-height: 66px;
+  height: 62px;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 6px;
-  padding-top: 2px;
-  border-radius: 14px;
-  color: #656170;
-  font-size: 10px;
-  font-weight: 600;
+  gap: 5px;
+  padding: 4px 2px 0;
+  border-radius: 0;
+  color: #676875;
+  font-size: 8px;
+  font-weight: 560;
   transition:
     color 160ms ease,
     transform 160ms ease;
@@ -1395,41 +1398,44 @@ svg {
 
 .nav-icon {
   display: grid;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 31px;
   place-items: center;
+  border-radius: 10px;
 }
 
 .nav-icon svg {
-  width: 27px;
-  height: 27px;
+  width: 21px;
+  height: 21px;
 }
 
 .nav-item.is-active {
-  color: #c552ff;
-  text-shadow: 0 0 12px rgba(190, 76, 255, 0.24);
+  color: #b95cff;
 }
 
 .nav-item.is-active .nav-icon {
-  filter: drop-shadow(0 0 8px rgba(185, 63, 255, 0.38));
+  background:
+    radial-gradient(
+      circle,
+      rgba(158, 66, 255, 0.2),
+      transparent 70%
+    );
+  text-shadow: 0 0 12px rgba(174, 73, 255, 0.6);
+  filter: none;
 }
 
 .nav-item.is-active::after {
   position: absolute;
-  bottom: -2px;
-  left: 50%;
-  width: 26px;
-  height: 3px;
+  bottom: 2px;
+  width: 16px;
+  height: 2px;
   border-radius: 999px;
-  background: linear-gradient(90deg, #8b22e9, #dc64ff);
-  box-shadow: 0 0 10px rgba(196, 72, 255, 0.6);
+  background: #a84bff;
+  box-shadow: 0 0 9px rgba(168, 75, 255, 0.85);
   content: "";
-  transform: translateX(-50%);
 }
 
-/* =========================================================
-   МОДАЛЬНЕ ВІКНО ПЕРЕВІРКИ
-   ========================================================= */
+/* Модальні вікна */
 
 .verification-overlay,
 .guide-overlay {
@@ -1652,9 +1658,7 @@ svg {
   letter-spacing: 0.12em;
 }
 
-/* =========================================================
-   ВІКНО ВІДПОВІДАЛЬНОЇ ГРИ
-   ========================================================= */
+/* Вікно відповідальної гри */
 
 .guide-dialog {
   max-height: calc(100dvh - 40px);
@@ -1711,9 +1715,7 @@ svg {
   content: "✓";
 }
 
-/* =========================================================
-   TOAST-ПОВІДОМЛЕННЯ
-   ========================================================= */
+/* Toast */
 
 .toast {
   position: fixed;
@@ -1827,19 +1829,13 @@ svg {
   font-size: 9px;
 }
 
-/* =========================================================
-   FOCUS
-   ========================================================= */
-
 button:focus-visible,
 a:focus-visible {
   outline: 2px solid var(--purple-bright);
   outline-offset: 3px;
 }
 
-/* =========================================================
-   АНІМАЦІЇ
-   ========================================================= */
+/* Анімації */
 
 @keyframes page-entrance {
   from {
@@ -1899,21 +1895,18 @@ a:focus-visible {
   }
 }
 
-/* =========================================================
-   ПЛАНШЕТИ
-   ========================================================= */
+/* Комп’ютери й планшети */
 
-@media (min-width: 721px) {
-  .bottom-nav {
-    bottom: 14px;
-    min-height: 88px;
-    padding-bottom: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.075);
+@media (min-width: 560px) {
+  .pulse-app {
+    height: min(100%, 900px);
+    margin: auto 0;
+    border: 1px solid rgba(255, 255, 255, 0.045);
     border-radius: 24px;
   }
 
-  .content {
-    padding-bottom: 145px;
+  .bottom-nav {
+    border-radius: 0 0 23px 23px;
   }
 
   .task-card:hover {
@@ -1931,53 +1924,52 @@ a:focus-visible {
   }
 }
 
-/* =========================================================
-   МОБІЛЬНІ ЕКРАНИ
-   ========================================================= */
+/* Мобільні екрани */
 
 @media (max-width: 600px) {
-  :root {
-    --nav-height: 88px;
-  }
-
   .pulse-app {
     border: 0;
   }
 
   .topbar {
-    min-height: 94px;
-    padding-right: 18px;
-    padding-left: 18px;
+    height: 82px;
+    min-height: 82px;
+    padding:
+      max(10px, env(safe-area-inset-top))
+      20px
+      0;
   }
 
   .brand-mark {
-    width: 46px;
-    height: 46px;
-    flex-basis: 46px;
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
   }
 
   .crown {
-    width: 30px;
-    height: 25px;
+    width: 25px;
+    height: 20px;
   }
 
   .brand-name {
-    font-size: 22px;
+    font-size: 16px;
   }
 
   .brand-pulse {
-    margin-top: 7px;
+    margin-top: 5px;
     font-size: 8px;
   }
 
   .icon-button {
-    width: 45px;
-    height: 45px;
+    width: 42px;
+    height: 42px;
   }
 
   .content {
+    padding-top: 10px;
     padding-right: 18px;
     padding-left: 18px;
+    padding-bottom: calc(104px + env(safe-area-inset-bottom));
   }
 
   .rewards-heading {
@@ -2098,7 +2090,7 @@ a:focus-visible {
   }
 
   .nav-item {
-    font-size: 9px;
+    font-size: 8px;
   }
 
   .verification-dialog,
@@ -2108,14 +2100,10 @@ a:focus-visible {
   }
 }
 
-/* =========================================================
-   МАЛІ МОБІЛЬНІ ЕКРАНИ
-   ========================================================= */
-
 @media (max-width: 410px) {
   .topbar {
-    padding-right: 15px;
-    padding-left: 15px;
+    padding-right: 20px;
+    padding-left: 20px;
   }
 
   .mini-brand {
@@ -2123,18 +2111,18 @@ a:focus-visible {
   }
 
   .brand-mark {
-    width: 43px;
-    height: 43px;
-    flex-basis: 43px;
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
   }
 
   .brand-name {
-    font-size: 20px;
+    font-size: 16px;
   }
 
   .content {
-    padding-right: 14px;
-    padding-left: 14px;
+    padding-right: 18px;
+    padding-left: 18px;
   }
 
   .rewards-heading h1 {
@@ -2237,9 +2225,25 @@ a:focus-visible {
   }
 }
 
-/* =========================================================
-   ДУЖЕ МАЛА ВИСОТА
-   ========================================================= */
+@media (max-width: 359px) {
+  .topbar {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .content {
+    padding-right: 13px;
+    padding-left: 13px;
+  }
+}
+
+@media (max-height: 760px) and (max-width: 559px) {
+  .topbar {
+    height: 72px;
+    min-height: 72px;
+    padding-bottom: 0;
+  }
+}
 
 @media (max-height: 620px) {
   .verification-overlay,
@@ -2255,10 +2259,6 @@ a:focus-visible {
     margin: auto 0;
   }
 }
-
-/* =========================================================
-   ЗМЕНШЕННЯ АНІМАЦІЙ
-   ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
   *,
