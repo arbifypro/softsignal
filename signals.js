@@ -55,26 +55,56 @@ const userPrefixes = [
   "ZK",
 ];
 
-const signalFeed = document.querySelector("#signalFeed");
-const signalCardTemplate = document.querySelector("#signalCardTemplate");
-const emptyFeed = document.querySelector("#emptyFeed");
-const filterButtons = document.querySelectorAll(".filter-button");
-const notificationButton = document.querySelector("#notificationButton");
-const navigationItems = document.querySelectorAll(".nav-item");
-const nextSignalTimer = document.querySelector("#nextSignalTimer");
-const newSignalBanner = document.querySelector("#newSignalBanner");
-const newSignalBannerText = document.querySelector("#newSignalBannerText");
-const toast = document.querySelector("#toast");
-const toastText = document.querySelector("#toastText");
+const signalFeed =
+  document.querySelector("#signalFeed");
 
-const activeSignalsCount = document.querySelector("#activeSignalsCount");
-const wonSignalsCount = document.querySelector("#wonSignalsCount");
-const totalSignalsCount = document.querySelector("#totalSignalsCount");
+const signalCardTemplate =
+  document.querySelector("#signalCardTemplate");
 
-const allFilterCount = document.querySelector("#allFilterCount");
-const activeFilterCount = document.querySelector("#activeFilterCount");
-const wonFilterCount = document.querySelector("#wonFilterCount");
-const lostFilterCount = document.querySelector("#lostFilterCount");
+const emptyFeed =
+  document.querySelector("#emptyFeed");
+
+const filterButtons =
+  document.querySelectorAll(".filter-button");
+
+const navigationItems =
+  document.querySelectorAll(".nav-item");
+
+const nextSignalTimer =
+  document.querySelector("#nextSignalTimer");
+
+const newSignalBanner =
+  document.querySelector("#newSignalBanner");
+
+const newSignalBannerText =
+  document.querySelector("#newSignalBannerText");
+
+const toast =
+  document.querySelector("#toast");
+
+const toastText =
+  document.querySelector("#toastText");
+
+const activeSignalsCount =
+  document.querySelector("#activeSignalsCount");
+
+const wonSignalsCount =
+  document.querySelector("#wonSignalsCount");
+
+const totalSignalsCount =
+  document.querySelector("#totalSignalsCount");
+
+const allFilterCount =
+  document.querySelector("#allFilterCount");
+
+const activeFilterCount =
+  document.querySelector("#activeFilterCount");
+
+const wonFilterCount =
+  document.querySelector("#wonFilterCount");
+
+const lostFilterCount =
+  document.querySelector("#lostFilterCount");
 
 let signals = [];
 let activeFilter = "all";
@@ -92,19 +122,34 @@ let liveCounters = {
 };
 
 function randomNumber(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(
+    Math.random() * (max - min + 1)
+  ) + min;
 }
 
 function randomItem(items) {
-  return items[randomNumber(0, items.length - 1)];
+  return items[
+    randomNumber(0, items.length - 1)
+  ];
 }
 
 function createToken(length = 4) {
-  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const alphabet =
+    "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
   let token = "";
 
-  for (let index = 0; index < length; index += 1) {
-    token += alphabet[randomNumber(0, alphabet.length - 1)];
+  for (
+    let index = 0;
+    index < length;
+    index += 1
+  ) {
+    token += alphabet[
+      randomNumber(
+        0,
+        alphabet.length - 1
+      )
+    ];
   }
 
   return token;
@@ -115,15 +160,30 @@ function createIdentifier() {
     return window.crypto.randomUUID();
   }
 
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  return (
+    `${Date.now()}-` +
+    Math.random()
+      .toString(16)
+      .slice(2)
+  );
 }
 
-function formatAmount(amount, includeSign = false) {
-  const absoluteAmount = Math.abs(Math.round(amount));
+function formatAmount(
+  amount,
+  includeSign = false
+) {
+  const absoluteAmount =
+    Math.abs(
+      Math.round(amount)
+    );
 
-  const formattedAmount = new Intl.NumberFormat("uk-UA", {
-    maximumFractionDigits: 0,
-  }).format(absoluteAmount);
+  const formattedAmount =
+    new Intl.NumberFormat(
+      "uk-UA",
+      {
+        maximumFractionDigits: 0,
+      }
+    ).format(absoluteAmount);
 
   if (!includeSign) {
     return `₴${formattedAmount}`;
@@ -134,9 +194,19 @@ function formatAmount(amount, includeSign = false) {
     : `−₴${formattedAmount}`;
 }
 
-function formatRelativeTime(timestamp) {
-  const difference = Math.max(0, Date.now() - timestamp);
-  const seconds = Math.floor(difference / 1000);
+function formatRelativeTime(
+  timestamp
+) {
+  const difference =
+    Math.max(
+      0,
+      Date.now() - timestamp
+    );
+
+  const seconds =
+    Math.floor(
+      difference / 1000
+    );
 
   if (seconds < 8) {
     return "щойно";
@@ -146,13 +216,15 @@ function formatRelativeTime(timestamp) {
     return `${seconds} с тому`;
   }
 
-  const minutes = Math.floor(seconds / 60);
+  const minutes =
+    Math.floor(seconds / 60);
 
   if (minutes < 60) {
     return `${minutes} хв тому`;
   }
 
-  const hours = Math.floor(minutes / 60);
+  const hours =
+    Math.floor(minutes / 60);
 
   if (hours < 24) {
     return `${hours} год тому`;
@@ -161,24 +233,32 @@ function formatRelativeTime(timestamp) {
   return "сьогодні";
 }
 
-function getSignalProgress(signal, currentTime = Date.now()) {
+function getSignalProgress(
+  signal,
+  currentTime = Date.now()
+) {
   if (signal.status !== "active") {
     return 100;
   }
 
-  const duration = Math.max(
-    1,
-    signal.resolveAt - signal.createdAt
-  );
+  const duration =
+    Math.max(
+      1,
+      signal.resolveAt -
+        signal.createdAt
+    );
 
-  const elapsed = Math.max(
-    0,
-    currentTime - signal.createdAt
-  );
+  const elapsed =
+    Math.max(
+      0,
+      currentTime -
+        signal.createdAt
+    );
 
-  const progress = Math.floor(
-    (elapsed / duration) * 100
-  );
+  const progress =
+    Math.floor(
+      (elapsed / duration) * 100
+    );
 
   return Math.min(
     99,
@@ -187,12 +267,18 @@ function getSignalProgress(signal, currentTime = Date.now()) {
 }
 
 function createUser() {
-  const prefix = randomItem(userPrefixes);
-  const suffix = randomNumber(100, 999);
-  const shortCode = `${prefix}${String(suffix).slice(-2)}`;
+  const prefix =
+    randomItem(userPrefixes);
+
+  const suffix =
+    randomNumber(100, 999);
+
+  const shortCode =
+    `${prefix}${String(suffix).slice(-2)}`;
 
   return {
-    name: `USER • ${prefix}${suffix}`,
+    name:
+      `USER • ${prefix}${suffix}`,
     avatar: shortCode,
   };
 }
@@ -204,13 +290,15 @@ function createSignal(options = {}) {
   const bet = randomItem(slot.bets);
   const spins = randomItem(slot.spins);
 
-  const duration = randomNumber(
-    ACTIVE_MIN_DURATION,
-    ACTIVE_MAX_DURATION
-  );
+  const duration =
+    randomNumber(
+      ACTIVE_MIN_DURATION,
+      ACTIVE_MAX_DURATION
+    );
 
   const createdAt =
-    options.createdAt ?? currentTime;
+    options.createdAt ??
+    currentTime;
 
   const finalStatus =
     Math.random() < 0.67
@@ -230,24 +318,31 @@ function createSignal(options = {}) {
 
   return {
     id: createIdentifier(),
-    signalCode: `PLS-${createToken(5)}`,
+    signalCode:
+      `PLS-${createToken(5)}`,
     userName: user.name,
     avatar: user.avatar,
     slotName: slot.name,
     slotImage: slot.image,
     bet,
     spins,
-    status: options.status ?? "active",
+    status:
+      options.status ??
+      "active",
     finalStatus,
     resultAmount,
     createdAt,
     resolveAt,
-    resolvedAt: options.resolvedAt ?? null,
+    resolvedAt:
+      options.resolvedAt ??
+      null,
   };
 }
 
 function createInitialSignals() {
-  const currentTime = Date.now();
+  const currentTime =
+    Date.now();
+
   const initialSignals = [];
 
   for (
@@ -256,44 +351,60 @@ function createInitialSignals() {
     index += 1
   ) {
     if (index < 7) {
-      const age = randomNumber(
-        1000,
-        19000
-      );
+      const age =
+        randomNumber(
+          1000,
+          19000
+        );
 
-      const signal = createSignal({
-        createdAt: currentTime - age,
-        status: "active",
-      });
+      const signal =
+        createSignal({
+          createdAt:
+            currentTime - age,
+          status: "active",
+        });
 
       signal.resolveAt =
         currentTime +
         randomNumber(
           9000,
-          ACTIVE_MAX_DURATION - 4000
+          ACTIVE_MAX_DURATION -
+            4000
         );
 
-      initialSignals.push(signal);
+      initialSignals.push(
+        signal
+      );
+
       continue;
     }
 
-    const minutesAgo = randomNumber(
-      index + 1,
-      index * 4 + 15
-    );
+    const minutesAgo =
+      randomNumber(
+        index + 1,
+        index * 4 + 15
+      );
 
     const createdAt =
       currentTime -
-      minutesAgo * 60 * 1000;
+      minutesAgo *
+        60 *
+        1000;
 
-    const signal = createSignal({
-      createdAt,
-    });
+    const signal =
+      createSignal({
+        createdAt,
+      });
 
-    signal.status = signal.finalStatus;
-    signal.resolvedAt = signal.resolveAt;
+    signal.status =
+      signal.finalStatus;
 
-    initialSignals.push(signal);
+    signal.resolvedAt =
+      signal.resolveAt;
+
+    initialSignals.push(
+      signal
+    );
   }
 
   return initialSignals.sort(
@@ -306,14 +417,21 @@ function createInitialSignals() {
   );
 }
 
-function isStoredSignalValid(signal) {
+function isStoredSignalValid(
+  signal
+) {
   return Boolean(
     signal &&
-      typeof signal.id === "string" &&
-      typeof signal.slotName === "string" &&
-      typeof signal.slotImage === "string" &&
-      typeof signal.createdAt === "number" &&
-      typeof signal.resolveAt === "number" &&
+      typeof signal.id ===
+        "string" &&
+      typeof signal.slotName ===
+        "string" &&
+      typeof signal.slotImage ===
+        "string" &&
+      typeof signal.createdAt ===
+        "number" &&
+      typeof signal.resolveAt ===
+        "number" &&
       [
         "active",
         "won",
@@ -336,22 +454,32 @@ function loadStoredSignals() {
     const parsedSignals =
       JSON.parse(storedValue);
 
-    if (!Array.isArray(parsedSignals)) {
+    if (
+      !Array.isArray(
+        parsedSignals
+      )
+    ) {
       return [];
     }
 
     const oldestAllowedTimestamp =
-      Date.now() - FEED_MAX_AGE;
+      Date.now() -
+      FEED_MAX_AGE;
 
     return parsedSignals
-      .filter(isStoredSignalValid)
+      .filter(
+        isStoredSignalValid
+      )
       .filter((signal) => {
         return (
           signal.createdAt >=
           oldestAllowedTimestamp
         );
       })
-      .slice(0, MAX_SIGNAL_COUNT);
+      .slice(
+        0,
+        MAX_SIGNAL_COUNT
+      );
   } catch {
     return [];
   }
@@ -401,6 +529,7 @@ function loadCounters() {
       liveCounters = {
         totalCreated:
           parsedCounters.totalCreated,
+
         totalWon:
           parsedCounters.totalWon,
       };
@@ -417,7 +546,9 @@ function saveCounters() {
   try {
     sessionStorage.setItem(
       COUNTERS_STORAGE_KEY,
-      JSON.stringify(liveCounters)
+      JSON.stringify(
+        liveCounters
+      )
     );
   } catch {
     /*
@@ -427,9 +558,13 @@ function saveCounters() {
   }
 }
 
-function getCardElement(signalId) {
+function getCardElement(
+  signalId
+) {
   return (
-    cardElements.get(signalId) ?? null
+    cardElements.get(
+      signalId
+    ) ?? null
   );
 }
 
@@ -453,48 +588,58 @@ function fillCardStaticData(
   card,
   signal
 ) {
-  card.dataset.signalId = signal.id;
+  card.dataset.signalId =
+    signal.id;
 
   card.querySelector(
     "[data-avatar]"
-  ).textContent = signal.avatar;
+  ).textContent =
+    signal.avatar;
 
   card.querySelector(
     "[data-user]"
-  ).textContent = signal.userName;
+  ).textContent =
+    signal.userName;
 
   const slotImage =
     card.querySelector(
       "[data-slot-image]"
     );
 
-  slotImage.src = signal.slotImage;
-  slotImage.alt = signal.slotName;
+  slotImage.src =
+    signal.slotImage;
+
+  slotImage.alt =
+    signal.slotName;
 
   card.querySelector(
     "[data-slot-name]"
-  ).textContent = signal.slotName;
+  ).textContent =
+    signal.slotName;
 
   card.querySelector(
     "[data-signal-id]"
-  ).textContent = signal.signalCode;
+  ).textContent =
+    signal.signalCode;
 
   card.querySelector(
     "[data-bet]"
-  ).textContent = formatAmount(
-    signal.bet
-  );
+  ).textContent =
+    formatAmount(
+      signal.bet
+    );
 
   card.querySelector(
     "[data-spins]"
-  ).textContent = String(
-    signal.spins
-  );
+  ).textContent =
+    String(signal.spins);
 }
 
 function updateCard(signal) {
   const card =
-    getCardElement(signal.id);
+    getCardElement(
+      signal.id
+    );
 
   if (!card) {
     return;
@@ -563,21 +708,31 @@ function updateCard(signal) {
       signal.createdAt
     );
 
-  time.dateTime = new Date(
-    signal.createdAt
-  ).toISOString();
+  time.dateTime =
+    new Date(
+      signal.createdAt
+    ).toISOString();
 
   setStatusLabel(
     statusLabel,
     signal.status
   );
 
-  if (signal.status === "active") {
+  if (
+    signal.status ===
+    "active"
+  ) {
     const progress =
-      getSignalProgress(signal);
+      getSignalProgress(
+        signal
+      );
 
-    result.textContent = "ОЧІКУЄМО";
-    progressWrap.hidden = false;
+    result.textContent =
+      "ОЧІКУЄМО";
+
+    progressWrap.hidden =
+      false;
+
     outcome.hidden = true;
 
     progressLabel.textContent =
@@ -595,12 +750,14 @@ function updateCard(signal) {
   }
 
   const didWin =
-    signal.status === "won";
+    signal.status ===
+    "won";
 
-  result.textContent = formatAmount(
-    signal.resultAmount,
-    true
-  );
+  result.textContent =
+    formatAmount(
+      signal.resultAmount,
+      true
+    );
 
   progressWrap.hidden = true;
   outcome.hidden = false;
@@ -630,16 +787,19 @@ function createCardElement(
   shouldAnimate = false
 ) {
   const fragment =
-    signalCardTemplate.content.cloneNode(
-      true
-    );
+    signalCardTemplate
+      .content
+      .cloneNode(true);
 
   const card =
     fragment.querySelector(
       ".live-signal-card"
     );
 
-  fillCardStaticData(card, signal);
+  fillCardStaticData(
+    card,
+    signal
+  );
 
   cardElements.set(
     signal.id,
@@ -647,10 +807,14 @@ function createCardElement(
   );
 
   if (shouldAnimate) {
-    card.classList.add("is-new");
+    card.classList.add(
+      "is-new"
+    );
 
     window.setTimeout(() => {
-      card.classList.remove("is-new");
+      card.classList.remove(
+        "is-new"
+      );
     }, 700);
   }
 
@@ -667,20 +831,28 @@ function renderInitialFeed() {
   const feedFragment =
     document.createDocumentFragment();
 
-  signals.forEach((signal) => {
-    const { fragment } =
-      createCardElement(signal);
+  signals.forEach(
+    (signal) => {
+      const { fragment } =
+        createCardElement(
+          signal
+        );
 
-    feedFragment.appendChild(fragment);
-  });
+      feedFragment.appendChild(
+        fragment
+      );
+    }
+  );
 
   signalFeed.appendChild(
     feedFragment
   );
 
-  signals.forEach((signal) => {
-    updateCard(signal);
-  });
+  signals.forEach(
+    (signal) => {
+      updateCard(signal);
+    }
+  );
 
   signalFeed.setAttribute(
     "aria-busy",
@@ -688,14 +860,21 @@ function renderInitialFeed() {
   );
 }
 
-function addSignalCard(signal) {
-  const { fragment, card } =
-    createCardElement(
-      signal,
-      true
-    );
+function addSignalCard(
+  signal
+) {
+  const {
+    fragment,
+    card,
+  } = createCardElement(
+    signal,
+    true
+  );
 
-  signalFeed.prepend(fragment);
+  signalFeed.prepend(
+    fragment
+  );
+
   updateCard(signal);
 
   if (
@@ -724,6 +903,7 @@ function addSignalCard(signal) {
   }
 
   applyFilter();
+
   return card;
 }
 
@@ -732,6 +912,7 @@ function getSignalCounts() {
     (counts, signal) => {
       counts.all += 1;
       counts[signal.status] += 1;
+
       return counts;
     },
     {
@@ -778,27 +959,33 @@ function updateStatistics() {
 function applyFilter() {
   let visibleCardCount = 0;
 
-  signals.forEach((signal) => {
-    const card =
-      getCardElement(signal.id);
+  signals.forEach(
+    (signal) => {
+      const card =
+        getCardElement(
+          signal.id
+        );
 
-    if (!card) {
-      return;
+      if (!card) {
+        return;
+      }
+
+      const shouldShow =
+        activeFilter ===
+          "all" ||
+        signal.status ===
+          activeFilter;
+
+      card.classList.toggle(
+        "is-filtered-out",
+        !shouldShow
+      );
+
+      if (shouldShow) {
+        visibleCardCount += 1;
+      }
     }
-
-    const shouldShow =
-      activeFilter === "all" ||
-      signal.status === activeFilter;
-
-    card.classList.toggle(
-      "is-filtered-out",
-      !shouldShow
-    );
-
-    if (shouldShow) {
-      visibleCardCount += 1;
-    }
-  });
+  );
 
   emptyFeed.hidden =
     visibleCardCount !== 0;
@@ -809,7 +996,9 @@ function showToast(message) {
     toastTimer
   );
 
-  toastText.textContent = message;
+  toastText.textContent =
+    message;
+
   toast.classList.add(
     "is-visible"
   );
@@ -832,13 +1021,16 @@ function showNewSignalBanner(
   newSignalBannerText.textContent =
     `${signal.userName} · ${signal.slotName}`;
 
-  newSignalBanner.hidden = false;
+  newSignalBanner.hidden =
+    false;
 
-  window.requestAnimationFrame(() => {
-    newSignalBanner.classList.add(
-      "is-visible"
-    );
-  });
+  window.requestAnimationFrame(
+    () => {
+      newSignalBanner.classList.add(
+        "is-visible"
+      );
+    }
+  );
 
   bannerTimer =
     window.setTimeout(() => {
@@ -848,9 +1040,11 @@ function showNewSignalBanner(
 
       window.setTimeout(() => {
         if (
-          !newSignalBanner.classList.contains(
-            "is-visible"
-          )
+          !newSignalBanner
+            .classList
+            .contains(
+              "is-visible"
+            )
         ) {
           newSignalBanner.hidden =
             true;
@@ -864,7 +1058,8 @@ function resolveSignal(
   shouldCountResult = true
 ) {
   if (
-    signal.status !== "active"
+    signal.status !==
+    "active"
   ) {
     return false;
   }
@@ -872,7 +1067,8 @@ function resolveSignal(
   signal.status =
     signal.finalStatus;
 
-  signal.resolvedAt = Date.now();
+  signal.resolvedAt =
+    Date.now();
 
   if (
     shouldCountResult &&
@@ -883,28 +1079,37 @@ function resolveSignal(
   }
 
   updateCard(signal);
+
   return true;
 }
 
 function updateActiveSignals() {
-  const currentTime = Date.now();
-  let didResolveSignal = false;
+  const currentTime =
+    Date.now();
 
-  signals.forEach((signal) => {
-    if (
-      signal.status === "active" &&
-      currentTime >=
-        signal.resolveAt
-    ) {
-      didResolveSignal =
-        resolveSignal(signal) ||
-        didResolveSignal;
+  let didResolveSignal =
+    false;
 
-      return;
+  signals.forEach(
+    (signal) => {
+      if (
+        signal.status ===
+          "active" &&
+        currentTime >=
+          signal.resolveAt
+      ) {
+        didResolveSignal =
+          resolveSignal(
+            signal
+          ) ||
+          didResolveSignal;
+
+        return;
+      }
+
+      updateCard(signal);
     }
-
-    updateCard(signal);
-  });
+  );
 
   if (didResolveSignal) {
     saveSignals();
@@ -914,7 +1119,8 @@ function updateActiveSignals() {
 }
 
 function addNewLiveSignal() {
-  const signal = createSignal();
+  const signal =
+    createSignal();
 
   signals.unshift(signal);
 
@@ -946,14 +1152,16 @@ function updateCountdown() {
   const remainingMilliseconds =
     Math.max(
       0,
-      nextSignalAt - Date.now()
+      nextSignalAt -
+        Date.now()
     );
 
   const remainingSeconds =
     Math.max(
       0,
       Math.ceil(
-        remainingMilliseconds / 1000
+        remainingMilliseconds /
+          1000
       )
     );
 
@@ -974,13 +1182,16 @@ function updateCountdown() {
 
 function setAppHeight() {
   const viewportHeight =
-    window.visualViewport?.height ||
+    window.visualViewport
+      ?.height ||
     window.innerHeight;
 
-  document.documentElement.style.setProperty(
-    "--app-height",
-    `${viewportHeight}px`
-  );
+  document.documentElement
+    .style
+    .setProperty(
+      "--app-height",
+      `${viewportHeight}px`
+    );
 }
 
 function prepareSignals() {
@@ -999,24 +1210,30 @@ function prepareSignals() {
   let didResolveStoredSignals =
     false;
 
-  const currentTime = Date.now();
+  const currentTime =
+    Date.now();
 
-  signals.forEach((signal) => {
-    if (
-      signal.status === "active" &&
-      currentTime >=
-        signal.resolveAt
-    ) {
-      didResolveStoredSignals =
-        resolveSignal(
-          signal,
-          false
-        ) ||
-        didResolveStoredSignals;
+  signals.forEach(
+    (signal) => {
+      if (
+        signal.status ===
+          "active" &&
+        currentTime >=
+          signal.resolveAt
+      ) {
+        didResolveStoredSignals =
+          resolveSignal(
+            signal,
+            false
+          ) ||
+          didResolveStoredSignals;
+      }
     }
-  });
+  );
 
-  if (didResolveStoredSignals) {
+  if (
+    didResolveStoredSignals
+  ) {
     saveSignals();
   }
 
@@ -1045,15 +1262,18 @@ function configureFilters() {
                 filterButton ===
                 button;
 
-              filterButton.classList.toggle(
-                "is-active",
-                isActive
-              );
+              filterButton
+                .classList
+                .toggle(
+                  "is-active",
+                  isActive
+                );
 
-              filterButton.setAttribute(
-                "aria-pressed",
-                String(isActive)
-              );
+              filterButton
+                .setAttribute(
+                  "aria-pressed",
+                  String(isActive)
+                );
             }
           );
 
@@ -1065,42 +1285,46 @@ function configureFilters() {
 }
 
 function configureNavigation() {
-  navigationItems.forEach((item) => {
-    const sectionName = item.dataset.section;
-    const destination = item.getAttribute("href");
+  navigationItems.forEach(
+    (item) => {
+      const sectionName =
+        item.dataset.section;
 
-    /*
-     * Якщо пункт має справжнє посилання,
-     * дозволяємо браузеру відкрити сторінку.
-     */
-    if (destination && destination !== "#") {
-      return;
-    }
+      const destination =
+        item.getAttribute(
+          "href"
+        );
 
-    /*
-     * Повідомлення показуємо лише для розділів,
-     * які ще не мають окремої сторінки.
-     */
-    item.addEventListener("click", (event) => {
-      event.preventDefault();
+      /*
+       * Якщо пункт має справжнє посилання,
+       * дозволяємо браузеру відкрити сторінку.
+       */
+      if (
+        destination &&
+        destination !== "#"
+      ) {
+        return;
+      }
 
-      showToast(
-        `Розділ «${sectionName}» готується`
-      );
-    });
-  });
-}
+      /*
+       * Повідомлення показуємо лише для розділів,
+       * які ще не мають окремої сторінки.
+       */
+      item.addEventListener(
+        "click",
+        (event) => {
+          event.preventDefault();
 
-function configurePageActions() {
-  notificationButton.addEventListener(
-    "click",
-    () => {
-      showToast(
-        "LIVE-стрічка працює — нових системних сповіщень немає"
+          showToast(
+            `Розділ «${sectionName}» готується`
+          );
+        }
       );
     }
   );
+}
 
+function configurePageActions() {
   document.addEventListener(
     "gesturestart",
     (event) => {
@@ -1147,6 +1371,22 @@ function stopTimers() {
 }
 
 function initializePage() {
+  /*
+   * Запам’ятовуємо, що користувач
+   * дійсно відкрив LIVE-сигнали.
+   */
+  try {
+    sessionStorage.setItem(
+      "arbifyViewedLiveSignals",
+      "true"
+    );
+  } catch {
+    /*
+     * Сторінка продовжить працювати,
+     * навіть якщо сховище недоступне.
+     */
+  }
+
   setAppHeight();
   prepareSignals();
   renderInitialFeed();
@@ -1157,11 +1397,15 @@ function initializePage() {
   configurePageActions();
   startTimers();
 
-  window.requestAnimationFrame(() => {
-    document.body.classList.add(
-      "page-ready"
-    );
-  });
+  window.requestAnimationFrame(
+    () => {
+      document.body
+        .classList
+        .add(
+          "page-ready"
+        );
+    }
+  );
 }
 
 if (
@@ -1181,10 +1425,11 @@ window.addEventListener(
   setAppHeight
 );
 
-window.visualViewport?.addEventListener(
-  "resize",
-  setAppHeight
-);
+window.visualViewport
+  ?.addEventListener(
+    "resize",
+    setAppHeight
+  );
 
 document.addEventListener(
   "visibilitychange",
@@ -1199,7 +1444,8 @@ document.addEventListener(
     updateActiveSignals();
 
     if (
-      Date.now() >= nextSignalAt
+      Date.now() >=
+      nextSignalAt
     ) {
       scheduleNextSignal();
     }
