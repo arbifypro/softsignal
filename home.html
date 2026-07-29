@@ -93,6 +93,7 @@
     </style>
 
     <link rel="stylesheet" href="home.css" />
+    <link rel="stylesheet" href="notifications.css" />
   </head>
 
   <body>
@@ -168,6 +169,8 @@
             id="notificationButton"
             type="button"
             aria-label="Сповіщення"
+            aria-controls="pulseNotificationCenter"
+            aria-expanded="false"
           >
             <svg
               aria-hidden="true"
@@ -187,7 +190,16 @@
               ></path>
             </svg>
 
-            <span class="notification-dot"></span>
+            <span class="notification-dot" aria-hidden="true"></span>
+
+            <span
+              class="notification-badge"
+              data-notification-badge
+              aria-label="Нові сповіщення"
+              hidden
+            >
+              0
+            </span>
           </button>
         </header>
 
@@ -985,6 +997,7 @@
       </section>
     </main>
 
+    <script src="notifications.js"></script>
     <script src="home.js"></script>
   </body>
 </html>
