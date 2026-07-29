@@ -1,1 +1,230 @@
+/*
+ * =========================================================
+ * ARBIFY PULSE — плавні переходи між сторінками
+ * =========================================================
+ *
+ * Файл не змінює ширину, висоту, відступи або позицію
+ * елементів сторінки. Він відповідає лише за анімацію.
+ */
 
+:root {
+  --pulse-transition-duration: 360ms;
+  --pulse-transition-easing: cubic-bezier(0.22, 0.78, 0.22, 1);
+  --pulse-transition-background: rgba(2, 3, 9, 0.76);
+  --pulse-transition-violet: rgba(177, 55, 255, 0.82);
+}
+
+/*
+ * Нативний плавний перехід між окремими HTML-сторінками.
+ * Працює лише для сторінок на одному домені.
+ */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-group(root) {
+  animation-duration: var(--pulse-transition-duration);
+  animation-timing-function: var(--pulse-transition-easing);
+}
+
+::view-transition-image-pair(root) {
+  isolation: isolate;
+}
+
+::view-transition-old(root) {
+  animation: pulse-native-page-out 190ms ease-in both;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  animation: pulse-native-page-in 360ms
+    var(--pulse-transition-easing) both;
+  mix-blend-mode: normal;
+}
+
+/*
+ * Затемнення, яке JavaScript автоматично додасть поверх
+ * сторінки під час натискання на нижнє меню.
+ */
+.pulse-page-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle at 50% 56%,
+      rgba(126, 29, 215, 0.13),
+      transparent 46%
+    ),
+    var(--pulse-transition-background);
+  transition:
+    opacity 170ms ease,
+    visibility 0s linear 170ms;
+  will-change: opacity;
+}
+
+.pulse-page-transition::before {
+  position: absolute;
+  top: -38%;
+  left: -12%;
+  width: 124%;
+  height: 18%;
+  content: "";
+  opacity: 0;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(193, 101, 255, 0.04) 20%,
+    var(--pulse-transition-violet) 52%,
+    rgba(193, 101, 255, 0.08) 72%,
+    transparent
+  );
+  filter: blur(12px);
+  transform: translate3d(0, 0, 0);
+  will-change: opacity, transform;
+}
+
+.pulse-page-transition::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(72vw, 310px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(177, 55, 255, 0.16);
+  border-radius: 50%;
+  content: "";
+  opacity: 0;
+  box-shadow:
+    0 0 55px rgba(126, 29, 215, 0.12),
+    inset 0 0 55px rgba(126, 29, 215, 0.08);
+  transform: translate(-50%, -50%) scale(0.76);
+  will-change: opacity, transform;
+}
+
+/*
+ * Стан виходу зі сторінки.
+ */
+html.pulse-page-leaving {
+  cursor: progress;
+}
+
+html.pulse-page-leaving .pulse-page-transition {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 170ms ease,
+    visibility 0s linear 0s;
+}
+
+html.pulse-page-leaving .pulse-page-transition::before {
+  animation: pulse-scan-line 440ms
+    cubic-bezier(0.24, 0.7, 0.22, 1) both;
+}
+
+html.pulse-page-leaving .pulse-page-transition::after {
+  animation: pulse-transition-ring 340ms ease-out both;
+}
+
+/*
+ * Стан входу на нову сторінку.
+ * Анімується лише візуально і не впливає на розмітку.
+ */
+html.pulse-page-entering body > .page-shell {
+  animation: pulse-fallback-page-in 340ms
+    var(--pulse-transition-easing) both;
+  transform-origin: 50% 50%;
+  will-change: opacity, transform;
+}
+
+@keyframes pulse-native-page-out {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    opacity: 0.18;
+    transform: translate3d(0, 0, 0) scale(0.994);
+  }
+}
+
+@keyframes pulse-native-page-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 5px, 0) scale(0.998);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes pulse-fallback-page-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 5px, 0) scale(0.998);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes pulse-scan-line {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0);
+  }
+
+  22% {
+    opacity: 0.72;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(0, 720%, 0);
+  }
+}
+
+@keyframes pulse-transition-ring {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.76);
+  }
+
+  36% {
+    opacity: 0.34;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.18);
+  }
+}
+
+/*
+ * Якщо на пристрої вимкнені анімації, залишаємо
+ * коротке затемнення без руху і масштабування.
+ */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  html.pulse-page-entering body > .page-shell {
+    animation: none !important;
+  }
+
+  .pulse-page-transition::before,
+  .pulse-page-transition::after {
+    display: none;
+  }
+
+  .pulse-page-transition {
+    transition-duration: 80ms;
+  }
+}
