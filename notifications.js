@@ -722,61 +722,141 @@
     renderNotifications();
   }
 
-  function openNotificationCenter() {
-    if (!notificationCenter) {
-      return;
-    }
-
-    window.clearTimeout(closeTimer);
-    window.clearTimeout(readTimer);
-
-    lastFocusedElement =
-      document.activeElement;
-
-    syncVisualViewport();
-    renderNotifications();
-
-    notificationCenter.hidden = false;
-    notificationCenter.setAttribute(
-      "aria-hidden",
-      "false"
-    );
-
-    document.documentElement.classList.add(
-      "pulse-notifications-locked"
-    );
-
-    document.body.classList.add(
-      "pulse-notifications-open"
-    );
-
-    getNotificationButtons().forEach(
-      (button) => {
-        button.setAttribute(
-          "aria-expanded",
-          "true"
-        );
-      }
-    );
-
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => {
-        notificationCenter.classList.add(
-          "is-open"
-        );
-
-        notificationCloseButton?.focus({
-          preventScroll: true,
-        });
-      });
-    });
-
-    readTimer = window.setTimeout(
-      markAllAsRead,
-      READ_DELAY
-    );
+function openNotificationCenter() {
+  if (!notificationCenter) {
+    return;
   }
 
+  /*
+   * Якщо сповіщень немає — велике вікно
+   * не відкриваємо, а показуємо повідомлення знизу.
+   */
+  if (notifications.length === 0) {
+    let emptyToast =
+      document.querySelector(
+        "#pulseNotificationEmptyToast"
+      );
+
+    if (!emptyToast) {
+      emptyToast =
+        document.createElement("div");
+
+      emptyToast.id =
+        "pulseNotificationEmptyToast";
+
+      emptyToast.className =
+        "pulse-notification-toast";
+
+      emptyToast.setAttribute(
+        "role",
+        "status"
+      );
+
+      emptyToast.setAttribute(
+        "aria-live",
+        "polite"
+      );
+
+      emptyToast.innerHTML = `
+        <span
+          class="pulse-notification-toast-dot"
+          aria-hidden="true"
+        ></span>
+
+        <span>
+          Нових сповіщень поки немає
+        </span>
+      `;
+
+      document.body.appendChild(
+        emptyToast
+      );
+    }
+
+    const previousTimer =
+      Number(
+        emptyToast.dataset.hideTimer
+      );
+
+    if (previousTimer) {
+      window.clearTimeout(
+        previousTimer
+      );
+    }
+
+    emptyToast.classList.remove(
+      "is-visible"
+    );
+
+    void emptyToast.offsetWidth;
+
+    emptyToast.classList.add(
+      "is-visible"
+    );
+
+    const hideTimer =
+      window.setTimeout(() => {
+        emptyToast.classList.remove(
+          "is-visible"
+        );
+      }, 2300);
+
+    emptyToast.dataset.hideTimer =
+      String(hideTimer);
+
+    return;
+  }
+
+  window.clearTimeout(closeTimer);
+  window.clearTimeout(readTimer);
+
+  lastFocusedElement =
+    document.activeElement;
+
+  syncVisualViewport();
+  renderNotifications();
+
+  notificationCenter.hidden = false;
+
+  notificationCenter.setAttribute(
+    "aria-hidden",
+    "false"
+  );
+
+  document.documentElement.classList.add(
+    "pulse-notifications-locked"
+  );
+
+  document.body.classList.add(
+    "pulse-notifications-open"
+  );
+
+  getNotificationButtons().forEach(
+    (button) => {
+      button.setAttribute(
+        "aria-expanded",
+        "true"
+      );
+    }
+  );
+
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      notificationCenter.classList.add(
+        "is-open"
+      );
+
+      notificationCloseButton?.focus({
+        preventScroll: true,
+      });
+    });
+  });
+
+  readTimer = window.setTimeout(
+    markAllAsRead,
+    READ_DELAY
+  );
+}
   function closeNotificationCenter() {
     if (
       !notificationCenter ||
