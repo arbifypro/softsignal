@@ -110,6 +110,8 @@
             id="notificationButton"
             type="button"
             aria-label="Сповіщення"
+            aria-controls="notificationCenter"
+            aria-expanded="false"
           >
             <svg
               aria-hidden="true"
@@ -127,7 +129,15 @@
               <path d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"></path>
             </svg>
 
-            <span class="notification-dot"></span>
+            <span class="notification-dot" aria-hidden="true"></span>
+            <span
+              class="notification-badge"
+              id="notificationBadge"
+              aria-label="Нові сповіщення"
+              hidden
+            >
+              0
+            </span>
           </button>
         </header>
 
@@ -880,6 +890,104 @@
             <span>Профіль</span>
           </a>
         </nav>
+
+        <!-- Центр сповіщень -->
+        <div
+          class="notification-center"
+          id="notificationCenter"
+          aria-hidden="true"
+          hidden
+        >
+          <div
+            class="notification-center-backdrop"
+            data-close-notifications
+            aria-hidden="true"
+          ></div>
+
+          <aside
+            class="notification-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="notificationCenterTitle"
+          >
+            <div class="notification-panel-handle" aria-hidden="true"></div>
+
+            <header class="notification-panel-header">
+              <div>
+                <p>
+                  <span aria-hidden="true"></span>
+                  PULSE CENTER
+                </p>
+
+                <h2 id="notificationCenterTitle">Сповіщення</h2>
+              </div>
+
+              <button
+                class="notification-panel-close"
+                id="notificationPanelClose"
+                type="button"
+                aria-label="Закрити сповіщення"
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                >
+                  <path d="m6 6 12 12M18 6 6 18"></path>
+                </svg>
+              </button>
+            </header>
+
+            <div class="notification-panel-summary">
+              <span id="notificationSummary">Нових повідомлень немає</span>
+
+              <button
+                id="notificationClearButton"
+                type="button"
+                hidden
+              >
+                Очистити
+              </button>
+            </div>
+
+            <div
+              class="notification-list"
+              id="notificationList"
+              aria-live="polite"
+            ></div>
+
+            <div
+              class="notification-empty"
+              id="notificationEmpty"
+            >
+              <div class="notification-empty-icon" aria-hidden="true">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M6.2 10.2c0-3.6 2.1-6.2 5.8-6.2s5.8 2.6 5.8 6.2v4l1.7 2.4h-15l1.7-2.4v-4Z"
+                  ></path>
+                  <path d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"></path>
+                </svg>
+              </div>
+
+              <strong>Поки що тихо</strong>
+
+              <p>
+                Тут з’являтимуться виконані завдання, отримані нагороди та
+                важливі повідомлення Pulse.
+              </p>
+            </div>
+          </aside>
+        </div>
 
         <!-- Вікно перевірки -->
         <div
