@@ -2004,3 +2004,22 @@ function pulseSynchronizeProfileTask() {
 }
 
 pulseSynchronizeProfileTask();
+
+document.addEventListener(
+  "click",
+  (event) => {
+    const profileLink = event.target.closest(
+      '.bottom-nav a[href="profile.html"]'
+    );
+
+    if (!profileLink) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    window.location.assign("profile.html");
+  },
+  true
+);
