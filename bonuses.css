@@ -2452,3 +2452,42 @@ body {
   background-color: transparent !important;
   box-shadow: none !important;
 }
+
+/* Вирівнювання фону Бонусів із Головною сторінкою */
+@media (max-width: 559px) {
+  html,
+  body,
+  .page-shell {
+    background: #06070d !important;
+    background-color: #06070d !important;
+  }
+
+  .pulse-app.rewards-app {
+    background:
+      linear-gradient(
+        180deg,
+        #06070d 0%,
+        #020309 54%,
+        #05060c 100%
+      ) !important;
+  }
+
+  .rewards-app .topbar {
+    position: relative !important;
+    z-index: 20 !important;
+    flex: 0 0 82px !important;
+    height: 82px !important;
+    min-height: 82px !important;
+    border: 0 !important;
+    background: #06070d !important;
+    background-color: #06070d !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    isolation: isolate;
+  }
+
+  .rewards-app .app-noise {
+    z-index: 0 !important;
+    opacity: 0.18 !important;
+  }
+}
