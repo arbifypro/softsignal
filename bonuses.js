@@ -1663,17 +1663,6 @@ notificationButton.addEventListener(
   }
 );
 
-profileNavigation.addEventListener(
-  "click",
-  (event) => {
-    event.preventDefault();
-
-    showToast(
-      "Сторінку профілю додамо наступним етапом"
-    );
-  }
-);
-
 document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") {
     return;
