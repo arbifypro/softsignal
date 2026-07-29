@@ -1538,3 +1538,16 @@ body {
     border-radius: 0 0 23px 23px;
   }
 }
+
+/* Вирівнювання верхньої панелі з головною на невисоких телефонах */
+@media (max-height: 760px) and (max-width: 559px) {
+  .topbar {
+    height: 72px;
+    min-height: 72px;
+    flex: 0 0 72px;
+  }
+
+  .content {
+    padding-top: 4px;
+  }
+}
