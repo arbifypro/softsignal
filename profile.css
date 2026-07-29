@@ -1201,13 +1201,7 @@ svg {
 
 /* =========================================================
    ТОЧНЕ ВИРІВНЮВАННЯ ПРОФІЛЮ ПІД ГОЛОВНУ СТОРІНКУ
-   Цей блок має залишатися в самому кінці profile.css
    ========================================================= */
-
-:root {
-  --app-width: 430px;
-  --nav-height: 78px;
-}
 
 html,
 body {
@@ -1259,8 +1253,6 @@ body {
     );
   box-shadow: none;
 }
-
-/* Шапка як на головній сторінці */
 
 .topbar {
   position: relative;
@@ -1370,8 +1362,6 @@ body {
   box-sizing: content-box;
 }
 
-/* Прокручується лише вміст профілю */
-
 .content {
   position: relative;
   z-index: 2;
@@ -1394,8 +1384,6 @@ body {
   width: 0;
   height: 0;
 }
-
-/* Нижнє меню як на головній сторінці */
 
 .bottom-nav {
   position: absolute;
@@ -1491,17 +1479,43 @@ body {
   transform: translateX(-50%);
 }
 
-/* Мобільна версія */
+/* На телефонах сторінка займає всю ширину */
 
-@media (max-width: 559px) {
+@media (hover: none) and (pointer: coarse) {
+  html,
+  body {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .page-shell {
+    display: flex !important;
+    width: 100% !important;
+    max-width: none !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    padding: 0 !important;
+  }
+
+  .pulse-app {
+    width: 100% !important;
+    max-width: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+  }
+
   .ambient {
     display: none !important;
   }
+
+  .bottom-nav {
+    border-radius: 0 !important;
+  }
 }
 
-/* Вигляд на комп’ютері */
+/* Комп’ютери та великі екрани */
 
-@media (min-width: 560px) {
+@media (min-width: 560px) and (hover: hover) and (pointer: fine) {
   .page-shell {
     height: 100dvh;
     padding: 22px 0;
@@ -1509,6 +1523,7 @@ body {
   }
 
   .pulse-app {
+    width: min(100%, 430px);
     height: calc(100dvh - 44px);
     min-height: calc(100dvh - 44px) !important;
     max-height: calc(100dvh - 44px);
