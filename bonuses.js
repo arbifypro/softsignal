@@ -1730,3 +1730,208 @@ window.addEventListener("beforeunload", () => {
   window.clearInterval(countdownTimer);
   window.cancelAnimationFrame(balanceAnimationFrame);
 });
+
+/*
+ * =========================================================
+ * PULSE — СПОВІЩЕННЯ ПРО ВИКОНАНІ ЗАВДАННЯ
+ * Цей блок має бути в самому кінці bonuses.js.
+ * =========================================================
+ */
+
+const PULSE_TASK_NOTICE_KEY =
+  "arbifyRewardTaskNoticesV1";
+
+function pulseLoadTaskNoticeIds() {
+  try {
+    const storedValue =
+      localStorage.getItem(
+        PULSE_TASK_NOTICE_KEY
+      );
+
+    if (!storedValue) {
+      return new Set();
+    }
+
+    const parsedValue =
+      JSON.parse(storedValue);
+
+    return new Set(
+      Array.isArray(parsedValue)
+        ? parsedValue
+        : []
+    );
+  } catch {
+    return new Set();
+  }
+}
+
+const pulseTaskNoticeIds =
+  pulseLoadTaskNoticeIds();
+
+function pulseSaveTaskNoticeIds() {
+  try {
+    localStorage.setItem(
+      PULSE_TASK_NOTICE_KEY,
+      JSON.stringify(
+        Array.from(pulseTaskNoticeIds)
+      )
+    );
+  } catch {
+    /*
+     * Якщо localStorage недоступний,
+     * сторінка продовжить працювати.
+     */
+  }
+}
+
+function pulseUseNotifications(action) {
+  if (window.PulseNotifications) {
+    action(window.PulseNotifications);
+    return;
+  }
+
+  document.addEventListener(
+    "pulse:notifications-ready",
+    () => {
+      if (window.PulseNotifications) {
+        action(window.PulseNotifications);
+      }
+    },
+    {
+      once: true,
+    }
+  );
+}
+
+function pulseNotifyTaskOnce(taskId) {
+  const meta = taskMeta.get(taskId);
+
+  if (
+    !meta ||
+    pulseTaskNoticeIds.has(taskId)
+  ) {
+    return;
+  }
+
+  pulseTaskNoticeIds.add(taskId);
+  pulseSaveTaskNoticeIds();
+
+  pulseUseNotifications(
+    (notificationsApi) => {
+      notificationsApi.addTaskCompleted({
+        taskTitle: meta.title,
+        reward: meta.reward,
+      });
+    }
+  );
+}
+
+function pulseNotifyClaimableTasks() {
+  taskMeta.forEach((meta, taskId) => {
+    const record =
+      getTaskRecord(taskId);
+
+    if (record.status === "claimable") {
+      pulseNotifyTaskOnce(taskId);
+    }
+  });
+}
+
+const pulseOriginalVerificationSuccess =
+  showVerificationSuccess;
+
+showVerificationSuccess = function (taskId) {
+  pulseOriginalVerificationSuccess(taskId);
+  pulseNotifyTaskOnce(taskId);
+};
+
+const pulseOriginalClaimTaskReward =
+  claimTaskReward;
+
+claimTaskReward = function (taskId) {
+  const meta = taskMeta.get(taskId);
+  const record = getTaskRecord(taskId);
+
+  const wasClaimable =
+    record.status === "claimable";
+
+  const weeklyRewardWasClaimed =
+    rewardsState.weeklyRewardClaimed;
+
+  pulseOriginalClaimTaskReward(taskId);
+
+  if (
+    !meta ||
+    !wasClaimable ||
+    record.status !== "completed"
+  ) {
+    return;
+  }
+
+  pulseUseNotifications(
+    (notificationsApi) => {
+      notificationsApi.addReward({
+        title: "Нагороду зараховано",
+        reward: meta.reward,
+        message:
+          `За виконання завдання «${meta.title}».`,
+      });
+
+      if (
+        !weeklyRewardWasClaimed &&
+        rewardsState.weeklyRewardClaimed
+      ) {
+        notificationsApi.addReward({
+          title: "Тижневу ціль виконано",
+          reward: WEEKLY_REWARD,
+          message:
+            "Виконано 7 завдань цього тижня. Бонус уже додано до балансу.",
+        });
+      }
+    }
+  );
+};
+
+/*
+ * Основний обробник цієї кнопки зареєстрований вище,
+ * тому цей додатковий обробник запускається вже після
+ * підтвердження прочитаних правил.
+ */
+guideConfirm.addEventListener(
+  "click",
+  () => {
+    const taskId =
+      "responsible-guide";
+
+    const record =
+      getTaskRecord(taskId);
+
+    if (record.status === "claimable") {
+      pulseNotifyTaskOnce(taskId);
+    }
+  }
+);
+
+const pulseOriginalEnableNotifications =
+  enableNotificationsTask;
+
+enableNotificationsTask =
+  async function () {
+    const taskId = "notifications";
+    const record = getTaskRecord(taskId);
+
+    const wasVerified =
+      record.status === "claimable" ||
+      record.status === "completed";
+
+    await pulseOriginalEnableNotifications();
+
+    if (
+      !wasVerified &&
+      record.status === "claimable"
+    ) {
+      pulseNotifyTaskOnce(taskId);
+    }
+  };
+
+pulseNotifyClaimableTasks();
