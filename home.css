@@ -989,6 +989,7 @@ button {
   font-size: 8px;
   font-weight: 560;
   cursor: pointer;
+  text-decoration: none;
   transition: color 170ms ease;
 }
 
