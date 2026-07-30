@@ -4,7 +4,7 @@
  * Вкажи username менеджера БЕЗ символу @.
  * Приклад: const TELEGRAM_USERNAME = "arbify_support";
  */
-const TELEGRAM_USERNAME = "YOUR_USERNAME";
+const TELEGRAM_USERNAME = "olegv240";
 
 /*
  * Це поки демонстраційна перевірка інтерфейсу.
