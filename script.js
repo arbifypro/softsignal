@@ -203,7 +203,7 @@ function verifyAccessKey(key) {
 function configureSupport() {
   const usernameConfigured =
     TELEGRAM_USERNAME &&
-    TELEGRAM_USERNAME !== "YOUR_USERNAME";
+    TELEGRAM_USERNAME !== "olegv240";
 
   const telegramUrl = usernameConfigured
     ? `https://t.me/${TELEGRAM_USERNAME.replace("@", "")}`
