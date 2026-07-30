@@ -100,6 +100,9 @@
       rel="stylesheet"
       href="notifications.css?v=20260729-2"
     />
+
+    <script src="https://telegram.org/js/telegram-web-app.js?63"></script>
+    <script src="telegram.js?v=20260731-1" defer></script>
   </head>
 
   <body>
@@ -178,6 +181,7 @@
             </svg>
 
             <span class="notification-dot" aria-hidden="true"></span>
+
             <span
               class="notification-badge"
               id="notificationBadge"
@@ -191,7 +195,10 @@
 
         <div class="content">
           <!-- Заголовок -->
-          <section class="rewards-heading" aria-labelledby="rewardsPageTitle">
+          <section
+            class="rewards-heading"
+            aria-labelledby="rewardsPageTitle"
+          >
             <p class="rewards-eyebrow">
               <span aria-hidden="true"></span>
               PULSE REWARDS
@@ -218,8 +225,14 @@
                 </div>
 
                 <div class="level-row">
-                  <span class="level-badge" id="levelBadge">РІВЕНЬ 2</span>
-                  <span class="level-progress-value" id="levelProgressValue">
+                  <span class="level-badge" id="levelBadge">
+                    РІВЕНЬ 2
+                  </span>
+
+                  <span
+                    class="level-progress-value"
+                    id="levelProgressValue"
+                  >
                     420 / 600
                   </span>
                 </div>
@@ -232,7 +245,10 @@
                   aria-valuemax="600"
                   aria-valuenow="420"
                 >
-                  <span id="levelProgressBar" style="width: 70%"></span>
+                  <span
+                    id="levelProgressBar"
+                    style="width: 70%"
+                  ></span>
                 </div>
 
                 <div class="streak-badge">
@@ -289,7 +305,10 @@
           </section>
 
           <!-- Фільтри -->
-          <section class="tasks-section" aria-labelledby="tasksTitle">
+          <section
+            class="tasks-section"
+            aria-labelledby="tasksTitle"
+          >
             <div class="tasks-heading">
               <div>
                 <p class="section-kicker">ЦЕНТР НАГОРОД</p>
@@ -502,7 +521,10 @@
                     <path
                       d="M6.2 10.2c0-3.6 2.1-6.2 5.8-6.2s5.8 2.6 5.8 6.2v4l1.7 2.4h-15l1.7-2.4v-4Z"
                     ></path>
-                    <path d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"></path>
+
+                    <path
+                      d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"
+                    ></path>
                   </svg>
                 </div>
 
@@ -714,7 +736,10 @@
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   >
-                    <path d="M5 4.5h9a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3V4.5Z"></path>
+                    <path
+                      d="M5 4.5h9a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3V4.5Z"
+                    ></path>
+
                     <path d="M8 8h6M8 11.5h6M8 15h4"></path>
                     <path d="M17 8h2v12h-2"></path>
                   </svg>
@@ -788,7 +813,10 @@
           </section>
 
           <!-- Тижнева ціль -->
-          <section class="weekly-card" aria-labelledby="weeklyGoalTitle">
+          <section
+            class="weekly-card"
+            aria-labelledby="weeklyGoalTitle"
+          >
             <div class="weekly-icon">
               <svg
                 aria-hidden="true"
@@ -844,13 +872,20 @@
 
           <div class="responsible-line">
             <span>18+</span>
-            <p>Грай відповідально. Результат гри залежить від випадковості.</p>
+
+            <p>
+              Грай відповідально. Результат гри залежить від випадковості.
+            </p>
           </div>
         </div>
 
         <!-- Нижнє меню -->
         <nav class="bottom-nav" aria-label="Головне меню">
-          <a class="nav-item" href="home.html" data-section="Головна">
+          <a
+            class="nav-item"
+            href="home.html"
+            data-section="Головна"
+          >
             <span class="nav-icon">
               <svg
                 aria-hidden="true"
@@ -862,6 +897,7 @@
                 stroke-linejoin="round"
               >
                 <path d="m3.5 10.4 8.5-7 8.5 7"></path>
+
                 <path
                   d="M5.8 9.2v10.2h12.4V9.2M9.5 19.4v-6.2h5v6.2"
                 ></path>
@@ -871,7 +907,11 @@
             <span>Головна</span>
           </a>
 
-          <a class="nav-item" href="signals.html" data-section="Сигнали">
+          <a
+            class="nav-item"
+            href="signals.html"
+            data-section="Сигнали"
+          >
             <span class="nav-icon">
               <svg
                 aria-hidden="true"
@@ -909,7 +949,10 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <path d="M4 10.2h16v10H4zM3 6.8h18v3.4H3zM12 6.8v13.4"></path>
+                <path
+                  d="M4 10.2h16v10H4zM3 6.8h18v3.4H3zM12 6.8v13.4"
+                ></path>
+
                 <path
                   d="M11.7 6.7C9.8 6.9 7 6.5 7 4.5 7 2.2 11 3 11.7 6.7ZM12.3 6.7c1.9.2 4.7-.2 4.7-2.2 0-2.3-4-1.5-4.7 2.2Z"
                 ></path>
@@ -935,7 +978,10 @@
                 stroke-linejoin="round"
               >
                 <circle cx="12" cy="8" r="4"></circle>
-                <path d="M4.8 20c.7-4 3.1-6 7.2-6s6.5 2 7.2 6"></path>
+
+                <path
+                  d="M4.8 20c.7-4 3.1-6 7.2-6s6.5 2 7.2 6"
+                ></path>
               </svg>
             </span>
 
@@ -962,7 +1008,10 @@
             aria-modal="true"
             aria-labelledby="notificationCenterTitle"
           >
-            <div class="notification-panel-handle" aria-hidden="true"></div>
+            <div
+              class="notification-panel-handle"
+              aria-hidden="true"
+            ></div>
 
             <header class="notification-panel-header">
               <div>
@@ -971,7 +1020,9 @@
                   PULSE CENTER
                 </p>
 
-                <h2 id="notificationCenterTitle">Сповіщення</h2>
+                <h2 id="notificationCenterTitle">
+                  Сповіщення
+                </h2>
               </div>
 
               <button
@@ -994,7 +1045,9 @@
             </header>
 
             <div class="notification-panel-summary">
-              <span id="notificationSummary">Нових повідомлень немає</span>
+              <span id="notificationSummary">
+                Нових повідомлень немає
+              </span>
 
               <button
                 id="notificationClearButton"
@@ -1015,7 +1068,10 @@
               class="notification-empty"
               id="notificationEmpty"
             >
-              <div class="notification-empty-icon" aria-hidden="true">
+              <div
+                class="notification-empty-icon"
+                aria-hidden="true"
+              >
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -1027,7 +1083,10 @@
                   <path
                     d="M6.2 10.2c0-3.6 2.1-6.2 5.8-6.2s5.8 2.6 5.8 6.2v4l1.7 2.4h-15l1.7-2.4v-4Z"
                   ></path>
-                  <path d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"></path>
+
+                  <path
+                    d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"
+                  ></path>
                 </svg>
               </div>
 
@@ -1078,7 +1137,10 @@
               </svg>
             </button>
 
-            <div class="verification-icon" id="verificationIcon">
+            <div
+              class="verification-icon"
+              id="verificationIcon"
+            >
               <span class="verification-loader"></span>
 
               <svg
@@ -1097,9 +1159,13 @@
               </svg>
             </div>
 
-            <p class="verification-eyebrow">PULSE VERIFICATION</p>
+            <p class="verification-eyebrow">
+              PULSE VERIFICATION
+            </p>
 
-            <h2 id="verificationTitle">Перевіряємо завдання</h2>
+            <h2 id="verificationTitle">
+              Перевіряємо завдання
+            </h2>
 
             <p id="verificationDescription">
               Зачекай декілька секунд, поки система перевірить результат.
@@ -1123,7 +1189,11 @@
           aria-hidden="true"
           hidden
         >
-          <div class="guide-backdrop" data-close-guide aria-hidden="true"></div>
+          <div
+            class="guide-backdrop"
+            data-close-guide
+            aria-hidden="true"
+          ></div>
 
           <section
             class="guide-dialog"
@@ -1149,11 +1219,17 @@
               </svg>
             </button>
 
-            <div class="guide-icon" aria-hidden="true">18+</div>
+            <div class="guide-icon" aria-hidden="true">
+              18+
+            </div>
 
-            <p class="guide-eyebrow">ВІДПОВІДАЛЬНА ГРА</p>
+            <p class="guide-eyebrow">
+              ВІДПОВІДАЛЬНА ГРА
+            </p>
 
-            <h2 id="guideTitle">Контролюй свою гру</h2>
+            <h2 id="guideTitle">
+              Контролюй свою гру
+            </h2>
 
             <div class="guide-content">
               <p>
@@ -1175,14 +1251,23 @@
               </p>
             </div>
 
-            <button class="guide-confirm" id="guideConfirm" type="button">
+            <button
+              class="guide-confirm"
+              id="guideConfirm"
+              type="button"
+            >
               Я ПРОЧИТАВ
             </button>
           </section>
         </div>
 
         <!-- Повідомлення -->
-        <div class="toast" id="toast" role="status" aria-live="polite">
+        <div
+          class="toast"
+          id="toast"
+          role="status"
+          aria-live="polite"
+        >
           <span class="toast-dot" aria-hidden="true"></span>
           <span id="toastText"></span>
         </div>
@@ -1195,10 +1280,18 @@
           aria-live="polite"
           aria-hidden="true"
         >
-          <span class="reward-toast-icon" aria-hidden="true">+</span>
+          <span
+            class="reward-toast-icon"
+            aria-hidden="true"
+          >
+            +
+          </span>
 
           <div>
-            <strong id="rewardToastValue">+100 PULSE</strong>
+            <strong id="rewardToastValue">
+              +100 PULSE
+            </strong>
+
             <span>Нагороду зараховано</span>
           </div>
         </div>
