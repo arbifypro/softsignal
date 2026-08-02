@@ -13,8 +13,10 @@
       content="Закритий доступ до платформи ігрових сигналів ARBIFY PULSE."
     />
 
-    <!-- Чорний інтерфейс браузера на iPhone та Android -->
-    <meta name="theme-color" content="#020307" />
+    <meta
+      name="theme-color"
+      content="#020307"
+    />
 
     <meta
       name="theme-color"
@@ -28,14 +30,16 @@
       media="(prefers-color-scheme: dark)"
     />
 
-    <meta name="color-scheme" content="dark" />
+    <meta
+      name="color-scheme"
+      content="dark"
+    />
 
     <meta
       name="msapplication-navbutton-color"
       content="#020307"
     />
 
-    <!-- Запуск через іконку на iPhone -->
     <meta
       name="apple-mobile-web-app-capable"
       content="yes"
@@ -56,7 +60,9 @@
       content="ARBIFY PULSE"
     />
 
-    <title>ARBIFY PULSE — приватні сигнали</title>
+    <title>
+      ARBIFY PULSE — приватні сигнали
+    </title>
 
     <link
       rel="icon"
@@ -75,7 +81,6 @@
       as="image"
     />
 
-    <!-- Основний фон і блокування масштабування -->
     <style>
       :root {
         color-scheme: dark;
@@ -95,8 +100,15 @@
       }
     </style>
 
-    <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="effects.css" />
+    <link
+      rel="stylesheet"
+      href="style.css"
+    />
+
+    <link
+      rel="stylesheet"
+      href="effects.css"
+    />
   </head>
 
   <body>
@@ -162,7 +174,11 @@
 
             <div class="brand-subline">
               <span></span>
-              <p>PULSE</p>
+
+              <p>
+                PULSE
+              </p>
+
               <span></span>
             </div>
 
@@ -368,6 +384,13 @@
       </section>
     </main>
 
-    <script src="script.js"></script>
+    <!-- Спочатку завантажується Telegram SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js?63"></script>
+
+    <!-- Потім авторизація Telegram і серверне API -->
+    <script src="telegram.js?v=20260803-1"></script>
+
+    <!-- Після цього логіка сторінки входу -->
+    <script src="script.js?v=20260803-1"></script>
   </body>
 </html>
