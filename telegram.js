@@ -1,20 +1,354 @@
 "use strict";
 
 (function initializeTelegramMiniApp() {
+  const root = document.documentElement;
   const telegram =
     window.Telegram &&
     window.Telegram.WebApp;
 
+  const API_TIMEOUT = 15000;
+
+  let currentUser = null;
+  let currentState = {};
+  let authenticationPromise = null;
+
+  class ArbifyApiError extends Error {
+    constructor(
+      message,
+      status = 0,
+      data = {}
+    ) {
+      super(message);
+
+      this.name = "ArbifyApiError";
+      this.status = status;
+      this.data = data;
+      this.retryAfterSeconds =
+        Number(data.retryAfterSeconds) || 0;
+    }
+  }
+
+  function dispatchArbifyEvent(
+    eventName,
+    detail = {}
+  ) {
+    window.dispatchEvent(
+      new CustomEvent(eventName, {
+        detail,
+      })
+    );
+  }
+
+  function getTelegramInitData() {
+    return telegram?.initData || "";
+  }
+
+  function requireTelegramInitData() {
+    const initData =
+      getTelegramInitData();
+
+    if (!initData) {
+      throw new ArbifyApiError(
+        "Відкрийте застосунок через Telegram",
+        401,
+        {
+          code: "TELEGRAM_REQUIRED",
+        }
+      );
+    }
+
+    return initData;
+  }
+
+  async function apiRequest(
+    url,
+    payload
+  ) {
+    const controller =
+      new AbortController();
+
+    const timeoutId =
+      window.setTimeout(() => {
+        controller.abort();
+      }, API_TIMEOUT);
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+        body: JSON.stringify(payload),
+        cache: "no-store",
+        credentials: "same-origin",
+        signal: controller.signal,
+      });
+
+      let data = {};
+
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
+
+      if (!response.ok || data.ok === false) {
+        throw new ArbifyApiError(
+          data.error ||
+            "Не вдалося виконати запит",
+          response.status,
+          data
+        );
+      }
+
+      return data;
+    } catch (error) {
+      if (error instanceof ArbifyApiError) {
+        throw error;
+      }
+
+      if (error?.name === "AbortError") {
+        throw new ArbifyApiError(
+          "Сервер відповідає надто довго",
+          408,
+          {
+            code: "REQUEST_TIMEOUT",
+          }
+        );
+      }
+
+      throw new ArbifyApiError(
+        "Немає зв’язку із сервером",
+        0,
+        {
+          code: "NETWORK_ERROR",
+        }
+      );
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
+  }
+
+  function applyAuthenticatedUser(user) {
+    currentUser = user || null;
+    currentState = {
+      ...(user?.state || {}),
+    };
+
+    if (currentUser) {
+      currentUser.state = currentState;
+    }
+
+    root.dataset.arbifyAuth =
+      currentUser
+        ? "ready"
+        : "anonymous";
+
+    try {
+      if (currentUser?.accessGranted) {
+        sessionStorage.setItem(
+          "arbifyAccess",
+          "granted"
+        );
+      } else {
+        sessionStorage.removeItem(
+          "arbifyAccess"
+        );
+      }
+    } catch {
+      /*
+       * Авторизація продовжить працювати,
+       * навіть якщо sessionStorage
+       * недоступний у браузері.
+       */
+    }
+
+    dispatchArbifyEvent(
+      "arbify:auth-ready",
+      {
+        user: currentUser,
+        state: currentState,
+      }
+    );
+
+    return currentUser;
+  }
+
+  async function authenticate(
+    options = {}
+  ) {
+    const force =
+      options.force === true;
+
+    if (
+      authenticationPromise &&
+      !force
+    ) {
+      return authenticationPromise;
+    }
+
+    const initData =
+      requireTelegramInitData();
+
+    root.dataset.arbifyAuth =
+      "loading";
+
+    authenticationPromise =
+      apiRequest(
+        "/api/telegram/auth",
+        {
+          initData,
+        }
+      )
+        .then((result) => {
+          return applyAuthenticatedUser(
+            result.user
+          );
+        })
+        .catch((error) => {
+          root.dataset.arbifyAuth =
+            "error";
+
+          dispatchArbifyEvent(
+            "arbify:auth-error",
+            {
+              error,
+            }
+          );
+
+          authenticationPromise = null;
+
+          throw error;
+        });
+
+    return authenticationPromise;
+  }
+
+  async function verifyAccessKey(key) {
+    const initData =
+      requireTelegramInitData();
+
+    const normalizedKey = String(
+      key || ""
+    )
+      .trim()
+      .toUpperCase();
+
+    const result = await apiRequest(
+      "/api/access/verify",
+      {
+        initData,
+        key: normalizedKey,
+      }
+    );
+
+    applyAuthenticatedUser(
+      result.user
+    );
+
+    dispatchArbifyEvent(
+      "arbify:access-granted",
+      {
+        user: currentUser,
+        state: currentState,
+      }
+    );
+
+    return result;
+  }
+
+  async function saveState(statePatch) {
+    const initData =
+      requireTelegramInitData();
+
+    if (
+      !statePatch ||
+      typeof statePatch !== "object" ||
+      Array.isArray(statePatch)
+    ) {
+      throw new ArbifyApiError(
+        "Некоректні дані для збереження",
+        400,
+        {
+          code: "INVALID_STATE",
+        }
+      );
+    }
+
+    const result = await apiRequest(
+      "/api/state/save",
+      {
+        initData,
+        state: statePatch,
+      }
+    );
+
+    currentState = {
+      ...(result.state || {}),
+    };
+
+    if (currentUser) {
+      currentUser.state = currentState;
+    }
+
+    dispatchArbifyEvent(
+      "arbify:state-updated",
+      {
+        state: currentState,
+        updatedAt:
+          result.updatedAt || null,
+      }
+    );
+
+    return currentState;
+  }
+
+  function getCurrentUser() {
+    return currentUser;
+  }
+
+  function getCurrentState() {
+    return {
+      ...currentState,
+    };
+  }
+
+  function isTelegramMiniApp() {
+    return Boolean(
+      telegram &&
+        getTelegramInitData()
+    );
+  }
+
+  window.ARBIFY_API = {
+    Error: ArbifyApiError,
+    authenticate,
+    verifyAccessKey,
+    saveState,
+    getCurrentUser,
+    getCurrentState,
+    getInitData: getTelegramInitData,
+    isTelegramMiniApp,
+    ready: Promise.resolve(null),
+  };
+
   if (!telegram) {
-    document.documentElement.classList.add(
+    root.classList.add(
       "regular-browser"
     );
 
+    root.dataset.arbifyAuth =
+      "browser";
+
+    window.ARBIFY_TELEGRAM = {
+      webApp: null,
+      initData: "",
+      user: null,
+    };
+
     return;
   }
-
-  const root =
-    document.documentElement;
 
   root.classList.add(
     "telegram-mini-app"
@@ -177,11 +511,24 @@
   window.ARBIFY_TELEGRAM = {
     webApp: telegram,
     initData:
-      telegram.initData || "",
+      getTelegramInitData(),
     user:
       telegram.initDataUnsafe?.user ||
       null,
   };
 
   prepareTelegram();
+
+  const readyPromise = authenticate()
+    .catch((error) => {
+      console.error(
+        "ARBIFY authentication error:",
+        error.message
+      );
+
+      return null;
+    });
+
+  window.ARBIFY_API.ready =
+    readyPromise;
 })();
