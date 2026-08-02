@@ -13,11 +13,42 @@ const SIGNAL_COUNT_STORAGE_KEY = "arbifyCreatedSignalCount";
 const LAST_SIGNAL_STORAGE_KEY = "arbifyLastSignal";
 const PROFILE_COMPLETED_STORAGE_KEY = "arbifyProfileCompleted";
 const PROFILE_NAME_STORAGE_KEY = "arbifyProfileName";
+const PULSE_LEVEL_STORAGE_KEY = "arbifyPulseLevel";
+const PULSE_UNLOCKS_STORAGE_KEY = "arbifyPulseUnlocks";
+
+const PULSE_LEVELS = Object.freeze([
+  {
+    level: 1,
+    minimum: 0,
+    maximum: 250,
+    name: "STARTER",
+    unlockKey: "base-access",
+  },
+  {
+    level: 2,
+    minimum: 250,
+    maximum: 600,
+    name: "ACTIVE",
+    unlockKey: "profile-frame",
+  },
+  {
+    level: 3,
+    minimum: 600,
+    maximum: 1200,
+    name: "PREMIUM",
+    unlockKey: "premium-badge",
+  },
+  {
+    level: 4,
+    minimum: 1200,
+    maximum: null,
+    name: "ELITE",
+    unlockKey: "exclusive-theme",
+  },
+]);
 
 /*
  * Вкажи username менеджера БЕЗ символу @.
- * Приклад:
- * const TELEGRAM_SUPPORT_USERNAME = "arbify_support";
  */
 const TELEGRAM_SUPPORT_USERNAME = "YOUR_USERNAME";
 
@@ -139,15 +170,10 @@ function showToast(message) {
   window.clearTimeout(toastTimer);
 
   toastText.textContent = message;
-
-  toast.classList.add(
-    "is-visible"
-  );
+  toast.classList.add("is-visible");
 
   toastTimer = window.setTimeout(() => {
-    toast.classList.remove(
-      "is-visible"
-    );
+    toast.classList.remove("is-visible");
   }, TOAST_DURATION);
 }
 
@@ -157,8 +183,7 @@ function readJsonStorage(
   fallbackValue
 ) {
   try {
-    const storedValue =
-      storage.getItem(key);
+    const storedValue = storage.getItem(key);
 
     if (!storedValue) {
       return fallbackValue;
@@ -184,8 +209,19 @@ function readRewardsState() {
     return {
       balance: 0,
       tasks: {},
+      unlockedLevelRewards: ["base-access"],
     };
   }
+
+  const savedUnlocks = Array.isArray(
+    storedState.unlockedLevelRewards
+  )
+    ? storedState.unlockedLevelRewards
+    : readJsonStorage(
+        localStorage,
+        PULSE_UNLOCKS_STORAGE_KEY,
+        []
+      );
 
   return {
     balance: Math.max(
@@ -198,6 +234,15 @@ function readRewardsState() {
       typeof storedState.tasks === "object"
         ? storedState.tasks
         : {},
+
+    unlockedLevelRewards: Array.from(
+      new Set([
+        "base-access",
+        ...(Array.isArray(savedUnlocks)
+          ? savedUnlocks
+          : []),
+      ])
+    ),
   };
 }
 
@@ -210,16 +255,13 @@ function readCreatedSignalCount() {
       SIGNAL_COUNT_STORAGE_KEY
     );
 
-  const parsedValue =
-    Number(storedValue);
+  const parsedValue = Number(storedValue);
 
   if (
     Number.isFinite(parsedValue) &&
     parsedValue > 0
   ) {
-    return Math.floor(
-      parsedValue
-    );
+    return Math.floor(parsedValue);
   }
 
   return sessionStorage.getItem(
@@ -241,39 +283,103 @@ function countCompletedTasks(tasks) {
   ).length;
 }
 
+/*
+ * =========================================================
+ * РІВНІ PULSE
+ * =========================================================
+ */
+
 function getLevelData(balance) {
-  if (balance < 250) {
-    return {
-      level: 1,
-      maximum: 250,
-    };
-  }
+  const normalizedBalance = Math.max(
+    Number(balance) || 0,
+    0
+  );
 
-  if (balance < 600) {
-    return {
-      level: 2,
-      maximum: 600,
-    };
-  }
+  return (
+    [...PULSE_LEVELS]
+      .reverse()
+      .find((levelData) => {
+        return (
+          normalizedBalance >=
+          levelData.minimum
+        );
+      }) || PULSE_LEVELS[0]
+  );
+}
 
-  if (balance < 1200) {
-    return {
-      level: 3,
-      maximum: 1200,
-    };
-  }
+function getUnlockedLevelRewards(
+  balance,
+  savedUnlocks = []
+) {
+  const unlockedRewards = new Set([
+    "base-access",
+    ...(Array.isArray(savedUnlocks)
+      ? savedUnlocks
+      : []),
+  ]);
 
-  if (balance < 2000) {
-    return {
-      level: 4,
-      maximum: 2000,
-    };
-  }
+  PULSE_LEVELS.forEach((levelData) => {
+    if (balance >= levelData.minimum) {
+      unlockedRewards.add(
+        levelData.unlockKey
+      );
+    }
+  });
 
-  return {
-    level: 5,
-    maximum: 3000,
-  };
+  return Array.from(unlockedRewards);
+}
+
+function applyProfileLevelState(
+  levelData,
+  unlockedRewards
+) {
+  const levelValue = String(
+    levelData.level
+  );
+
+  document.documentElement.dataset.pulseLevel =
+    levelValue;
+
+  document.body.dataset.pulseLevel =
+    levelValue;
+
+  document.body.classList.toggle(
+    "has-profile-frame",
+    unlockedRewards.includes(
+      "profile-frame"
+    )
+  );
+
+  document.body.classList.toggle(
+    "has-premium-badge",
+    unlockedRewards.includes(
+      "premium-badge"
+    )
+  );
+
+  document.body.classList.toggle(
+    "has-exclusive-theme",
+    unlockedRewards.includes(
+      "exclusive-theme"
+    )
+  );
+
+  try {
+    localStorage.setItem(
+      PULSE_LEVEL_STORAGE_KEY,
+      levelValue
+    );
+
+    localStorage.setItem(
+      PULSE_UNLOCKS_STORAGE_KEY,
+      JSON.stringify(unlockedRewards)
+    );
+  } catch {
+    /*
+     * Профіль продовжить працювати,
+     * навіть якщо localStorage недоступний.
+     */
+  }
 }
 
 function maskSubId(value) {
@@ -320,10 +426,7 @@ function getProfileName() {
       ) || ""
     ).trim();
 
-    return (
-      storedName ||
-      "Учасник Pulse"
-    );
+    return storedName || "Учасник Pulse";
   } catch {
     return "Учасник Pulse";
   }
@@ -338,8 +441,7 @@ function isTelegramSupportConfigured() {
 
   return (
     normalizedUsername.length > 0 &&
-    normalizedUsername !==
-      "YOUR_USERNAME"
+    normalizedUsername !== "YOUR_USERNAME"
   );
 }
 
@@ -350,14 +452,17 @@ function isTelegramSupportConfigured() {
  */
 
 function renderProfile() {
-  const rewardsState =
-    readRewardsState();
+  const rewardsState = readRewardsState();
 
-  const balance =
-    rewardsState.balance;
+  const balance = rewardsState.balance;
 
-  const levelData =
-    getLevelData(balance);
+  const levelData = getLevelData(balance);
+
+  const unlockedRewards =
+    getUnlockedLevelRewards(
+      balance,
+      rewardsState.unlockedLevelRewards
+    );
 
   const completedTasks =
     countCompletedTasks(
@@ -372,12 +477,19 @@ function renderProfile() {
       SUBID_STORAGE_KEY
     );
 
-  const progressPercent = Math.min(
-    (
-      balance /
-      levelData.maximum
-    ) * 100,
-    100
+  const isMaximumLevel =
+    levelData.maximum === null;
+
+  const progressPercent = isMaximumLevel
+    ? 100
+    : Math.min(
+        (balance / levelData.maximum) * 100,
+        100
+      );
+
+  applyProfileLevelState(
+    levelData,
+    unlockedRewards
   );
 
   profileMemberName.textContent =
@@ -387,25 +499,38 @@ function renderProfile() {
     String(levelData.level);
 
   profileLevelProgress.textContent =
-    `${formatNumber(balance)} / ` +
-    `${formatNumber(levelData.maximum)} PULSE`;
+    isMaximumLevel
+      ? `${formatNumber(
+          balance
+        )} PULSE · MAX`
+      : `${formatNumber(balance)} / ` +
+        `${formatNumber(
+          levelData.maximum
+        )} PULSE`;
 
   profileLevelBar.style.width =
     `${progressPercent}%`;
 
   profileLevelTrack.setAttribute(
     "aria-valuemax",
-    String(levelData.maximum)
+    String(
+      isMaximumLevel
+        ? Math.max(
+            levelData.minimum,
+            balance
+          )
+        : levelData.maximum
+    )
   );
 
   profileLevelTrack.setAttribute(
     "aria-valuenow",
-    String(
-      Math.min(
-        balance,
-        levelData.maximum
-      )
-    )
+    String(balance)
+  );
+
+  profileLevelTrack.setAttribute(
+    "aria-label",
+    `Рівень ${levelData.level}: ${levelData.name}`
   );
 
   profileAccessKey.textContent =
@@ -433,8 +558,7 @@ function renderNotificationStatus() {
   }
 
   if (
-    Notification.permission ===
-    "granted"
+    Notification.permission === "granted"
   ) {
     profileNotificationStatus.textContent =
       "Дозволені";
@@ -443,8 +567,7 @@ function renderNotificationStatus() {
   }
 
   if (
-    Notification.permission ===
-    "denied"
+    Notification.permission === "denied"
   ) {
     profileNotificationStatus.textContent =
       "Заблоковані";
@@ -472,8 +595,7 @@ async function configureNotifications() {
   }
 
   if (
-    Notification.permission ===
-    "denied"
+    Notification.permission === "denied"
   ) {
     showToast(
       "Дозвіл заблоковано у налаштуваннях браузера"
@@ -483,8 +605,7 @@ async function configureNotifications() {
   }
 
   if (
-    Notification.permission ===
-    "granted"
+    Notification.permission === "granted"
   ) {
     showToast(
       "Системні сповіщення вже увімкнені"
@@ -507,8 +628,7 @@ async function configureNotifications() {
       window.PulseNotifications?.add({
         type: "success",
         category: "НАЛАШТУВАННЯ",
-        title:
-          "Сповіщення увімкнено",
+        title: "Сповіщення увімкнено",
         message:
           "Тепер важливі події Pulse не загубляться.",
       });
@@ -629,9 +749,7 @@ function logout() {
     ACCESS_STORAGE_KEY
   );
 
-  window.location.replace(
-    "index.html"
-  );
+  window.location.replace("index.html");
 }
 
 /*
@@ -654,9 +772,7 @@ function preventPageZoom() {
   document.addEventListener(
     "touchmove",
     (event) => {
-      if (
-        event.touches.length > 1
-      ) {
+      if (event.touches.length > 1) {
         event.preventDefault();
       }
     },
@@ -686,7 +802,7 @@ function preventPageZoom() {
 
 function initializeProfile() {
   /*
-   * Цей прапорець використовуватиме
+   * Цей прапорець використовує
    * сторінка бонусів для перевірки
    * завдання «Заповнити профіль».
    */
@@ -747,7 +863,11 @@ function initializeProfile() {
         event.key ===
           SIGNAL_COUNT_STORAGE_KEY ||
         event.key ===
-          PROFILE_NAME_STORAGE_KEY
+          PROFILE_NAME_STORAGE_KEY ||
+        event.key ===
+          PULSE_LEVEL_STORAGE_KEY ||
+        event.key ===
+          PULSE_UNLOCKS_STORAGE_KEY
       ) {
         renderProfile();
       }
@@ -757,9 +877,7 @@ function initializeProfile() {
   window.addEventListener(
     "beforeunload",
     () => {
-      window.clearTimeout(
-        toastTimer
-      );
+      window.clearTimeout(toastTimer);
 
       window.clearTimeout(
         logoutConfirmTimer
