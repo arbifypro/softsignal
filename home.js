@@ -1,9 +1,5 @@
 "use strict";
 
-if (sessionStorage.getItem("arbifyAccess") !== "granted") {
-  window.location.replace("index.html");
-}
-
 const SCAN_DURATION = 4600;
 const RESULT_REVEAL_DELAY = 420;
 const SUBID_VERIFY_DELAY = 1200;
@@ -126,6 +122,11 @@ let scanFrame;
 let resultRevealTimer;
 let selectedSlot = getSelectedSlot();
 let activeSignal = null;
+let homeReady = false;
+let homeState = {};
+let homeInitializationPromise = null;
+let stateSaveQueue = Promise.resolve({});
+let stateSaveErrorWasShown = false;
 
 function showToast(message) {
   window.clearTimeout(toastTimer);
@@ -136,6 +137,331 @@ function showToast(message) {
   toastTimer = window.setTimeout(() => {
     toast.classList.remove("is-visible");
   }, 2400);
+}
+
+function getArbifyApi() {
+  if (!window.ARBIFY_API) {
+    throw new Error(
+      "ARBIFY API is not loaded"
+    );
+  }
+
+  return window.ARBIFY_API;
+}
+
+function getStoredSubId() {
+  const databaseSubId =
+    normalizeSubId(homeState.subid || "");
+
+  if (databaseSubId) {
+    return databaseSubId;
+  }
+
+  try {
+    return normalizeSubId(
+      sessionStorage.getItem(
+        SUBID_STORAGE_KEY
+      ) || ""
+    );
+  } catch {
+    return "";
+  }
+}
+
+function getLegacySignalCount() {
+  try {
+    const value = Number(
+      localStorage.getItem(
+        "arbifyCreatedSignalCount"
+      )
+    );
+
+    return Number.isSafeInteger(value) &&
+      value > 0
+      ? value
+      : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function getCreatedSignalCount() {
+  const value = Number(
+    homeState.taskProgress
+      ?.createdSignalCount
+  );
+
+  if (
+    Number.isSafeInteger(value) &&
+    value >= 0
+  ) {
+    return value;
+  }
+
+  return getLegacySignalCount();
+}
+
+function applySelectedSlot(
+  slotName
+) {
+  if (!slotName) {
+    return;
+  }
+
+  const matchingCard =
+    [...slotCards].find((card) => {
+      return card.dataset.slot === slotName;
+    });
+
+  if (!matchingCard) {
+    return;
+  }
+
+  slotCards.forEach((card) => {
+    card.classList.toggle(
+      "is-selected",
+      card === matchingCard
+    );
+  });
+
+  selectedSlot = getSelectedSlot();
+}
+
+function applyDatabaseState(state) {
+  homeState = {
+    ...(state || {}),
+  };
+
+  const savedSubId =
+    normalizeSubId(homeState.subid || "");
+
+  if (savedSubId) {
+    try {
+      sessionStorage.setItem(
+        SUBID_STORAGE_KEY,
+        savedSubId
+      );
+    } catch {
+      /*
+       * SUBID вже збережений у базі.
+       */
+    }
+  }
+
+  applySelectedSlot(
+    homeState.selectedSlot
+  );
+
+  if (homeState.lastSignal) {
+    try {
+      sessionStorage.setItem(
+        "arbifyLastSignal",
+        JSON.stringify(
+          homeState.lastSignal
+        )
+      );
+    } catch {
+      /*
+       * Останній сигнал уже є у базі.
+       */
+    }
+  }
+}
+
+function persistStatePatch(
+  statePatch,
+  options = {}
+) {
+  const required =
+    options.required === true;
+
+  homeState = {
+    ...homeState,
+    ...statePatch,
+  };
+
+  const operation = stateSaveQueue
+    .catch(() => {
+      return homeState;
+    })
+    .then(async () => {
+      const api = getArbifyApi();
+      const savedState =
+        await api.saveState(
+          statePatch
+        );
+
+      homeState = {
+        ...savedState,
+      };
+
+      stateSaveErrorWasShown = false;
+
+      return homeState;
+    });
+
+  stateSaveQueue = operation.catch(
+    (error) => {
+      console.error(
+        "ARBIFY state save error:",
+        error.message
+      );
+
+      if (
+        !required &&
+        !stateSaveErrorWasShown
+      ) {
+        stateSaveErrorWasShown = true;
+
+        showToast(
+          "Не вдалося синхронізувати дані"
+        );
+      }
+
+      return homeState;
+    }
+  );
+
+  return required
+    ? operation
+    : stateSaveQueue;
+}
+
+async function migrateLegacyState() {
+  const patch = {};
+  const legacySubId = getStoredSubId();
+  const legacySignalCount =
+    getLegacySignalCount();
+
+  if (
+    !homeState.subid &&
+    legacySubId
+  ) {
+    patch.subid = legacySubId;
+  }
+
+  if (
+    !homeState.selectedSlot &&
+    selectedSlot?.name
+  ) {
+    patch.selectedSlot =
+      selectedSlot.name;
+  }
+
+  if (
+    !homeState.taskProgress
+      ?.createdSignalCount &&
+    legacySignalCount > 0
+  ) {
+    patch.taskProgress = {
+      ...(homeState.taskProgress || {}),
+      createdSignalCount:
+        legacySignalCount,
+    };
+  }
+
+  if (!homeState.lastSignal) {
+    try {
+      const legacyLastSignal =
+        sessionStorage.getItem(
+          "arbifyLastSignal"
+        );
+
+      if (legacyLastSignal) {
+        patch.lastSignal =
+          JSON.parse(
+            legacyLastSignal
+          );
+      }
+    } catch {
+      /*
+       * Пошкоджені локальні дані
+       * просто не переносимо.
+       */
+    }
+  }
+
+  if (Object.keys(patch).length > 0) {
+    await persistStatePatch(
+      patch,
+      {
+        required: true,
+      }
+    );
+  }
+}
+
+async function initializeHomeState() {
+  const api = getArbifyApi();
+  const user = await api.authenticate();
+
+  if (!user?.accessGranted) {
+    window.location.replace(
+      "index.html"
+    );
+
+    return false;
+  }
+
+  try {
+    sessionStorage.setItem(
+      "arbifyAccess",
+      "granted"
+    );
+  } catch {
+    /*
+     * Доступ підтверджує сервер.
+     */
+  }
+
+  applyDatabaseState(
+    user.state ||
+      api.getCurrentState()
+  );
+
+  homeReady = true;
+
+  await migrateLegacyState();
+  applyDatabaseState(homeState);
+
+  document.documentElement.dataset
+    .arbifyPageReady = "true";
+
+  return true;
+}
+
+function beginHomeInitialization() {
+  if (!homeInitializationPromise) {
+    homeInitializationPromise =
+      initializeHomeState().catch(
+        (error) => {
+          homeReady = false;
+
+          console.error(
+            "ARBIFY home initialization error:",
+            error.message
+          );
+
+          showToast(
+            "Не вдалося підключитися до профілю"
+          );
+
+          return false;
+        }
+      );
+  }
+
+  return homeInitializationPromise;
+}
+
+async function ensureHomeReady() {
+  if (homeReady) {
+    return true;
+  }
+
+  return Boolean(
+    await beginHomeInitialization()
+  );
 }
 
 function normalizeSubId(value) {
@@ -232,24 +558,107 @@ function startSubIdVerification(subId) {
    * Пізніше цей таймер замінимо запитом до серверного API,
    * яке перевірятиме реєстрацію через Keitaro.
    */
-  subIdVerifyTimer = window.setTimeout(() => {
-    sessionStorage.setItem(
-      SUBID_STORAGE_KEY,
-      subId
-    );
+  subIdVerifyTimer = window.setTimeout(
+    async () => {
+      try {
+        await persistStatePatch(
+          {
+            subid: subId,
+          },
+          {
+            required: true,
+          }
+        );
 
-    subIdDialog.classList.remove("is-checking");
-    subIdDialog.classList.add("is-success");
-    subIdField.classList.remove("is-checking");
-    subIdFormView.hidden = true;
-    subIdSuccessView.hidden = false;
+        try {
+          sessionStorage.setItem(
+            SUBID_STORAGE_KEY,
+            subId
+          );
+        } catch {
+          /*
+           * SUBID уже збережено
+           * у серверній базі.
+           */
+        }
 
-    subIdSuccessTimer = window.setTimeout(() => {
-      closeSubIdModal(() => {
-        startSignalFlow();
-      });
-    }, SUBID_SUCCESS_DELAY);
-  }, SUBID_VERIFY_DELAY);
+        let noticeWasSent = false;
+
+        try {
+          noticeWasSent =
+            sessionStorage.getItem(
+              PULSE_SUBID_NOTICE_KEY
+            ) === "true";
+        } catch {
+          /*
+           * Сповіщення не впливає
+           * на підтвердження SUBID.
+           */
+        }
+
+        if (!noticeWasSent) {
+          try {
+            sessionStorage.setItem(
+              PULSE_SUBID_NOTICE_KEY,
+              "true"
+            );
+          } catch {
+            /*
+             * Продовжуємо без локальної
+             * позначки сповіщення.
+             */
+          }
+
+          pulseHomeUseNotifications(
+            (notificationsApi) => {
+              notificationsApi.add({
+                type: "success",
+                category:
+                  "SUBID ПІДТВЕРДЖЕНО",
+                title:
+                  "Реєстрацію знайдено",
+                message:
+                  `SUBID ${pulseMaskSubId(subId)} успішно підтверджено. ` +
+                  "Доступ до створення сигналів відкрито.",
+              });
+            }
+          );
+        }
+
+        subIdDialog.classList.remove(
+          "is-checking"
+        );
+
+        subIdDialog.classList.add(
+          "is-success"
+        );
+
+        subIdField.classList.remove(
+          "is-checking"
+        );
+
+        subIdFormView.hidden = true;
+        subIdSuccessView.hidden = false;
+
+        subIdSuccessTimer =
+          window.setTimeout(() => {
+            closeSubIdModal(() => {
+              startSignalFlow();
+            });
+          }, SUBID_SUCCESS_DELAY);
+      } catch (error) {
+        console.error(
+          "SUBID save error:",
+          error.message
+        );
+
+        showSubIdError(
+          "Не вдалося зберегти SUBID. Спробуйте ще раз"
+        );
+      }
+    },
+    SUBID_VERIFY_DELAY
+  );
 }
 
 function getSelectedSlot() {
@@ -290,10 +699,41 @@ function createSignal(slot) {
 }
 
 function saveSignal(signal) {
-  sessionStorage.setItem(
-    "arbifyLastSignal",
-    JSON.stringify(signal)
-  );
+  try {
+    sessionStorage.setItem(
+      "arbifyLastSignal",
+      JSON.stringify(signal)
+    );
+  } catch {
+    /*
+     * Основна копія сигналу
+     * зберігається на сервері.
+     */
+  }
+
+  const previousHistory =
+    Array.isArray(
+      homeState.signalHistory
+    )
+      ? homeState.signalHistory
+      : [];
+
+  const signalHistory = [
+    signal,
+    ...previousHistory,
+  ].slice(0, 50);
+
+  const taskProgress = {
+    ...(homeState.taskProgress || {}),
+    createdSignalCount:
+      getCreatedSignalCount() + 1,
+  };
+
+  void persistStatePatch({
+    lastSignal: signal,
+    signalHistory,
+    taskProgress,
+  });
 }
 
 function setScanStage(percent) {
@@ -506,7 +946,11 @@ function startSignalFlow() {
 }
 
 slotCards.forEach((card) => {
-  card.addEventListener("click", () => {
+  card.addEventListener("click", async () => {
+    if (!(await ensureHomeReady())) {
+      return;
+    }
+
     slotCards.forEach((item) => {
       item.classList.remove(
         "is-selected"
@@ -523,16 +967,23 @@ slotCards.forEach((card) => {
     showToast(
       `${selectedSlot.name} обрано`
     );
+
+    void persistStatePatch({
+      selectedSlot:
+        selectedSlot.name,
+    });
   });
 });
 
 signalButton.addEventListener(
   "click",
-  () => {
+  async () => {
+    if (!(await ensureHomeReady())) {
+      return;
+    }
+
     const verifiedSubId =
-      sessionStorage.getItem(
-        SUBID_STORAGE_KEY
-      );
+      getStoredSubId();
 
     if (verifiedSubId) {
       startSignalFlow();
@@ -851,24 +1302,22 @@ function pulseHomeUseNotifications(action) {
 }
 
 function pulseIncrementSignalCount() {
-  const currentValue = Number(
-    localStorage.getItem(
-      PULSE_SIGNAL_COUNT_KEY
-    )
-  );
+  const synchronizedValue =
+    getCreatedSignalCount();
 
-  const nextValue =
-    Number.isFinite(currentValue) &&
-    currentValue > 0
-      ? Math.floor(currentValue) + 1
-      : 1;
+  try {
+    localStorage.setItem(
+      PULSE_SIGNAL_COUNT_KEY,
+      String(synchronizedValue)
+    );
+  } catch {
+    /*
+     * Лічильник уже збережений
+     * у серверній базі.
+     */
+  }
 
-  localStorage.setItem(
-    PULSE_SIGNAL_COUNT_KEY,
-    String(nextValue)
-  );
-
-  return nextValue;
+  return synchronizedValue;
 }
 
 function pulseMaskSubId(subId) {
@@ -890,62 +1339,6 @@ function pulseMaskSubId(subId) {
     normalizedValue.slice(-2)
   );
 }
-
-const pulseOriginalStartSubIdVerification =
-  startSubIdVerification;
-
-startSubIdVerification = function (subId) {
-  const alreadyVerified =
-    Boolean(
-      sessionStorage.getItem(
-        SUBID_STORAGE_KEY
-      )
-    );
-
-  pulseOriginalStartSubIdVerification(subId);
-
-  if (alreadyVerified) {
-    return;
-  }
-
-  window.setTimeout(() => {
-    const verifiedSubId =
-      sessionStorage.getItem(
-        SUBID_STORAGE_KEY
-      );
-
-    const noticeWasSent =
-      sessionStorage.getItem(
-        PULSE_SUBID_NOTICE_KEY
-      ) === "true";
-
-    if (
-      !verifiedSubId ||
-      noticeWasSent
-    ) {
-      return;
-    }
-
-    sessionStorage.setItem(
-      PULSE_SUBID_NOTICE_KEY,
-      "true"
-    );
-
-    pulseHomeUseNotifications(
-      (notificationsApi) => {
-        notificationsApi.add({
-          type: "success",
-          category: "SUBID ПІДТВЕРДЖЕНО",
-          title:
-            "Реєстрацію знайдено",
-          message:
-            `SUBID ${pulseMaskSubId(verifiedSubId)} успішно підтверджено. ` +
-            "Доступ до створення сигналів відкрито.",
-        });
-      }
-    );
-  }, SUBID_VERIFY_DELAY + 80);
-};
 
 const pulseOriginalShowSignalResult =
   showSignalResult;
@@ -974,3 +1367,15 @@ showSignalResult = function () {
     }
   );
 };
+
+if (document.readyState === "loading") {
+  document.addEventListener(
+    "DOMContentLoaded",
+    beginHomeInitialization,
+    {
+      once: true,
+    }
+  );
+} else {
+  beginHomeInitialization();
+}
