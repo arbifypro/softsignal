@@ -1,20 +1,5 @@
 "use strict";
 
-/*
- * =========================================================
- * ARBIFY PULSE — БОНУСИ ТА ЗАВДАННЯ · POSTGRESQL
- * =========================================================
- *
- * Основний прогрес зберігається у PostgreSQL
- * окремо для кожного Telegram-користувача.
- * localStorage використовується лише як резервна
- * копія та для перенесення старого прогресу.
- */
-
-/*
- * Вкажемо справжні username наприкінці розробки.
- * Писати потрібно БЕЗ символу @.
- */
 const TELEGRAM_BOT_USERNAME = "YOUR_BOT_USERNAME";
 const TELEGRAM_CHANNEL_USERNAME = "YOUR_CHANNEL_USERNAME";
 
@@ -68,119 +53,235 @@ const PULSE_LEVELS = Object.freeze([
   },
 ]);
 
-/*
- * =========================================================
- * ЕЛЕМЕНТИ СТОРІНКИ
- * =========================================================
- */
+const pulseBalance =
+  document.querySelector("#pulseBalance");
 
-const pulseBalance = document.querySelector("#pulseBalance");
-const levelBadge = document.querySelector("#levelBadge");
-const levelProgressValue = document.querySelector("#levelProgressValue");
-const levelProgressBar = document.querySelector("#levelProgressBar");
-const levelProgressTrack = document.querySelector(".level-progress");
+const levelBadge =
+  document.querySelector("#levelBadge");
 
-const taskList = document.querySelector("#taskList");
+const levelProgressValue =
+  document.querySelector("#levelProgressValue");
+
+const levelProgressBar =
+  document.querySelector("#levelProgressBar");
+
+const levelProgressTrack =
+  document.querySelector(".level-progress");
+
+const taskList =
+  document.querySelector("#taskList");
+
 const taskCards = Array.from(
   document.querySelectorAll(".task-card")
 );
+
 const taskFilters = Array.from(
   document.querySelectorAll(".task-filter")
 );
-const allTasksCount = document.querySelector("#allTasksCount");
-const taskRefreshTimer = document.querySelector(
-  "#taskRefreshTimer"
-);
 
-const weeklyProgressText = document.querySelector(
-  "#weeklyProgressText"
-);
+const allTasksCount =
+  document.querySelector("#allTasksCount");
+
+const taskRefreshTimer =
+  document.querySelector("#taskRefreshTimer");
+
+const weeklyProgressText =
+  document.querySelector("#weeklyProgressText");
+
 const weeklyNodes = Array.from(
-  document.querySelectorAll("#weeklyNodes > span")
-);
-const weeklyProgressElement = document.querySelector(
-  "#weeklyNodes"
-);
-
-const notificationButton = document.querySelector(
-  "#notificationButton"
-);
-const notificationDot = document.querySelector(
-  ".notification-dot"
+  document.querySelectorAll(
+    "#weeklyNodes > span"
+  )
 );
 
-const verificationOverlay = document.querySelector(
-  "#verificationOverlay"
-);
-const verificationBackdrop = document.querySelector(
-  "[data-close-verification]"
-);
-const verificationClose = document.querySelector(
-  "#verificationClose"
-);
-const verificationIcon = document.querySelector(
-  "#verificationIcon"
-);
-const verificationLoader = document.querySelector(
-  ".verification-loader"
-);
-const verificationSuccess = document.querySelector(
-  ".verification-success"
-);
+const weeklyProgressElement =
+  document.querySelector("#weeklyNodes");
+
+const notificationButton =
+  document.querySelector(
+    "#notificationButton"
+  );
+
+const notificationDot =
+  document.querySelector(
+    ".notification-dot"
+  );
+
+const verificationOverlay =
+  document.querySelector(
+    "#verificationOverlay"
+  );
+
+const verificationBackdrop =
+  document.querySelector(
+    "[data-close-verification]"
+  );
+
+const verificationClose =
+  document.querySelector(
+    "#verificationClose"
+  );
+
+const verificationIcon =
+  document.querySelector(
+    "#verificationIcon"
+  );
+
+const verificationLoader =
+  document.querySelector(
+    ".verification-loader"
+  );
+
+const verificationSuccess =
+  document.querySelector(
+    ".verification-success"
+  );
+
 const verificationSuccessPath =
-  verificationSuccess?.querySelector("path");
-const verificationTitle = document.querySelector(
-  "#verificationTitle"
-);
-const verificationDescription = document.querySelector(
-  "#verificationDescription"
-);
-const verificationActionButton = document.querySelector(
-  "#verificationActionButton"
-);
+  verificationSuccess?.querySelector(
+    "path"
+  );
 
-const guideOverlay = document.querySelector("#guideOverlay");
-const guideBackdrop = document.querySelector(
-  "[data-close-guide]"
-);
-const guideDialog = document.querySelector(".guide-dialog");
-const guideClose = document.querySelector("#guideClose");
-const guideConfirm = document.querySelector("#guideConfirm");
+const verificationTitle =
+  document.querySelector(
+    "#verificationTitle"
+  );
 
-const toast = document.querySelector("#toast");
-const toastText = document.querySelector("#toastText");
+const verificationDescription =
+  document.querySelector(
+    "#verificationDescription"
+  );
 
-const rewardToast = document.querySelector("#rewardToast");
-const rewardToastValue = document.querySelector(
-  "#rewardToastValue"
-);
+const verificationActionButton =
+  document.querySelector(
+    "#verificationActionButton"
+  );
+
+const guideOverlay =
+  document.querySelector("#guideOverlay");
+
+const guideBackdrop =
+  document.querySelector(
+    "[data-close-guide]"
+  );
+
+const guideDialog =
+  document.querySelector(".guide-dialog");
+
+const guideClose =
+  document.querySelector("#guideClose");
+
+const guideConfirm =
+  document.querySelector("#guideConfirm");
+
+const toast =
+  document.querySelector("#toast");
+
+const toastText =
+  document.querySelector("#toastText");
+
+const rewardToast =
+  document.querySelector("#rewardToast");
+
+const rewardToastValue =
+  document.querySelector(
+    "#rewardToastValue"
+  );
 
 /*
- * =========================================================
- * ПОЧАТКОВІ ДАНІ
- * =========================================================
+ * Індикатор завантаження балансу.
  */
+function setBalanceLoadingState(
+  isLoading
+) {
+  const dynamicElements = [
+    pulseBalance,
+    levelBadge,
+    levelProgressValue,
+  ];
+
+  dynamicElements.forEach((element) => {
+    if (!element) {
+      return;
+    }
+
+    element.setAttribute(
+      "aria-busy",
+      String(isLoading)
+    );
+
+    if (isLoading) {
+      element.textContent = "";
+    }
+  });
+
+  if (
+    isLoading &&
+    levelProgressBar &&
+    levelProgressTrack
+  ) {
+    levelProgressBar.style.width = "0%";
+
+    levelProgressTrack.setAttribute(
+      "aria-valuenow",
+      "0"
+    );
+  }
+}
+
+function showBalanceLoadingError() {
+  setBalanceLoadingState(false);
+
+  pulseBalance.textContent = "—";
+
+  levelBadge.textContent =
+    "НЕ ЗАВАНТАЖЕНО";
+
+  levelProgressValue.textContent = "—";
+
+  levelProgressBar.style.width =
+    "0.01%";
+}
 
 const taskMeta = new Map();
 
 taskCards.forEach((card) => {
-  const button = card.querySelector(".task-action");
+  const button =
+    card.querySelector(".task-action");
 
   taskMeta.set(card.dataset.taskId, {
     card,
     button,
+
     title:
-      card.querySelector("h3")?.textContent.trim() ||
+      card
+        .querySelector("h3")
+        ?.textContent.trim() ||
       "Завдання",
-    message: card.querySelector(".task-message"),
-    reward: Number(card.dataset.reward) || 0,
-    category: card.dataset.category || "starter",
+
+    message:
+      card.querySelector(
+        ".task-message"
+      ),
+
+    reward:
+      Number(card.dataset.reward) || 0,
+
+    category:
+      card.dataset.category ||
+      "starter",
+
     originalAction:
-      button?.dataset.taskAction || "check",
+      button?.dataset.taskAction ||
+      "check",
+
     originalText:
-      button?.textContent.trim() || "ПЕРЕВІРИТИ",
+      button?.textContent.trim() ||
+      "ПЕРЕВІРИТИ",
+
     originalClasses:
-      button?.className || "task-action",
+      button?.className ||
+      "task-action",
   });
 });
 
@@ -189,7 +290,11 @@ function createDefaultState() {
     balance: 0,
     level: 1,
     highestLevel: 1,
-    unlockedLevelRewards: ["base-access"],
+
+    unlockedLevelRewards: [
+      "base-access",
+    ],
+
     weeklyProgress: 0,
     weeklyRewardClaimed: false,
     taskNoticeIds: [],
@@ -246,22 +351,31 @@ function createDefaultState() {
 }
 
 function loadRewardsState() {
-  const defaultState = createDefaultState();
+  const defaultState =
+    createDefaultState();
 
   try {
-    const savedValue = localStorage.getItem(STORAGE_KEY);
+    const savedValue =
+      localStorage.getItem(
+        STORAGE_KEY
+      );
 
     if (!savedValue) {
       return defaultState;
     }
 
-    const savedState = JSON.parse(savedValue);
+    const savedState =
+      JSON.parse(savedValue);
 
-    const savedUnlocks = Array.isArray(
-      savedState.unlockedLevelRewards
-    )
-      ? savedState.unlockedLevelRewards
-      : defaultState.unlockedLevelRewards;
+    const savedUnlocks =
+      Array.isArray(
+        savedState
+          .unlockedLevelRewards
+      )
+        ? savedState
+            .unlockedLevelRewards
+        : defaultState
+            .unlockedLevelRewards;
 
     return {
       ...defaultState,
@@ -277,12 +391,13 @@ function loadRewardsState() {
         ...(savedState.progress || {}),
       },
 
-      unlockedLevelRewards: Array.from(
-        new Set([
-          "base-access",
-          ...savedUnlocks,
-        ])
-      ),
+      unlockedLevelRewards:
+        Array.from(
+          new Set([
+            "base-access",
+            ...savedUnlocks,
+          ])
+        ),
     };
   } catch (error) {
     console.warn(
@@ -294,13 +409,17 @@ function loadRewardsState() {
   }
 }
 
-let rewardsState = loadRewardsState();
+let rewardsState =
+  loadRewardsState();
 
 let rewardsDatabaseState = {};
 let rewardsDatabaseReady = false;
 let rewardsPageReady = false;
 let rewardsInitializationPromise = null;
-let rewardsSaveQueue = Promise.resolve({});
+
+let rewardsSaveQueue =
+  Promise.resolve({});
+
 let rewardsSaveErrorWasShown = false;
 
 function getArbifyApi() {
@@ -325,11 +444,13 @@ function normalizeRewardsState(
       ? sourceState
       : {};
 
-  const savedUnlocks = Array.isArray(
-    source.unlockedLevelRewards
-  )
-    ? source.unlockedLevelRewards
-    : defaultState.unlockedLevelRewards;
+  const savedUnlocks =
+    Array.isArray(
+      source.unlockedLevelRewards
+    )
+      ? source.unlockedLevelRewards
+      : defaultState
+          .unlockedLevelRewards;
 
   return {
     ...defaultState,
@@ -356,7 +477,8 @@ function normalizeRewardsState(
     ),
 
     weeklyRewardClaimed:
-      source.weeklyRewardClaimed === true,
+      source.weeklyRewardClaimed ===
+      true,
 
     tasks: {
       ...defaultState.tasks,
@@ -368,18 +490,20 @@ function normalizeRewardsState(
       ...(source.progress || {}),
     },
 
-    taskNoticeIds: Array.isArray(
-      source.taskNoticeIds
-    )
-      ? source.taskNoticeIds
-      : [],
+    taskNoticeIds:
+      Array.isArray(
+        source.taskNoticeIds
+      )
+        ? source.taskNoticeIds
+        : [],
 
-    unlockedLevelRewards: Array.from(
-      new Set([
-        "base-access",
-        ...savedUnlocks,
-      ])
-    ),
+    unlockedLevelRewards:
+      Array.from(
+        new Set([
+          "base-access",
+          ...savedUnlocks,
+        ])
+      ),
   };
 }
 
@@ -399,10 +523,12 @@ function getDatabaseRewardsRecord(
   const rewardsRecord =
     taskProgress.rewards;
 
-  return rewardsRecord &&
+  return (
+    rewardsRecord &&
     typeof rewardsRecord === "object"
       ? rewardsRecord
-      : {};
+      : {}
+  );
 }
 
 function hasDatabaseRewardsState(
@@ -457,7 +583,8 @@ function createRewardsStateFromDatabase(
       rewardsRecord.weeklyProgress,
 
     weeklyRewardClaimed:
-      rewardsRecord.weeklyRewardClaimed,
+      rewardsRecord
+        .weeklyRewardClaimed,
 
     tasks:
       databaseState.completedTasks,
@@ -502,7 +629,8 @@ function createRewardsDatabasePatch() {
           rewardsState.highestLevel,
 
         weeklyProgress:
-          rewardsState.weeklyProgress,
+          rewardsState
+            .weeklyProgress,
 
         weeklyRewardClaimed:
           rewardsState
@@ -535,29 +663,32 @@ function persistRewardsState({
     ...statePatch,
   };
 
-  const operation = rewardsSaveQueue
-    .catch(() => {
-      return rewardsDatabaseState;
-    })
-    .then(async () => {
-      const api = getArbifyApi();
-      const savedState =
-        await api.saveState(
-          statePatch
-        );
+  const operation =
+    rewardsSaveQueue
+      .catch(() => {
+        return rewardsDatabaseState;
+      })
+      .then(async () => {
+        const api =
+          getArbifyApi();
 
-      rewardsDatabaseState = {
-        ...savedState,
-      };
+        const savedState =
+          await api.saveState(
+            statePatch
+          );
 
-      rewardsSaveErrorWasShown =
-        false;
+        rewardsDatabaseState = {
+          ...savedState,
+        };
 
-      return rewardsDatabaseState;
-    });
+        rewardsSaveErrorWasShown =
+          false;
 
-  rewardsSaveQueue = operation.catch(
-    (error) => {
+        return rewardsDatabaseState;
+      });
+
+  rewardsSaveQueue =
+    operation.catch((error) => {
       console.error(
         "Rewards state save error:",
         error.message
@@ -576,8 +707,7 @@ function persistRewardsState({
       }
 
       return rewardsDatabaseState;
-    }
-  );
+    });
 
   return required
     ? operation
@@ -622,8 +752,8 @@ function setCompatibilityStorage(
     );
   } catch {
     /*
-     * Дані вже зберігаються у PostgreSQL,
-     * тому недоступне сховище не зупиняє сторінку.
+     * PostgreSQL залишається
+     * основним сховищем.
      */
   }
 }
@@ -644,11 +774,14 @@ function restoreDatabaseCompatibilityState() {
     rewardsDatabaseState.subid
   );
 
-  if (rewardsDatabaseState.lastSignal) {
+  if (
+    rewardsDatabaseState.lastSignal
+  ) {
     setCompatibilityStorage(
       sessionStorage,
       LAST_SIGNAL_KEY,
-      rewardsDatabaseState.lastSignal
+      rewardsDatabaseState
+        .lastSignal
     );
   }
 
@@ -664,9 +797,10 @@ function restoreDatabaseCompatibilityState() {
     );
   }
 
-  const createdSignalCount = Number(
-    taskProgress.createdSignalCount
-  );
+  const createdSignalCount =
+    Number(
+      taskProgress.createdSignalCount
+    );
 
   if (
     Number.isSafeInteger(
@@ -682,8 +816,8 @@ function restoreDatabaseCompatibilityState() {
   }
 
   if (
-    taskProgress.viewedLiveSignals ===
-    true
+    taskProgress
+      .viewedLiveSignals === true
   ) {
     setCompatibilityStorage(
       sessionStorage,
@@ -712,7 +846,8 @@ function saveLocalRewardsSnapshot() {
     );
   } catch {
     /*
-     * PostgreSQL залишається головним сховищем.
+     * PostgreSQL залишається
+     * основним сховищем.
      */
   }
 }
@@ -764,6 +899,7 @@ async function initializeRewardsDatabase() {
         new Set([
           ...rewardsState
             .taskNoticeIds,
+
           ...readLegacyTaskNoticeIds(),
         ])
       );
@@ -812,6 +948,7 @@ async function initializeRewardsDatabase() {
       new Set([
         ...localRewardsState
           .taskNoticeIds,
+
         ...readLegacyTaskNoticeIds(),
       ])
     );
@@ -840,12 +977,6 @@ async function initializeRewardsDatabase() {
   return true;
 }
 
-/*
- * =========================================================
- * СЛУЖБОВІ ЗМІННІ
- * =========================================================
- */
-
 let activeFilter = "all";
 let activeVerificationTaskId = null;
 
@@ -860,12 +991,6 @@ let levelToastTimer;
 
 let lockedScrollPosition = 0;
 
-/*
- * =========================================================
- * ДОПОМІЖНІ ФУНКЦІЇ
- * =========================================================
- */
-
 function getTaskRecord(taskId) {
   if (!rewardsState.tasks[taskId]) {
     rewardsState.tasks[taskId] = {
@@ -877,48 +1002,60 @@ function getTaskRecord(taskId) {
 }
 
 function formatNumber(value) {
-  return new Intl.NumberFormat("uk-UA").format(value);
+  return new Intl.NumberFormat(
+    "uk-UA"
+  ).format(value);
 }
 
-function normalizeTelegramUsername(username) {
+function normalizeTelegramUsername(
+  username
+) {
   return String(username || "")
     .trim()
     .replace(/^@+/, "");
 }
 
-function isTelegramUsernameConfigured(username) {
+function isTelegramUsernameConfigured(
+  username
+) {
   const normalizedUsername =
-    normalizeTelegramUsername(username);
+    normalizeTelegramUsername(
+      username
+    );
 
   return (
     normalizedUsername.length > 0 &&
-    !normalizedUsername.startsWith("YOUR_")
+    !normalizedUsername.startsWith(
+      "YOUR_"
+    )
   );
 }
 
-/*
- * =========================================================
- * РІВНІ PULSE
- * =========================================================
- */
-
 function getLevelData(balance) {
-  const normalizedBalance = Math.max(
-    Number(balance) || 0,
-    0
-  );
+  const normalizedBalance =
+    Math.max(
+      Number(balance) || 0,
+      0
+    );
 
   return (
     [...PULSE_LEVELS]
       .reverse()
       .find((levelData) => {
-        return normalizedBalance >= levelData.minimum;
-      }) || PULSE_LEVELS[0]
+        return (
+          normalizedBalance >=
+          levelData.minimum
+        );
+      }) ||
+    PULSE_LEVELS[0]
   );
 }
 
-function publishPulseLevelState(levelData) {
-  document.documentElement.dataset.pulseLevel =
+function publishPulseLevelState(
+  levelData
+) {
+  document.documentElement.dataset
+    .pulseLevel =
     String(levelData.level);
 
   document.body.dataset.pulseLevel =
@@ -933,37 +1070,52 @@ function publishPulseLevelState(levelData) {
     localStorage.setItem(
       PULSE_UNLOCKS_KEY,
       JSON.stringify(
-        rewardsState.unlockedLevelRewards
+        rewardsState
+          .unlockedLevelRewards
       )
     );
   } catch {
     /*
-     * Сторінка продовжить працювати,
-     * навіть якщо localStorage недоступний.
+     * Сторінка працюватиме і без
+     * локального сховища.
      */
   }
 }
 
-function addPulseLevelNotification(levelData) {
-  const addNotification = (notificationsApi) => {
+function addPulseLevelNotification(
+  levelData
+) {
+  const addNotification = (
+    notificationsApi
+  ) => {
     notificationsApi.add({
       type: "reward",
       category: "НОВИЙ РІВЕНЬ",
-      title: `Відкрито рівень ${levelData.level}`,
+
+      title:
+        `Відкрито рівень ` +
+        `${levelData.level}`,
+
       message:
-        `Нова можливість: ${levelData.unlockTitle}.`,
+        `Нова можливість: ` +
+        `${levelData.unlockTitle}.`,
     });
   };
 
   if (window.PulseNotifications) {
-    addNotification(window.PulseNotifications);
+    addNotification(
+      window.PulseNotifications
+    );
+
     return;
   }
 
   document.addEventListener(
     "pulse:notifications-ready",
     () => {
-      if (window.PulseNotifications) {
+      if (
+        window.PulseNotifications
+      ) {
         addNotification(
           window.PulseNotifications
         );
@@ -978,50 +1130,74 @@ function addPulseLevelNotification(levelData) {
 function synchronizePulseLevelProgress({
   notify = false,
 } = {}) {
-  const currentLevelData = getLevelData(
-    rewardsState.balance
-  );
+  const currentLevelData =
+    getLevelData(
+      rewardsState.balance
+    );
 
-  const previousHighestLevel = Math.max(
-    1,
-    Number(rewardsState.highestLevel) || 1
-  );
+  const previousHighestLevel =
+    Math.max(
+      1,
+      Number(
+        rewardsState.highestLevel
+      ) || 1
+    );
 
-  const unlockedRewards = new Set(
-    Array.isArray(
-      rewardsState.unlockedLevelRewards
-    )
-      ? rewardsState.unlockedLevelRewards
-      : ["base-access"]
-  );
+  const unlockedRewards =
+    new Set(
+      Array.isArray(
+        rewardsState
+          .unlockedLevelRewards
+      )
+        ? rewardsState
+            .unlockedLevelRewards
+        : ["base-access"]
+    );
 
   const newlyUnlockedLevels =
-    PULSE_LEVELS.filter((levelData) => {
-      return (
-        levelData.level > previousHighestLevel &&
-        levelData.level <= currentLevelData.level
-      );
-    });
+    PULSE_LEVELS.filter(
+      (levelData) => {
+        return (
+          levelData.level >
+            previousHighestLevel &&
+          levelData.level <=
+            currentLevelData.level
+        );
+      }
+    );
 
-  PULSE_LEVELS.forEach((levelData) => {
-    if (levelData.level <= currentLevelData.level) {
-      unlockedRewards.add(levelData.unlockKey);
+  PULSE_LEVELS.forEach(
+    (levelData) => {
+      if (
+        levelData.level <=
+        currentLevelData.level
+      ) {
+        unlockedRewards.add(
+          levelData.unlockKey
+        );
+      }
     }
-  });
-
-  rewardsState.level = currentLevelData.level;
-
-  rewardsState.highestLevel = Math.max(
-    previousHighestLevel,
-    currentLevelData.level
   );
+
+  rewardsState.level =
+    currentLevelData.level;
+
+  rewardsState.highestLevel =
+    Math.max(
+      previousHighestLevel,
+      currentLevelData.level
+    );
 
   rewardsState.unlockedLevelRewards =
     Array.from(unlockedRewards);
 
-  publishPulseLevelState(currentLevelData);
+  publishPulseLevelState(
+    currentLevelData
+  );
 
-  if (newlyUnlockedLevels.length > 0) {
+  if (
+    newlyUnlockedLevels.length > 0
+  ) {
     saveRewardsState();
 
     if (notify) {
@@ -1035,15 +1211,20 @@ function synchronizePulseLevelProgress({
 }
 
 function renderBalance(
-  displayedBalance = rewardsState.balance
-) {
-  const levelData = getLevelData(
+  displayedBalance =
     rewardsState.balance
-  );
+) {
+  const levelData =
+    getLevelData(
+      rewardsState.balance
+    );
 
-  pulseBalance.textContent = formatNumber(
-    Math.round(displayedBalance)
-  );
+  pulseBalance.textContent =
+    formatNumber(
+      Math.round(
+        displayedBalance
+      )
+    );
 
   levelBadge.textContent =
     `РІВЕНЬ ${levelData.level}`;
@@ -1062,14 +1243,16 @@ function renderBalance(
           levelData.maximum
         )}`;
 
-  const progressPercent = isMaximumLevel
-    ? 100
-    : Math.min(
-        (rewardsState.balance /
-          levelData.maximum) *
-          100,
-        100
-      );
+  const progressPercent =
+    isMaximumLevel
+      ? 100
+      : Math.min(
+          (
+            rewardsState.balance /
+            levelData.maximum
+          ) * 100,
+          100
+        );
 
   levelProgressBar.style.width =
     `${progressPercent}%`;
@@ -1088,14 +1271,18 @@ function renderBalance(
 
   levelProgressTrack.setAttribute(
     "aria-valuenow",
-    String(rewardsState.balance)
+    String(
+      rewardsState.balance
+    )
   );
 
   levelProgressTrack.setAttribute(
     "aria-label",
-    `Рівень ${levelData.level}: ${levelData.name}`
+    `Рівень ${levelData.level}: ` +
+      levelData.name
   );
 
+  setBalanceLoadingState(false);
   publishPulseLevelState(levelData);
 }
 
@@ -1108,22 +1295,34 @@ function animateBalance(
   );
 
   const duration = 700;
-  const startedAt = performance.now();
+  const startedAt =
+    performance.now();
 
-  function updateBalance(currentTime) {
-    const elapsed = currentTime - startedAt;
+  function updateBalance(
+    currentTime
+  ) {
+    const elapsed =
+      currentTime - startedAt;
 
-    const progress = Math.min(
-      elapsed / duration,
-      1
-    );
+    const progress =
+      Math.min(
+        elapsed / duration,
+        1
+      );
 
     const easedProgress =
-      1 - Math.pow(1 - progress, 3);
+      1 -
+      Math.pow(
+        1 - progress,
+        3
+      );
 
     const currentBalance =
       previousBalance +
-      (newBalance - previousBalance) *
+      (
+        newBalance -
+        previousBalance
+      ) *
         easedProgress;
 
     renderBalance(currentBalance);
@@ -1146,25 +1345,24 @@ function animateBalance(
     );
 }
 
-/*
- * =========================================================
- * ПОВІДОМЛЕННЯ
- * =========================================================
- */
-
 function showToast(message) {
   window.clearTimeout(toastTimer);
 
   toastText.textContent = message;
   toast.classList.add("is-visible");
 
-  toastTimer = window.setTimeout(() => {
-    toast.classList.remove("is-visible");
-  }, TOAST_DURATION);
+  toastTimer =
+    window.setTimeout(() => {
+      toast.classList.remove(
+        "is-visible"
+      );
+    }, TOAST_DURATION);
 }
 
 function showRewardToast(reward) {
-  window.clearTimeout(rewardToastTimer);
+  window.clearTimeout(
+    rewardToastTimer
+  );
 
   rewardToastValue.textContent =
     `+${formatNumber(reward)} PULSE`;
@@ -1174,38 +1372,37 @@ function showRewardToast(reward) {
     "false"
   );
 
-  rewardToast.classList.add("is-visible");
+  rewardToast.classList.add(
+    "is-visible"
+  );
 
-  rewardToastTimer = window.setTimeout(() => {
-    rewardToast.classList.remove(
-      "is-visible"
-    );
+  rewardToastTimer =
+    window.setTimeout(() => {
+      rewardToast.classList.remove(
+        "is-visible"
+      );
 
-    rewardToast.setAttribute(
-      "aria-hidden",
-      "true"
-    );
-  }, REWARD_TOAST_DURATION);
+      rewardToast.setAttribute(
+        "aria-hidden",
+        "true"
+      );
+    }, REWARD_TOAST_DURATION);
 }
-
-/*
- * =========================================================
- * ВІДОБРАЖЕННЯ ЗАВДАНЬ
- * =========================================================
- */
 
 function setTaskMessage(
   taskId,
   message,
   type = ""
 ) {
-  const meta = taskMeta.get(taskId);
+  const meta =
+    taskMeta.get(taskId);
 
   if (!meta?.message) {
     return;
   }
 
-  meta.message.textContent = message;
+  meta.message.textContent =
+    message;
 
   meta.message.classList.remove(
     "is-error",
@@ -1233,34 +1430,46 @@ function setButtonAppearance(
 
   button.className = className;
   button.textContent = text;
-  button.dataset.taskAction = action;
+  button.dataset.taskAction =
+    action;
   button.disabled = false;
 }
 
 function renderTask(taskId) {
-  const meta = taskMeta.get(taskId);
+  const meta =
+    taskMeta.get(taskId);
 
   if (!meta) {
     return;
   }
 
-  const record = getTaskRecord(taskId);
-  const { card, button } = meta;
+  const record =
+    getTaskRecord(taskId);
 
-  card.dataset.state = record.status;
+  const {
+    card,
+    button,
+  } = meta;
+
+  card.dataset.state =
+    record.status;
 
   card.classList.toggle(
     "is-completed",
     record.status === "completed"
   );
 
-  card.classList.remove("is-verifying");
+  card.classList.remove(
+    "is-verifying"
+  );
 
   if (!button) {
     return;
   }
 
-  if (record.status === "completed") {
+  if (
+    record.status === "completed"
+  ) {
     setButtonAppearance(
       button,
       "task-action task-action-completed",
@@ -1279,7 +1488,9 @@ function renderTask(taskId) {
     return;
   }
 
-  if (record.status === "claimable") {
+  if (
+    record.status === "claimable"
+  ) {
     setButtonAppearance(
       button,
       "task-action task-action-claim",
@@ -1320,11 +1531,14 @@ function renderTask(taskId) {
 
 function renderTaskProgress() {
   const favoriteCard =
-    taskMeta.get("favorite-slots")?.card;
+    taskMeta.get(
+      "favorite-slots"
+    )?.card;
 
   if (favoriteCard) {
     const value =
-      rewardsState.progress.favoriteSlots;
+      rewardsState.progress
+        .favoriteSlots;
 
     const maximum =
       rewardsState.progress
@@ -1348,18 +1562,24 @@ function renderTaskProgress() {
     if (progressBar) {
       progressBar.style.width =
         `${Math.min(
-          (value / maximum) * 100,
+          (
+            value /
+            maximum
+          ) * 100,
           100
         )}%`;
     }
   }
 
   const signalMasterCard =
-    taskMeta.get("signal-master")?.card;
+    taskMeta.get(
+      "signal-master"
+    )?.card;
 
   if (signalMasterCard) {
     const value =
-      rewardsState.progress.signalMaster;
+      rewardsState.progress
+        .signalMaster;
 
     const maximum =
       rewardsState.progress
@@ -1383,7 +1603,10 @@ function renderTaskProgress() {
     if (progressBar) {
       progressBar.style.width =
         `${Math.min(
-          (value / maximum) * 100,
+          (
+            value /
+            maximum
+          ) * 100,
           100
         )}%`;
     }
@@ -1391,36 +1614,44 @@ function renderTaskProgress() {
 }
 
 function renderAllTasks() {
-  taskMeta.forEach((value, taskId) => {
-    renderTask(taskId);
-  });
+  taskMeta.forEach(
+    (value, taskId) => {
+      renderTask(taskId);
+    }
+  );
 
   renderTaskProgress();
   applyTaskFilter(activeFilter);
 }
 
-function applyTaskFilter(filterName) {
+function applyTaskFilter(
+  filterName
+) {
   activeFilter = filterName;
 
-  taskFilters.forEach((button) => {
-    const isActive =
-      button.dataset.filter === filterName;
+  taskFilters.forEach(
+    (button) => {
+      const isActive =
+        button.dataset.filter ===
+        filterName;
 
-    button.classList.toggle(
-      "is-active",
-      isActive
-    );
+      button.classList.toggle(
+        "is-active",
+        isActive
+      );
 
-    button.setAttribute(
-      "aria-selected",
-      String(isActive)
-    );
-  });
+      button.setAttribute(
+        "aria-selected",
+        String(isActive)
+      );
+    }
+  );
 
   taskCards.forEach((card) => {
     const shouldShow =
       filterName === "all" ||
-      card.dataset.category === filterName;
+      card.dataset.category ===
+        filterName;
 
     card.classList.toggle(
       "is-hidden",
@@ -1428,12 +1659,6 @@ function applyTaskFilter(filterName) {
     );
   });
 }
-
-/*
- * =========================================================
- * ТИЖНЕВИЙ ПРОГРЕС
- * =========================================================
- */
 
 function renderWeeklyProgress() {
   const progress = Math.min(
@@ -1449,24 +1674,21 @@ function renderWeeklyProgress() {
     String(progress)
   );
 
-  weeklyNodes.forEach((node, index) => {
-    const isComplete = index < progress;
+  weeklyNodes.forEach(
+    (node, index) => {
+      const isComplete =
+        index < progress;
 
-    node.classList.toggle(
-      "is-complete",
-      isComplete
-    );
+      node.classList.toggle(
+        "is-complete",
+        isComplete
+      );
 
-    node.textContent =
-      isComplete ? "✓" : "";
-  });
+      node.textContent =
+        isComplete ? "✓" : "";
+    }
+  );
 }
-
-/*
- * =========================================================
- * БЛОКУВАННЯ ФОНУ ПІД МОДАЛЬНИМ ВІКНОМ
- * =========================================================
- */
 
 function lockPageScroll() {
   if (
@@ -1479,17 +1701,23 @@ function lockPageScroll() {
 
   lockedScrollPosition =
     window.scrollY ||
-    document.documentElement.scrollTop ||
+    document.documentElement
+      .scrollTop ||
     0;
 
-  document.body.style.position = "fixed";
+  document.body.style.position =
+    "fixed";
+
   document.body.style.top =
     `-${lockedScrollPosition}px`;
+
   document.body.style.right = "0";
   document.body.style.left = "0";
   document.body.style.width = "100%";
 
-  document.body.classList.add("modal-open");
+  document.body.classList.add(
+    "modal-open"
+  );
 }
 
 function unlockPageScroll() {
@@ -1511,14 +1739,11 @@ function unlockPageScroll() {
   document.body.style.left = "";
   document.body.style.width = "";
 
-  window.scrollTo(0, lockedScrollPosition);
+  window.scrollTo(
+    0,
+    lockedScrollPosition
+  );
 }
-
-/*
- * =========================================================
- * ВІКНО ПЕРЕВІРКИ
- * =========================================================
- */
 
 function resetVerificationIcon() {
   verificationIcon.classList.remove(
@@ -1526,8 +1751,11 @@ function resetVerificationIcon() {
     "is-error"
   );
 
-  verificationLoader.style.display = "";
-  verificationSuccess.style.display = "";
+  verificationLoader.style.display =
+    "";
+
+  verificationSuccess.style.display =
+    "";
 
   if (verificationSuccessPath) {
     verificationSuccessPath.setAttribute(
@@ -1537,16 +1765,22 @@ function resetVerificationIcon() {
   }
 }
 
-function openVerificationOverlay(taskId) {
-  const meta = taskMeta.get(taskId);
+function openVerificationOverlay(
+  taskId
+) {
+  const meta =
+    taskMeta.get(taskId);
 
   if (!meta) {
     return;
   }
 
-  window.clearTimeout(overlayCloseTimer);
+  window.clearTimeout(
+    overlayCloseTimer
+  );
 
-  activeVerificationTaskId = taskId;
+  activeVerificationTaskId =
+    taskId;
 
   resetVerificationIcon();
 
@@ -1557,11 +1791,14 @@ function openVerificationOverlay(taskId) {
     `Система перевіряє: «${meta.title}». ` +
     "Це займе декілька секунд.";
 
-  verificationActionButton.hidden = true;
-  verificationActionButton.dataset.taskId =
-    taskId;
+  verificationActionButton.hidden =
+    true;
 
-  verificationOverlay.hidden = false;
+  verificationActionButton.dataset
+    .taskId = taskId;
+
+  verificationOverlay.hidden =
+    false;
 
   verificationOverlay.setAttribute(
     "aria-hidden",
@@ -1570,15 +1807,20 @@ function openVerificationOverlay(taskId) {
 
   lockPageScroll();
 
-  window.requestAnimationFrame(() => {
-    verificationOverlay.classList.add(
-      "is-open"
-    );
-  });
+  window.requestAnimationFrame(
+    () => {
+      verificationOverlay.classList.add(
+        "is-open"
+      );
+    }
+  );
 }
 
-function showVerificationSuccess(taskId) {
-  const meta = taskMeta.get(taskId);
+function showVerificationSuccess(
+  taskId
+) {
+  const meta =
+    taskMeta.get(taskId);
 
   verificationIcon.classList.add(
     "is-success"
@@ -1594,11 +1836,14 @@ function showVerificationSuccess(taskId) {
   verificationActionButton.textContent =
     `ЗАБРАТИ +${meta.reward} PULSE`;
 
-  verificationActionButton.hidden = false;
-  verificationActionButton.dataset.taskId =
-    taskId;
-  verificationActionButton.dataset.mode =
-    "claim";
+  verificationActionButton.hidden =
+    false;
+
+  verificationActionButton.dataset
+    .taskId = taskId;
+
+  verificationActionButton.dataset
+    .mode = "claim";
 }
 
 function showVerificationFailure(
@@ -1625,18 +1870,25 @@ function showVerificationFailure(
   verificationActionButton.textContent =
     "ЗРОЗУМІЛО";
 
-  verificationActionButton.hidden = false;
-  verificationActionButton.dataset.taskId =
-    taskId;
-  verificationActionButton.dataset.mode =
-    "close";
+  verificationActionButton.hidden =
+    false;
+
+  verificationActionButton.dataset
+    .taskId = taskId;
+
+  verificationActionButton.dataset
+    .mode = "close";
 }
 
 function closeVerificationOverlay() {
-  window.clearTimeout(verificationTimer);
+  window.clearTimeout(
+    verificationTimer
+  );
 
   if (activeVerificationTaskId) {
-    renderTask(activeVerificationTaskId);
+    renderTask(
+      activeVerificationTaskId
+    );
   }
 
   verificationOverlay.classList.remove(
@@ -1650,21 +1902,17 @@ function closeVerificationOverlay() {
 
   unlockPageScroll();
 
-  overlayCloseTimer = window.setTimeout(
-    () => {
-      verificationOverlay.hidden = true;
-      activeVerificationTaskId = null;
-      resetVerificationIcon();
-    },
-    260
-  );
-}
+  overlayCloseTimer =
+    window.setTimeout(() => {
+      verificationOverlay.hidden =
+        true;
 
-/*
- * =========================================================
- * ПЕРЕВІРКА ПРОГРЕСУ
- * =========================================================
- */
+      activeVerificationTaskId =
+        null;
+
+      resetVerificationIcon();
+    }, 260);
+}
 
 function readFavoriteSlotsCount() {
   if (
@@ -1701,15 +1949,17 @@ function readFavoriteSlotsCount() {
 }
 
 function readCreatedSignalCount() {
-  const databaseSignalCount = Number(
-    rewardsDatabaseState
-      .taskProgress
-      ?.createdSignalCount
-  );
+  const databaseSignalCount =
+    Number(
+      rewardsDatabaseState
+        .taskProgress
+        ?.createdSignalCount
+    );
 
   const databaseHistoryCount =
     Array.isArray(
-      rewardsDatabaseState.signalHistory
+      rewardsDatabaseState
+        .signalHistory
     )
       ? rewardsDatabaseState
           .signalHistory.length
@@ -1751,7 +2001,8 @@ function readCreatedSignalCount() {
       SIGNAL_COUNT_KEY
     );
 
-  const parsedValue = Number(storedValue);
+  const parsedValue =
+    Number(storedValue);
 
   if (
     Number.isFinite(parsedValue) &&
@@ -1767,26 +2018,37 @@ function readCreatedSignalCount() {
     : 0;
 }
 
-function getTaskVerificationResult(taskId) {
+function getTaskVerificationResult(
+  taskId
+) {
   if (taskId === "telegram-bot") {
     return {
       valid: false,
+
       message:
         "Перевірку запуску Telegram-бота підключимо через Telegram Mini App. До цього моменту PULSE не нараховуються.",
     };
   }
 
-  if (taskId === "telegram-channel") {
+  if (
+    taskId ===
+    "telegram-channel"
+  ) {
     return {
       valid: false,
+
       message:
         "Підписку на Telegram-канал має підтвердити наш сервер. Зараз це завдання не нараховує PULSE.",
     };
   }
 
-  if (taskId === "complete-profile") {
+  if (
+    taskId ===
+    "complete-profile"
+  ) {
     return {
       valid: false,
+
       message:
         "Сторінку профілю ще не підключено. Завдання стане доступним після її створення.",
     };
@@ -1795,17 +2057,22 @@ function getTaskVerificationResult(taskId) {
   if (taskId === "notifications") {
     const notificationsEnabled =
       "Notification" in window &&
-      Notification.permission === "granted";
+      Notification.permission ===
+        "granted";
 
     return {
       valid: notificationsEnabled,
-      message: notificationsEnabled
-        ? ""
-        : "Спочатку дозволь сповіщення для застосунку.",
+
+      message:
+        notificationsEnabled
+          ? ""
+          : "Спочатку дозволь сповіщення для застосунку.",
     };
   }
 
-  if (taskId === "confirm-subid") {
+  if (
+    taskId === "confirm-subid"
+  ) {
     const verifiedSubId =
       rewardsDatabaseState.subid ||
       sessionStorage.getItem(
@@ -1813,17 +2080,22 @@ function getTaskVerificationResult(taskId) {
       );
 
     return {
-      valid: Boolean(verifiedSubId),
+      valid:
+        Boolean(verifiedSubId),
+
       message:
         "Спочатку введи та підтвердь SUBID на головній сторінці.",
     };
   }
 
-  if (taskId === "favorite-slots") {
+  if (
+    taskId === "favorite-slots"
+  ) {
     const favoriteCount =
       readFavoriteSlotsCount();
 
-    rewardsState.progress.favoriteSlots =
+    rewardsState.progress
+      .favoriteSlots =
       Math.min(
         favoriteCount,
         rewardsState.progress
@@ -1842,9 +2114,12 @@ function getTaskVerificationResult(taskId) {
     };
   }
 
-  if (taskId === "first-signal") {
+  if (
+    taskId === "first-signal"
+  ) {
     const hasSignal = Boolean(
-      rewardsDatabaseState.lastSignal ||
+      rewardsDatabaseState
+        .lastSignal ||
       rewardsDatabaseState
         .signalHistory?.length ||
       sessionStorage.getItem(
@@ -1854,6 +2129,7 @@ function getTaskVerificationResult(taskId) {
 
     return {
       valid: hasSignal,
+
       message:
         "Спочатку створи свій перший сигнал на головній сторінці.",
     };
@@ -1863,23 +2139,28 @@ function getTaskVerificationResult(taskId) {
     const viewedLive =
       rewardsDatabaseState
         .taskProgress
-        ?.viewedLiveSignals === true ||
+        ?.viewedLiveSignals ===
+        true ||
       sessionStorage.getItem(
         VIEWED_LIVE_KEY
       ) === "true";
 
     return {
       valid: viewedLive,
+
       message:
         "Спочатку відкрий сторінку LIVE-сигналів.",
     };
   }
 
-  if (taskId === "signal-master") {
+  if (
+    taskId === "signal-master"
+  ) {
     const signalCount =
       readCreatedSignalCount();
 
-    rewardsState.progress.signalMaster =
+    rewardsState.progress
+      .signalMaster =
       Math.min(
         signalCount,
         rewardsState.progress
@@ -1900,13 +2181,15 @@ function getTaskVerificationResult(taskId) {
 
   return {
     valid: false,
+
     message:
       "Для цього завдання ще не налаштована перевірка.",
   };
 }
 
 function verifyTask(taskId) {
-  const meta = taskMeta.get(taskId);
+  const meta =
+    taskMeta.get(taskId);
 
   if (!meta) {
     return;
@@ -1919,21 +2202,25 @@ function verifyTask(taskId) {
   );
 
   meta.button.disabled = true;
+
   meta.button.textContent =
     "ПЕРЕВІРКА...";
 
   openVerificationOverlay(taskId);
 
-  verificationTimer = window.setTimeout(
-    () => {
+  verificationTimer =
+    window.setTimeout(() => {
       const record =
         getTaskRecord(taskId);
 
       const result =
-        getTaskVerificationResult(taskId);
+        getTaskVerificationResult(
+          taskId
+        );
 
       if (!result.valid) {
-        record.status = "checkable";
+        record.status =
+          "checkable";
 
         saveRewardsState();
         renderTask(taskId);
@@ -1953,27 +2240,28 @@ function verifyTask(taskId) {
         return;
       }
 
-      record.status = "claimable";
-      record.verifiedAt = Date.now();
+      record.status =
+        "claimable";
+
+      record.verifiedAt =
+        Date.now();
 
       saveRewardsState();
       renderTask(taskId);
       renderTaskProgress();
-      showVerificationSuccess(taskId);
-    },
-    VERIFICATION_DELAY
-  );
+
+      showVerificationSuccess(
+        taskId
+      );
+    }, VERIFICATION_DELAY);
 }
 
-/*
- * =========================================================
- * ОТРИМАННЯ НАГОРОДИ
- * =========================================================
- */
-
 function claimTaskReward(taskId) {
-  const meta = taskMeta.get(taskId);
-  const record = getTaskRecord(taskId);
+  const meta =
+    taskMeta.get(taskId);
+
+  const record =
+    getTaskRecord(taskId);
 
   if (
     !meta ||
@@ -1988,24 +2276,37 @@ function claimTaskReward(taskId) {
   record.status = "completed";
   record.completedAt = Date.now();
 
-  rewardsState.balance += meta.reward;
+  rewardsState.balance +=
+    meta.reward;
 
-  rewardsState.weeklyProgress = Math.min(
-    rewardsState.weeklyProgress + 1,
-    weeklyNodes.length
-  );
+  rewardsState.weeklyProgress =
+    Math.min(
+      rewardsState.weeklyProgress +
+        1,
+      weeklyNodes.length
+    );
 
-  let receivedReward = meta.reward;
-  let weeklyGoalCompleted = false;
+  let receivedReward =
+    meta.reward;
+
+  let weeklyGoalCompleted =
+    false;
 
   if (
     rewardsState.weeklyProgress >=
       weeklyNodes.length &&
-    !rewardsState.weeklyRewardClaimed
+    !rewardsState
+      .weeklyRewardClaimed
   ) {
-    rewardsState.weeklyRewardClaimed = true;
-    rewardsState.balance += WEEKLY_REWARD;
-    receivedReward += WEEKLY_REWARD;
+    rewardsState.weeklyRewardClaimed =
+      true;
+
+    rewardsState.balance +=
+      WEEKLY_REWARD;
+
+    receivedReward +=
+      WEEKLY_REWARD;
+
     weeklyGoalCompleted = true;
   }
 
@@ -2015,7 +2316,6 @@ function claimTaskReward(taskId) {
     });
 
   saveRewardsState();
-
   renderTask(taskId);
   renderWeeklyProgress();
 
@@ -2042,29 +2342,25 @@ function claimTaskReward(taskId) {
 
   const newestUnlockedLevel =
     newlyUnlockedLevels[
-      newlyUnlockedLevels.length - 1
+      newlyUnlockedLevels.length -
+        1
     ];
 
   if (newestUnlockedLevel) {
-    window.clearTimeout(levelToastTimer);
+    window.clearTimeout(
+      levelToastTimer
+    );
 
-    levelToastTimer = window.setTimeout(
-      () => {
+    levelToastTimer =
+      window.setTimeout(() => {
         showToast(
           `Новий рівень ${newestUnlockedLevel.level}: ` +
-          `${newestUnlockedLevel.unlockTitle}`
+            newestUnlockedLevel
+              .unlockTitle
         );
-      },
-      3200
-    );
+      }, 3200);
   }
 }
-
-/*
- * =========================================================
- * TELEGRAM-ЗАВДАННЯ
- * =========================================================
- */
 
 function openTelegramLink(url) {
   const telegramWebApp =
@@ -2072,10 +2368,14 @@ function openTelegramLink(url) {
 
   if (
     telegramWebApp &&
-    typeof telegramWebApp.openTelegramLink ===
+    typeof telegramWebApp
+      .openTelegramLink ===
       "function"
   ) {
-    telegramWebApp.openTelegramLink(url);
+    telegramWebApp.openTelegramLink(
+      url
+    );
+
     return;
   }
 
@@ -2086,10 +2386,15 @@ function openTelegramLink(url) {
   );
 }
 
-function prepareTaskForChecking(taskId) {
-  const record = getTaskRecord(taskId);
+function prepareTaskForChecking(
+  taskId
+) {
+  const record =
+    getTaskRecord(taskId);
 
-  if (record.status === "completed") {
+  if (
+    record.status === "completed"
+  ) {
     return;
   }
 
@@ -2105,12 +2410,15 @@ function openTelegramTask(taskId) {
   let url = "";
 
   if (taskId === "telegram-bot") {
-    username = normalizeTelegramUsername(
-      TELEGRAM_BOT_USERNAME
-    );
+    username =
+      normalizeTelegramUsername(
+        TELEGRAM_BOT_USERNAME
+      );
 
     if (
-      isTelegramUsernameConfigured(username)
+      isTelegramUsernameConfigured(
+        username
+      )
     ) {
       url =
         `https://t.me/${username}` +
@@ -2118,20 +2426,30 @@ function openTelegramTask(taskId) {
     }
   }
 
-  if (taskId === "telegram-channel") {
-    username = normalizeTelegramUsername(
-      TELEGRAM_CHANNEL_USERNAME
-    );
+  if (
+    taskId ===
+    "telegram-channel"
+  ) {
+    username =
+      normalizeTelegramUsername(
+        TELEGRAM_CHANNEL_USERNAME
+      );
 
     if (
-      isTelegramUsernameConfigured(username)
+      isTelegramUsernameConfigured(
+        username
+      )
     ) {
-      url = `https://t.me/${username}`;
+      url =
+        `https://t.me/${username}`;
     }
   }
 
   if (url) {
-    prepareTaskForChecking(taskId);
+    prepareTaskForChecking(
+      taskId
+    );
+
     openTelegramLink(url);
 
     showToast(
@@ -2146,15 +2464,11 @@ function openTelegramTask(taskId) {
   );
 }
 
-/*
- * =========================================================
- * СПОВІЩЕННЯ
- * =========================================================
- */
-
 async function enableNotificationsTask() {
   const taskId = "notifications";
-  const record = getTaskRecord(taskId);
+
+  const record =
+    getTaskRecord(taskId);
 
   clearTaskMessage(taskId);
 
@@ -2178,7 +2492,8 @@ async function enableNotificationsTask() {
       "granted"
     ) {
       record.status = "claimable";
-      record.verifiedAt = Date.now();
+      record.verifiedAt =
+        Date.now();
 
       saveRewardsState();
       renderTask(taskId);
@@ -2208,11 +2523,13 @@ async function enableNotificationsTask() {
     }
 
     const permission =
-      await Notification.requestPermission();
+      await Notification
+        .requestPermission();
 
     if (permission === "granted") {
       record.status = "claimable";
-      record.verifiedAt = Date.now();
+      record.verifiedAt =
+        Date.now();
 
       saveRewardsState();
       renderTask(taskId);
@@ -2241,12 +2558,6 @@ async function enableNotificationsTask() {
     );
   }
 }
-
-/*
- * =========================================================
- * ПЕРЕХОДИ ДО РОЗДІЛІВ
- * =========================================================
- */
 
 function navigateToTaskPage(
   taskId,
@@ -2279,18 +2590,15 @@ function navigateToTaskPage(
   );
 
   window.setTimeout(() => {
-    window.location.href = pageUrl;
+    window.location.href =
+      pageUrl;
   }, 240);
 }
 
-/*
- * =========================================================
- * ПРАВИЛА ВІДПОВІДАЛЬНОЇ ГРИ
- * =========================================================
- */
-
 function openGuideOverlay() {
-  window.clearTimeout(guideCloseTimer);
+  window.clearTimeout(
+    guideCloseTimer
+  );
 
   guideOverlay.hidden = false;
 
@@ -2306,11 +2614,13 @@ function openGuideOverlay() {
 
   lockPageScroll();
 
-  window.requestAnimationFrame(() => {
-    guideOverlay.classList.add(
-      "is-open"
-    );
-  });
+  window.requestAnimationFrame(
+    () => {
+      guideOverlay.classList.add(
+        "is-open"
+      );
+    }
+  );
 }
 
 function closeGuideOverlay() {
@@ -2325,21 +2635,25 @@ function closeGuideOverlay() {
 
   unlockPageScroll();
 
-  guideCloseTimer = window.setTimeout(
-    () => {
+  guideCloseTimer =
+    window.setTimeout(() => {
       guideOverlay.hidden = true;
-    },
-    260
-  );
+    }, 260);
 }
 
 function confirmResponsibleGuide() {
-  const taskId = "responsible-guide";
-  const record = getTaskRecord(taskId);
+  const taskId =
+    "responsible-guide";
 
-  if (record.status !== "completed") {
+  const record =
+    getTaskRecord(taskId);
+
+  if (
+    record.status !== "completed"
+  ) {
     record.status = "claimable";
-    record.verifiedAt = Date.now();
+    record.verifiedAt =
+      Date.now();
 
     saveRewardsState();
     renderTask(taskId);
@@ -2354,22 +2668,17 @@ function confirmResponsibleGuide() {
   }, 280);
 }
 
-/*
- * =========================================================
- * ОБРОБКА ДІЙ ЗАВДАНЬ
- * =========================================================
- */
-
 function handleTaskAction(button) {
-  const card = button.closest(
-    ".task-card"
-  );
+  const card =
+    button.closest(".task-card");
 
   if (!card) {
     return;
   }
 
-  const taskId = card.dataset.taskId;
+  const taskId =
+    card.dataset.taskId;
+
   const action =
     button.dataset.taskAction;
 
@@ -2418,12 +2727,6 @@ function handleTaskAction(button) {
   }
 }
 
-/*
- * =========================================================
- * ТАЙМЕР ОНОВЛЕННЯ
- * =========================================================
- */
-
 function getTimeUntilNextDay() {
   const now = new Date();
 
@@ -2438,23 +2741,30 @@ function getTimeUntilNextDay() {
   );
 
   return Math.max(
-    nextDay.getTime() - now.getTime(),
+    nextDay.getTime() -
+      now.getTime(),
     0
   );
 }
 
-function formatCountdown(milliseconds) {
-  const totalSeconds = Math.floor(
-    milliseconds / 1000
-  );
+function formatCountdown(
+  milliseconds
+) {
+  const totalSeconds =
+    Math.floor(
+      milliseconds / 1000
+    );
 
-  const hours = Math.floor(
-    totalSeconds / 3600
-  );
+  const hours =
+    Math.floor(
+      totalSeconds / 3600
+    );
 
-  const minutes = Math.floor(
-    (totalSeconds % 3600) / 60
-  );
+  const minutes =
+    Math.floor(
+      (totalSeconds % 3600) /
+        60
+    );
 
   const seconds =
     totalSeconds % 60;
@@ -2480,15 +2790,10 @@ function updateTaskCountdown() {
     );
 }
 
-/*
- * =========================================================
- * СИНХРОНІЗАЦІЯ З ІНШИМИ СТОРІНКАМИ
- * =========================================================
- */
-
 function synchronizeExistingActivity() {
   const lastSignal =
-    rewardsDatabaseState.lastSignal ||
+    rewardsDatabaseState
+      .lastSignal ||
     rewardsDatabaseState
       .signalHistory?.[0] ||
     sessionStorage.getItem(
@@ -2496,7 +2801,9 @@ function synchronizeExistingActivity() {
     );
 
   const firstSignalRecord =
-    getTaskRecord("first-signal");
+    getTaskRecord(
+      "first-signal"
+    );
 
   if (
     lastSignal &&
@@ -2509,7 +2816,8 @@ function synchronizeExistingActivity() {
     firstSignalRecord.verifiedAt =
       Date.now();
 
-    rewardsState.progress.signalMaster =
+    rewardsState.progress
+      .signalMaster =
       Math.max(
         readCreatedSignalCount(),
         1
@@ -2517,7 +2825,9 @@ function synchronizeExistingActivity() {
   }
 
   const subIdRecord =
-    getTaskRecord("confirm-subid");
+    getTaskRecord(
+      "confirm-subid"
+    );
 
   if (
     (
@@ -2526,10 +2836,14 @@ function synchronizeExistingActivity() {
         VERIFIED_SUBID_KEY
       )
     ) &&
-    subIdRecord.status !== "completed"
+    subIdRecord.status !==
+      "completed"
   ) {
-    subIdRecord.status = "claimable";
-    subIdRecord.verifiedAt = Date.now();
+    subIdRecord.status =
+      "claimable";
+
+    subIdRecord.verifiedAt =
+      Date.now();
   }
 
   const liveRecord =
@@ -2539,21 +2853,27 @@ function synchronizeExistingActivity() {
     (
       rewardsDatabaseState
         .taskProgress
-        ?.viewedLiveSignals === true ||
+        ?.viewedLiveSignals ===
+        true ||
       sessionStorage.getItem(
         VIEWED_LIVE_KEY
       ) === "true"
     ) &&
-    liveRecord.status !== "completed"
+    liveRecord.status !==
+      "completed"
   ) {
-    liveRecord.status = "claimable";
-    liveRecord.verifiedAt = Date.now();
+    liveRecord.status =
+      "claimable";
+
+    liveRecord.verifiedAt =
+      Date.now();
   }
 
   const favoriteCount =
     readFavoriteSlotsCount();
 
-  rewardsState.progress.favoriteSlots =
+  rewardsState.progress
+    .favoriteSlots =
     Math.min(
       favoriteCount,
       rewardsState.progress
@@ -2561,7 +2881,9 @@ function synchronizeExistingActivity() {
     );
 
   const favoriteRecord =
-    getTaskRecord("favorite-slots");
+    getTaskRecord(
+      "favorite-slots"
+    );
 
   if (
     favoriteCount >=
@@ -2580,7 +2902,8 @@ function synchronizeExistingActivity() {
   const createdSignalCount =
     readCreatedSignalCount();
 
-  rewardsState.progress.signalMaster =
+  rewardsState.progress
+    .signalMaster =
     Math.min(
       createdSignalCount,
       rewardsState.progress
@@ -2588,7 +2911,9 @@ function synchronizeExistingActivity() {
     );
 
   const signalMasterRecord =
-    getTaskRecord("signal-master");
+    getTaskRecord(
+      "signal-master"
+    );
 
   if (
     createdSignalCount >=
@@ -2610,7 +2935,9 @@ function synchronizeExistingActivity() {
       "granted"
   ) {
     const notificationRecord =
-      getTaskRecord("notifications");
+      getTaskRecord(
+        "notifications"
+      );
 
     if (
       notificationRecord.status !==
@@ -2623,12 +2950,6 @@ function synchronizeExistingActivity() {
 
   saveRewardsState();
 }
-
-/*
- * =========================================================
- * ОБРОБНИКИ ПОДІЙ
- * =========================================================
- */
 
 taskList.addEventListener(
   "click",
@@ -2669,16 +2990,16 @@ verificationActionButton.addEventListener(
   "click",
   () => {
     if (
-      verificationActionButton.dataset
-        .mode === "close"
+      verificationActionButton
+        .dataset.mode === "close"
     ) {
       closeVerificationOverlay();
       return;
     }
 
     const taskId =
-      verificationActionButton.dataset
-        .taskId ||
+      verificationActionButton
+        .dataset.taskId ||
       activeVerificationTaskId;
 
     if (!taskId) {
@@ -2736,7 +3057,9 @@ document.addEventListener(
       return;
     }
 
-    if (!verificationOverlay.hidden) {
+    if (
+      !verificationOverlay.hidden
+    ) {
       closeVerificationOverlay();
       return;
     }
@@ -2747,21 +3070,20 @@ document.addEventListener(
   }
 );
 
-/*
- * =========================================================
- * ЗАПУСК СТОРІНКИ
- * =========================================================
- */
-
 function initializeRewardsPage() {
-  if (rewardsInitializationPromise) {
+  if (
+    rewardsInitializationPromise
+  ) {
     return rewardsInitializationPromise;
   }
 
   rewardsInitializationPromise =
     (async () => {
-      document.documentElement.dataset
-        .rewardsState = "loading";
+      document.documentElement
+        .dataset.rewardsState =
+        "loading";
+
+      setBalanceLoadingState(true);
 
       try {
         const canOpenPage =
@@ -2801,16 +3123,20 @@ function initializeRewardsPage() {
 
         rewardsPageReady = true;
 
-        document.documentElement.dataset
-          .rewardsState = "ready";
+        document.documentElement
+          .dataset.rewardsState =
+          "ready";
       } catch (error) {
         console.error(
           "Rewards initialization error:",
           error.message
         );
 
-        document.documentElement.dataset
-          .rewardsState = "error";
+        document.documentElement
+          .dataset.rewardsState =
+          "error";
+
+        showBalanceLoadingError();
 
         showToast(
           "Не вдалося завантажити прогрес. Спробуй відкрити застосунок ще раз"
@@ -2821,45 +3147,42 @@ function initializeRewardsPage() {
   return rewardsInitializationPromise;
 }
 
-/*
- * =========================================================
- * ОЧИЩЕННЯ ТАЙМЕРІВ
- * =========================================================
- */
-
 window.addEventListener(
   "beforeunload",
   () => {
-    window.clearTimeout(toastTimer);
+    window.clearTimeout(
+      toastTimer
+    );
+
     window.clearTimeout(
       rewardToastTimer
     );
+
     window.clearTimeout(
       verificationTimer
     );
+
     window.clearTimeout(
       overlayCloseTimer
     );
+
     window.clearTimeout(
       guideCloseTimer
     );
+
     window.clearTimeout(
       levelToastTimer
     );
+
     window.clearInterval(
       countdownTimer
     );
+
     window.cancelAnimationFrame(
       balanceAnimationFrame
     );
   }
 );
-
-/*
- * =========================================================
- * PULSE — СПОВІЩЕННЯ ПРО ВИКОНАНІ ЗАВДАННЯ
- * =========================================================
- */
 
 const PULSE_TASK_NOTICE_KEY =
   "arbifyRewardTaskNoticesV1";
@@ -2913,9 +3236,13 @@ function pulseSynchronizeTaskNoticeIds() {
       ? rewardsState.taskNoticeIds
       : [];
 
-  storedNoticeIds.forEach((taskId) => {
-    pulseTaskNoticeIds.add(taskId);
-  });
+  storedNoticeIds.forEach(
+    (taskId) => {
+      pulseTaskNoticeIds.add(
+        taskId
+      );
+    }
+  );
 }
 
 function pulseSaveTaskNoticeIds() {
@@ -2935,24 +3262,31 @@ function pulseSaveTaskNoticeIds() {
     );
   } catch {
     /*
-     * Сторінка продовжить працювати,
-     * навіть якщо localStorage недоступний.
+     * PostgreSQL залишається
+     * основним сховищем.
      */
   }
 
   saveRewardsState();
 }
 
-function pulseUseNotifications(action) {
+function pulseUseNotifications(
+  action
+) {
   if (window.PulseNotifications) {
-    action(window.PulseNotifications);
+    action(
+      window.PulseNotifications
+    );
+
     return;
   }
 
   document.addEventListener(
     "pulse:notifications-ready",
     () => {
-      if (window.PulseNotifications) {
+      if (
+        window.PulseNotifications
+      ) {
         action(
           window.PulseNotifications
         );
@@ -2964,8 +3298,11 @@ function pulseUseNotifications(action) {
   );
 }
 
-function pulseNotifyTaskOnce(taskId) {
-  const meta = taskMeta.get(taskId);
+function pulseNotifyTaskOnce(
+  taskId
+) {
+  const meta =
+    taskMeta.get(taskId);
 
   if (
     !meta ||
@@ -2979,87 +3316,107 @@ function pulseNotifyTaskOnce(taskId) {
 
   pulseUseNotifications(
     (notificationsApi) => {
-      notificationsApi.addTaskCompleted({
-        taskTitle: meta.title,
-        reward: meta.reward,
-      });
+      notificationsApi
+        .addTaskCompleted({
+          taskTitle: meta.title,
+          reward: meta.reward,
+        });
     }
   );
 }
 
 function pulseNotifyClaimableTasks() {
-  taskMeta.forEach((meta, taskId) => {
-    const record =
-      getTaskRecord(taskId);
+  taskMeta.forEach(
+    (meta, taskId) => {
+      const record =
+        getTaskRecord(taskId);
 
-    if (
-      record.status === "claimable"
-    ) {
-      pulseNotifyTaskOnce(taskId);
+      if (
+        record.status ===
+        "claimable"
+      ) {
+        pulseNotifyTaskOnce(
+          taskId
+        );
+      }
     }
-  });
+  );
 }
 
 const pulseOriginalVerificationSuccess =
   showVerificationSuccess;
 
-showVerificationSuccess = function (
-  taskId
-) {
-  pulseOriginalVerificationSuccess(
-    taskId
-  );
+showVerificationSuccess =
+  function (taskId) {
+    pulseOriginalVerificationSuccess(
+      taskId
+    );
 
-  pulseNotifyTaskOnce(taskId);
-};
+    pulseNotifyTaskOnce(taskId);
+  };
 
 const pulseOriginalClaimTaskReward =
   claimTaskReward;
 
-claimTaskReward = function (taskId) {
-  const meta = taskMeta.get(taskId);
-  const record = getTaskRecord(taskId);
+claimTaskReward =
+  function (taskId) {
+    const meta =
+      taskMeta.get(taskId);
 
-  const wasClaimable =
-    record.status === "claimable";
+    const record =
+      getTaskRecord(taskId);
 
-  const weeklyRewardWasClaimed =
-    rewardsState.weeklyRewardClaimed;
+    const wasClaimable =
+      record.status ===
+      "claimable";
 
-  pulseOriginalClaimTaskReward(taskId);
+    const weeklyRewardWasClaimed =
+      rewardsState
+        .weeklyRewardClaimed;
 
-  if (
-    !meta ||
-    !wasClaimable ||
-    record.status !== "completed"
-  ) {
-    return;
-  }
+    pulseOriginalClaimTaskReward(
+      taskId
+    );
 
-  pulseUseNotifications(
-    (notificationsApi) => {
-      notificationsApi.addReward({
-        title: "Нагороду зараховано",
-        reward: meta.reward,
-        message:
-          `За виконання завдання «${meta.title}».`,
-      });
+    if (
+      !meta ||
+      !wasClaimable ||
+      record.status !== "completed"
+    ) {
+      return;
+    }
 
-      if (
-        !weeklyRewardWasClaimed &&
-        rewardsState.weeklyRewardClaimed
-      ) {
+    pulseUseNotifications(
+      (notificationsApi) => {
         notificationsApi.addReward({
           title:
-            "Тижневу ціль виконано",
-          reward: WEEKLY_REWARD,
+            "Нагороду зараховано",
+
+          reward: meta.reward,
+
           message:
-            "Виконано 7 завдань цього тижня. Бонус уже додано до балансу.",
+            `За виконання завдання «${meta.title}».`,
         });
+
+        if (
+          !weeklyRewardWasClaimed &&
+          rewardsState
+            .weeklyRewardClaimed
+        ) {
+          notificationsApi.addReward({
+            title:
+              "Тижневу ціль виконано",
+
+            reward:
+              WEEKLY_REWARD,
+
+            message:
+              "Виконано 7 завдань цього тижня. Бонус уже додано до балансу.",
+          });
+        }
       }
-    }
-  );
-};
+    );
+  };
 
 guideConfirm.addEventListener(
   "click",
@@ -3071,7 +3428,8 @@ guideConfirm.addEventListener(
       getTaskRecord(taskId);
 
     if (
-      record.status === "claimable"
+      record.status ===
+      "claimable"
     ) {
       pulseNotifyTaskOnce(taskId);
     }
@@ -3083,29 +3441,28 @@ const pulseOriginalEnableNotifications =
 
 enableNotificationsTask =
   async function () {
-    const taskId = "notifications";
+    const taskId =
+      "notifications";
+
     const record =
       getTaskRecord(taskId);
 
     const wasVerified =
-      record.status === "claimable" ||
-      record.status === "completed";
+      record.status ===
+        "claimable" ||
+      record.status ===
+        "completed";
 
     await pulseOriginalEnableNotifications();
 
     if (
       !wasVerified &&
-      record.status === "claimable"
+      record.status ===
+        "claimable"
     ) {
       pulseNotifyTaskOnce(taskId);
     }
   };
-
-/*
- * =========================================================
- * PULSE — ПІДКЛЮЧЕННЯ СТОРІНКИ ПРОФІЛЮ
- * =========================================================
- */
 
 const PULSE_PROFILE_COMPLETED_KEY =
   "arbifyProfileCompleted";
@@ -3123,30 +3480,36 @@ function pulseIsProfileCompleted() {
 const pulseOriginalProfileVerification =
   getTaskVerificationResult;
 
-getTaskVerificationResult = function (
-  taskId
-) {
-  if (taskId === "complete-profile") {
-    const profileCompleted =
-      pulseIsProfileCompleted();
+getTaskVerificationResult =
+  function (taskId) {
+    if (
+      taskId ===
+      "complete-profile"
+    ) {
+      const profileCompleted =
+        pulseIsProfileCompleted();
 
-    return {
-      valid: profileCompleted,
+      return {
+        valid: profileCompleted,
 
-      message: profileCompleted
-        ? ""
-        : "Спочатку відкрий сторінку профілю через нижнє меню.",
-    };
-  }
+        message:
+          profileCompleted
+            ? ""
+            : "Спочатку відкрий сторінку профілю через нижнє меню.",
+      };
+    }
 
-  return pulseOriginalProfileVerification(
-    taskId
-  );
-};
+    return pulseOriginalProfileVerification(
+      taskId
+    );
+  };
 
 function pulseSynchronizeProfileTask() {
-  const taskId = "complete-profile";
-  const record = getTaskRecord(taskId);
+  const taskId =
+    "complete-profile";
+
+  const record =
+    getTaskRecord(taskId);
 
   const profileCompleted =
     pulseIsProfileCompleted();
