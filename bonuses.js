@@ -2,12 +2,13 @@
 
 /*
  * =========================================================
- * ARBIFY PULSE — БОНУСИ ТА ЗАВДАННЯ
+ * ARBIFY PULSE — БОНУСИ ТА ЗАВДАННЯ · POSTGRESQL
  * =========================================================
  *
- * Зараз прогрес зберігається у localStorage.
- * Після підключення сервера, Telegram і Keitaro
- * перевірка виконуватиметься через API.
+ * Основний прогрес зберігається у PostgreSQL
+ * окремо для кожного Telegram-користувача.
+ * localStorage використовується лише як резервна
+ * копія та для перенесення старого прогресу.
  */
 
 /*
@@ -66,10 +67,6 @@ const PULSE_LEVELS = Object.freeze([
     unlockTitle: "Ексклюзивна тема",
   },
 ]);
-
-if (sessionStorage.getItem("arbifyAccess") !== "granted") {
-  window.location.replace("index.html");
-}
 
 /*
  * =========================================================
@@ -195,6 +192,7 @@ function createDefaultState() {
     unlockedLevelRewards: ["base-access"],
     weeklyProgress: 0,
     weeklyRewardClaimed: false,
+    taskNoticeIds: [],
 
     tasks: {
       "telegram-bot": {
@@ -298,6 +296,294 @@ function loadRewardsState() {
 
 let rewardsState = loadRewardsState();
 
+let rewardsDatabaseState = {};
+let rewardsDatabaseReady = false;
+let rewardsPageReady = false;
+let rewardsInitializationPromise = null;
+let rewardsSaveQueue = Promise.resolve({});
+let rewardsSaveErrorWasShown = false;
+
+function getArbifyApi() {
+  if (!window.ARBIFY_API) {
+    throw new Error(
+      "ARBIFY API is not loaded"
+    );
+  }
+
+  return window.ARBIFY_API;
+}
+
+function normalizeRewardsState(
+  sourceState
+) {
+  const defaultState =
+    createDefaultState();
+
+  const source =
+    sourceState &&
+    typeof sourceState === "object"
+      ? sourceState
+      : {};
+
+  const savedUnlocks = Array.isArray(
+    source.unlockedLevelRewards
+  )
+    ? source.unlockedLevelRewards
+    : defaultState.unlockedLevelRewards;
+
+  return {
+    ...defaultState,
+    ...source,
+
+    balance: Math.max(
+      Number(source.balance) || 0,
+      0
+    ),
+
+    level: Math.max(
+      Number(source.level) || 1,
+      1
+    ),
+
+    highestLevel: Math.max(
+      Number(source.highestLevel) || 1,
+      1
+    ),
+
+    weeklyProgress: Math.max(
+      Number(source.weeklyProgress) || 0,
+      0
+    ),
+
+    weeklyRewardClaimed:
+      source.weeklyRewardClaimed === true,
+
+    tasks: {
+      ...defaultState.tasks,
+      ...(source.tasks || {}),
+    },
+
+    progress: {
+      ...defaultState.progress,
+      ...(source.progress || {}),
+    },
+
+    taskNoticeIds: Array.isArray(
+      source.taskNoticeIds
+    )
+      ? source.taskNoticeIds
+      : [],
+
+    unlockedLevelRewards: Array.from(
+      new Set([
+        "base-access",
+        ...savedUnlocks,
+      ])
+    ),
+  };
+}
+
+function getDatabaseRewardsRecord(
+  databaseState
+) {
+  const taskProgress =
+    databaseState?.taskProgress;
+
+  if (
+    !taskProgress ||
+    typeof taskProgress !== "object"
+  ) {
+    return {};
+  }
+
+  const rewardsRecord =
+    taskProgress.rewards;
+
+  return rewardsRecord &&
+    typeof rewardsRecord === "object"
+      ? rewardsRecord
+      : {};
+}
+
+function hasDatabaseRewardsState(
+  databaseState
+) {
+  if (
+    !databaseState ||
+    typeof databaseState !== "object"
+  ) {
+    return false;
+  }
+
+  return (
+    Object.prototype.hasOwnProperty.call(
+      databaseState,
+      "pulseBalance"
+    ) ||
+    Object.prototype.hasOwnProperty.call(
+      databaseState,
+      "completedTasks"
+    ) ||
+    Object.keys(
+      getDatabaseRewardsRecord(
+        databaseState
+      )
+    ).length > 0
+  );
+}
+
+function createRewardsStateFromDatabase(
+  databaseState
+) {
+  const rewardsRecord =
+    getDatabaseRewardsRecord(
+      databaseState
+    );
+
+  return normalizeRewardsState({
+    balance:
+      databaseState.pulseBalance,
+
+    level:
+      databaseState.pulseLevel,
+
+    highestLevel:
+      rewardsRecord.highestLevel,
+
+    unlockedLevelRewards:
+      databaseState.pulseUnlocks,
+
+    weeklyProgress:
+      rewardsRecord.weeklyProgress,
+
+    weeklyRewardClaimed:
+      rewardsRecord.weeklyRewardClaimed,
+
+    tasks:
+      databaseState.completedTasks,
+
+    progress:
+      rewardsRecord.progress,
+
+    taskNoticeIds:
+      rewardsRecord.taskNoticeIds,
+  });
+}
+
+function createRewardsDatabasePatch() {
+  const existingTaskProgress =
+    rewardsDatabaseState
+      .taskProgress &&
+    typeof rewardsDatabaseState
+      .taskProgress === "object"
+      ? rewardsDatabaseState
+          .taskProgress
+      : {};
+
+  return {
+    pulseBalance:
+      rewardsState.balance,
+
+    pulseLevel:
+      rewardsState.level,
+
+    pulseUnlocks:
+      rewardsState
+        .unlockedLevelRewards,
+
+    completedTasks:
+      rewardsState.tasks,
+
+    taskProgress: {
+      ...existingTaskProgress,
+
+      rewards: {
+        highestLevel:
+          rewardsState.highestLevel,
+
+        weeklyProgress:
+          rewardsState.weeklyProgress,
+
+        weeklyRewardClaimed:
+          rewardsState
+            .weeklyRewardClaimed,
+
+        progress:
+          rewardsState.progress,
+
+        taskNoticeIds:
+          rewardsState.taskNoticeIds,
+      },
+    },
+  };
+}
+
+function persistRewardsState({
+  required = false,
+} = {}) {
+  if (!rewardsDatabaseReady) {
+    return Promise.resolve(
+      rewardsDatabaseState
+    );
+  }
+
+  const statePatch =
+    createRewardsDatabasePatch();
+
+  rewardsDatabaseState = {
+    ...rewardsDatabaseState,
+    ...statePatch,
+  };
+
+  const operation = rewardsSaveQueue
+    .catch(() => {
+      return rewardsDatabaseState;
+    })
+    .then(async () => {
+      const api = getArbifyApi();
+      const savedState =
+        await api.saveState(
+          statePatch
+        );
+
+      rewardsDatabaseState = {
+        ...savedState,
+      };
+
+      rewardsSaveErrorWasShown =
+        false;
+
+      return rewardsDatabaseState;
+    });
+
+  rewardsSaveQueue = operation.catch(
+    (error) => {
+      console.error(
+        "Rewards state save error:",
+        error.message
+      );
+
+      if (
+        !required &&
+        !rewardsSaveErrorWasShown
+      ) {
+        rewardsSaveErrorWasShown =
+          true;
+
+        showToast(
+          "Не вдалося синхронізувати прогрес"
+        );
+      }
+
+      return rewardsDatabaseState;
+    }
+  );
+
+  return required
+    ? operation
+    : rewardsSaveQueue;
+}
+
 function saveRewardsState() {
   try {
     localStorage.setItem(
@@ -310,6 +596,248 @@ function saveRewardsState() {
       error
     );
   }
+
+  void persistRewardsState();
+}
+
+function setCompatibilityStorage(
+  storage,
+  key,
+  value
+) {
+  try {
+    if (
+      value === undefined ||
+      value === null ||
+      value === ""
+    ) {
+      return;
+    }
+
+    storage.setItem(
+      key,
+      typeof value === "string"
+        ? value
+        : JSON.stringify(value)
+    );
+  } catch {
+    /*
+     * Дані вже зберігаються у PostgreSQL,
+     * тому недоступне сховище не зупиняє сторінку.
+     */
+  }
+}
+
+function restoreDatabaseCompatibilityState() {
+  const taskProgress =
+    rewardsDatabaseState
+      .taskProgress &&
+    typeof rewardsDatabaseState
+      .taskProgress === "object"
+      ? rewardsDatabaseState
+          .taskProgress
+      : {};
+
+  setCompatibilityStorage(
+    sessionStorage,
+    VERIFIED_SUBID_KEY,
+    rewardsDatabaseState.subid
+  );
+
+  if (rewardsDatabaseState.lastSignal) {
+    setCompatibilityStorage(
+      sessionStorage,
+      LAST_SIGNAL_KEY,
+      rewardsDatabaseState.lastSignal
+    );
+  }
+
+  if (
+    Array.isArray(
+      rewardsDatabaseState.favorites
+    )
+  ) {
+    setCompatibilityStorage(
+      localStorage,
+      FAVORITE_SLOTS_KEY,
+      rewardsDatabaseState.favorites
+    );
+  }
+
+  const createdSignalCount = Number(
+    taskProgress.createdSignalCount
+  );
+
+  if (
+    Number.isSafeInteger(
+      createdSignalCount
+    ) &&
+    createdSignalCount >= 0
+  ) {
+    setCompatibilityStorage(
+      localStorage,
+      SIGNAL_COUNT_KEY,
+      String(createdSignalCount)
+    );
+  }
+
+  if (
+    taskProgress.viewedLiveSignals ===
+    true
+  ) {
+    setCompatibilityStorage(
+      sessionStorage,
+      VIEWED_LIVE_KEY,
+      "true"
+    );
+  }
+
+  if (
+    rewardsDatabaseState.profile
+      ?.completed === true
+  ) {
+    setCompatibilityStorage(
+      sessionStorage,
+      "arbifyProfileCompleted",
+      "true"
+    );
+  }
+}
+
+function saveLocalRewardsSnapshot() {
+  try {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(rewardsState)
+    );
+  } catch {
+    /*
+     * PostgreSQL залишається головним сховищем.
+     */
+  }
+}
+
+function readLegacyTaskNoticeIds() {
+  try {
+    const storedValue =
+      localStorage.getItem(
+        PULSE_TASK_NOTICE_KEY
+      );
+
+    const parsedValue =
+      storedValue
+        ? JSON.parse(storedValue)
+        : [];
+
+    return Array.isArray(parsedValue)
+      ? parsedValue
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+async function initializeRewardsDatabase() {
+  const api = getArbifyApi();
+
+  if (!api.isTelegramMiniApp()) {
+    const browserAccess =
+      sessionStorage.getItem(
+        "arbifyAccess"
+      ) === "granted";
+
+    if (!browserAccess) {
+      window.location.replace(
+        "index.html"
+      );
+
+      return false;
+    }
+
+    rewardsState =
+      normalizeRewardsState(
+        rewardsState
+      );
+
+    rewardsState.taskNoticeIds =
+      Array.from(
+        new Set([
+          ...rewardsState
+            .taskNoticeIds,
+          ...readLegacyTaskNoticeIds(),
+        ])
+      );
+
+    return true;
+  }
+
+  await api.ready;
+
+  const user =
+    api.getCurrentUser() ||
+    (await api.authenticate());
+
+  if (!user?.accessGranted) {
+    sessionStorage.removeItem(
+      "arbifyAccess"
+    );
+
+    window.location.replace(
+      "index.html"
+    );
+
+    return false;
+  }
+
+  sessionStorage.setItem(
+    "arbifyAccess",
+    "granted"
+  );
+
+  rewardsDatabaseState = {
+    ...(user.state ||
+      api.getCurrentState() ||
+      {}),
+  };
+
+  rewardsDatabaseReady = true;
+
+  const localRewardsState =
+    normalizeRewardsState(
+      rewardsState
+    );
+
+  localRewardsState.taskNoticeIds =
+    Array.from(
+      new Set([
+        ...localRewardsState
+          .taskNoticeIds,
+        ...readLegacyTaskNoticeIds(),
+      ])
+    );
+
+  if (
+    hasDatabaseRewardsState(
+      rewardsDatabaseState
+    )
+  ) {
+    rewardsState =
+      createRewardsStateFromDatabase(
+        rewardsDatabaseState
+      );
+  } else {
+    rewardsState =
+      localRewardsState;
+
+    await persistRewardsState({
+      required: true,
+    });
+  }
+
+  restoreDatabaseCompatibilityState();
+  saveLocalRewardsSnapshot();
+
+  return true;
 }
 
 /*
@@ -1139,6 +1667,15 @@ function closeVerificationOverlay() {
  */
 
 function readFavoriteSlotsCount() {
+  if (
+    Array.isArray(
+      rewardsDatabaseState.favorites
+    )
+  ) {
+    return rewardsDatabaseState
+      .favorites.length;
+  }
+
   try {
     const storedValue =
       localStorage.getItem(
@@ -1164,6 +1701,48 @@ function readFavoriteSlotsCount() {
 }
 
 function readCreatedSignalCount() {
+  const databaseSignalCount = Number(
+    rewardsDatabaseState
+      .taskProgress
+      ?.createdSignalCount
+  );
+
+  const databaseHistoryCount =
+    Array.isArray(
+      rewardsDatabaseState.signalHistory
+    )
+      ? rewardsDatabaseState
+          .signalHistory.length
+      : 0;
+
+  const databaseLastSignalCount =
+    rewardsDatabaseState.lastSignal
+      ? 1
+      : 0;
+
+  if (
+    Number.isSafeInteger(
+      databaseSignalCount
+    ) &&
+    databaseSignalCount >= 0
+  ) {
+    return Math.max(
+      databaseSignalCount,
+      databaseHistoryCount,
+      databaseLastSignalCount
+    );
+  }
+
+  if (
+    databaseHistoryCount > 0 ||
+    databaseLastSignalCount > 0
+  ) {
+    return Math.max(
+      databaseHistoryCount,
+      databaseLastSignalCount
+    );
+  }
+
   const storedValue =
     localStorage.getItem(
       SIGNAL_COUNT_KEY
@@ -1228,6 +1807,7 @@ function getTaskVerificationResult(taskId) {
 
   if (taskId === "confirm-subid") {
     const verifiedSubId =
+      rewardsDatabaseState.subid ||
       sessionStorage.getItem(
         VERIFIED_SUBID_KEY
       );
@@ -1264,6 +1844,9 @@ function getTaskVerificationResult(taskId) {
 
   if (taskId === "first-signal") {
     const hasSignal = Boolean(
+      rewardsDatabaseState.lastSignal ||
+      rewardsDatabaseState
+        .signalHistory?.length ||
       sessionStorage.getItem(
         LAST_SIGNAL_KEY
       )
@@ -1278,6 +1861,9 @@ function getTaskVerificationResult(taskId) {
 
   if (taskId === "view-live") {
     const viewedLive =
+      rewardsDatabaseState
+        .taskProgress
+        ?.viewedLiveSignals === true ||
       sessionStorage.getItem(
         VIEWED_LIVE_KEY
       ) === "true";
@@ -1673,6 +2259,19 @@ function navigateToTaskPage(
       VIEWED_LIVE_KEY,
       "true"
     );
+
+    rewardsDatabaseState = {
+      ...rewardsDatabaseState,
+
+      taskProgress: {
+        ...(rewardsDatabaseState
+          .taskProgress || {}),
+
+        viewedLiveSignals: true,
+      },
+    };
+
+    saveRewardsState();
   }
 
   showToast(
@@ -1889,6 +2488,9 @@ function updateTaskCountdown() {
 
 function synchronizeExistingActivity() {
   const lastSignal =
+    rewardsDatabaseState.lastSignal ||
+    rewardsDatabaseState
+      .signalHistory?.[0] ||
     sessionStorage.getItem(
       LAST_SIGNAL_KEY
     );
@@ -1918,8 +2520,11 @@ function synchronizeExistingActivity() {
     getTaskRecord("confirm-subid");
 
   if (
-    sessionStorage.getItem(
-      VERIFIED_SUBID_KEY
+    (
+      rewardsDatabaseState.subid ||
+      sessionStorage.getItem(
+        VERIFIED_SUBID_KEY
+      )
     ) &&
     subIdRecord.status !== "completed"
   ) {
@@ -1931,9 +2536,14 @@ function synchronizeExistingActivity() {
     getTaskRecord("view-live");
 
   if (
-    sessionStorage.getItem(
-      VIEWED_LIVE_KEY
-    ) === "true" &&
+    (
+      rewardsDatabaseState
+        .taskProgress
+        ?.viewedLiveSignals === true ||
+      sessionStorage.getItem(
+        VIEWED_LIVE_KEY
+      ) === "true"
+    ) &&
     liveRecord.status !== "completed"
   ) {
     liveRecord.status = "claimable";
@@ -2023,6 +2633,14 @@ function synchronizeExistingActivity() {
 taskList.addEventListener(
   "click",
   (event) => {
+    if (!rewardsPageReady) {
+      showToast(
+        "Завантажуємо твій прогрес..."
+      );
+
+      return;
+    }
+
     const button =
       event.target.closest(
         ".task-action"
@@ -2136,28 +2754,72 @@ document.addEventListener(
  */
 
 function initializeRewardsPage() {
-  allTasksCount.textContent =
-    String(taskCards.length);
+  if (rewardsInitializationPromise) {
+    return rewardsInitializationPromise;
+  }
 
-  synchronizeExistingActivity();
+  rewardsInitializationPromise =
+    (async () => {
+      document.documentElement.dataset
+        .rewardsState = "loading";
 
-  synchronizePulseLevelProgress({
-    notify: true,
-  });
+      try {
+        const canOpenPage =
+          await initializeRewardsDatabase();
 
-  renderBalance();
-  renderAllTasks();
-  renderWeeklyProgress();
-  updateTaskCountdown();
+        if (!canOpenPage) {
+          return;
+        }
 
-  countdownTimer =
-    window.setInterval(
-      updateTaskCountdown,
-      1000
-    );
+        pulseSynchronizeTaskNoticeIds();
+
+        allTasksCount.textContent =
+          String(taskCards.length);
+
+        synchronizeExistingActivity();
+        pulseSynchronizeProfileTask();
+
+        synchronizePulseLevelProgress({
+          notify: true,
+        });
+
+        renderBalance();
+        renderAllTasks();
+        renderWeeklyProgress();
+        updateTaskCountdown();
+        pulseNotifyClaimableTasks();
+
+        window.clearInterval(
+          countdownTimer
+        );
+
+        countdownTimer =
+          window.setInterval(
+            updateTaskCountdown,
+            1000
+          );
+
+        rewardsPageReady = true;
+
+        document.documentElement.dataset
+          .rewardsState = "ready";
+      } catch (error) {
+        console.error(
+          "Rewards initialization error:",
+          error.message
+        );
+
+        document.documentElement.dataset
+          .rewardsState = "error";
+
+        showToast(
+          "Не вдалося завантажити прогрес. Спробуй відкрити застосунок ще раз"
+        );
+      }
+    })();
+
+  return rewardsInitializationPromise;
 }
-
-initializeRewardsPage();
 
 /*
  * =========================================================
@@ -2203,6 +2865,18 @@ const PULSE_TASK_NOTICE_KEY =
   "arbifyRewardTaskNoticesV1";
 
 function pulseLoadTaskNoticeIds() {
+  if (
+    Array.isArray(
+      rewardsState.taskNoticeIds
+    ) &&
+    rewardsState.taskNoticeIds
+      .length > 0
+  ) {
+    return new Set(
+      rewardsState.taskNoticeIds
+    );
+  }
+
   try {
     const storedValue =
       localStorage.getItem(
@@ -2229,7 +2903,27 @@ function pulseLoadTaskNoticeIds() {
 const pulseTaskNoticeIds =
   pulseLoadTaskNoticeIds();
 
+function pulseSynchronizeTaskNoticeIds() {
+  pulseTaskNoticeIds.clear();
+
+  const storedNoticeIds =
+    Array.isArray(
+      rewardsState.taskNoticeIds
+    )
+      ? rewardsState.taskNoticeIds
+      : [];
+
+  storedNoticeIds.forEach((taskId) => {
+    pulseTaskNoticeIds.add(taskId);
+  });
+}
+
 function pulseSaveTaskNoticeIds() {
+  rewardsState.taskNoticeIds =
+    Array.from(
+      pulseTaskNoticeIds
+    );
+
   try {
     localStorage.setItem(
       PULSE_TASK_NOTICE_KEY,
@@ -2245,6 +2939,8 @@ function pulseSaveTaskNoticeIds() {
      * навіть якщо localStorage недоступний.
      */
   }
+
+  saveRewardsState();
 }
 
 function pulseUseNotifications(action) {
@@ -2405,8 +3101,6 @@ enableNotificationsTask =
     }
   };
 
-pulseNotifyClaimableTasks();
-
 /*
  * =========================================================
  * PULSE — ПІДКЛЮЧЕННЯ СТОРІНКИ ПРОФІЛЮ
@@ -2416,6 +3110,16 @@ pulseNotifyClaimableTasks();
 const PULSE_PROFILE_COMPLETED_KEY =
   "arbifyProfileCompleted";
 
+function pulseIsProfileCompleted() {
+  return (
+    rewardsDatabaseState.profile
+      ?.completed === true ||
+    sessionStorage.getItem(
+      PULSE_PROFILE_COMPLETED_KEY
+    ) === "true"
+  );
+}
+
 const pulseOriginalProfileVerification =
   getTaskVerificationResult;
 
@@ -2424,9 +3128,7 @@ getTaskVerificationResult = function (
 ) {
   if (taskId === "complete-profile") {
     const profileCompleted =
-      sessionStorage.getItem(
-        PULSE_PROFILE_COMPLETED_KEY
-      ) === "true";
+      pulseIsProfileCompleted();
 
     return {
       valid: profileCompleted,
@@ -2447,9 +3149,7 @@ function pulseSynchronizeProfileTask() {
   const record = getTaskRecord(taskId);
 
   const profileCompleted =
-    sessionStorage.getItem(
-      PULSE_PROFILE_COMPLETED_KEY
-    ) === "true";
+    pulseIsProfileCompleted();
 
   if (
     !profileCompleted ||
@@ -2472,4 +3172,20 @@ function pulseSynchronizeProfileTask() {
   }
 }
 
-pulseSynchronizeProfileTask();
+function beginRewardsPage() {
+  void initializeRewardsPage();
+}
+
+if (
+  document.readyState === "loading"
+) {
+  document.addEventListener(
+    "DOMContentLoaded",
+    beginRewardsPage,
+    {
+      once: true,
+    }
+  );
+} else {
+  beginRewardsPage();
+}
