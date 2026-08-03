@@ -1,5 +1,7 @@
 "use strict";
 
+/* PostgreSQL profile sync · 2026-08-03 */
+
 /*
  * =========================================================
  * ARBIFY PULSE — ПРОФІЛЬ
@@ -54,16 +56,6 @@ const TELEGRAM_SUPPORT_USERNAME = "YOUR_USERNAME";
 
 const TOAST_DURATION = 2600;
 const LOGOUT_CONFIRM_DURATION = 3600;
-
-/*
- * Захист сторінки.
- */
-if (
-  sessionStorage.getItem(ACCESS_STORAGE_KEY) !==
-  "granted"
-) {
-  window.location.replace("index.html");
-}
 
 /*
  * =========================================================
@@ -139,6 +131,11 @@ const toastText = document.querySelector("#toastText");
 let toastTimer;
 let logoutConfirmTimer;
 let logoutConfirmationActive = false;
+let profileDatabaseReady = false;
+let profileDatabaseUser = null;
+let profileDatabaseState = {};
+let profileSaveQueue = Promise.resolve({});
+let profileInitializationPromise = null;
 
 /*
  * =========================================================
@@ -195,7 +192,188 @@ function readJsonStorage(
   }
 }
 
+function getArbifyApi() {
+  return window.ARBIFY_API || null;
+}
+
+function isObject(value) {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      !Array.isArray(value)
+  );
+}
+
+function getDatabaseTaskProgress() {
+  return isObject(
+    profileDatabaseState.taskProgress
+  )
+    ? profileDatabaseState.taskProgress
+    : {};
+}
+
+function getDatabaseProfile() {
+  return isObject(
+    profileDatabaseState.profile
+  )
+    ? profileDatabaseState.profile
+    : {};
+}
+
+function saveProfileState(
+  statePatch,
+  {
+    required = false,
+  } = {}
+) {
+  if (!profileDatabaseReady) {
+    return Promise.resolve(
+      profileDatabaseState
+    );
+  }
+
+  const api = getArbifyApi();
+
+  if (!api) {
+    return Promise.resolve(
+      profileDatabaseState
+    );
+  }
+
+  profileDatabaseState = {
+    ...profileDatabaseState,
+    ...statePatch,
+  };
+
+  const operation = profileSaveQueue
+    .catch(() => {
+      return profileDatabaseState;
+    })
+    .then(async () => {
+      const savedState =
+        await api.saveState(
+          statePatch
+        );
+
+      profileDatabaseState = {
+        ...savedState,
+      };
+
+      if (profileDatabaseUser) {
+        profileDatabaseUser.state =
+          profileDatabaseState;
+      }
+
+      return profileDatabaseState;
+    });
+
+  profileSaveQueue = operation.catch(
+    (error) => {
+      console.error(
+        "Profile state save error:",
+        error.message
+      );
+
+      return profileDatabaseState;
+    }
+  );
+
+  return required
+    ? operation
+    : profileSaveQueue;
+}
+
+function restoreDatabaseCompatibilityState() {
+  const taskProgress =
+    getDatabaseTaskProgress();
+
+  try {
+    if (profileDatabaseState.subid) {
+      sessionStorage.setItem(
+        SUBID_STORAGE_KEY,
+        String(
+          profileDatabaseState.subid
+        )
+      );
+    }
+
+    if (
+      Number.isSafeInteger(
+        Number(
+          taskProgress.createdSignalCount
+        )
+      )
+    ) {
+      localStorage.setItem(
+        SIGNAL_COUNT_STORAGE_KEY,
+        String(
+          Math.max(
+            0,
+            Number(
+              taskProgress.createdSignalCount
+            )
+          )
+        )
+      );
+    }
+
+    const databaseProfile =
+      getDatabaseProfile();
+
+    if (databaseProfile.name) {
+      localStorage.setItem(
+        PROFILE_NAME_STORAGE_KEY,
+        String(databaseProfile.name)
+      );
+    }
+
+    if (
+      databaseProfile.completed === true
+    ) {
+      sessionStorage.setItem(
+        PROFILE_COMPLETED_STORAGE_KEY,
+        "true"
+      );
+    }
+  } catch {
+    /*
+     * PostgreSQL залишається головним
+     * сховищем даних профілю.
+     */
+  }
+}
+
 function readRewardsState() {
+  if (profileDatabaseReady) {
+    const savedUnlocks = Array.isArray(
+      profileDatabaseState.pulseUnlocks
+    )
+      ? profileDatabaseState.pulseUnlocks
+      : [];
+
+    return {
+      balance: Math.max(
+        0,
+        Number(
+          profileDatabaseState.pulseBalance
+        ) || 0
+      ),
+
+      tasks: isObject(
+        profileDatabaseState.completedTasks
+      )
+        ? profileDatabaseState.completedTasks
+        : {},
+
+      unlockedLevelRewards: Array.from(
+        new Set([
+          "base-access",
+          ...savedUnlocks,
+        ])
+      ),
+    };
+  }
+
   const storedState = readJsonStorage(
     localStorage,
     REWARDS_STORAGE_KEY,
@@ -247,6 +425,35 @@ function readRewardsState() {
 }
 
 function readCreatedSignalCount() {
+  if (profileDatabaseReady) {
+    const taskProgress =
+      getDatabaseTaskProgress();
+
+    const savedCount = Number(
+      taskProgress.createdSignalCount
+    );
+
+    if (
+      Number.isSafeInteger(savedCount) &&
+      savedCount >= 0
+    ) {
+      return savedCount;
+    }
+
+    if (
+      Array.isArray(
+        profileDatabaseState.signalHistory
+      )
+    ) {
+      return profileDatabaseState
+        .signalHistory.length;
+    }
+
+    return profileDatabaseState.lastSignal
+      ? 1
+      : 0;
+  }
+
   const storedValue =
     localStorage.getItem(
       SIGNAL_COUNT_STORAGE_KEY
@@ -419,6 +626,39 @@ function maskSubId(value) {
 }
 
 function getProfileName() {
+  if (profileDatabaseReady) {
+    const databaseProfile =
+      getDatabaseProfile();
+
+    const savedName = String(
+      databaseProfile.name || ""
+    ).trim();
+
+    if (savedName) {
+      return savedName;
+    }
+
+    const telegramName = [
+      profileDatabaseUser?.firstName,
+      profileDatabaseUser?.lastName,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+
+    if (telegramName) {
+      return telegramName;
+    }
+
+    const telegramUsername = String(
+      profileDatabaseUser?.username || ""
+    ).trim();
+
+    if (telegramUsername) {
+      return `@${telegramUsername}`;
+    }
+  }
+
   try {
     const storedName = String(
       localStorage.getItem(
@@ -473,9 +713,11 @@ function renderProfile() {
     readCreatedSignalCount();
 
   const verifiedSubId =
-    sessionStorage.getItem(
-      SUBID_STORAGE_KEY
-    );
+    profileDatabaseReady
+      ? profileDatabaseState.subid
+      : sessionStorage.getItem(
+          SUBID_STORAGE_KEY
+        );
 
   const isMaximumLevel =
     levelData.maximum === null;
@@ -794,6 +1036,163 @@ function preventPageZoom() {
   );
 }
 
+async function initializeProfileDatabase() {
+  const api = getArbifyApi();
+
+  if (
+    !api ||
+    !api.isTelegramMiniApp()
+  ) {
+    const browserAccess =
+      sessionStorage.getItem(
+        ACCESS_STORAGE_KEY
+      ) === "granted";
+
+    if (!browserAccess) {
+      window.location.replace(
+        "index.html"
+      );
+
+      return false;
+    }
+
+    return true;
+  }
+
+  await api.ready;
+
+  const user =
+    api.getCurrentUser() ||
+    (await api.authenticate());
+
+  if (!user?.accessGranted) {
+    sessionStorage.removeItem(
+      ACCESS_STORAGE_KEY
+    );
+
+    window.location.replace(
+      "index.html"
+    );
+
+    return false;
+  }
+
+  sessionStorage.setItem(
+    ACCESS_STORAGE_KEY,
+    "granted"
+  );
+
+  profileDatabaseUser = user;
+
+  profileDatabaseState = {
+    ...(user.state ||
+      api.getCurrentState() ||
+      {}),
+  };
+
+  profileDatabaseReady = true;
+
+  restoreDatabaseCompatibilityState();
+
+  return true;
+}
+
+async function markProfileCompleted() {
+  sessionStorage.setItem(
+    PROFILE_COMPLETED_STORAGE_KEY,
+    "true"
+  );
+
+  const profileName =
+    getProfileName();
+
+  try {
+    localStorage.setItem(
+      PROFILE_NAME_STORAGE_KEY,
+      profileName
+    );
+  } catch {
+    /*
+     * У Telegram дані однаково
+     * збережуться у PostgreSQL.
+     */
+  }
+
+  if (!profileDatabaseReady) {
+    return;
+  }
+
+  const currentProfile =
+    getDatabaseProfile();
+
+  const nextProfile = {
+    ...currentProfile,
+    name: profileName,
+    completed: true,
+  };
+
+  profileDatabaseState.profile =
+    nextProfile;
+
+  if (
+    currentProfile.completed === true &&
+    currentProfile.name === profileName
+  ) {
+    return;
+  }
+
+  await saveProfileState(
+    {
+      profile: nextProfile,
+    },
+    {
+      required: true,
+    }
+  );
+}
+
+async function refreshProfileDatabase() {
+  if (!profileDatabaseReady) {
+    return;
+  }
+
+  const api = getArbifyApi();
+
+  if (!api) {
+    return;
+  }
+
+  try {
+    const user =
+      await api.authenticate({
+        force: true,
+      });
+
+    if (!user?.accessGranted) {
+      window.location.replace(
+        "index.html"
+      );
+
+      return;
+    }
+
+    profileDatabaseUser = user;
+    profileDatabaseState = {
+      ...(user.state ||
+        api.getCurrentState() ||
+        {}),
+    };
+
+    restoreDatabaseCompatibilityState();
+    renderProfile();
+  } catch (error) {
+    console.error(
+      "Profile refresh error:",
+      error.message
+    );
+  }
+}
+
 /*
  * =========================================================
  * ЗАПУСК
@@ -801,95 +1200,151 @@ function preventPageZoom() {
  */
 
 function initializeProfile() {
-  /*
-   * Цей прапорець використовує
-   * сторінка бонусів для перевірки
-   * завдання «Заповнити профіль».
-   */
-  sessionStorage.setItem(
-    PROFILE_COMPLETED_STORAGE_KEY,
-    "true"
-  );
+  if (profileInitializationPromise) {
+    return profileInitializationPromise;
+  }
 
-  setAppHeight();
-  renderProfile();
-  renderNotificationStatus();
-  preventPageZoom();
+  profileInitializationPromise =
+    (async () => {
+      const accessAllowed =
+        await initializeProfileDatabase();
 
-  profileNotificationsButton.addEventListener(
-    "click",
-    configureNotifications
-  );
+      if (!accessAllowed) {
+        return;
+      }
 
-  profileLanguageButton.addEventListener(
-    "click",
-    openLanguageSettings
-  );
+      try {
+        await markProfileCompleted();
+      } catch (error) {
+        console.error(
+          "Profile completion save error:",
+          error.message
+        );
+      }
 
-  profileSupportButton.addEventListener(
-    "click",
-    openTelegramSupport
-  );
-
-  logoutButton.addEventListener(
-    "click",
-    logout
-  );
-
-  window.addEventListener(
-    "resize",
-    setAppHeight
-  );
-
-  window.visualViewport?.addEventListener(
-    "resize",
-    setAppHeight
-  );
-
-  window.addEventListener(
-    "pageshow",
-    () => {
+      setAppHeight();
       renderProfile();
       renderNotificationStatus();
-    }
-  );
+      preventPageZoom();
 
-  window.addEventListener(
-    "storage",
-    (event) => {
-      if (
-        event.key ===
-          REWARDS_STORAGE_KEY ||
-        event.key ===
-          SIGNAL_COUNT_STORAGE_KEY ||
-        event.key ===
-          PROFILE_NAME_STORAGE_KEY ||
-        event.key ===
-          PULSE_LEVEL_STORAGE_KEY ||
-        event.key ===
-          PULSE_UNLOCKS_STORAGE_KEY
-      ) {
-        renderProfile();
-      }
-    }
-  );
-
-  window.addEventListener(
-    "beforeunload",
-    () => {
-      window.clearTimeout(toastTimer);
-
-      window.clearTimeout(
-        logoutConfirmTimer
+      profileNotificationsButton.addEventListener(
+        "click",
+        configureNotifications
       );
-    }
-  );
 
-  window.requestAnimationFrame(() => {
-    document.body.classList.add(
-      "page-ready"
-    );
-  });
+      profileLanguageButton.addEventListener(
+        "click",
+        openLanguageSettings
+      );
+
+      profileSupportButton.addEventListener(
+        "click",
+        openTelegramSupport
+      );
+
+      logoutButton.addEventListener(
+        "click",
+        logout
+      );
+
+      window.addEventListener(
+        "resize",
+        setAppHeight
+      );
+
+      window.visualViewport?.addEventListener(
+        "resize",
+        setAppHeight
+      );
+
+      window.addEventListener(
+        "pageshow",
+        (event) => {
+          if (
+            event.persisted &&
+            profileDatabaseReady
+          ) {
+            void refreshProfileDatabase();
+          } else {
+            renderProfile();
+          }
+
+          renderNotificationStatus();
+        }
+      );
+
+      window.addEventListener(
+        "arbify:state-updated",
+        (event) => {
+          const updatedState =
+            event.detail?.state;
+
+          if (
+            profileDatabaseReady &&
+            isObject(updatedState)
+          ) {
+            profileDatabaseState = {
+              ...updatedState,
+            };
+
+            restoreDatabaseCompatibilityState();
+            renderProfile();
+          }
+        }
+      );
+
+      window.addEventListener(
+        "storage",
+        (event) => {
+          if (
+            event.key ===
+              REWARDS_STORAGE_KEY ||
+            event.key ===
+              SIGNAL_COUNT_STORAGE_KEY ||
+            event.key ===
+              PROFILE_NAME_STORAGE_KEY ||
+            event.key ===
+              PULSE_LEVEL_STORAGE_KEY ||
+            event.key ===
+              PULSE_UNLOCKS_STORAGE_KEY
+          ) {
+            renderProfile();
+          }
+        }
+      );
+
+      window.addEventListener(
+        "beforeunload",
+        () => {
+          window.clearTimeout(toastTimer);
+
+          window.clearTimeout(
+            logoutConfirmTimer
+          );
+        }
+      );
+
+      window.requestAnimationFrame(() => {
+        document.body.classList.add(
+          "page-ready"
+        );
+      });
+    })().catch((error) => {
+      console.error(
+        "Profile initialization error:",
+        error.message
+      );
+
+      document.body.classList.add(
+        "page-ready"
+      );
+
+      showToast(
+        "Не вдалося завантажити профіль"
+      );
+    });
+
+  return profileInitializationPromise;
 }
 
-initializeProfile();
+void initializeProfile();
