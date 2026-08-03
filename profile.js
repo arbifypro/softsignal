@@ -1177,6 +1177,7 @@ async function refreshProfileDatabase() {
     }
 
     profileDatabaseUser = user;
+
     profileDatabaseState = {
       ...(user.state ||
         api.getCurrentState() ||
