@@ -196,6 +196,28 @@ function getArbifyApi() {
   return window.ARBIFY_API || null;
 }
 
+async function recordProfileActivity(
+  type,
+  payload = {}
+) {
+  const api = getArbifyApi();
+
+  if (!api?.isTelegramMiniApp?.()) {
+    return null;
+  }
+
+  const result = await api.recordActivity(
+    type,
+    payload
+  );
+
+  profileDatabaseState = {
+    ...api.getCurrentState(),
+  };
+
+  return result;
+}
+
 function isObject(value) {
   return Boolean(
     value &&
@@ -849,6 +871,18 @@ async function configureNotifications() {
   if (
     Notification.permission === "granted"
   ) {
+    void recordProfileActivity(
+      "notifications-enabled",
+      {
+        permission: "granted",
+      }
+    ).catch((error) => {
+      console.error(
+        "Notification activity save error:",
+        error.message
+      );
+    });
+
     showToast(
       "Системні сповіщення вже увімкнені"
     );
@@ -863,6 +897,18 @@ async function configureNotifications() {
     renderNotificationStatus();
 
     if (permission === "granted") {
+      void recordProfileActivity(
+        "notifications-enabled",
+        {
+          permission,
+        }
+      ).catch((error) => {
+        console.error(
+          "Notification activity save error:",
+          error.message
+        );
+      });
+
       showToast(
         "Сповіщення успішно увімкнено"
       );
@@ -1122,6 +1168,17 @@ async function markProfileCompleted() {
     return;
   }
 
+  try {
+    await recordProfileActivity(
+      "profile-completed"
+    );
+  } catch (error) {
+    console.error(
+      "Profile activity save error:",
+      error.message
+    );
+  }
+
   const currentProfile =
     getDatabaseProfile();
 
@@ -1177,7 +1234,6 @@ async function refreshProfileDatabase() {
     }
 
     profileDatabaseUser = user;
-
     profileDatabaseState = {
       ...(user.state ||
         api.getCurrentState() ||
