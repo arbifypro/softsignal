@@ -813,6 +813,28 @@ function renderProfile() {
     formatNumber(completedTasks);
 }
 
+function finishProfileLoading() {
+  const profilePageLoader =
+    document.querySelector(
+      "#profilePageLoader"
+    );
+
+  document.body.classList.remove(
+    "profile-data-loading"
+  );
+
+  document.body.classList.add(
+    "profile-data-ready"
+  );
+
+  if (profilePageLoader) {
+    profilePageLoader.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+  }
+}
+
 function renderNotificationStatus() {
   if (!("Notification" in window)) {
     profileNotificationStatus.textContent =
@@ -1282,6 +1304,7 @@ function initializeProfile() {
       setAppHeight();
       renderProfile();
       renderNotificationStatus();
+      finishProfileLoading();
       preventPageZoom();
 
       profileNotificationsButton.addEventListener(
@@ -1395,6 +1418,8 @@ function initializeProfile() {
       document.body.classList.add(
         "page-ready"
       );
+
+      finishProfileLoading();
 
       showToast(
         "Не вдалося завантажити профіль"
