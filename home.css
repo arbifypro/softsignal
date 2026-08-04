@@ -467,8 +467,8 @@ button {
   grid-auto-flow: column;
   grid-auto-columns: calc(33.333333% - 6.666667px);
   gap: 10px;
-  margin-top: 14px;
-  padding: 0 0 4px;
+  margin-top: 11px;
+  padding: 3px 0 4px;
   overflow-x: auto;
   overflow-y: hidden;
   overscroll-behavior-x: contain;
