@@ -13,6 +13,9 @@ const WEBHOOK_SECRET =
 const DATABASE_URL =
   process.env.DATABASE_URL || "";
 
+const TELEGRAM_CHANNEL_CHAT_ID =
+  process.env.TELEGRAM_CHANNEL_CHAT_ID || "";
+
 const ACCESS_KEY = normalizeAccessKey(
   process.env.ACCESS_KEY || ""
 );
@@ -24,6 +27,8 @@ const MINI_APP_LINK =
 const PUBLIC_ROOT = __dirname;
 const TELEGRAM_AUTH_MAX_AGE_SECONDS = 86_400;
 const MAX_STATE_SIZE = 100_000;
+const WEEKLY_REWARD = 300;
+const SIGNAL_ACTIVITY_COOLDOWN_SECONDS = 4;
 
 const BLOCKED_FILES = new Set([
   "server.js",
@@ -49,11 +54,6 @@ const MIME_TYPES = {
 
 const ALLOWED_STATE_KEYS = new Set([
   "subid",
-  "pulseBalance",
-  "pulseLevel",
-  "pulseUnlocks",
-  "completedTasks",
-  "taskProgress",
   "notifications",
   "signalHistory",
   "favorites",
@@ -62,6 +62,58 @@ const ALLOWED_STATE_KEYS = new Set([
   "profile",
   "preferences",
 ]);
+
+const REWARD_TASKS = Object.freeze({
+  "telegram-bot": {
+    reward: 100,
+    defaultStatus: "available",
+  },
+
+  "telegram-channel": {
+    reward: 80,
+    defaultStatus: "available",
+  },
+
+  "complete-profile": {
+    reward: 50,
+    defaultStatus: "checkable",
+  },
+
+  notifications: {
+    reward: 30,
+    defaultStatus: "available",
+  },
+
+  "confirm-subid": {
+    reward: 150,
+    defaultStatus: "checkable",
+  },
+
+  "favorite-slots": {
+    reward: 40,
+    defaultStatus: "progress",
+  },
+
+  "first-signal": {
+    reward: 30,
+    defaultStatus: "available",
+  },
+
+  "view-live": {
+    reward: 10,
+    defaultStatus: "available",
+  },
+
+  "responsible-guide": {
+    reward: 30,
+    defaultStatus: "available",
+  },
+
+  "signal-master": {
+    reward: 100,
+    defaultStatus: "progress",
+  },
+});
 
 if (!DATABASE_URL) {
   console.error(
@@ -269,29 +321,6 @@ function sanitizeStatePatch(input) {
       patch.subid,
       128
     );
-  }
-
-  if ("pulseBalance" in patch) {
-    const balance = Number(
-      patch.pulseBalance
-    );
-
-    if (
-      !Number.isSafeInteger(balance) ||
-      balance < 0 ||
-      balance > 1_000_000_000
-    ) {
-      throw new ApiError(
-        400,
-        "Invalid PULSE balance"
-      );
-    }
-
-    patch.pulseBalance = balance;
-    patch.pulseLevel =
-      calculatePulseLevel(balance);
-  } else {
-    delete patch.pulseLevel;
   }
 
   let serialized;
@@ -507,15 +536,306 @@ async function initializeDatabase() {
     `);
 
     await client.query(`
+      ALTER TABLE arbify_users
+      ADD COLUMN IF NOT EXISTS
+        pulse_balance INTEGER NOT NULL DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS
+        pulse_level INTEGER NOT NULL DEFAULT 1,
+      ADD COLUMN IF NOT EXISTS
+        weekly_reward_claimed BOOLEAN NOT NULL DEFAULT FALSE,
+      ADD COLUMN IF NOT EXISTS
+        rewards_migrated_at TIMESTAMPTZ,
+      ADD COLUMN IF NOT EXISTS
+        bot_started_at TIMESTAMPTZ
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS arbify_user_activity (
+        telegram_id BIGINT PRIMARY KEY
+          REFERENCES arbify_users(telegram_id)
+          ON DELETE CASCADE,
+        profile_completed_at TIMESTAMPTZ,
+        notifications_enabled_at TIMESTAMPTZ,
+        live_viewed_at TIMESTAMPTZ,
+        responsible_guide_read_at TIMESTAMPTZ,
+        signals_created INTEGER NOT NULL DEFAULT 0,
+        last_signal_at TIMESTAMPTZ,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS arbify_reward_claims (
+        telegram_id BIGINT NOT NULL
+          REFERENCES arbify_users(telegram_id)
+          ON DELETE CASCADE,
+        task_id TEXT NOT NULL,
+        reward INTEGER NOT NULL,
+        claimed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        PRIMARY KEY (telegram_id, task_id)
+      )
+    `);
+
+    await client.query(`
       CREATE INDEX IF NOT EXISTS
         arbify_users_last_seen_idx
       ON arbify_users(last_seen_at DESC)
+    `);
+
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS
+        arbify_reward_claims_user_idx
+      ON arbify_reward_claims(
+        telegram_id,
+        claimed_at DESC
+      )
     `);
 
     await client.query("COMMIT");
   } catch (error) {
     await client.query("ROLLBACK");
 
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+function toSafeNonNegativeInteger(
+  value,
+  maximum = 1_000_000_000
+) {
+  const number = Number(value);
+
+  if (
+    !Number.isSafeInteger(number) ||
+    number < 0
+  ) {
+    return 0;
+  }
+
+  return Math.min(number, maximum);
+}
+
+function getPulseUnlocks(level) {
+  const unlocks = [
+    "base-access",
+  ];
+
+  if (level >= 2) {
+    unlocks.push("profile-frame");
+  }
+
+  if (level >= 3) {
+    unlocks.push("premium-badge");
+  }
+
+  if (level >= 4) {
+    unlocks.push("exclusive-theme");
+  }
+
+  return unlocks;
+}
+
+async function migrateLegacyRewardsForUser(
+  telegramId
+) {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    const result = await client.query(
+      `
+        SELECT
+          u.rewards_migrated_at,
+          s.state
+        FROM arbify_users AS u
+        JOIN arbify_user_state AS s
+          ON s.telegram_id = u.telegram_id
+        WHERE u.telegram_id = $1
+        FOR UPDATE OF u, s
+      `,
+      [
+        telegramId,
+      ]
+    );
+
+    const row = result.rows[0];
+
+    if (
+      !row ||
+      row.rewards_migrated_at
+    ) {
+      await client.query("COMMIT");
+      return;
+    }
+
+    const state =
+      row.state &&
+      typeof row.state === "object"
+        ? row.state
+        : {};
+
+    const balance =
+      toSafeNonNegativeInteger(
+        state.pulseBalance
+      );
+
+    const level =
+      calculatePulseLevel(balance);
+
+    const completedTasks =
+      state.completedTasks &&
+      typeof state.completedTasks ===
+        "object"
+        ? state.completedTasks
+        : {};
+
+    for (
+      const [taskId, definition] of
+      Object.entries(REWARD_TASKS)
+    ) {
+      const taskRecord =
+        completedTasks[taskId];
+
+      if (
+        taskRecord?.status !==
+        "completed"
+      ) {
+        continue;
+      }
+
+      const completedAt =
+        Number(taskRecord.completedAt);
+
+      const claimedAt =
+        Number.isFinite(completedAt) &&
+        completedAt > 0
+          ? new Date(completedAt)
+          : new Date();
+
+      await client.query(
+        `
+          INSERT INTO arbify_reward_claims (
+            telegram_id,
+            task_id,
+            reward,
+            claimed_at
+          )
+          VALUES ($1, $2, $3, $4)
+          ON CONFLICT (telegram_id, task_id)
+          DO NOTHING
+        `,
+        [
+          telegramId,
+          taskId,
+          definition.reward,
+          claimedAt,
+        ]
+      );
+    }
+
+    const rewardsRecord =
+      state.taskProgress?.rewards &&
+      typeof state.taskProgress
+        .rewards === "object"
+        ? state.taskProgress.rewards
+        : {};
+
+    const signalHistoryCount =
+      Array.isArray(state.signalHistory)
+        ? state.signalHistory.length
+        : 0;
+
+    const signalsCreated = Math.max(
+      toSafeNonNegativeInteger(
+        state.taskProgress
+          ?.createdSignalCount,
+        100_000
+      ),
+
+      toSafeNonNegativeInteger(
+        rewardsRecord.progress
+          ?.signalMaster,
+        100_000
+      ),
+
+      signalHistoryCount,
+      state.lastSignal ? 1 : 0
+    );
+
+    await client.query(
+      `
+        INSERT INTO arbify_user_activity (
+          telegram_id,
+          profile_completed_at,
+          notifications_enabled_at,
+          live_viewed_at,
+          signals_created,
+          updated_at
+        )
+        VALUES (
+          $1,
+          CASE WHEN $2 THEN NOW() ELSE NULL END,
+          CASE WHEN $3 THEN NOW() ELSE NULL END,
+          CASE WHEN $4 THEN NOW() ELSE NULL END,
+          $5,
+          NOW()
+        )
+        ON CONFLICT (telegram_id)
+        DO UPDATE SET
+          profile_completed_at = COALESCE(
+            arbify_user_activity.profile_completed_at,
+            EXCLUDED.profile_completed_at
+          ),
+          notifications_enabled_at = COALESCE(
+            arbify_user_activity.notifications_enabled_at,
+            EXCLUDED.notifications_enabled_at
+          ),
+          live_viewed_at = COALESCE(
+            arbify_user_activity.live_viewed_at,
+            EXCLUDED.live_viewed_at
+          ),
+          signals_created = GREATEST(
+            arbify_user_activity.signals_created,
+            EXCLUDED.signals_created
+          ),
+          updated_at = NOW()
+      `,
+      [
+        telegramId,
+        state.profile?.completed === true,
+        state.notifications?.enabled === true,
+        state.taskProgress
+          ?.viewedLiveSignals === true,
+        signalsCreated,
+      ]
+    );
+
+    await client.query(
+      `
+        UPDATE arbify_users
+        SET
+          pulse_balance = $2,
+          pulse_level = $3,
+          weekly_reward_claimed = $4,
+          rewards_migrated_at = NOW()
+        WHERE telegram_id = $1
+      `,
+      [
+        telegramId,
+        balance,
+        level,
+        rewardsRecord
+          .weeklyRewardClaimed === true,
+      ]
+    );
+
+    await client.query("COMMIT");
+  } catch (error) {
+    await client.query("ROLLBACK");
     throw error;
   } finally {
     client.release();
@@ -584,7 +904,37 @@ async function upsertTelegramUser(user) {
     ]
   );
 
-  return result.rows[0];
+  await pool.query(
+    `
+      INSERT INTO arbify_user_activity (
+        telegram_id
+      )
+      VALUES ($1)
+      ON CONFLICT (telegram_id)
+      DO NOTHING
+    `,
+    [
+      user.telegramId,
+    ]
+  );
+
+  await migrateLegacyRewardsForUser(
+    user.telegramId
+  );
+
+  const updatedResult = await pool.query(
+    `
+      SELECT *
+      FROM arbify_users
+      WHERE telegram_id = $1
+    `,
+    [
+      user.telegramId,
+    ]
+  );
+
+  return updatedResult.rows[0] ||
+    result.rows[0];
 }
 
 async function upsertBotUser(from) {
@@ -623,7 +973,7 @@ async function upsertBotUser(from) {
   });
 }
 
-async function getUserState(telegramId) {
+async function getRawUserState(telegramId) {
   const result = await pool.query(
     `
       SELECT state
@@ -636,6 +986,437 @@ async function getUserState(telegramId) {
   );
 
   return result.rows[0]?.state || {};
+}
+
+function getTaskProgressFromContext(
+  context
+) {
+  const favorites =
+    Array.isArray(context.state.favorites)
+      ? Array.from(
+          new Set(
+            context.state.favorites
+              .map((value) => {
+                return safeText(
+                  String(value || ""),
+                  128
+                );
+              })
+              .filter(Boolean)
+          )
+        )
+      : [];
+
+  return {
+    favoriteSlots: Math.min(
+      favorites.length,
+      3
+    ),
+    favoriteSlotsMaximum: 3,
+    createdSignalCount:
+      toSafeNonNegativeInteger(
+        context.activity
+          .signals_created,
+        100_000
+      ),
+    signalMaster: Math.min(
+      toSafeNonNegativeInteger(
+        context.activity
+          .signals_created,
+        100_000
+      ),
+      10
+    ),
+    signalMasterMaximum: 10,
+  };
+}
+
+async function getRewardContext(
+  telegramId,
+  queryable = pool
+) {
+  const result = await queryable.query(
+    `
+      SELECT
+        u.*,
+        s.state,
+        a.profile_completed_at,
+        a.notifications_enabled_at,
+        a.live_viewed_at,
+        a.responsible_guide_read_at,
+        a.signals_created,
+        a.last_signal_at
+      FROM arbify_users AS u
+      JOIN arbify_user_state AS s
+        ON s.telegram_id = u.telegram_id
+      LEFT JOIN arbify_user_activity AS a
+        ON a.telegram_id = u.telegram_id
+      WHERE u.telegram_id = $1
+    `,
+    [
+      telegramId,
+    ]
+  );
+
+  const row = result.rows[0];
+
+  if (!row) {
+    throw new ApiError(
+      404,
+      "User was not found"
+    );
+  }
+
+  const claimsResult =
+    await queryable.query(
+      `
+        SELECT
+          task_id,
+          reward,
+          claimed_at
+        FROM arbify_reward_claims
+        WHERE telegram_id = $1
+        ORDER BY claimed_at ASC
+      `,
+      [
+        telegramId,
+      ]
+    );
+
+  return {
+    user: row,
+    state:
+      row.state &&
+      typeof row.state === "object"
+        ? row.state
+        : {},
+    activity: row,
+    claims: claimsResult.rows,
+  };
+}
+
+async function isTelegramChannelMember(
+  telegramId
+) {
+  if (!TELEGRAM_CHANNEL_CHAT_ID) {
+    throw new ApiError(
+      503,
+      "Telegram channel verification is not configured",
+      {
+        code:
+          "CHANNEL_VERIFICATION_NOT_CONFIGURED",
+      }
+    );
+  }
+
+  const member = await telegramRequest(
+    "getChatMember",
+    {
+      chat_id:
+        TELEGRAM_CHANNEL_CHAT_ID,
+      user_id:
+        Number(telegramId),
+    }
+  );
+
+  if (
+    [
+      "creator",
+      "administrator",
+      "member",
+    ].includes(member.status)
+  ) {
+    return true;
+  }
+
+  return (
+    member.status === "restricted" &&
+    member.is_member === true
+  );
+}
+
+async function evaluateRewardTask(
+  taskId,
+  context,
+  {
+    checkExternal = false,
+  } = {}
+) {
+  const progress =
+    getTaskProgressFromContext(
+      context
+    );
+
+  if (taskId === "telegram-bot") {
+    return {
+      eligible: Boolean(
+        context.user.bot_started_at
+      ),
+      message:
+        "Спочатку запусти офіційного Telegram-бота.",
+    };
+  }
+
+  if (
+    taskId === "telegram-channel"
+  ) {
+    if (!checkExternal) {
+      return {
+        eligible: false,
+        message:
+          "Підписку буде перевірено після натискання кнопки.",
+      };
+    }
+
+    return {
+      eligible:
+        await isTelegramChannelMember(
+          context.user.telegram_id
+        ),
+      message:
+        "Підписку на Telegram-канал не знайдено.",
+    };
+  }
+
+  if (
+    taskId === "complete-profile"
+  ) {
+    return {
+      eligible: Boolean(
+        context.activity
+          .profile_completed_at ||
+          context.state.profile
+            ?.completed === true
+      ),
+      message:
+        "Спочатку відкрий і заповни сторінку профілю.",
+    };
+  }
+
+  if (taskId === "notifications") {
+    return {
+      eligible: Boolean(
+        context.activity
+          .notifications_enabled_at
+      ),
+      message:
+        "Спочатку дозволь сповіщення.",
+    };
+  }
+
+  if (taskId === "confirm-subid") {
+    return {
+      eligible: Boolean(
+        safeText(
+          context.state.subid,
+          128
+        )
+      ),
+      message:
+        "Спочатку підтвердь свій SUBID.",
+    };
+  }
+
+  if (taskId === "favorite-slots") {
+    return {
+      eligible:
+        progress.favoriteSlots >=
+        progress.favoriteSlotsMaximum,
+      message:
+        `Додано ${progress.favoriteSlots} із ` +
+        `${progress.favoriteSlotsMaximum} слотів.`,
+    };
+  }
+
+  if (taskId === "first-signal") {
+    return {
+      eligible:
+        context.activity
+          .signals_created >= 1,
+      message:
+        "Спочатку створи свій перший сигнал.",
+    };
+  }
+
+  if (taskId === "view-live") {
+    return {
+      eligible: Boolean(
+        context.activity.live_viewed_at
+      ),
+      message:
+        "Спочатку відкрий сторінку LIVE-сигналів.",
+    };
+  }
+
+  if (
+    taskId === "responsible-guide"
+  ) {
+    return {
+      eligible: Boolean(
+        context.activity
+          .responsible_guide_read_at
+      ),
+      message:
+        "Спочатку прочитай правила відповідальної гри.",
+    };
+  }
+
+  if (taskId === "signal-master") {
+    return {
+      eligible:
+        progress.signalMaster >=
+        progress.signalMasterMaximum,
+      message:
+        `Створено ${progress.signalMaster} із ` +
+        `${progress.signalMasterMaximum} сигналів.`,
+    };
+  }
+
+  return {
+    eligible: false,
+    message:
+      "Завдання не знайдено.",
+  };
+}
+
+async function createRewardsSnapshot(
+  telegramId,
+  {
+    externallyVerifiedTaskId = null,
+  } = {}
+) {
+  const context =
+    await getRewardContext(
+      telegramId
+    );
+
+  const claimedTasks = new Map(
+    context.claims.map((claim) => {
+      return [
+        claim.task_id,
+        claim,
+      ];
+    })
+  );
+
+  const tasks = {};
+
+  for (
+    const [taskId, definition] of
+    Object.entries(REWARD_TASKS)
+  ) {
+    const claim =
+      claimedTasks.get(taskId);
+
+    if (claim) {
+      tasks[taskId] = {
+        status: "completed",
+        completedAt:
+          new Date(
+            claim.claimed_at
+          ).getTime(),
+      };
+
+      continue;
+    }
+
+    const verification =
+      await evaluateRewardTask(
+        taskId,
+        context,
+        {
+          checkExternal:
+            taskId ===
+              externallyVerifiedTaskId,
+        }
+      );
+
+    tasks[taskId] = {
+      status:
+        verification.eligible
+          ? "claimable"
+          : definition.defaultStatus,
+    };
+  }
+
+  const balance =
+    toSafeNonNegativeInteger(
+      context.user.pulse_balance
+    );
+
+  const level =
+    calculatePulseLevel(balance);
+
+  return {
+    balance,
+    level,
+    highestLevel: level,
+    unlockedLevelRewards:
+      getPulseUnlocks(level),
+    weeklyProgress: Math.min(
+      context.claims.length,
+      7
+    ),
+    weeklyRewardClaimed:
+      context.user
+        .weekly_reward_claimed === true,
+    tasks,
+    progress:
+      getTaskProgressFromContext(
+        context
+      ),
+    taskNoticeIds: [],
+  };
+}
+
+function createLegacyRewardsState(
+  rewards
+) {
+  return {
+    pulseBalance: rewards.balance,
+    pulseLevel: rewards.level,
+    pulseUnlocks:
+      rewards.unlockedLevelRewards,
+    completedTasks: rewards.tasks,
+    taskProgress: {
+      rewards: {
+        highestLevel:
+          rewards.highestLevel,
+        weeklyProgress:
+          rewards.weeklyProgress,
+        weeklyRewardClaimed:
+          rewards.weeklyRewardClaimed,
+        progress: rewards.progress,
+        taskNoticeIds:
+          rewards.taskNoticeIds,
+      },
+      createdSignalCount:
+        rewards.progress
+          .createdSignalCount,
+      viewedLiveSignals:
+        rewards.tasks["view-live"]
+          ?.status !== "available",
+    },
+  };
+}
+
+async function getUserState(telegramId) {
+  const rawState =
+    await getRawUserState(
+      telegramId
+    );
+
+  const rewards =
+    await createRewardsSnapshot(
+      telegramId
+    );
+
+  return {
+    ...rawState,
+    ...createLegacyRewardsState(
+      rewards
+    ),
+  };
 }
 
 function serializeUser(user, state) {
@@ -927,11 +1708,15 @@ async function handleStateSave(
         ]
       );
 
+    const state =
+      await getUserState(
+        user.telegram_id
+      );
+
     sendJson(response, 200, {
       ok: true,
 
-      state:
-        result.rows[0]?.state || {},
+      state,
 
       updatedAt:
         result.rows[0]?.updated_at ||
@@ -942,6 +1727,486 @@ async function handleStateSave(
       response,
       error
     );
+  }
+}
+
+async function requireActivatedUser(
+  body
+) {
+  const user =
+    await authenticateRequest(body);
+
+  if (!user.access_granted) {
+    throw new ApiError(
+      403,
+      "Access has not been activated"
+    );
+  }
+
+  return user;
+}
+
+async function handleRewardsStatus(
+  request,
+  response
+) {
+  try {
+    const body =
+      await readJsonBody(request);
+
+    const user =
+      await requireActivatedUser(body);
+
+    const rewards =
+      await createRewardsSnapshot(
+        user.telegram_id
+      );
+
+    sendJson(response, 200, {
+      ok: true,
+      rewards,
+    });
+  } catch (error) {
+    sendApiError(response, error);
+  }
+}
+
+async function handleRewardVerification(
+  request,
+  response
+) {
+  try {
+    const body =
+      await readJsonBody(request);
+
+    const user =
+      await requireActivatedUser(body);
+
+    const taskId = safeText(
+      body.taskId,
+      64
+    );
+
+    if (
+      !taskId ||
+      !REWARD_TASKS[taskId]
+    ) {
+      throw new ApiError(
+        404,
+        "Reward task was not found"
+      );
+    }
+
+    const context =
+      await getRewardContext(
+        user.telegram_id
+      );
+
+    const alreadyClaimed =
+      context.claims.some((claim) => {
+        return claim.task_id === taskId;
+      });
+
+    if (!alreadyClaimed) {
+      const verification =
+        await evaluateRewardTask(
+          taskId,
+          context,
+          {
+            checkExternal: true,
+          }
+        );
+
+      if (!verification.eligible) {
+        throw new ApiError(
+          409,
+          verification.message,
+          {
+            code:
+              "TASK_NOT_COMPLETED",
+            taskId,
+          }
+        );
+      }
+    }
+
+    const rewards =
+      await createRewardsSnapshot(
+        user.telegram_id,
+        {
+          externallyVerifiedTaskId:
+            taskId,
+        }
+      );
+
+    sendJson(response, 200, {
+      ok: true,
+      eligible: true,
+      taskId,
+      rewards,
+    });
+  } catch (error) {
+    sendApiError(response, error);
+  }
+}
+
+async function handleRewardClaim(
+  request,
+  response
+) {
+  let client;
+
+  try {
+    const body =
+      await readJsonBody(request);
+
+    const user =
+      await requireActivatedUser(body);
+
+    const taskId = safeText(
+      body.taskId,
+      64
+    );
+
+    const definition =
+      REWARD_TASKS[taskId];
+
+    if (!taskId || !definition) {
+      throw new ApiError(
+        404,
+        "Reward task was not found"
+      );
+    }
+
+    const context =
+      await getRewardContext(
+        user.telegram_id
+      );
+
+    const alreadyClaimed =
+      context.claims.some((claim) => {
+        return claim.task_id === taskId;
+      });
+
+    if (!alreadyClaimed) {
+      const verification =
+        await evaluateRewardTask(
+          taskId,
+          context,
+          {
+            checkExternal: true,
+          }
+        );
+
+      if (!verification.eligible) {
+        throw new ApiError(
+          409,
+          verification.message,
+          {
+            code:
+              "TASK_NOT_COMPLETED",
+            taskId,
+          }
+        );
+      }
+    }
+
+    client = await pool.connect();
+    await client.query("BEGIN");
+
+    const lockedResult =
+      await client.query(
+        `
+          SELECT
+            pulse_balance,
+            weekly_reward_claimed
+          FROM arbify_users
+          WHERE telegram_id = $1
+          FOR UPDATE
+        `,
+        [
+          user.telegram_id,
+        ]
+      );
+
+    const lockedUser =
+      lockedResult.rows[0];
+
+    if (!lockedUser) {
+      throw new ApiError(
+        404,
+        "User was not found"
+      );
+    }
+
+    const claimResult =
+      await client.query(
+        `
+          INSERT INTO arbify_reward_claims (
+            telegram_id,
+            task_id,
+            reward
+          )
+          VALUES ($1, $2, $3)
+          ON CONFLICT (telegram_id, task_id)
+          DO NOTHING
+          RETURNING task_id
+        `,
+        [
+          user.telegram_id,
+          taskId,
+          definition.reward,
+        ]
+      );
+
+    const newlyClaimed =
+      claimResult.rowCount === 1;
+
+    let receivedReward = 0;
+    let weeklyRewardReceived = 0;
+
+    if (newlyClaimed) {
+      receivedReward =
+        definition.reward;
+
+      const countResult =
+        await client.query(
+          `
+            SELECT COUNT(*)::INTEGER AS count
+            FROM arbify_reward_claims
+            WHERE telegram_id = $1
+          `,
+          [
+            user.telegram_id,
+          ]
+        );
+
+      const completedCount =
+        Number(
+          countResult.rows[0]?.count
+        ) || 0;
+
+      if (
+        completedCount >= 7 &&
+        !lockedUser
+          .weekly_reward_claimed
+      ) {
+        weeklyRewardReceived =
+          WEEKLY_REWARD;
+      }
+
+      const newBalance =
+        toSafeNonNegativeInteger(
+          lockedUser.pulse_balance
+        ) +
+        receivedReward +
+        weeklyRewardReceived;
+
+      await client.query(
+        `
+          UPDATE arbify_users
+          SET
+            pulse_balance = $2,
+            pulse_level = $3,
+            weekly_reward_claimed =
+              CASE
+                WHEN $4 > 0 THEN TRUE
+                ELSE weekly_reward_claimed
+              END,
+            last_seen_at = NOW()
+          WHERE telegram_id = $1
+        `,
+        [
+          user.telegram_id,
+          newBalance,
+          calculatePulseLevel(
+            newBalance
+          ),
+          weeklyRewardReceived,
+        ]
+      );
+    }
+
+    await client.query("COMMIT");
+    client.release();
+    client = null;
+
+    const rewards =
+      await createRewardsSnapshot(
+        user.telegram_id
+      );
+
+    sendJson(response, 200, {
+      ok: true,
+      taskId,
+      newlyClaimed,
+      receivedReward,
+      weeklyRewardReceived,
+      rewards,
+    });
+  } catch (error) {
+    if (client) {
+      await client.query("ROLLBACK")
+        .catch(() => {});
+    }
+
+    sendApiError(response, error);
+  } finally {
+    client?.release();
+  }
+}
+
+async function handleActivityRecord(
+  request,
+  response
+) {
+  try {
+    const body =
+      await readJsonBody(request);
+
+    const user =
+      await requireActivatedUser(body);
+
+    const activityType = safeText(
+      body.type,
+      64
+    );
+
+    let activityRecorded = true;
+
+    if (
+      activityType ===
+      "profile-completed"
+    ) {
+      await pool.query(
+        `
+          UPDATE arbify_user_activity
+          SET
+            profile_completed_at = COALESCE(
+              profile_completed_at,
+              NOW()
+            ),
+            updated_at = NOW()
+          WHERE telegram_id = $1
+        `,
+        [
+          user.telegram_id,
+        ]
+      );
+    } else if (
+      activityType ===
+      "notifications-enabled"
+    ) {
+      if (
+        body.payload?.permission !==
+        "granted"
+      ) {
+        throw new ApiError(
+          400,
+          "Notification permission is not granted"
+        );
+      }
+
+      await pool.query(
+        `
+          UPDATE arbify_user_activity
+          SET
+            notifications_enabled_at = COALESCE(
+              notifications_enabled_at,
+              NOW()
+            ),
+            updated_at = NOW()
+          WHERE telegram_id = $1
+        `,
+        [
+          user.telegram_id,
+        ]
+      );
+    } else if (
+      activityType === "live-viewed"
+    ) {
+      await pool.query(
+        `
+          UPDATE arbify_user_activity
+          SET
+            live_viewed_at = COALESCE(
+              live_viewed_at,
+              NOW()
+            ),
+            updated_at = NOW()
+          WHERE telegram_id = $1
+        `,
+        [
+          user.telegram_id,
+        ]
+      );
+    } else if (
+      activityType ===
+      "responsible-guide-read"
+    ) {
+      await pool.query(
+        `
+          UPDATE arbify_user_activity
+          SET
+            responsible_guide_read_at = COALESCE(
+              responsible_guide_read_at,
+              NOW()
+            ),
+            updated_at = NOW()
+          WHERE telegram_id = $1
+        `,
+        [
+          user.telegram_id,
+        ]
+      );
+    } else if (
+      activityType ===
+      "signal-created"
+    ) {
+      const result = await pool.query(
+        `
+          UPDATE arbify_user_activity
+          SET
+            signals_created =
+              signals_created + 1,
+            last_signal_at = NOW(),
+            updated_at = NOW()
+          WHERE telegram_id = $1
+            AND (
+              last_signal_at IS NULL OR
+              last_signal_at <=
+                NOW() -
+                ($2 * INTERVAL '1 second')
+            )
+          RETURNING signals_created
+        `,
+        [
+          user.telegram_id,
+          SIGNAL_ACTIVITY_COOLDOWN_SECONDS,
+        ]
+      );
+
+      activityRecorded =
+        result.rowCount === 1;
+    } else {
+      throw new ApiError(
+        400,
+        "Unsupported activity type"
+      );
+    }
+
+    const rewards =
+      await createRewardsSnapshot(
+        user.telegram_id
+      );
+
+    sendJson(response, 200, {
+      ok: true,
+      activityRecorded,
+      rewards,
+    });
+  } catch (error) {
+    sendApiError(response, error);
   }
 }
 
@@ -1054,6 +2319,24 @@ async function processTelegramUpdate(update) {
   if (
     launchCommands.has(command)
   ) {
+    if (message.from?.id) {
+      await pool.query(
+        `
+          UPDATE arbify_users
+          SET
+            bot_started_at = COALESCE(
+              bot_started_at,
+              NOW()
+            ),
+            last_seen_at = NOW()
+          WHERE telegram_id = $1
+        `,
+        [
+          String(message.from.id),
+        ]
+      );
+    }
+
     await sendLaunchMessage(
       chatId
     );
@@ -1270,6 +2553,58 @@ const server = http.createServer(
         "/api/state/save"
     ) {
       await handleStateSave(
+        request,
+        response
+      );
+
+      return;
+    }
+
+    if (
+      request.method === "POST" &&
+      requestUrl.pathname ===
+        "/api/rewards/status"
+    ) {
+      await handleRewardsStatus(
+        request,
+        response
+      );
+
+      return;
+    }
+
+    if (
+      request.method === "POST" &&
+      requestUrl.pathname ===
+        "/api/rewards/verify"
+    ) {
+      await handleRewardVerification(
+        request,
+        response
+      );
+
+      return;
+    }
+
+    if (
+      request.method === "POST" &&
+      requestUrl.pathname ===
+        "/api/rewards/claim"
+    ) {
+      await handleRewardClaim(
+        request,
+        response
+      );
+
+      return;
+    }
+
+    if (
+      request.method === "POST" &&
+      requestUrl.pathname ===
+        "/api/activity/record"
+    ) {
+      await handleActivityRecord(
         request,
         response
       );
