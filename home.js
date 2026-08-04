@@ -10,6 +10,10 @@ const slotGrid = document.querySelector(".slot-grid");
 const signalButton = document.querySelector("#signalButton");
 const notificationButton = document.querySelector("#notificationButton");
 const allSlotsButton = document.querySelector("#allSlotsButton");
+const allSlotsOverlay = document.querySelector("#allSlotsOverlay");
+const allSlotsBackButton = document.querySelector("#allSlotsBackButton");
+const allSlotsGrid = document.querySelector("#allSlotsGrid");
+const allSlotsCount = document.querySelector("#allSlotsCount");
 const navItems = document.querySelectorAll(".nav-item");
 const toast = document.querySelector("#toast");
 const toastText = document.querySelector("#toastText");
@@ -341,6 +345,107 @@ function createSlotCard(slot, index) {
   return card;
 }
 
+function renderAllSlotsCatalog() {
+  if (!allSlotsGrid) {
+    return;
+  }
+
+  const fragment =
+    document.createDocumentFragment();
+
+  slotCatalog.forEach((slot) => {
+    const card = createSlotCard(slot, -1);
+
+    card.addEventListener(
+      "click",
+      async () => {
+        if (!(await ensureHomeReady())) {
+          return;
+        }
+
+        applySelectedSlot(slot.name);
+
+        showToast(
+          `${slot.name} обрано`
+        );
+
+        void persistStatePatch({
+          selectedSlot: slot.name,
+        });
+
+        closeAllSlotsOverlay();
+      }
+    );
+
+    fragment.appendChild(card);
+  });
+
+  allSlotsGrid.replaceChildren(fragment);
+
+  if (allSlotsCount) {
+    allSlotsCount.textContent =
+      String(slotCatalog.length);
+  }
+}
+
+function openAllSlotsOverlay() {
+  if (!allSlotsOverlay) {
+    return;
+  }
+
+  window.clearTimeout(toastTimer);
+  toast.classList.remove("is-visible");
+
+  applyAllSlotsSelection();
+  allSlotsOverlay.hidden = false;
+
+  document.body.classList.add(
+    "all-slots-open"
+  );
+
+  window.requestAnimationFrame(() => {
+    allSlotsOverlay.classList.add(
+      "is-open"
+    );
+  });
+}
+
+function closeAllSlotsOverlay() {
+  if (!allSlotsOverlay) {
+    return;
+  }
+
+  allSlotsOverlay.classList.remove(
+    "is-open"
+  );
+
+  document.body.classList.remove(
+    "all-slots-open"
+  );
+
+  window.setTimeout(() => {
+    allSlotsOverlay.hidden = true;
+  }, 220);
+}
+
+function applyAllSlotsSelection() {
+  if (!allSlotsGrid) {
+    return;
+  }
+
+  const selectedName =
+    getSelectedSlot().name;
+
+  allSlotsGrid
+    .querySelectorAll(".slot-card")
+    .forEach((card) => {
+      card.classList.toggle(
+        "is-selected",
+        card.dataset.slot === selectedName
+      );
+    });
+}
+
 function renderSlotCatalog() {
   if (!slotGrid) {
     return;
@@ -386,9 +491,10 @@ const scanStages = [
 ];
 
 renderSlotCatalog();
+renderAllSlotsCatalog();
 
 const slotCards =
-  document.querySelectorAll(".slot-card");
+  slotGrid.querySelectorAll(".slot-card");
 
 let toastTimer;
 let subIdVerifyTimer;
@@ -1391,32 +1497,19 @@ notificationButton.addEventListener(
 
 allSlotsButton.addEventListener(
   "click",
-  () => {
-    if (!slotGrid) {
+  async () => {
+    if (!(await ensureHomeReady())) {
       return;
     }
 
-    const maxScrollLeft =
-      slotGrid.scrollWidth -
-      slotGrid.clientWidth;
+    openAllSlotsOverlay();
+  }
+);
 
-    const reachedEnd =
-      maxScrollLeft <= 1 ||
-      slotGrid.scrollLeft >=
-        maxScrollLeft - 4;
-
-    const nextPosition = reachedEnd
-      ? 0
-      : Math.min(
-          slotGrid.scrollLeft +
-            slotGrid.clientWidth,
-          maxScrollLeft
-        );
-
-    slotGrid.scrollTo({
-      left: nextPosition,
-      behavior: "smooth",
-    });
+allSlotsBackButton.addEventListener(
+  "click",
+  () => {
+    closeAllSlotsOverlay();
   }
 );
 
@@ -1451,6 +1544,14 @@ navItems.forEach((item) => {
 document.addEventListener(
   "keydown",
   (event) => {
+    if (
+      event.key === "Escape" &&
+      !allSlotsOverlay.hidden
+    ) {
+      closeAllSlotsOverlay();
+      return;
+    }
+
     if (
       event.key === "Escape" &&
       !subIdModal.hidden
