@@ -3193,3 +3193,189 @@ body.subid-modal-open .subid-modal-backdrop {
   position: relative;
   z-index: 2;
 }
+
+/* =========================================================
+   ПОВНИЙ КАТАЛОГ СЛОТІВ — КНОПКА «УСІ»
+   ========================================================= */
+
+.all-slots-overlay[hidden] {
+  display: none !important;
+}
+
+.all-slots-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #f8f7ff;
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(128, 41, 220, 0.16),
+      transparent 31%
+    ),
+    linear-gradient(
+      180deg,
+      #06070d 0%,
+      #020309 58%,
+      #04050a 100%
+    );
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px);
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
+}
+
+.all-slots-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.all-slots-header {
+  position: relative;
+  z-index: 2;
+  min-height: calc(78px + env(safe-area-inset-top));
+  padding:
+    max(12px, env(safe-area-inset-top))
+    18px
+    12px;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 42px;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.065);
+  background: rgba(6, 7, 13, 0.92);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.all-slots-header > div {
+  min-width: 0;
+  text-align: center;
+}
+
+.all-slots-header p {
+  margin: 0;
+  color: #9467bb;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+}
+
+.all-slots-header h2 {
+  margin: 5px 0 0;
+  color: #f5f2f8;
+  font-size: 18px;
+  font-weight: 680;
+  letter-spacing: -0.02em;
+}
+
+.all-slots-back-button {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 50%;
+  color: #d7d4de;
+  background: rgba(11, 12, 20, 0.82);
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease;
+}
+
+.all-slots-back-button:active {
+  transform: scale(0.93);
+}
+
+.all-slots-back-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.all-slots-count {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  justify-self: end;
+  border: 1px solid rgba(185, 92, 255, 0.22);
+  border-radius: 50%;
+  color: #c98cff;
+  background: rgba(141, 66, 255, 0.08);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.all-slots-content {
+  min-height: 0;
+  padding:
+    18px
+    18px
+    max(24px, env(safe-area-inset-bottom));
+  flex: 1 1 auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.all-slots-content::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.all-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px 10px;
+  padding-bottom: 8px;
+}
+
+.all-slots-grid .slot-card {
+  scroll-snap-align: none;
+}
+
+.all-slots-grid .slot-name {
+  margin-top: 7px;
+  font-size: 9px;
+  text-align: center;
+}
+
+body.all-slots-open .topbar,
+body.all-slots-open .content,
+body.all-slots-open .bottom-nav {
+  pointer-events: none;
+}
+
+@media (max-height: 700px) and (max-width: 559px) {
+  .all-slots-header {
+    min-height: calc(66px + env(safe-area-inset-top));
+    padding-bottom: 8px;
+  }
+
+  .all-slots-content {
+    padding-top: 14px;
+  }
+
+  .all-slots-grid {
+    gap: 13px 10px;
+  }
+}
+
+@media (min-width: 560px) {
+  .all-slots-overlay {
+    border-radius: 23px;
+  }
+}
