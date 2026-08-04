@@ -116,6 +116,31 @@ let bannerTimer;
 
 const cardElements = new Map();
 
+async function recordLiveViewActivity() {
+  const api = window.ARBIFY_API;
+
+  if (!api?.isTelegramMiniApp?.()) {
+    return;
+  }
+
+  try {
+    const user = await api.ready;
+
+    if (!user?.accessGranted) {
+      return;
+    }
+
+    await api.recordActivity(
+      "live-viewed"
+    );
+  } catch (error) {
+    console.error(
+      "LIVE activity save error:",
+      error.message
+    );
+  }
+}
+
 let liveCounters = {
   totalCreated: 0,
   totalWon: 0,
@@ -1386,6 +1411,8 @@ function initializePage() {
      * навіть якщо сховище недоступне.
      */
   }
+
+  void recordLiveViewActivity();
 
   setAppHeight();
   prepareSignals();
