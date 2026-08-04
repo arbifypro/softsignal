@@ -9,6 +9,13 @@ const TOAST_DURATION = 2600;
 const REWARD_TOAST_DURATION = 2800;
 const WEEKLY_REWARD = 300;
 
+/*
+ * Навіть якщо база відповідає миттєво, індикатор завантаження
+ * залишається видимим достатньо довго, щоб перехід виглядав плавно.
+ */
+const MIN_BALANCE_LOADING_DURATION = 800;
+const BALANCE_REVEAL_DURATION = 380;
+
 const VERIFIED_SUBID_KEY = "arbifyVerifiedSubId";
 const LAST_SIGNAL_KEY = "arbifyLastSignal";
 const VIEWED_LIVE_KEY = "arbifyViewedLiveSignals";
@@ -225,6 +232,104 @@ function setBalanceLoadingState(
     levelProgressTrack.setAttribute(
       "aria-valuenow",
       "0"
+    );
+  }
+}
+
+function waitForMinimumBalanceLoading(
+  startedAt
+) {
+  const elapsed =
+    performance.now() - startedAt;
+
+  const remainingTime = Math.max(
+    MIN_BALANCE_LOADING_DURATION - elapsed,
+    0
+  );
+
+  if (remainingTime === 0) {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve) => {
+    window.setTimeout(
+      resolve,
+      remainingTime
+    );
+  });
+}
+
+function revealLoadedBalance() {
+  renderBalance();
+
+  const prefersReducedMotion =
+    window.matchMedia?.(
+      "(prefers-reduced-motion: reduce)"
+    ).matches === true;
+
+  if (prefersReducedMotion) {
+    return;
+  }
+
+  const dynamicElements = [
+    pulseBalance,
+    levelBadge,
+    levelProgressValue,
+  ];
+
+  dynamicElements.forEach((element) => {
+    if (
+      !element ||
+      typeof element.animate !== "function"
+    ) {
+      return;
+    }
+
+    element.animate(
+      [
+        {
+          opacity: 0,
+          transform: "translateY(5px)",
+          filter: "blur(3px)",
+        },
+        {
+          opacity: 1,
+          transform: "translateY(0)",
+          filter: "blur(0)",
+        },
+      ],
+      {
+        duration: BALANCE_REVEAL_DURATION,
+        easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+        fill: "both",
+      }
+    );
+  });
+
+  if (
+    levelProgressBar &&
+    typeof levelProgressBar.animate ===
+      "function"
+  ) {
+    levelProgressBar.animate(
+      [
+        {
+          opacity: 0.35,
+          transform: "scaleX(0)",
+          transformOrigin: "left center",
+        },
+        {
+          opacity: 1,
+          transform: "scaleX(1)",
+          transformOrigin: "left center",
+        },
+      ],
+      {
+        duration:
+          BALANCE_REVEAL_DURATION + 220,
+        easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+        fill: "both",
+      }
     );
   }
 }
@@ -3079,6 +3184,9 @@ function initializeRewardsPage() {
 
   rewardsInitializationPromise =
     (async () => {
+      const loadingStartedAt =
+        performance.now();
+
       document.documentElement
         .dataset.rewardsState =
         "loading";
@@ -3105,7 +3213,11 @@ function initializeRewardsPage() {
           notify: true,
         });
 
-        renderBalance();
+        await waitForMinimumBalanceLoading(
+          loadingStartedAt
+        );
+
+        revealLoadedBalance();
         renderAllTasks();
         renderWeeklyProgress();
         updateTaskCountdown();
