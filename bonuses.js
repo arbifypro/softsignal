@@ -703,120 +703,23 @@ function createRewardsStateFromDatabase(
 }
 
 function createRewardsDatabasePatch() {
-  const existingTaskProgress =
-    rewardsDatabaseState
-      .taskProgress &&
-    typeof rewardsDatabaseState
-      .taskProgress === "object"
-      ? rewardsDatabaseState
-          .taskProgress
-      : {};
-
-  return {
-    pulseBalance:
-      rewardsState.balance,
-
-    pulseLevel:
-      rewardsState.level,
-
-    pulseUnlocks:
-      rewardsState
-        .unlockedLevelRewards,
-
-    completedTasks:
-      rewardsState.tasks,
-
-    taskProgress: {
-      ...existingTaskProgress,
-
-      rewards: {
-        highestLevel:
-          rewardsState.highestLevel,
-
-        weeklyProgress:
-          rewardsState
-            .weeklyProgress,
-
-        weeklyRewardClaimed:
-          rewardsState
-            .weeklyRewardClaimed,
-
-        progress:
-          rewardsState.progress,
-
-        taskNoticeIds:
-          rewardsState.taskNoticeIds,
-      },
-    },
-  };
+  /*
+   * Баланс, рівні, статуси завдань і нагороди
+   * більше ніколи не надсилаються із клієнта.
+   * Єдиним джерелом цих даних є сервер.
+   */
+  return {};
 }
 
 function persistRewardsState({
   required = false,
 } = {}) {
-  if (!rewardsDatabaseReady) {
-    return Promise.resolve(
-      rewardsDatabaseState
-    );
-  }
+  void required;
+  void createRewardsDatabasePatch();
 
-  const statePatch =
-    createRewardsDatabasePatch();
-
-  rewardsDatabaseState = {
-    ...rewardsDatabaseState,
-    ...statePatch,
-  };
-
-  const operation =
-    rewardsSaveQueue
-      .catch(() => {
-        return rewardsDatabaseState;
-      })
-      .then(async () => {
-        const api =
-          getArbifyApi();
-
-        const savedState =
-          await api.saveState(
-            statePatch
-          );
-
-        rewardsDatabaseState = {
-          ...savedState,
-        };
-
-        rewardsSaveErrorWasShown =
-          false;
-
-        return rewardsDatabaseState;
-      });
-
-  rewardsSaveQueue =
-    operation.catch((error) => {
-      console.error(
-        "Rewards state save error:",
-        error.message
-      );
-
-      if (
-        !required &&
-        !rewardsSaveErrorWasShown
-      ) {
-        rewardsSaveErrorWasShown =
-          true;
-
-        showToast(
-          "Не вдалося синхронізувати прогрес"
-        );
-      }
-
-      return rewardsDatabaseState;
-    });
-
-  return required
-    ? operation
-    : rewardsSaveQueue;
+  return Promise.resolve(
+    rewardsDatabaseState
+  );
 }
 
 function saveRewardsState() {
@@ -977,6 +880,43 @@ function readLegacyTaskNoticeIds() {
   }
 }
 
+function applyServerRewardsSnapshot(
+  serverRewards
+) {
+  const cachedNoticeIds =
+    Array.from(
+      new Set([
+        ...(
+          Array.isArray(
+            rewardsState.taskNoticeIds
+          )
+            ? rewardsState
+                .taskNoticeIds
+            : []
+        ),
+        ...readLegacyTaskNoticeIds(),
+      ])
+    );
+
+  rewardsState =
+    normalizeRewardsState({
+      ...(serverRewards || {}),
+      taskNoticeIds:
+        cachedNoticeIds,
+    });
+
+  const api = getArbifyApi();
+
+  rewardsDatabaseState = {
+    ...(api.getCurrentState() || {}),
+  };
+
+  restoreDatabaseCompatibilityState();
+  saveLocalRewardsSnapshot();
+
+  return rewardsState;
+}
+
 async function initializeRewardsDatabase() {
   const api = getArbifyApi();
 
@@ -1043,41 +983,12 @@ async function initializeRewardsDatabase() {
 
   rewardsDatabaseReady = true;
 
-  const localRewardsState =
-    normalizeRewardsState(
-      rewardsState
-    );
+  const serverRewards =
+    await api.getRewards();
 
-  localRewardsState.taskNoticeIds =
-    Array.from(
-      new Set([
-        ...localRewardsState
-          .taskNoticeIds,
-
-        ...readLegacyTaskNoticeIds(),
-      ])
-    );
-
-  if (
-    hasDatabaseRewardsState(
-      rewardsDatabaseState
-    )
-  ) {
-    rewardsState =
-      createRewardsStateFromDatabase(
-        rewardsDatabaseState
-      );
-  } else {
-    rewardsState =
-      localRewardsState;
-
-    await persistRewardsState({
-      required: true,
-    });
-  }
-
-  restoreDatabaseCompatibilityState();
-  saveLocalRewardsSnapshot();
+  applyServerRewardsSnapshot(
+    serverRewards
+  );
 
   return true;
 }
@@ -2292,7 +2203,7 @@ function getTaskVerificationResult(
   };
 }
 
-function verifyTask(taskId) {
+async function verifyTask(taskId) {
   const meta =
     taskMeta.get(taskId);
 
@@ -2313,55 +2224,113 @@ function verifyTask(taskId) {
 
   openVerificationOverlay(taskId);
 
-  verificationTimer =
-    window.setTimeout(() => {
-      const record =
-        getTaskRecord(taskId);
+  const api = getArbifyApi();
 
-      const result =
-        getTaskVerificationResult(
-          taskId
-        );
+  if (!api.isTelegramMiniApp()) {
+    verificationTimer =
+      window.setTimeout(() => {
+        const record =
+          getTaskRecord(taskId);
 
-      if (!result.valid) {
+        const result =
+          getTaskVerificationResult(
+            taskId
+          );
+
+        if (!result.valid) {
+          record.status =
+            "checkable";
+
+          saveRewardsState();
+          renderTask(taskId);
+          renderTaskProgress();
+
+          setTaskMessage(
+            taskId,
+            result.message,
+            "is-error"
+          );
+
+          showVerificationFailure(
+            taskId,
+            result.message
+          );
+
+          return;
+        }
+
         record.status =
-          "checkable";
+          "claimable";
+
+        record.verifiedAt =
+          Date.now();
 
         saveRewardsState();
         renderTask(taskId);
         renderTaskProgress();
 
-        setTaskMessage(
-          taskId,
-          result.message,
-          "is-error"
+        showVerificationSuccess(
+          taskId
         );
+      }, VERIFICATION_DELAY);
 
-        showVerificationFailure(
-          taskId,
-          result.message
+    return;
+  }
+
+  const animationDelay =
+    new Promise((resolve) => {
+      verificationTimer =
+        window.setTimeout(
+          resolve,
+          VERIFICATION_DELAY
         );
+    });
 
-        return;
-      }
+  try {
+    const verificationRequest =
+      api.verifyRewardTask(taskId);
 
-      record.status =
-        "claimable";
+    const [result] =
+      await Promise.all([
+        verificationRequest,
+        animationDelay,
+      ]);
 
-      record.verifiedAt =
-        Date.now();
+    applyServerRewardsSnapshot(
+      result.rewards
+    );
 
-      saveRewardsState();
-      renderTask(taskId);
-      renderTaskProgress();
+    renderAllTasks();
+    renderWeeklyProgress();
+    renderTaskProgress();
 
-      showVerificationSuccess(
-        taskId
-      );
-    }, VERIFICATION_DELAY);
+    showVerificationSuccess(
+      taskId
+    );
+  } catch (error) {
+    await animationDelay;
+
+    renderTask(taskId);
+    renderTaskProgress();
+
+    const message =
+      error?.message ||
+      "Завдання ще не виконано";
+
+    setTaskMessage(
+      taskId,
+      message,
+      "is-error"
+    );
+
+    showVerificationFailure(
+      taskId,
+      message
+    );
+  }
 }
 
-function claimTaskReward(taskId) {
+async function claimTaskReward(taskId) {
   const meta =
     taskMeta.get(taskId);
 
@@ -2377,6 +2346,125 @@ function claimTaskReward(taskId) {
 
   const previousBalance =
     rewardsState.balance;
+
+  const api = getArbifyApi();
+
+  if (api.isTelegramMiniApp()) {
+    meta.button.disabled = true;
+    meta.button.textContent =
+      "ЗАРАХУВАННЯ...";
+
+    try {
+      const weeklyRewardWasClaimed =
+        rewardsState
+          .weeklyRewardClaimed;
+
+      const result =
+        await api.claimRewardTask(
+          taskId
+        );
+
+      applyServerRewardsSnapshot(
+        result.rewards
+      );
+
+      renderAllTasks();
+      renderWeeklyProgress();
+      renderTaskProgress();
+
+      animateBalance(
+        previousBalance,
+        rewardsState.balance
+      );
+
+      const receivedReward =
+        Number(
+          result.receivedReward
+        ) || 0;
+
+      const weeklyRewardReceived =
+        Number(
+          result.weeklyRewardReceived
+        ) || 0;
+
+      if (receivedReward > 0) {
+        showRewardToast(
+          receivedReward +
+            weeklyRewardReceived
+        );
+      }
+
+      closeVerificationOverlay();
+
+      window.setTimeout(() => {
+        if (weeklyRewardReceived > 0) {
+          showToast(
+            `Тижневу ціль виконано: +${weeklyRewardReceived} PULSE`
+          );
+
+          return;
+        }
+
+        if (result.newlyClaimed) {
+          showToast(
+            `Нагороду +${receivedReward} PULSE зараховано`
+          );
+        } else {
+          showToast(
+            "Цю нагороду вже було зараховано"
+          );
+        }
+      }, 300);
+
+      if (
+        result.newlyClaimed &&
+        receivedReward > 0
+      ) {
+        pulseUseNotifications(
+          (notificationsApi) => {
+            notificationsApi.addReward({
+              title:
+                "Нагороду зараховано",
+              reward:
+                receivedReward,
+              message:
+                `За виконання завдання «${meta.title}».`,
+            });
+
+            if (
+              !weeklyRewardWasClaimed &&
+              weeklyRewardReceived > 0
+            ) {
+              notificationsApi.addReward({
+                title:
+                  "Тижневу ціль виконано",
+                reward:
+                  weeklyRewardReceived,
+                message:
+                  "Виконано 7 завдань. Бонус уже додано до балансу.",
+              });
+            }
+          }
+        );
+      }
+    } catch (error) {
+      renderTask(taskId);
+
+      const message =
+        error?.message ||
+        "Не вдалося зарахувати нагороду";
+
+      setTaskMessage(
+        taskId,
+        message,
+        "is-error"
+      );
+
+      showToast(message);
+    }
+
+    return;
+  }
 
   record.status = "completed";
   record.completedAt = Date.now();
@@ -2510,6 +2598,33 @@ function prepareTaskForChecking(
   renderTask(taskId);
 }
 
+async function recordServerRewardActivity(
+  activityType,
+  payload = {}
+) {
+  const api = getArbifyApi();
+
+  if (!api.isTelegramMiniApp()) {
+    return null;
+  }
+
+  const result =
+    await api.recordActivity(
+      activityType,
+      payload
+    );
+
+  applyServerRewardsSnapshot(
+    result.rewards
+  );
+
+  renderAllTasks();
+  renderWeeklyProgress();
+  renderTaskProgress();
+
+  return result;
+}
+
 function openTelegramTask(taskId) {
   let username = "";
   let url = "";
@@ -2596,12 +2711,23 @@ async function enableNotificationsTask() {
       Notification.permission ===
       "granted"
     ) {
-      record.status = "claimable";
-      record.verifiedAt =
-        Date.now();
+      const api = getArbifyApi();
 
-      saveRewardsState();
-      renderTask(taskId);
+      if (api.isTelegramMiniApp()) {
+        await recordServerRewardActivity(
+          "notifications-enabled",
+          {
+            permission: "granted",
+          }
+        );
+      } else {
+        record.status = "claimable";
+        record.verifiedAt =
+          Date.now();
+
+        saveRewardsState();
+        renderTask(taskId);
+      }
 
       showToast(
         "Сповіщення вже дозволені"
@@ -2632,12 +2758,23 @@ async function enableNotificationsTask() {
         .requestPermission();
 
     if (permission === "granted") {
-      record.status = "claimable";
-      record.verifiedAt =
-        Date.now();
+      const api = getArbifyApi();
 
-      saveRewardsState();
-      renderTask(taskId);
+      if (api.isTelegramMiniApp()) {
+        await recordServerRewardActivity(
+          "notifications-enabled",
+          {
+            permission: "granted",
+          }
+        );
+      } else {
+        record.status = "claimable";
+        record.verifiedAt =
+          Date.now();
+
+        saveRewardsState();
+        renderTask(taskId);
+      }
 
       showToast(
         "Сповіщення успішно увімкнено"
@@ -2664,30 +2801,45 @@ async function enableNotificationsTask() {
   }
 }
 
-function navigateToTaskPage(
+async function navigateToTaskPage(
   taskId,
   pageUrl
 ) {
   prepareTaskForChecking(taskId);
 
   if (taskId === "view-live") {
-    sessionStorage.setItem(
-      VIEWED_LIVE_KEY,
-      "true"
-    );
+    const api = getArbifyApi();
 
-    rewardsDatabaseState = {
-      ...rewardsDatabaseState,
+    if (api.isTelegramMiniApp()) {
+      try {
+        await recordServerRewardActivity(
+          "live-viewed"
+        );
+      } catch (error) {
+        console.error(
+          "LIVE activity save error:",
+          error.message
+        );
+      }
+    } else {
+      sessionStorage.setItem(
+        VIEWED_LIVE_KEY,
+        "true"
+      );
 
-      taskProgress: {
-        ...(rewardsDatabaseState
-          .taskProgress || {}),
+      rewardsDatabaseState = {
+        ...rewardsDatabaseState,
 
-        viewedLiveSignals: true,
-      },
-    };
+        taskProgress: {
+          ...(rewardsDatabaseState
+            .taskProgress || {}),
 
-    saveRewardsState();
+          viewedLiveSignals: true,
+        },
+      };
+
+      saveRewardsState();
+    }
   }
 
   showToast(
@@ -2746,14 +2898,29 @@ function closeGuideOverlay() {
     }, 260);
 }
 
-function confirmResponsibleGuide() {
+async function confirmResponsibleGuide() {
   const taskId =
     "responsible-guide";
 
   const record =
     getTaskRecord(taskId);
 
-  if (
+  const api = getArbifyApi();
+
+  if (api.isTelegramMiniApp()) {
+    try {
+      await recordServerRewardActivity(
+        "responsible-guide-read"
+      );
+    } catch (error) {
+      showToast(
+        error?.message ||
+          "Не вдалося зберегти виконання"
+      );
+
+      return;
+    }
+  } else if (
     record.status !== "completed"
   ) {
     record.status = "claimable";
@@ -2896,6 +3063,17 @@ function updateTaskCountdown() {
 }
 
 function synchronizeExistingActivity() {
+  /*
+   * У Telegram усі статуси вже прийшли із сервера.
+   * Не дозволяємо локальному сховищу підмінити їх.
+   */
+  if (
+    getArbifyApi()
+      .isTelegramMiniApp()
+  ) {
+    return;
+  }
+
   const lastSignal =
     rewardsDatabaseState
       .lastSignal ||
@@ -3111,8 +3289,7 @@ verificationActionButton.addEventListener(
       return;
     }
 
-    claimTaskReward(taskId);
-    closeVerificationOverlay();
+    void claimTaskReward(taskId);
   }
 );
 
@@ -3467,69 +3644,6 @@ showVerificationSuccess =
     pulseNotifyTaskOnce(taskId);
   };
 
-const pulseOriginalClaimTaskReward =
-  claimTaskReward;
-
-claimTaskReward =
-  function (taskId) {
-    const meta =
-      taskMeta.get(taskId);
-
-    const record =
-      getTaskRecord(taskId);
-
-    const wasClaimable =
-      record.status ===
-      "claimable";
-
-    const weeklyRewardWasClaimed =
-      rewardsState
-        .weeklyRewardClaimed;
-
-    pulseOriginalClaimTaskReward(
-      taskId
-    );
-
-    if (
-      !meta ||
-      !wasClaimable ||
-      record.status !== "completed"
-    ) {
-      return;
-    }
-
-    pulseUseNotifications(
-      (notificationsApi) => {
-        notificationsApi.addReward({
-          title:
-            "Нагороду зараховано",
-
-          reward: meta.reward,
-
-          message:
-            `За виконання завдання «${meta.title}».`,
-        });
-
-        if (
-          !weeklyRewardWasClaimed &&
-          rewardsState
-            .weeklyRewardClaimed
-        ) {
-          notificationsApi.addReward({
-            title:
-              "Тижневу ціль виконано",
-
-            reward:
-              WEEKLY_REWARD,
-
-            message:
-              "Виконано 7 завдань цього тижня. Бонус уже додано до балансу.",
-          });
-        }
-      }
-    );
-  };
-
 guideConfirm.addEventListener(
   "click",
   () => {
@@ -3617,6 +3731,13 @@ getTaskVerificationResult =
   };
 
 function pulseSynchronizeProfileTask() {
+  if (
+    getArbifyApi()
+      .isTelegramMiniApp()
+  ) {
+    return;
+  }
+
   const taskId =
     "complete-profile";
 
