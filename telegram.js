@@ -304,6 +304,154 @@
     return currentState;
   }
 
+  function applyRewardsSnapshot(
+    rewards
+  ) {
+    if (
+      !rewards ||
+      typeof rewards !== "object"
+    ) {
+      return null;
+    }
+
+    const existingTaskProgress =
+      currentState.taskProgress &&
+      typeof currentState.taskProgress ===
+        "object"
+        ? currentState.taskProgress
+        : {};
+
+    currentState = {
+      ...currentState,
+      pulseBalance:
+        rewards.balance,
+      pulseLevel:
+        rewards.level,
+      pulseUnlocks:
+        rewards
+          .unlockedLevelRewards,
+      completedTasks:
+        rewards.tasks,
+      taskProgress: {
+        ...existingTaskProgress,
+        rewards: {
+          highestLevel:
+            rewards.highestLevel,
+          weeklyProgress:
+            rewards.weeklyProgress,
+          weeklyRewardClaimed:
+            rewards
+              .weeklyRewardClaimed,
+          progress:
+            rewards.progress,
+          taskNoticeIds:
+            rewards.taskNoticeIds || [],
+        },
+        createdSignalCount:
+          rewards.progress
+            ?.createdSignalCount ??
+          rewards.progress
+            ?.signalMaster ??
+          0,
+      },
+    };
+
+    if (currentUser) {
+      currentUser.state = currentState;
+    }
+
+    dispatchArbifyEvent(
+      "arbify:rewards-updated",
+      {
+        rewards,
+        state: currentState,
+      }
+    );
+
+    return rewards;
+  }
+
+  async function getRewards() {
+    const initData =
+      requireTelegramInitData();
+
+    const result = await apiRequest(
+      "/api/rewards/status",
+      {
+        initData,
+      }
+    );
+
+    return applyRewardsSnapshot(
+      result.rewards
+    );
+  }
+
+  async function verifyRewardTask(
+    taskId
+  ) {
+    const initData =
+      requireTelegramInitData();
+
+    const result = await apiRequest(
+      "/api/rewards/verify",
+      {
+        initData,
+        taskId: String(taskId || ""),
+      }
+    );
+
+    applyRewardsSnapshot(
+      result.rewards
+    );
+
+    return result;
+  }
+
+  async function claimRewardTask(
+    taskId
+  ) {
+    const initData =
+      requireTelegramInitData();
+
+    const result = await apiRequest(
+      "/api/rewards/claim",
+      {
+        initData,
+        taskId: String(taskId || ""),
+      }
+    );
+
+    applyRewardsSnapshot(
+      result.rewards
+    );
+
+    return result;
+  }
+
+  async function recordActivity(
+    type,
+    payload = {}
+  ) {
+    const initData =
+      requireTelegramInitData();
+
+    const result = await apiRequest(
+      "/api/activity/record",
+      {
+        initData,
+        type: String(type || ""),
+        payload,
+      }
+    );
+
+    applyRewardsSnapshot(
+      result.rewards
+    );
+
+    return result;
+  }
+
   function getCurrentUser() {
     return currentUser;
   }
@@ -326,6 +474,10 @@
     authenticate,
     verifyAccessKey,
     saveState,
+    getRewards,
+    verifyRewardTask,
+    claimRewardTask,
+    recordActivity,
     getCurrentUser,
     getCurrentState,
     getInitData: getTelegramInitData,
