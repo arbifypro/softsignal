@@ -461,9 +461,28 @@ button {
 
 .slot-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: none;
+  grid-auto-flow: column;
+  grid-auto-columns: calc(33.333333% - 6.666667px);
   gap: 10px;
   margin-top: 14px;
+  padding: 0 0 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.slot-grid::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .slot-card {
@@ -473,6 +492,8 @@ button {
   background: transparent;
   text-align: left;
   cursor: pointer;
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
 }
 
 .slot-image-wrap {
