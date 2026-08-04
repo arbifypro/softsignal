@@ -6,7 +6,7 @@ const SUBID_VERIFY_DELAY = 1200;
 const SUBID_SUCCESS_DELAY = 850;
 const SUBID_STORAGE_KEY = "arbifyVerifiedSubId";
 
-const slotCards = document.querySelectorAll(".slot-card");
+const slotGrid = document.querySelector(".slot-grid");
 const signalButton = document.querySelector("#signalButton");
 const notificationButton = document.querySelector("#notificationButton");
 const allSlotsButton = document.querySelector("#allSlotsButton");
@@ -64,28 +64,299 @@ const resultDuration = document.querySelector("#resultDuration");
 const resultActionButton = document.querySelector("#resultActionButton");
 const resultNewButton = document.querySelector("#resultNewButton");
 
-const signalProfiles = {
-  "Thunder Crown": {
+const signalProfileTemplates = {
+  balanced: {
     bets: [10, 20, 25, 30],
     spins: [8, 10, 12, 15],
     risks: ["НИЗЬКИЙ", "СЕРЕДНІЙ"],
     durations: ["02:30", "03:00", "03:30"],
   },
 
-  "Candy Spiral": {
+  dynamic: {
     bets: [10, 15, 20, 25],
     spins: [10, 12, 15, 18],
     risks: ["СЕРЕДНІЙ", "ВИСОКИЙ"],
     durations: ["02:45", "03:00", "04:00"],
   },
 
-  "Gem Rocket": {
+  focused: {
     bets: [15, 20, 30, 40],
     spins: [7, 9, 11, 14],
     risks: ["НИЗЬКИЙ", "СЕРЕДНІЙ"],
     durations: ["02:00", "02:30", "03:00"],
   },
 };
+
+/*
+ * Популярні реальні слоти.
+ * Нові обкладинки можна поступово додавати в assets/slots.
+ * Поки конкретного файла немає, автоматично показується
+ * одна з наявних обкладинок без помилки на сторінці.
+ */
+const slotCatalog = [
+  {
+    name: "Gates of Olympus",
+    image: "assets/slots/gates-of-olympus.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#8d4cff",
+    profile: "balanced",
+  },
+  {
+    name: "Sweet Bonanza",
+    image: "assets/slots/sweet-bonanza.webp",
+    fallbackImage: "assets/candy-spiral.webp",
+    accent: "#ff4ecb",
+    profile: "dynamic",
+  },
+  {
+    name: "The Dog House Megaways",
+    image: "assets/slots/the-dog-house-megaways.webp",
+    fallbackImage: "assets/candy-spiral.webp",
+    accent: "#ffb347",
+    profile: "dynamic",
+  },
+  {
+    name: "Big Bass Bonanza",
+    image: "assets/slots/big-bass-bonanza.webp",
+    fallbackImage: "assets/gem-rocket.webp",
+    accent: "#21d4ff",
+    profile: "focused",
+  },
+  {
+    name: "Book of Dead",
+    image: "assets/slots/book-of-dead.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#d7b950",
+    profile: "balanced",
+  },
+  {
+    name: "Starlight Princess",
+    image: "assets/slots/starlight-princess.webp",
+    fallbackImage: "assets/candy-spiral.webp",
+    accent: "#ca62ff",
+    profile: "dynamic",
+  },
+  {
+    name: "Sugar Rush",
+    image: "assets/slots/sugar-rush.webp",
+    fallbackImage: "assets/candy-spiral.webp",
+    accent: "#ff5aa9",
+    profile: "dynamic",
+  },
+  {
+    name: "The Dog House Multihold",
+    image: "assets/slots/the-dog-house-multihold.webp",
+    fallbackImage: "assets/candy-spiral.webp",
+    accent: "#ff9f43",
+    profile: "focused",
+  },
+  {
+    name: "Fruit Party",
+    image: "assets/slots/fruit-party.webp",
+    fallbackImage: "assets/candy-spiral.webp",
+    accent: "#9cff57",
+    profile: "dynamic",
+  },
+  {
+    name: "Big Bass Splash",
+    image: "assets/slots/big-bass-splash.webp",
+    fallbackImage: "assets/gem-rocket.webp",
+    accent: "#20c9ff",
+    profile: "focused",
+  },
+  {
+    name: "Starburst",
+    image: "assets/slots/starburst.webp",
+    fallbackImage: "assets/gem-rocket.webp",
+    accent: "#9b6cff",
+    profile: "balanced",
+  },
+  {
+    name: "Gonzo's Quest",
+    image: "assets/slots/gonzos-quest.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#4fd47c",
+    profile: "balanced",
+  },
+  {
+    name: "Fire Joker",
+    image: "assets/slots/fire-joker.webp",
+    fallbackImage: "assets/gem-rocket.webp",
+    accent: "#ff5a3c",
+    profile: "focused",
+  },
+  {
+    name: "Wolf Gold",
+    image: "assets/slots/wolf-gold.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#e9c46a",
+    profile: "balanced",
+  },
+  {
+    name: "Buffalo King Megaways",
+    image: "assets/slots/buffalo-king-megaways.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#c78b52",
+    profile: "dynamic",
+  },
+  {
+    name: "Great Rhino Megaways",
+    image: "assets/slots/great-rhino-megaways.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#8bc34a",
+    profile: "balanced",
+  },
+  {
+    name: "Madame Destiny Megaways",
+    image: "assets/slots/madame-destiny-megaways.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#b95cff",
+    profile: "dynamic",
+  },
+  {
+    name: "Wanted Dead or a Wild",
+    image: "assets/slots/wanted-dead-or-a-wild.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#ff7043",
+    profile: "dynamic",
+  },
+  {
+    name: "Money Train 3",
+    image: "assets/slots/money-train-3.webp",
+    fallbackImage: "assets/gem-rocket.webp",
+    accent: "#b0bec5",
+    profile: "focused",
+  },
+  {
+    name: "Reactoonz",
+    image: "assets/slots/reactoonz.webp",
+    fallbackImage: "assets/gem-rocket.webp",
+    accent: "#71e6ff",
+    profile: "dynamic",
+  },
+  {
+    name: "Legacy of Dead",
+    image: "assets/slots/legacy-of-dead.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#d6ad60",
+    profile: "balanced",
+  },
+  {
+    name: "Dead or Alive 2",
+    image: "assets/slots/dead-or-alive-2.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#c49a6c",
+    profile: "focused",
+  },
+  {
+    name: "Jammin' Jars",
+    image: "assets/slots/jammin-jars.webp",
+    fallbackImage: "assets/candy-spiral.webp",
+    accent: "#ff4fcf",
+    profile: "dynamic",
+  },
+  {
+    name: "Immortal Romance",
+    image: "assets/slots/immortal-romance.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#d64f8f",
+    profile: "balanced",
+  },
+];
+
+const signalProfiles = Object.fromEntries(
+  slotCatalog.map((slot) => {
+    return [
+      slot.name,
+      signalProfileTemplates[slot.profile],
+    ];
+  })
+);
+
+function createSlotCard(slot, index) {
+  const card = document.createElement("button");
+  const imageWrap = document.createElement("span");
+  const image = document.createElement("img");
+  const shine = document.createElement("span");
+  const selectedCheck = document.createElement("span");
+  const slotName = document.createElement("span");
+
+  card.className = "slot-card";
+  card.type = "button";
+  card.dataset.slot = slot.name;
+  card.style.setProperty(
+    "--slot-accent",
+    slot.accent
+  );
+
+  if (index === 0) {
+    card.classList.add("is-selected");
+  }
+
+  imageWrap.className = "slot-image-wrap";
+  image.src = slot.image;
+  image.alt = slot.name;
+  image.loading = index < 3 ? "eager" : "lazy";
+  image.decoding = "async";
+  image.draggable = false;
+
+  image.addEventListener(
+    "error",
+    () => {
+      if (
+        image.dataset.fallbackApplied === "true"
+      ) {
+        return;
+      }
+
+      image.dataset.fallbackApplied = "true";
+      image.src = slot.fallbackImage;
+    },
+    {
+      once: true,
+    }
+  );
+
+  shine.className = "slot-shine";
+  selectedCheck.className = "selected-check";
+  selectedCheck.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+  selectedCheck.textContent = "✓";
+  slotName.className = "slot-name";
+  slotName.textContent = slot.name;
+
+  imageWrap.append(
+    image,
+    shine,
+    selectedCheck
+  );
+
+  card.append(
+    imageWrap,
+    slotName
+  );
+
+  return card;
+}
+
+function renderSlotCatalog() {
+  if (!slotGrid) {
+    return;
+  }
+
+  const fragment =
+    document.createDocumentFragment();
+
+  slotCatalog.forEach((slot, index) => {
+    fragment.appendChild(
+      createSlotCard(slot, index)
+    );
+  });
+
+  slotGrid.replaceChildren(fragment);
+}
 
 const scanStages = [
   {
@@ -113,6 +384,11 @@ const scanStages = [
     message: "Формування готового сигналу",
   },
 ];
+
+renderSlotCatalog();
+
+const slotCards =
+  document.querySelectorAll(".slot-card");
 
 let toastTimer;
 let subIdVerifyTimer;
@@ -709,7 +985,7 @@ function randomItem(items) {
 function createSignal(slot) {
   const profile =
     signalProfiles[slot.name] ||
-    signalProfiles["Thunder Crown"];
+    signalProfiles["Gates of Olympus"];
 
   return {
     slotName: slot.name,
@@ -1116,9 +1392,31 @@ notificationButton.addEventListener(
 allSlotsButton.addEventListener(
   "click",
   () => {
-    showToast(
-      "Повний каталог додамо пізніше"
-    );
+    if (!slotGrid) {
+      return;
+    }
+
+    const maxScrollLeft =
+      slotGrid.scrollWidth -
+      slotGrid.clientWidth;
+
+    const reachedEnd =
+      maxScrollLeft <= 1 ||
+      slotGrid.scrollLeft >=
+        maxScrollLeft - 4;
+
+    const nextPosition = reachedEnd
+      ? 0
+      : Math.min(
+          slotGrid.scrollLeft +
+            slotGrid.clientWidth,
+          maxScrollLeft
+        );
+
+    slotGrid.scrollTo({
+      left: nextPosition,
+      behavior: "smooth",
+    });
   }
 );
 
