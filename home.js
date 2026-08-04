@@ -149,6 +149,30 @@ function getArbifyApi() {
   return window.ARBIFY_API;
 }
 
+async function recordSignalCreatedActivity(
+  signal
+) {
+  const api = getArbifyApi();
+
+  if (!api.isTelegramMiniApp()) {
+    return null;
+  }
+
+  const result = await api.recordActivity(
+    "signal-created",
+    {
+      slotName:
+        signal?.slotName || "",
+    }
+  );
+
+  homeState = {
+    ...api.getCurrentState(),
+  };
+
+  return result;
+}
+
 function getStoredSubId() {
   const databaseSubId =
     normalizeSubId(homeState.subid || "");
@@ -723,16 +747,9 @@ function saveSignal(signal) {
     ...previousHistory,
   ].slice(0, 50);
 
-  const taskProgress = {
-    ...(homeState.taskProgress || {}),
-    createdSignalCount:
-      getCreatedSignalCount() + 1,
-  };
-
   void persistStatePatch({
     lastSignal: signal,
     signalHistory,
-    taskProgress,
   });
 }
 
@@ -1343,6 +1360,93 @@ function pulseMaskSubId(subId) {
 const pulseOriginalShowSignalResult =
   showSignalResult;
 
+function pulseSendSignalNotification(
+  signal,
+  signalCount
+) {
+  pulseHomeUseNotifications(
+    (notificationsApi) => {
+      notificationsApi.addSignal({
+        title:
+          `Сигнал для ${signal.slotName} готовий`,
+        message:
+          `Ставка ${signal.bet} · ` +
+          `${signal.spins} обертань · ` +
+          `ризик ${signal.risk.toLowerCase()}. ` +
+          `Усього створено сигналів: ${signalCount}.`,
+      });
+    }
+  );
+}
+
+async function pulseRegisterSignalResult(
+  signal
+) {
+  const api = getArbifyApi();
+
+  if (api.isTelegramMiniApp()) {
+    try {
+      const result =
+        await recordSignalCreatedActivity(
+          signal
+        );
+
+      const signalCount = Number(
+        result?.rewards?.progress
+          ?.createdSignalCount
+      );
+
+      pulseSendSignalNotification(
+        signal,
+        Number.isSafeInteger(
+          signalCount
+        )
+          ? signalCount
+          : getCreatedSignalCount()
+      );
+
+      return;
+    } catch (error) {
+      console.error(
+        "Signal activity save error:",
+        error.message
+      );
+
+      showToast(
+        "Сигнал створено, але прогрес ще не синхронізовано"
+      );
+
+      return;
+    }
+  }
+
+  const localSignalCount =
+    getCreatedSignalCount() + 1;
+
+  homeState = {
+    ...homeState,
+    taskProgress: {
+      ...(homeState.taskProgress || {}),
+      createdSignalCount:
+        localSignalCount,
+    },
+  };
+
+  try {
+    localStorage.setItem(
+      PULSE_SIGNAL_COUNT_KEY,
+      String(localSignalCount)
+    );
+  } catch {
+    /* Локальний деморежим. */
+  }
+
+  pulseSendSignalNotification(
+    signal,
+    localSignalCount
+  );
+}
+
 showSignalResult = function () {
   pulseOriginalShowSignalResult();
 
@@ -1350,21 +1454,12 @@ showSignalResult = function () {
     return;
   }
 
-  const signalCount =
-    pulseIncrementSignalCount();
+  const signal = {
+    ...activeSignal,
+  };
 
-  pulseHomeUseNotifications(
-    (notificationsApi) => {
-      notificationsApi.addSignal({
-        title:
-          `Сигнал для ${activeSignal.slotName} готовий`,
-        message:
-          `Ставка ${activeSignal.bet} · ` +
-          `${activeSignal.spins} обертань · ` +
-          `ризик ${activeSignal.risk.toLowerCase()}. ` +
-          `Усього створено сигналів: ${signalCount}.`,
-      });
-    }
+  void pulseRegisterSignalResult(
+    signal
   );
 };
 
