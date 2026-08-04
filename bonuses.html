@@ -14,11 +14,13 @@
     />
 
     <meta name="theme-color" content="#020307" />
+
     <meta
       name="theme-color"
       content="#020307"
       media="(prefers-color-scheme: light)"
     />
+
     <meta
       name="theme-color"
       content="#020307"
@@ -26,46 +28,187 @@
     />
 
     <meta name="color-scheme" content="dark" />
-    <meta name="msapplication-navbutton-color" content="#020307" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-    <meta name="apple-mobile-web-app-title" content="ARBIFY PULSE" />
+    <meta
+      name="msapplication-navbutton-color"
+      content="#020307"
+    />
+    <meta
+      name="apple-mobile-web-app-capable"
+      content="yes"
+    />
+    <meta
+      name="mobile-web-app-capable"
+      content="yes"
+    />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta
+      name="apple-mobile-web-app-title"
+      content="ARBIFY PULSE"
+    />
 
     <title>Бонуси — ARBIFY PULSE</title>
 
-    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="manifest" href="manifest.json" />
+    <link
+      rel="icon"
+      href="assets/favicon.svg"
+      type="image/svg+xml"
+    />
+
+    <link
+      rel="manifest"
+      href="manifest.json"
+    />
 
     <style>
       :root {
         color-scheme: dark;
         background: #020307;
+        background-color: #020307;
       }
 
       html,
       body {
-        margin: 0;
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+        height: 100%;
         min-height: 100%;
-        background: #020307;
+        margin: 0;
+        overflow: hidden;
+        background: #020307 !important;
+        background-color: #020307 !important;
+        touch-action: pan-y;
+        -ms-touch-action: pan-y;
+        overscroll-behavior: none;
+      }
+
+      body {
+        opacity: 1 !important;
+      }
+
+      .page-shell {
+        width: 100vw !important;
+        max-width: none !important;
+      }
+
+      .pulse-app,
+      .rewards-app {
+        width: min(100vw, 430px) !important;
+        max-width: 430px !important;
+      }
+
+      /*
+       * Акуратні індикатори завантаження динамічних даних.
+       * Вони автоматично зникають, щойно bonuses.js
+       * підставляє справжні значення з бази даних.
+       */
+      #pulseBalance:empty,
+      #levelBadge:empty,
+      #levelProgressValue:empty {
+        display: inline-block;
+        overflow: hidden;
+        border-radius: 999px;
+        background: linear-gradient(
+          100deg,
+          rgba(255, 255, 255, 0.05) 20%,
+          rgba(210, 101, 255, 0.3) 42%,
+          rgba(255, 255, 255, 0.08) 62%,
+          rgba(255, 255, 255, 0.05) 80%
+        );
+        background-size: 240% 100%;
+        color: transparent;
+        vertical-align: middle;
+        animation: balance-data-loading 1.15s ease-in-out infinite;
+      }
+
+      #pulseBalance:empty {
+        width: 112px;
+        height: 0.82em;
+        min-height: 46px;
+      }
+
+      #levelBadge:empty {
+        width: 88px;
+        height: 14px;
+      }
+
+      #levelProgressValue:empty {
+        width: 86px;
+        height: 14px;
+      }
+
+      #levelProgressBar[style*="width: 0%"] {
+        width: 34% !important;
+        opacity: 0.72;
+        background: linear-gradient(
+          90deg,
+          rgba(136, 31, 255, 0.18),
+          rgba(220, 93, 255, 0.78),
+          rgba(136, 31, 255, 0.18)
+        );
+        background-size: 220% 100%;
+        animation: balance-data-loading 1.15s ease-in-out infinite;
+      }
+
+      @keyframes balance-data-loading {
+        0% {
+          background-position: 100% 0;
+        }
+
+        100% {
+          background-position: -100% 0;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #pulseBalance:empty,
+        #levelBadge:empty,
+        #levelProgressValue:empty,
+        #levelProgressBar[style*="width: 0%"] {
+          animation: none;
+        }
       }
     </style>
 
-    <link rel="stylesheet" href="bonuses.css" />
+    <link
+      rel="stylesheet"
+      href="bonuses.css?v=20260802-1"
+    />
+
+    <link
+      rel="stylesheet"
+      href="notifications.css?v=20260802-1"
+    />
+
+    <!-- Telegram SDK та API завантажуються до логіки сторінки. -->
+    <script src="https://telegram.org/js/telegram-web-app.js?63"></script>
+    <script src="telegram.js?v=20260803-2"></script>
   </head>
 
   <body>
     <main class="page-shell">
-      <div class="ambient ambient-one" aria-hidden="true"></div>
-      <div class="ambient ambient-two" aria-hidden="true"></div>
+      <div
+        class="ambient ambient-one"
+        aria-hidden="true"
+      ></div>
+
+      <div
+        class="ambient ambient-two"
+        aria-hidden="true"
+      ></div>
 
       <section
         class="pulse-app rewards-app"
         aria-label="Бонуси та завдання ARBIFY PULSE"
       >
-        <div class="app-noise" aria-hidden="true"></div>
+        <div
+          class="app-noise"
+          aria-hidden="true"
+        ></div>
 
-        <!-- Шапка сторінки -->
         <header class="topbar">
           <a
             class="mini-brand"
@@ -93,9 +236,26 @@
                   stroke-linecap="round"
                 ></path>
 
-                <circle cx="5" cy="11" r="2.5" fill="currentColor"></circle>
-                <circle cx="32" cy="3" r="2.5" fill="currentColor"></circle>
-                <circle cx="59" cy="11" r="2.5" fill="currentColor"></circle>
+                <circle
+                  cx="5"
+                  cy="11"
+                  r="2.5"
+                  fill="currentColor"
+                ></circle>
+
+                <circle
+                  cx="32"
+                  cy="3"
+                  r="2.5"
+                  fill="currentColor"
+                ></circle>
+
+                <circle
+                  cx="59"
+                  cy="11"
+                  r="2.5"
+                  fill="currentColor"
+                ></circle>
               </svg>
             </span>
 
@@ -126,10 +286,16 @@
                 d="M6.2 10.2c0-3.6 2.1-6.2 5.8-6.2s5.8 2.6 5.8 6.2v4l1.7 2.4h-15l1.7-2.4v-4Z"
               ></path>
 
-              <path d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"></path>
+              <path
+                d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"
+              ></path>
             </svg>
 
-            <span class="notification-dot" aria-hidden="true"></span>
+            <span
+              class="notification-dot"
+              aria-hidden="true"
+            ></span>
+
             <span
               class="notification-badge"
               id="notificationBadge"
@@ -142,8 +308,10 @@
         </header>
 
         <div class="content">
-          <!-- Заголовок -->
-          <section class="rewards-heading" aria-labelledby="rewardsPageTitle">
+          <section
+            class="rewards-heading"
+            aria-labelledby="rewardsPageTitle"
+          >
             <p class="rewards-eyebrow">
               <span aria-hidden="true"></span>
               PULSE REWARDS
@@ -152,28 +320,50 @@
             <h1 id="rewardsPageTitle">Бонуси</h1>
 
             <p>
-              Виконуй завдання, накопичуй PULSE та відкривай нові можливості
+              Виконуй завдання, накопичуй PULSE та відкривай нові
+              можливості
             </p>
           </section>
 
-          <!-- Баланс і рівень -->
-          <section class="balance-card" aria-label="Баланс PULSE">
-            <div class="balance-glow" aria-hidden="true"></div>
+          <section
+            class="balance-card"
+            aria-label="Баланс PULSE"
+          >
+            <div
+              class="balance-glow"
+              aria-hidden="true"
+            ></div>
 
             <div class="balance-main">
               <div class="balance-copy">
-                <span class="balance-label">ТВІЙ БАЛАНС</span>
+                <span class="balance-label">
+                  ТВІЙ БАЛАНС
+                </span>
 
                 <div class="balance-value">
-                  <strong id="pulseBalance">420</strong>
+                  <strong
+                    id="pulseBalance"
+                    aria-live="polite"
+                    aria-busy="true"
+                  ></strong>
+
                   <span>PULSE</span>
                 </div>
 
                 <div class="level-row">
-                  <span class="level-badge" id="levelBadge">РІВЕНЬ 2</span>
-                  <span class="level-progress-value" id="levelProgressValue">
-                    420 / 600
-                  </span>
+                  <span
+                    class="level-badge"
+                    id="levelBadge"
+                    aria-live="polite"
+                    aria-busy="true"
+                  ></span>
+
+                  <span
+                    class="level-progress-value"
+                    id="levelProgressValue"
+                    aria-live="polite"
+                    aria-busy="true"
+                  ></span>
                 </div>
 
                 <div
@@ -181,10 +371,13 @@
                   role="progressbar"
                   aria-label="Прогрес рівня"
                   aria-valuemin="0"
-                  aria-valuemax="600"
-                  aria-valuenow="420"
+                  aria-valuemax="100"
+                  aria-valuenow="0"
                 >
-                  <span id="levelProgressBar" style="width: 70%"></span>
+                  <span
+                    id="levelProgressBar"
+                    style="width: 0%"
+                  ></span>
                 </div>
 
                 <div class="streak-badge">
@@ -206,11 +399,17 @@
                 </div>
               </div>
 
-              <div class="pulse-coin" aria-hidden="true">
+              <div
+                class="pulse-coin"
+                aria-hidden="true"
+              >
                 <span class="coin-ring coin-ring-one"></span>
                 <span class="coin-ring coin-ring-two"></span>
 
-                <svg viewBox="0 0 100 100" fill="none">
+                <svg
+                  viewBox="0 0 100 100"
+                  fill="none"
+                >
                   <circle
                     cx="50"
                     cy="50"
@@ -240,12 +439,19 @@
             </div>
           </section>
 
-          <!-- Фільтри -->
-          <section class="tasks-section" aria-labelledby="tasksTitle">
+          <section
+            class="tasks-section"
+            aria-labelledby="tasksTitle"
+          >
             <div class="tasks-heading">
               <div>
-                <p class="section-kicker">ЦЕНТР НАГОРОД</p>
-                <h2 id="tasksTitle">Твої завдання</h2>
+                <p class="section-kicker">
+                  ЦЕНТР НАГОРОД
+                </p>
+
+                <h2 id="tasksTitle">
+                  Твої завдання
+                </h2>
               </div>
 
               <div class="refresh-timer">
@@ -258,13 +464,21 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 >
-                  <circle cx="12" cy="12" r="8.5"></circle>
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="8.5"
+                  ></circle>
+
                   <path d="M12 7v5l3.5 2"></path>
                 </svg>
 
                 <span>
                   ОНОВЛЕННЯ
-                  <strong id="taskRefreshTimer">06:42:18</strong>
+
+                  <strong id="taskRefreshTimer">
+                    06:42:18
+                  </strong>
                 </span>
               </div>
             </div>
@@ -282,6 +496,7 @@
                 aria-selected="true"
               >
                 Усі
+
                 <span id="allTasksCount">10</span>
               </button>
 
@@ -316,9 +531,10 @@
               </button>
             </div>
 
-            <!-- Список завдань -->
-            <div class="task-list" id="taskList">
-              <!-- Telegram-бот -->
+            <div
+              class="task-list"
+              id="taskList"
+            >
               <article
                 class="task-card"
                 data-task-id="telegram-bot"
@@ -339,10 +555,22 @@
                 </div>
 
                 <div class="task-copy">
-                  <span class="task-type">TELEGRAM</span>
-                  <h3>Запустити нашого бота</h3>
-                  <strong class="task-reward">+100 PULSE</strong>
-                  <p class="task-message" aria-live="polite"></p>
+                  <span class="task-type">
+                    TELEGRAM
+                  </span>
+
+                  <h3>
+                    Запустити нашого бота
+                  </h3>
+
+                  <strong class="task-reward">
+                    +100 PULSE
+                  </strong>
+
+                  <p
+                    class="task-message"
+                    aria-live="polite"
+                  ></p>
                 </div>
 
                 <button
@@ -354,7 +582,6 @@
                 </button>
               </article>
 
-              <!-- Telegram-канал -->
               <article
                 class="task-card"
                 data-task-id="telegram-channel"
@@ -379,10 +606,22 @@
                 </div>
 
                 <div class="task-copy">
-                  <span class="task-type">TELEGRAM</span>
-                  <h3>Підписатися на канал</h3>
-                  <strong class="task-reward">+80 PULSE</strong>
-                  <p class="task-message" aria-live="polite"></p>
+                  <span class="task-type">
+                    TELEGRAM
+                  </span>
+
+                  <h3>
+                    Підписатися на канал
+                  </h3>
+
+                  <strong class="task-reward">
+                    +80 PULSE
+                  </strong>
+
+                  <p
+                    class="task-message"
+                    aria-live="polite"
+                  ></p>
                 </div>
 
                 <button
@@ -394,7 +633,6 @@
                 </button>
               </article>
 
-              <!-- Профіль -->
               <article
                 class="task-card"
                 data-task-id="complete-profile"
@@ -412,16 +650,35 @@
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   >
-                    <circle cx="12" cy="8" r="4"></circle>
-                    <path d="M4.8 20c.7-4 3.1-6 7.2-6s6.5 2 7.2 6"></path>
+                    <circle
+                      cx="12"
+                      cy="8"
+                      r="4"
+                    ></circle>
+
+                    <path
+                      d="M4.8 20c.7-4 3.1-6 7.2-6s6.5 2 7.2 6"
+                    ></path>
                   </svg>
                 </div>
 
                 <div class="task-copy">
-                  <span class="task-type">ПРОФІЛЬ</span>
-                  <h3>Заповнити свій профіль</h3>
-                  <strong class="task-reward">+50 PULSE</strong>
-                  <p class="task-message" aria-live="polite"></p>
+                  <span class="task-type">
+                    ПРОФІЛЬ
+                  </span>
+
+                  <h3>
+                    Заповнити свій профіль
+                  </h3>
+
+                  <strong class="task-reward">
+                    +50 PULSE
+                  </strong>
+
+                  <p
+                    class="task-message"
+                    aria-live="polite"
+                  ></p>
                 </div>
 
                 <button
@@ -433,7 +690,6 @@
                 </button>
               </article>
 
-              <!-- Сповіщення -->
               <article
                 class="task-card"
                 data-task-id="notifications"
@@ -454,15 +710,30 @@
                     <path
                       d="M6.2 10.2c0-3.6 2.1-6.2 5.8-6.2s5.8 2.6 5.8 6.2v4l1.7 2.4h-15l1.7-2.4v-4Z"
                     ></path>
-                    <path d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"></path>
+
+                    <path
+                      d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"
+                    ></path>
                   </svg>
                 </div>
 
                 <div class="task-copy">
-                  <span class="task-type">ЗАСТОСУНОК</span>
-                  <h3>Увімкнути сповіщення</h3>
-                  <strong class="task-reward">+30 PULSE</strong>
-                  <p class="task-message" aria-live="polite"></p>
+                  <span class="task-type">
+                    ЗАСТОСУНОК
+                  </span>
+
+                  <h3>
+                    Увімкнути сповіщення
+                  </h3>
+
+                  <strong class="task-reward">
+                    +30 PULSE
+                  </strong>
+
+                  <p
+                    class="task-message"
+                    aria-live="polite"
+                  ></p>
                 </div>
 
                 <button
@@ -474,7 +745,6 @@
                 </button>
               </article>
 
-              <!-- SUBID -->
               <article
                 class="task-card"
                 data-task-id="confirm-subid"
@@ -492,17 +762,34 @@
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   >
-                    <circle cx="8.5" cy="15.5" r="3.5"></circle>
+                    <circle
+                      cx="8.5"
+                      cy="15.5"
+                      r="3.5"
+                    ></circle>
+
                     <path d="m11 13 7.2-7.2"></path>
                     <path d="m16 8 2 2M18.5 5.5 20 7"></path>
                   </svg>
                 </div>
 
                 <div class="task-copy">
-                  <span class="task-type">ВЕРИФІКАЦІЯ</span>
-                  <h3>Підтвердити свій SUBID</h3>
-                  <strong class="task-reward">+150 PULSE</strong>
-                  <p class="task-message" aria-live="polite"></p>
+                  <span class="task-type">
+                    ВЕРИФІКАЦІЯ
+                  </span>
+
+                  <h3>
+                    Підтвердити свій SUBID
+                  </h3>
+
+                  <strong class="task-reward">
+                    +150 PULSE
+                  </strong>
+
+                  <p
+                    class="task-message"
+                    aria-live="polite"
+                  ></p>
                 </div>
 
                 <button
@@ -514,7 +801,6 @@
                 </button>
               </article>
 
-              <!-- Обрані слоти -->
               <article
                 class="task-card"
                 data-task-id="favorite-slots"
@@ -539,11 +825,19 @@
                 </div>
 
                 <div class="task-copy">
-                  <span class="task-type">ОБРАНЕ</span>
-                  <h3>Додати 3 слоти в обране</h3>
+                  <span class="task-type">
+                    ОБРАНЕ
+                  </span>
+
+                  <h3>
+                    Додати 3 слоти в обране
+                  </h3>
 
                   <div class="task-progress-copy">
-                    <strong class="task-reward">+40 PULSE</strong>
+                    <strong class="task-reward">
+                      +40 PULSE
+                    </strong>
+
                     <span>1 / 3</span>
                   </div>
 
@@ -551,7 +845,10 @@
                     <span style="width: 33%"></span>
                   </div>
 
-                  <p class="task-message" aria-live="polite"></p>
+                  <p
+                    class="task-message"
+                    aria-live="polite"
+                  ></p>
                 </div>
 
                 <button
@@ -564,7 +861,6 @@
                 </button>
               </article>
 
-              <!-- Перший сигнал -->
               <article
                 class="task-card"
                 data-task-id="first-signal"
@@ -589,10 +885,22 @@
                 </div>
 
                 <div class="task-copy">
-                  <span class="task-type">ЩОДЕННЕ</span>
-                  <h3>Отримати перший сигнал</h3>
-                  <strong class="task-reward">+30 PULSE</strong>
-                  <p class="task-message" aria-live="polite"></p>
+                  <span class="task-type">
+                    ЩОДЕННЕ
+                  </span>
+
+                  <h3>
+                    Отримати перший сигнал
+                  </h3>
+
+                  <strong class="task-reward">
+                    +30 PULSE
+                  </strong>
+
+                  <p
+                    class="task-message"
+                    aria-live="polite"
+                  ></p>
                 </div>
 
                 <button
@@ -605,7 +913,6 @@
                 </button>
               </article>
 
-              <!-- LIVE-сигнали -->
               <article
                 class="task-card"
                 data-task-id="view-live"
@@ -623,7 +930,12 @@
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   >
-                    <circle cx="12" cy="12" r="2"></circle>
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="2"
+                    ></circle>
+
                     <path d="M7.8 7.4a6 6 0 0 0 0 9.2"></path>
                     <path d="M16.2 7.4a6 6 0 0 1 0 9.2"></path>
                     <path d="M4.7 4.3a10.2 10.2 0 0 0 0 15.4"></path>
@@ -632,10 +944,22 @@
                 </div>
 
                 <div class="task-copy">
-                  <span class="task-type">ЩОДЕННЕ</span>
-                  <h3>Переглянути LIVE-сигнали</h3>
-                  <strong class="task-reward">+10 PULSE</strong>
-                  <p class="task-message" aria-live="polite"></p>
+                  <span class="task-type">
+                    ЩОДЕННЕ
+                  </span>
+
+                  <h3>
+                    Переглянути LIVE-сигнали
+                  </h3>
+
+                  <strong class="task-reward">
+                    +10 PULSE
+                  </strong>
+
+                  <p
+                    class="task-message"
+                    aria-live="polite"
+                  ></p>
                 </div>
 
                 <button
@@ -648,7 +972,6 @@
                 </button>
               </article>
 
-              <!-- Правила -->
               <article
                 class="task-card"
                 data-task-id="responsible-guide"
@@ -666,17 +989,32 @@
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   >
-                    <path d="M5 4.5h9a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3V4.5Z"></path>
+                    <path
+                      d="M5 4.5h9a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3V4.5Z"
+                    ></path>
+
                     <path d="M8 8h6M8 11.5h6M8 15h4"></path>
                     <path d="M17 8h2v12h-2"></path>
                   </svg>
                 </div>
 
                 <div class="task-copy">
-                  <span class="task-type">БЕЗПЕКА</span>
-                  <h3>Прочитати правила відповідальної гри</h3>
-                  <strong class="task-reward">+30 PULSE</strong>
-                  <p class="task-message" aria-live="polite"></p>
+                  <span class="task-type">
+                    БЕЗПЕКА
+                  </span>
+
+                  <h3>
+                    Прочитати правила відповідальної гри
+                  </h3>
+
+                  <strong class="task-reward">
+                    +30 PULSE
+                  </strong>
+
+                  <p
+                    class="task-message"
+                    aria-live="polite"
+                  ></p>
                 </div>
 
                 <button
@@ -688,7 +1026,6 @@
                 </button>
               </article>
 
-              <!-- Досягнення -->
               <article
                 class="task-card"
                 data-task-id="signal-master"
@@ -706,18 +1043,31 @@
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   >
-                    <circle cx="12" cy="8" r="5"></circle>
+                    <circle
+                      cx="12"
+                      cy="8"
+                      r="5"
+                    ></circle>
+
                     <path d="m9 12-1 8 4-2.4 4 2.4-1-8"></path>
                     <path d="m10.3 8 1.1 1.1L14 6.5"></path>
                   </svg>
                 </div>
 
                 <div class="task-copy">
-                  <span class="task-type">ДОСЯГНЕННЯ</span>
-                  <h3>Отримати 10 сигналів</h3>
+                  <span class="task-type">
+                    ДОСЯГНЕННЯ
+                  </span>
+
+                  <h3>
+                    Отримати 10 сигналів
+                  </h3>
 
                   <div class="task-progress-copy">
-                    <strong class="task-reward">+100 PULSE</strong>
+                    <strong class="task-reward">
+                      +100 PULSE
+                    </strong>
+
                     <span>3 / 10</span>
                   </div>
 
@@ -725,7 +1075,10 @@
                     <span style="width: 30%"></span>
                   </div>
 
-                  <p class="task-message" aria-live="polite"></p>
+                  <p
+                    class="task-message"
+                    aria-live="polite"
+                  ></p>
                 </div>
 
                 <button
@@ -739,8 +1092,10 @@
             </div>
           </section>
 
-          <!-- Тижнева ціль -->
-          <section class="weekly-card" aria-labelledby="weeklyGoalTitle">
+          <section
+            class="weekly-card"
+            aria-labelledby="weeklyGoalTitle"
+          >
             <div class="weekly-icon">
               <svg
                 aria-hidden="true"
@@ -751,9 +1106,24 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <circle cx="30" cy="34" r="19"></circle>
-                <circle cx="30" cy="34" r="11"></circle>
-                <circle cx="30" cy="34" r="3"></circle>
+                <circle
+                  cx="30"
+                  cy="34"
+                  r="19"
+                ></circle>
+
+                <circle
+                  cx="30"
+                  cy="34"
+                  r="11"
+                ></circle>
+
+                <circle
+                  cx="30"
+                  cy="34"
+                  r="3"
+                ></circle>
+
                 <path d="m33 31 20-20"></path>
                 <path d="M45 11h8v8"></path>
               </svg>
@@ -763,7 +1133,10 @@
               <div class="weekly-heading">
                 <div>
                   <span>ТИЖНЕВА ЦІЛЬ</span>
-                  <h2 id="weeklyGoalTitle">Виконай 7 завдань</h2>
+
+                  <h2 id="weeklyGoalTitle">
+                    Виконай 7 завдань
+                  </h2>
                 </div>
 
                 <strong>+300 PULSE</strong>
@@ -771,7 +1144,10 @@
 
               <div class="weekly-progress-copy">
                 <span>Прогрес цього тижня</span>
-                <strong id="weeklyProgressText">4 / 7</strong>
+
+                <strong id="weeklyProgressText">
+                  4 / 7
+                </strong>
               </div>
 
               <div
@@ -796,13 +1172,23 @@
 
           <div class="responsible-line">
             <span>18+</span>
-            <p>Грай відповідально. Результат гри залежить від випадковості.</p>
+
+            <p>
+              Грай відповідально. Результат гри залежить від
+              випадковості.
+            </p>
           </div>
         </div>
 
-        <!-- Нижнє меню -->
-        <nav class="bottom-nav" aria-label="Головне меню">
-          <a class="nav-item" href="home.html" data-section="Головна">
+        <nav
+          class="bottom-nav"
+          aria-label="Головне меню"
+        >
+          <a
+            class="nav-item"
+            href="home.html"
+            data-section="Головна"
+          >
             <span class="nav-icon">
               <svg
                 aria-hidden="true"
@@ -814,6 +1200,7 @@
                 stroke-linejoin="round"
               >
                 <path d="m3.5 10.4 8.5-7 8.5 7"></path>
+
                 <path
                   d="M5.8 9.2v10.2h12.4V9.2M9.5 19.4v-6.2h5v6.2"
                 ></path>
@@ -823,7 +1210,11 @@
             <span>Головна</span>
           </a>
 
-          <a class="nav-item" href="signals.html" data-section="Сигнали">
+          <a
+            class="nav-item"
+            href="signals.html"
+            data-section="Сигнали"
+          >
             <span class="nav-icon">
               <svg
                 aria-hidden="true"
@@ -861,7 +1252,10 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <path d="M4 10.2h16v10H4zM3 6.8h18v3.4H3zM12 6.8v13.4"></path>
+                <path
+                  d="M4 10.2h16v10H4zM3 6.8h18v3.4H3zM12 6.8v13.4"
+                ></path>
+
                 <path
                   d="M11.7 6.7C9.8 6.9 7 6.5 7 4.5 7 2.2 11 3 11.7 6.7ZM12.3 6.7c1.9.2 4.7-.2 4.7-2.2 0-2.3-4-1.5-4.7 2.2Z"
                 ></path>
@@ -871,7 +1265,11 @@
             <span>Бонуси</span>
           </a>
 
-          <a class="nav-item" href="#" data-section="Профіль">
+          <a
+            class="nav-item"
+            href="profile.html"
+            data-section="Профіль"
+          >
             <span class="nav-icon">
               <svg
                 aria-hidden="true"
@@ -882,8 +1280,15 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <circle cx="12" cy="8" r="4"></circle>
-                <path d="M4.8 20c.7-4 3.1-6 7.2-6s6.5 2 7.2 6"></path>
+                <circle
+                  cx="12"
+                  cy="8"
+                  r="4"
+                ></circle>
+
+                <path
+                  d="M4.8 20c.7-4 3.1-6 7.2-6s6.5 2 7.2 6"
+                ></path>
               </svg>
             </span>
 
@@ -891,7 +1296,6 @@
           </a>
         </nav>
 
-        <!-- Центр сповіщень -->
         <div
           class="notification-center"
           id="notificationCenter"
@@ -910,7 +1314,10 @@
             aria-modal="true"
             aria-labelledby="notificationCenterTitle"
           >
-            <div class="notification-panel-handle" aria-hidden="true"></div>
+            <div
+              class="notification-panel-handle"
+              aria-hidden="true"
+            ></div>
 
             <header class="notification-panel-header">
               <div>
@@ -919,7 +1326,9 @@
                   PULSE CENTER
                 </p>
 
-                <h2 id="notificationCenterTitle">Сповіщення</h2>
+                <h2 id="notificationCenterTitle">
+                  Сповіщення
+                </h2>
               </div>
 
               <button
@@ -942,7 +1351,9 @@
             </header>
 
             <div class="notification-panel-summary">
-              <span id="notificationSummary">Нових повідомлень немає</span>
+              <span id="notificationSummary">
+                Нових повідомлень немає
+              </span>
 
               <button
                 id="notificationClearButton"
@@ -963,7 +1374,10 @@
               class="notification-empty"
               id="notificationEmpty"
             >
-              <div class="notification-empty-icon" aria-hidden="true">
+              <div
+                class="notification-empty-icon"
+                aria-hidden="true"
+              >
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -975,21 +1389,23 @@
                   <path
                     d="M6.2 10.2c0-3.6 2.1-6.2 5.8-6.2s5.8 2.6 5.8 6.2v4l1.7 2.4h-15l1.7-2.4v-4Z"
                   ></path>
-                  <path d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"></path>
+
+                  <path
+                    d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"
+                  ></path>
                 </svg>
               </div>
 
               <strong>Поки що тихо</strong>
 
               <p>
-                Тут з’являтимуться виконані завдання, отримані нагороди та
-                важливі повідомлення Pulse.
+                Тут з’являтимуться виконані завдання, отримані
+                нагороди та важливі повідомлення Pulse.
               </p>
             </div>
           </aside>
         </div>
 
-        <!-- Вікно перевірки -->
         <div
           class="verification-overlay"
           id="verificationOverlay"
@@ -1026,7 +1442,10 @@
               </svg>
             </button>
 
-            <div class="verification-icon" id="verificationIcon">
+            <div
+              class="verification-icon"
+              id="verificationIcon"
+            >
               <span class="verification-loader"></span>
 
               <svg
@@ -1045,12 +1464,17 @@
               </svg>
             </div>
 
-            <p class="verification-eyebrow">PULSE VERIFICATION</p>
+            <p class="verification-eyebrow">
+              PULSE VERIFICATION
+            </p>
 
-            <h2 id="verificationTitle">Перевіряємо завдання</h2>
+            <h2 id="verificationTitle">
+              Перевіряємо завдання
+            </h2>
 
             <p id="verificationDescription">
-              Зачекай декілька секунд, поки система перевірить результат.
+              Зачекай декілька секунд, поки система перевірить
+              результат.
             </p>
 
             <button
@@ -1064,14 +1488,17 @@
           </section>
         </div>
 
-        <!-- Інструкція відповідальної гри -->
         <div
           class="guide-overlay"
           id="guideOverlay"
           aria-hidden="true"
           hidden
         >
-          <div class="guide-backdrop" data-close-guide aria-hidden="true"></div>
+          <div
+            class="guide-backdrop"
+            data-close-guide
+            aria-hidden="true"
+          ></div>
 
           <section
             class="guide-dialog"
@@ -1097,45 +1524,67 @@
               </svg>
             </button>
 
-            <div class="guide-icon" aria-hidden="true">18+</div>
+            <div
+              class="guide-icon"
+              aria-hidden="true"
+            >
+              18+
+            </div>
 
-            <p class="guide-eyebrow">ВІДПОВІДАЛЬНА ГРА</p>
+            <p class="guide-eyebrow">
+              ВІДПОВІДАЛЬНА ГРА
+            </p>
 
-            <h2 id="guideTitle">Контролюй свою гру</h2>
+            <h2 id="guideTitle">
+              Контролюй свою гру
+            </h2>
 
             <div class="guide-content">
               <p>
-                Грай лише на ту суму, яку можеш дозволити собі втратити.
+                Грай лише на ту суму, яку можеш дозволити собі
+                втратити.
               </p>
 
               <p>
-                Не намагайся повернути програні кошти збільшенням ставок.
+                Не намагайся повернути програні кошти збільшенням
+                ставок.
               </p>
 
               <p>
-                Роби перерви та заздалегідь визначай свій часовий і фінансовий
-                ліміт.
+                Роби перерви та заздалегідь визначай свій часовий і
+                фінансовий ліміт.
               </p>
 
               <p>
-                Сигнали не гарантують результат, оскільки гра залежить від
-                випадковості.
+                Сигнали не гарантують результат, оскільки гра залежить
+                від випадковості.
               </p>
             </div>
 
-            <button class="guide-confirm" id="guideConfirm" type="button">
+            <button
+              class="guide-confirm"
+              id="guideConfirm"
+              type="button"
+            >
               Я ПРОЧИТАВ
             </button>
           </section>
         </div>
 
-        <!-- Повідомлення -->
-        <div class="toast" id="toast" role="status" aria-live="polite">
-          <span class="toast-dot" aria-hidden="true"></span>
+        <div
+          class="toast"
+          id="toast"
+          role="status"
+          aria-live="polite"
+        >
+          <span
+            class="toast-dot"
+            aria-hidden="true"
+          ></span>
+
           <span id="toastText"></span>
         </div>
 
-        <!-- Анімація отримання нагороди -->
         <div
           class="reward-toast"
           id="rewardToast"
@@ -1143,16 +1592,25 @@
           aria-live="polite"
           aria-hidden="true"
         >
-          <span class="reward-toast-icon" aria-hidden="true">+</span>
+          <span
+            class="reward-toast-icon"
+            aria-hidden="true"
+          >
+            +
+          </span>
 
           <div>
-            <strong id="rewardToastValue">+100 PULSE</strong>
+            <strong id="rewardToastValue">
+              +100 PULSE
+            </strong>
+
             <span>Нагороду зараховано</span>
           </div>
         </div>
       </section>
     </main>
 
-    <script src="bonuses.js"></script>
+    <script src="notifications.js?v=20260803-1"></script>
+    <script src="bonuses.js?v=20260803-2"></script>
   </body>
 </html>
