@@ -14,6 +14,15 @@ const allSlotsOverlay = document.querySelector("#allSlotsOverlay");
 const allSlotsBackButton = document.querySelector("#allSlotsBackButton");
 const allSlotsGrid = document.querySelector("#allSlotsGrid");
 const allSlotsCount = document.querySelector("#allSlotsCount");
+const allSlotsSearchInput = document.querySelector(
+  "#allSlotsSearchInput"
+);
+const allSlotsSearchClear = document.querySelector(
+  "#allSlotsSearchClear"
+);
+const allSlotsEmpty = document.querySelector(
+  "#allSlotsEmpty"
+);
 const navItems = document.querySelectorAll(".nav-item");
 const toast = document.querySelector("#toast");
 const toastText = document.querySelector("#toastText");
@@ -345,15 +354,33 @@ function createSlotCard(slot, index) {
   return card;
 }
 
-function renderAllSlotsCatalog() {
+function normalizeSlotSearch(value) {
+  return String(value || "")
+    .trim()
+    .toLocaleLowerCase("uk-UA");
+}
+
+function renderAllSlotsCatalog(searchValue = "") {
   if (!allSlotsGrid) {
     return;
   }
 
+  const normalizedSearch =
+    normalizeSlotSearch(searchValue);
+
+  const filteredSlots =
+    normalizedSearch
+      ? slotCatalog.filter((slot) => {
+          return normalizeSlotSearch(
+            slot.name
+          ).includes(normalizedSearch);
+        })
+      : slotCatalog;
+
   const fragment =
     document.createDocumentFragment();
 
-  slotCatalog.forEach((slot) => {
+  filteredSlots.forEach((slot) => {
     const card = createSlotCard(slot, -1);
 
     card.addEventListener(
@@ -384,8 +411,20 @@ function renderAllSlotsCatalog() {
 
   if (allSlotsCount) {
     allSlotsCount.textContent =
-      String(slotCatalog.length);
+      String(filteredSlots.length);
   }
+
+  if (allSlotsEmpty) {
+    allSlotsEmpty.hidden =
+      filteredSlots.length > 0;
+  }
+
+  if (allSlotsSearchClear) {
+    allSlotsSearchClear.hidden =
+      normalizedSearch.length === 0;
+  }
+
+  applyAllSlotsSelection();
 }
 
 function openAllSlotsOverlay() {
@@ -396,7 +435,11 @@ function openAllSlotsOverlay() {
   window.clearTimeout(toastTimer);
   toast.classList.remove("is-visible");
 
-  applyAllSlotsSelection();
+  if (allSlotsSearchInput) {
+    allSlotsSearchInput.value = "";
+  }
+
+  renderAllSlotsCatalog();
   allSlotsOverlay.hidden = false;
 
   document.body.classList.add(
@@ -1510,6 +1553,24 @@ allSlotsBackButton.addEventListener(
   "click",
   () => {
     closeAllSlotsOverlay();
+  }
+);
+
+allSlotsSearchInput?.addEventListener(
+  "input",
+  () => {
+    renderAllSlotsCatalog(
+      allSlotsSearchInput.value
+    );
+  }
+);
+
+allSlotsSearchClear?.addEventListener(
+  "click",
+  () => {
+    allSlotsSearchInput.value = "";
+    renderAllSlotsCatalog();
+    allSlotsSearchInput.focus();
   }
 );
 
