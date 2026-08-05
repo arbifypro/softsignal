@@ -546,6 +546,75 @@
             </label>
 
             <div
+              class="all-slots-categories"
+              id="allSlotsCategories"
+              role="tablist"
+              aria-label="Категорії слотів"
+            >
+              <button
+                class="all-slots-category is-active"
+                type="button"
+                data-category="all"
+                role="tab"
+                aria-selected="true"
+              >
+                Усі
+              </button>
+
+              <button
+                class="all-slots-category"
+                type="button"
+                data-category="popular"
+                role="tab"
+                aria-selected="false"
+              >
+                Популярні
+              </button>
+
+              <button
+                class="all-slots-category"
+                type="button"
+                data-category="new"
+                role="tab"
+                aria-selected="false"
+              >
+                Нові
+              </button>
+
+              <button
+                class="all-slots-category"
+                type="button"
+                data-category="megaways"
+                role="tab"
+                aria-selected="false"
+              >
+                Megaways
+              </button>
+
+              <button
+                class="all-slots-category all-slots-category-favorites"
+                type="button"
+                data-category="favorites"
+                role="tab"
+                aria-selected="false"
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M20.8 4.7c-2-2-5.2-2-7.2 0L12 6.3l-1.6-1.6c-2-2-5.2-2-7.2 0s-2 5.2 0 7.2L12 20.7l8.8-8.8c2-2 2-5.2 0-7.2Z"></path>
+                </svg>
+                Обране
+                <span id="favoriteSlotsCount">0</span>
+              </button>
+            </div>
+
+            <div
               class="all-slots-grid"
               id="allSlotsGrid"
             ></div>
@@ -555,8 +624,8 @@
               id="allSlotsEmpty"
               hidden
             >
-              <span>Нічого не знайдено</span>
-              <p>Спробуйте ввести іншу назву слота</p>
+              <span id="allSlotsEmptyTitle">Нічого не знайдено</span>
+              <p id="allSlotsEmptyText">Спробуйте ввести іншу назву слота</p>
             </div>
           </div>
         </section>
@@ -1135,6 +1204,6 @@
     </main>
 
     <script src="notifications.js?v=20260803-1"></script>
-    <script src="home.js?v=20260804-2"></script>
+    <script src="home.js?v=20260805-1"></script>
   </body>
 </html>
