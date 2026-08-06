@@ -5,6 +5,7 @@ const RESULT_REVEAL_DELAY = 420;
 const SUBID_VERIFY_DELAY = 1200;
 const SUBID_SUCCESS_DELAY = 850;
 const SUBID_STORAGE_KEY = "arbifyVerifiedSubId";
+const FAVORITE_SLOTS_STORAGE_KEY = "arbifyFavoriteSlots";
 
 const slotGrid = document.querySelector(".slot-grid");
 const signalButton = document.querySelector("#signalButton");
@@ -14,6 +15,28 @@ const allSlotsOverlay = document.querySelector("#allSlotsOverlay");
 const allSlotsBackButton = document.querySelector("#allSlotsBackButton");
 const allSlotsGrid = document.querySelector("#allSlotsGrid");
 const allSlotsCount = document.querySelector("#allSlotsCount");
+const allSlotsTitle = document.querySelector("#allSlotsTitle");
+const allSlotsSearchInput = document.querySelector(
+  "#allSlotsSearchInput"
+);
+const allSlotsSearchClear = document.querySelector(
+  "#allSlotsSearchClear"
+);
+const allSlotsEmpty = document.querySelector(
+  "#allSlotsEmpty"
+);
+const allSlotsEmptyTitle = document.querySelector(
+  "#allSlotsEmptyTitle"
+);
+const allSlotsEmptyText = document.querySelector(
+  "#allSlotsEmptyText"
+);
+const allSlotsCategories = document.querySelector(
+  "#allSlotsCategories"
+);
+const favoriteSlotsCount = document.querySelector(
+  "#favoriteSlotsCount"
+);
 const navItems = document.querySelectorAll(".nav-item");
 const toast = document.querySelector("#toast");
 const toastText = document.querySelector("#toastText");
@@ -266,7 +289,31 @@ const slotCatalog = [
     accent: "#d64f8f",
     profile: "balanced",
   },
-];
+ ];
+
+const popularSlotNames = new Set(
+  slotCatalog.slice(0, 8).map((slot) => slot.name)
+);
+
+const newSlotNames = new Set([
+  "The Dog House Multihold",
+  "Wanted Dead or a Wild",
+  "Money Train 3",
+  "Reactoonz",
+  "Jammin' Jars",
+  "Immortal Romance",
+]);
+
+const categoryLabels = {
+  all: "Усі слоти",
+  popular: "Популярні слоти",
+  new: "Нові слоти",
+  megaways: "Megaways",
+  favorites: "Обране",
+};
+
+let activeSlotCategory = "all";
+let favoriteSlotNames = loadFavoriteSlots();
 
 const signalProfiles = Object.fromEntries(
   slotCatalog.map((slot) => {
@@ -278,16 +325,19 @@ const signalProfiles = Object.fromEntries(
 );
 
 function createSlotCard(slot, index) {
-  const card = document.createElement("button");
+  const card = document.createElement("div");
   const imageWrap = document.createElement("span");
   const image = document.createElement("img");
   const shine = document.createElement("span");
   const selectedCheck = document.createElement("span");
+  const favoriteButton = document.createElement("button");
   const slotName = document.createElement("span");
 
   card.className = "slot-card";
-  card.type = "button";
   card.dataset.slot = slot.name;
+  card.setAttribute("role", "button");
+  card.setAttribute("tabindex", "0");
+  card.setAttribute("aria-label", `Обрати слот ${slot.name}`);
   card.style.setProperty(
     "--slot-accent",
     slot.accent
@@ -328,13 +378,46 @@ function createSlotCard(slot, index) {
     "true"
   );
   selectedCheck.textContent = "✓";
+
+  favoriteButton.className = "slot-favorite-button";
+  favoriteButton.type = "button";
+  favoriteButton.dataset.favoriteSlot = slot.name;
+  favoriteButton.innerHTML = `
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M20.8 4.7c-2-2-5.2-2-7.2 0L12 6.3l-1.6-1.6c-2-2-5.2-2-7.2 0s-2 5.2 0 7.2L12 20.7l8.8-8.8c2-2 2-5.2 0-7.2Z"></path>
+    </svg>
+  `;
+
+  updateFavoriteButton(
+    favoriteButton,
+    slot.name
+  );
+
+  favoriteButton.addEventListener(
+    "click",
+    (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleFavoriteSlot(slot.name);
+    }
+  );
+
   slotName.className = "slot-name";
   slotName.textContent = slot.name;
 
   imageWrap.append(
     image,
     shine,
-    selectedCheck
+    selectedCheck,
+    favoriteButton
   );
 
   card.append(
@@ -342,18 +425,227 @@ function createSlotCard(slot, index) {
     slotName
   );
 
+  card.addEventListener(
+    "keydown",
+    (event) => {
+      if (
+        event.key === "Enter" ||
+        event.key === " "
+      ) {
+        event.preventDefault();
+        card.click();
+      }
+    }
+  );
+
   return card;
 }
 
-function renderAllSlotsCatalog() {
+function loadFavoriteSlots() {
+  try {
+    const storedValue = JSON.parse(
+      localStorage.getItem(
+        FAVORITE_SLOTS_STORAGE_KEY
+      ) || "[]"
+    );
+
+    if (!Array.isArray(storedValue)) {
+      return new Set();
+    }
+
+    return new Set(
+      storedValue.filter((slotName) => {
+        return slotCatalog.some((slot) => {
+          return slot.name === slotName;
+        });
+      })
+    );
+  } catch {
+    return new Set();
+  }
+}
+
+function saveFavoriteSlots() {
+  try {
+    localStorage.setItem(
+      FAVORITE_SLOTS_STORAGE_KEY,
+      JSON.stringify([...favoriteSlotNames])
+    );
+  } catch {
+    /* Обране працюватиме до перезавантаження. */
+  }
+}
+
+function updateFavoriteButton(
+  button,
+  slotName
+) {
+  const isFavorite =
+    favoriteSlotNames.has(slotName);
+
+  button.classList.toggle(
+    "is-favorite",
+    isFavorite
+  );
+
+  button.setAttribute(
+    "aria-pressed",
+    String(isFavorite)
+  );
+
+  button.setAttribute(
+    "aria-label",
+    isFavorite
+      ? `Видалити ${slotName} з обраного`
+      : `Додати ${slotName} в обране`
+  );
+}
+
+function updateFavoriteInterface() {
+  document
+    .querySelectorAll(
+      ".slot-favorite-button"
+    )
+    .forEach((button) => {
+      updateFavoriteButton(
+        button,
+        button.dataset.favoriteSlot
+      );
+    });
+
+  if (favoriteSlotsCount) {
+    favoriteSlotsCount.textContent =
+      String(favoriteSlotNames.size);
+  }
+}
+
+function toggleFavoriteSlot(slotName) {
+  const isRemoving =
+    favoriteSlotNames.has(slotName);
+
+  if (isRemoving) {
+    favoriteSlotNames.delete(slotName);
+  } else {
+    favoriteSlotNames.add(slotName);
+  }
+
+  saveFavoriteSlots();
+  updateFavoriteInterface();
+
+  showToast(
+    isRemoving
+      ? `${slotName} видалено з обраного`
+      : `${slotName} додано в обране`
+  );
+
+  if (
+    activeSlotCategory === "favorites"
+  ) {
+    renderAllSlotsCatalog(
+      allSlotsSearchInput?.value || ""
+    );
+  }
+}
+
+function slotMatchesCategory(
+  slot,
+  category
+) {
+  if (category === "popular") {
+    return popularSlotNames.has(slot.name);
+  }
+
+  if (category === "new") {
+    return newSlotNames.has(slot.name);
+  }
+
+  if (category === "megaways") {
+    return slot.name
+      .toLocaleLowerCase("uk-UA")
+      .includes("megaways");
+  }
+
+  if (category === "favorites") {
+    return favoriteSlotNames.has(slot.name);
+  }
+
+  return true;
+}
+
+function setActiveSlotCategory(category) {
+  activeSlotCategory =
+    categoryLabels[category]
+      ? category
+      : "all";
+
+  allSlotsCategories
+    ?.querySelectorAll(
+      ".all-slots-category"
+    )
+    .forEach((button) => {
+      const isActive =
+        button.dataset.category ===
+        activeSlotCategory;
+
+      button.classList.toggle(
+        "is-active",
+        isActive
+      );
+
+      button.setAttribute(
+        "aria-selected",
+        String(isActive)
+      );
+    });
+
+  if (allSlotsTitle) {
+    allSlotsTitle.textContent =
+      categoryLabels[activeSlotCategory];
+  }
+
+  renderAllSlotsCatalog(
+    allSlotsSearchInput?.value || ""
+  );
+}
+
+function normalizeSlotSearch(value) {
+  return String(value || "")
+    .trim()
+    .toLocaleLowerCase("uk-UA");
+}
+
+function renderAllSlotsCatalog(searchValue = "") {
   if (!allSlotsGrid) {
     return;
   }
 
+  const normalizedSearch =
+    normalizeSlotSearch(searchValue);
+
+  const filteredSlots =
+    slotCatalog.filter((slot) => {
+      const matchesCategory =
+        slotMatchesCategory(
+          slot,
+          activeSlotCategory
+        );
+
+      const matchesSearch =
+        !normalizedSearch ||
+        normalizeSlotSearch(
+          slot.name
+        ).includes(normalizedSearch);
+
+      return (
+        matchesCategory &&
+        matchesSearch
+      );
+    });
+
   const fragment =
     document.createDocumentFragment();
 
-  slotCatalog.forEach((slot) => {
+  filteredSlots.forEach((slot) => {
     const card = createSlotCard(slot, -1);
 
     card.addEventListener(
@@ -384,8 +676,43 @@ function renderAllSlotsCatalog() {
 
   if (allSlotsCount) {
     allSlotsCount.textContent =
-      String(slotCatalog.length);
+      String(filteredSlots.length);
   }
+
+  if (allSlotsEmpty) {
+    allSlotsEmpty.hidden =
+      filteredSlots.length > 0;
+  }
+
+  if (
+    filteredSlots.length === 0 &&
+    allSlotsEmptyTitle &&
+    allSlotsEmptyText
+  ) {
+    if (
+      activeSlotCategory ===
+        "favorites" &&
+      !normalizedSearch
+    ) {
+      allSlotsEmptyTitle.textContent =
+        "Обраних слотів ще немає";
+      allSlotsEmptyText.textContent =
+        "Натисніть сердечко на слоті, щоб додати його сюди";
+    } else {
+      allSlotsEmptyTitle.textContent =
+        "Нічого не знайдено";
+      allSlotsEmptyText.textContent =
+        "Спробуйте іншу назву або категорію";
+    }
+  }
+
+  if (allSlotsSearchClear) {
+    allSlotsSearchClear.hidden =
+      normalizedSearch.length === 0;
+  }
+
+  applyAllSlotsSelection();
+  updateFavoriteInterface();
 }
 
 function openAllSlotsOverlay() {
@@ -396,7 +723,11 @@ function openAllSlotsOverlay() {
   window.clearTimeout(toastTimer);
   toast.classList.remove("is-visible");
 
-  applyAllSlotsSelection();
+  if (allSlotsSearchInput) {
+    allSlotsSearchInput.value = "";
+  }
+
+  setActiveSlotCategory("all");
   allSlotsOverlay.hidden = false;
 
   document.body.classList.add(
@@ -492,6 +823,7 @@ const scanStages = [
 
 renderSlotCatalog();
 renderAllSlotsCatalog();
+updateFavoriteInterface();
 
 const slotCards =
   slotGrid.querySelectorAll(".slot-card");
@@ -1510,6 +1842,41 @@ allSlotsBackButton.addEventListener(
   "click",
   () => {
     closeAllSlotsOverlay();
+  }
+);
+
+allSlotsSearchInput?.addEventListener(
+  "input",
+  () => {
+    renderAllSlotsCatalog(
+      allSlotsSearchInput.value
+    );
+  }
+);
+
+allSlotsSearchClear?.addEventListener(
+  "click",
+  () => {
+    allSlotsSearchInput.value = "";
+    renderAllSlotsCatalog();
+    allSlotsSearchInput.focus();
+  }
+);
+
+allSlotsCategories?.addEventListener(
+  "click",
+  (event) => {
+    const button = event.target.closest(
+      ".all-slots-category"
+    );
+
+    if (!button) {
+      return;
+    }
+
+    setActiveSlotCategory(
+      button.dataset.category
+    );
   }
 );
 
