@@ -497,10 +497,65 @@
           </header>
 
           <div class="all-slots-content">
+            <div class="all-slots-search-wrap">
+              <label class="all-slots-search" for="allSlotsSearchInput">
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="11" cy="11" r="6.5"></circle>
+                  <path d="m16 16 4 4"></path>
+                </svg>
+
+                <input
+                  id="allSlotsSearchInput"
+                  type="search"
+                  placeholder="Знайти слот"
+                  maxlength="60"
+                  autocomplete="off"
+                  autocapitalize="off"
+                  spellcheck="false"
+                />
+
+                <button
+                  class="all-slots-search-clear"
+                  id="allSlotsSearchClear"
+                  type="button"
+                  aria-label="Очистити пошук"
+                  hidden
+                >
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                  >
+                    <path d="M7 7l10 10M17 7 7 17"></path>
+                  </svg>
+                </button>
+              </label>
+            </div>
+
             <div
               class="all-slots-grid"
               id="allSlotsGrid"
             ></div>
+
+            <div
+              class="all-slots-empty"
+              id="allSlotsEmpty"
+              hidden
+            >
+              <strong>Нічого не знайдено</strong>
+              <span>Спробуйте іншу назву слота</span>
+            </div>
           </div>
         </section>
 
