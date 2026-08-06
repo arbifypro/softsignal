@@ -3379,3 +3379,138 @@ body.all-slots-open .bottom-nav {
     border-radius: 23px;
   }
 }
+
+/* =========================================================
+   ОБРАНЕ У КАТАЛОЗІ — ІЗОЛЬОВАНІ СТИЛІ
+   ========================================================= */
+
+/* Сердечка не впливають на картки головної сторінки. */
+.slot-favorite-button {
+  display: none;
+}
+
+/* Компактна кнопка-фільтр під пошуком. */
+.catalog-favorites-row {
+  width: 100%;
+  margin: -4px 0 15px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.catalog-favorites-button {
+  min-height: 34px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 11px;
+  color: #8e8b98;
+  background: rgba(255, 255, 255, 0.035);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.catalog-favorites-button:active {
+  transform: scale(0.97);
+}
+
+.catalog-favorites-button svg {
+  width: 15px !important;
+  height: 15px !important;
+  min-width: 15px;
+  max-width: 15px;
+  display: block;
+}
+
+.catalog-favorites-button strong {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  color: #aaa6b3;
+  background: rgba(255, 255, 255, 0.055);
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.catalog-favorites-button.is-active {
+  border-color: rgba(255, 94, 148, 0.3);
+  color: #ff7aa7;
+  background: rgba(255, 70, 132, 0.085);
+}
+
+.catalog-favorites-button.is-active svg {
+  fill: currentColor;
+}
+
+.catalog-favorites-button.is-active strong {
+  color: #ffd2e1;
+  background: rgba(255, 91, 145, 0.14);
+}
+
+/* Сердечко показується лише в повному каталозі. */
+.all-slots-grid .slot-favorite-button {
+  position: absolute;
+  z-index: 5;
+  top: 7px;
+  left: 7px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.78);
+  background: rgba(5, 6, 11, 0.7);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.all-slots-grid .slot-favorite-button:active {
+  transform: scale(0.9);
+}
+
+.all-slots-grid .slot-favorite-button svg {
+  width: 15px !important;
+  height: 15px !important;
+  min-width: 15px;
+  max-width: 15px;
+  display: block;
+}
+
+.all-slots-grid .slot-favorite-button.is-favorite {
+  border-color: rgba(255, 101, 151, 0.38);
+  color: #ff699b;
+  background: rgba(60, 12, 31, 0.78);
+  box-shadow:
+    0 5px 14px rgba(0, 0, 0, 0.24),
+    0 0 14px rgba(255, 83, 140, 0.16);
+}
+
+.all-slots-grid .slot-favorite-button.is-favorite svg {
+  fill: currentColor;
+}
+
+/* Позначка вибраного слота залишається справа, сердечко — зліва. */
+.all-slots-grid .selected-check {
+  right: 7px;
+  left: auto;
+}
