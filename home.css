@@ -1,3 +1,22 @@
+:root {
+  --background: #020307;
+  --foreground: #f8f7ff;
+  --muted: #8f90a2;
+  --gold: #f4c44e;
+  --purple: #8d42ff;
+  --purple-bright: #b95cff;
+  --green: #21e780;
+  --panel: rgba(9, 10, 18, 0.88);
+  --line: rgba(255, 255, 255, 0.08);
+
+  color-scheme: dark;
+  background-color: #020307;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 html {
   min-height: 100%;
   background: #020307 !important;
