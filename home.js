@@ -37,6 +37,10 @@ const allSlotsCategories = document.querySelector(
 const favoriteSlotsCount = document.querySelector(
   "#favoriteSlotsCount"
 );
+
+const allSlotsFavoritesButton = document.querySelector(
+  "#allSlotsFavoritesButton"
+);
 const navItems = document.querySelectorAll(".nav-item");
 const toast = document.querySelector("#toast");
 const toastText = document.querySelector("#toastText");
@@ -517,6 +521,21 @@ function updateFavoriteInterface() {
     favoriteSlotsCount.textContent =
       String(favoriteSlotNames.size);
   }
+
+  if (allSlotsFavoritesButton) {
+    const favoritesAreOpen =
+      activeSlotCategory === "favorites";
+
+    allSlotsFavoritesButton.classList.toggle(
+      "is-active",
+      favoritesAreOpen
+    );
+
+    allSlotsFavoritesButton.setAttribute(
+      "aria-pressed",
+      String(favoritesAreOpen)
+    );
+  }
 }
 
 function toggleFavoriteSlot(slotName) {
@@ -606,6 +625,8 @@ function setActiveSlotCategory(category) {
   renderAllSlotsCatalog(
     allSlotsSearchInput?.value || ""
   );
+
+  updateFavoriteInterface();
 }
 
 function normalizeSlotSearch(value) {
@@ -1860,6 +1881,18 @@ allSlotsSearchClear?.addEventListener(
     allSlotsSearchInput.value = "";
     renderAllSlotsCatalog();
     allSlotsSearchInput.focus();
+  }
+);
+
+allSlotsFavoritesButton?.addEventListener(
+  "click",
+  () => {
+    const nextCategory =
+      activeSlotCategory === "favorites"
+        ? "all"
+        : "favorites";
+
+    setActiveSlotCategory(nextCategory);
   }
 );
 
