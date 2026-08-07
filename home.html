@@ -192,7 +192,7 @@
       }
     </style>
 
-    <link rel="stylesheet" href="home.css" />
+    <link rel="stylesheet" href="home.css?v=20260807-active-timer-1" />
     <link rel="stylesheet" href="notifications.css" />
 
     <link
@@ -1120,6 +1120,53 @@
               </div>
             </div>
 
+
+            <section
+              class="active-signal-timer"
+              id="activeSignalTimer"
+              aria-live="polite"
+              hidden
+            >
+              <div class="active-signal-timer-top">
+                <div class="active-signal-timer-status">
+                  <span
+                    class="active-signal-timer-dot"
+                    aria-hidden="true"
+                  ></span>
+
+                  <span id="activeSignalTimerStatus">
+                    СИГНАЛ АКТИВНИЙ
+                  </span>
+                </div>
+
+                <span
+                  class="active-signal-timer-slot"
+                  id="activeSignalTimerSlot"
+                ></span>
+              </div>
+
+              <strong
+                class="active-signal-timer-value"
+                id="activeSignalTimerValue"
+              >
+                03:00
+              </strong>
+
+              <div
+                class="active-signal-timer-progress"
+                aria-hidden="true"
+              >
+                <span id="activeSignalTimerProgress"></span>
+              </div>
+
+              <p
+                class="active-signal-timer-hint"
+                id="activeSignalTimerHint"
+              >
+                Дотримуйтесь параметрів сигналу до завершення таймера
+              </p>
+            </section>
+
             <button
               class="result-action-button"
               id="resultActionButton"
@@ -1294,6 +1341,6 @@
     </main>
 
     <script src="notifications.js?v=20260803-1"></script>
-    <script src="home.js?v=20260807-2258"></script>
+    <script src="home.js?v=20260807-active-timer-1"></script>
   </body>
 </html>
