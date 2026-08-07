@@ -4219,3 +4219,173 @@ body.active-signal-notice-open
 .all-slots-overlay {
   pointer-events: none;
 }
+
+/* =========================================================
+   ПРОФІЛЬ РИЗИКУ — PREMIUM SEGMENTED CONTROL
+   Ізольовані стилі. Інші блоки не змінюються.
+   ========================================================= */
+
+.risk-profile {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.risk-profile-label {
+  display: block;
+  margin-bottom: 6px;
+  color: #656270;
+  font-size: 7px;
+  font-weight: 760;
+  letter-spacing: 0.13em;
+  line-height: 1;
+}
+
+.risk-profile-options {
+  width: 100%;
+  padding: 3px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 10px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.022),
+      rgba(255, 255, 255, 0.008)
+    ),
+    rgba(5, 6, 11, 0.52);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+.risk-profile-option {
+  position: relative;
+  min-width: 0;
+  height: 27px;
+  padding: 0 4px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 7px;
+  color: #6f6c79;
+  background: transparent;
+  font-size: 7px;
+  font-weight: 650;
+  letter-spacing: 0.015em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color 150ms ease,
+    background 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+.risk-profile-option::after {
+  position: absolute;
+  right: 8px;
+  bottom: 3px;
+  left: 8px;
+  height: 1px;
+  border-radius: 999px;
+  background: transparent;
+  content: "";
+  opacity: 0;
+  transition:
+    opacity 150ms ease;
+}
+
+.risk-profile-option:active {
+  transform: scale(0.97);
+}
+
+.risk-profile-option.is-active {
+  color: #eee9f3;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(141, 66, 255, 0.12),
+      rgba(92, 32, 151, 0.065)
+    );
+  box-shadow:
+    inset 0 0 0 1px rgba(180, 99, 243, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.028);
+}
+
+.risk-profile-option.is-active::after {
+  opacity: 0.8;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(184, 103, 242, 0.72),
+      transparent
+    );
+}
+
+.risk-profile-option[data-risk="НИЗЬКИЙ"].is-active {
+  color: #c8ead8;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(37, 170, 105, 0.11),
+      rgba(21, 91, 58, 0.055)
+    );
+}
+
+.risk-profile-option[data-risk="НИЗЬКИЙ"].is-active::after {
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(72, 214, 143, 0.70),
+      transparent
+    );
+}
+
+.risk-profile-option[data-risk="ВИСОКИЙ"].is-active {
+  color: #ead7c6;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(203, 119, 54, 0.10),
+      rgba(111, 57, 20, 0.05)
+    );
+}
+
+.risk-profile-option[data-risk="ВИСОКИЙ"].is-active::after {
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(229, 151, 86, 0.68),
+      transparent
+    );
+}
+
+.risk-profile.is-locked {
+  opacity: 0.72;
+}
+
+.risk-profile.is-locked
+.risk-profile-option {
+  cursor: pointer;
+}
+
+@media (max-height: 760px) and (max-width: 559px) {
+  .risk-profile {
+    margin-top: 8px;
+  }
+
+  .risk-profile-label {
+    margin-bottom: 5px;
+  }
+
+  .risk-profile-option {
+    height: 25px;
+    font-size: 6.5px;
+  }
+}
