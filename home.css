@@ -3999,7 +3999,7 @@ body.all-slots-open .bottom-nav {
     inset 0 1px 0 rgba(255, 255, 255, 0.035);
   opacity: 0;
   transform:
-    translateY(11px)
+    translateY(-39px)
     scale(0.982);
   transition:
     opacity 190ms ease,
@@ -4027,7 +4027,7 @@ body.all-slots-open .bottom-nav {
 .active-signal-notice-dialog {
   opacity: 1;
   transform:
-    translateY(0)
+    translateY(-50px)
     scale(1);
 }
 
