@@ -4389,3 +4389,100 @@ body.active-signal-notice-open
     font-size: 6.5px;
   }
 }
+
+/* =========================================================
+   КОМПАКТНИЙ БЛОК СИГНАЛУ ДЛЯ СТАТИЧНОЇ ГОЛОВНОЇ
+   Точкові перевизначення лише для signal-card / risk-profile.
+   ========================================================= */
+
+.signal-card {
+  min-height: 154px;
+  margin-top: 20px;
+  padding: 16px 17px;
+  grid-template-columns: 98px minmax(0, 1fr);
+  column-gap: 13px;
+}
+
+.signal-copy {
+  padding-top: 0;
+}
+
+.signal-copy h2 {
+  margin-top: 5px;
+}
+
+.risk-profile {
+  margin-top: 9px;
+}
+
+.risk-profile-label {
+  margin-bottom: 5px;
+}
+
+.risk-profile-options {
+  padding: 3px;
+}
+
+.risk-profile-option {
+  height: 25px;
+}
+
+.signal-button {
+  margin-top: 8px;
+  padding: 9px 12px;
+}
+
+.radar {
+  width: 94px;
+  height: 94px;
+}
+
+@media (max-height: 820px) and (max-width: 559px) {
+  .slots-section {
+    margin-top: 18px;
+  }
+
+  .signal-card {
+    min-height: 146px;
+    margin-top: 16px;
+    padding: 14px 15px;
+    grid-template-columns: 90px minmax(0, 1fr);
+    column-gap: 12px;
+  }
+
+  .radar {
+    width: 86px;
+    height: 86px;
+  }
+
+  .signal-kicker {
+    font-size: 7px;
+  }
+
+  .signal-copy h2 {
+    font-size: 15px;
+  }
+
+  .risk-profile {
+    margin-top: 7px;
+  }
+
+  .risk-profile-label {
+    margin-bottom: 4px;
+  }
+
+  .risk-profile-option {
+    height: 23px;
+    font-size: 6.3px;
+  }
+
+  .signal-button {
+    min-width: 116px;
+    margin-top: 7px;
+    padding: 8px 11px;
+  }
+
+  .responsible-line {
+    margin-top: 11px;
+  }
+}
