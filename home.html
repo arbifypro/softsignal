@@ -192,7 +192,7 @@
       }
     </style>
 
-    <link rel="stylesheet" href="home.css?v=20260807-risk-compact-1" />
+    <link rel="stylesheet" href="home.css?v=20260808-onboarding-1" />
     <link rel="stylesheet" href="notifications.css" />
 
     <link
@@ -594,6 +594,113 @@
           </div>
         </div>
 
+
+
+        <!-- Перше знайомство з ARBIFY PULSE -->
+        <section
+          class="pulse-onboarding"
+          id="pulseOnboarding"
+          aria-label="Коротка інструкція"
+          hidden
+        >
+          <div
+            class="pulse-onboarding-dimmer pulse-onboarding-dimmer-top"
+            aria-hidden="true"
+          ></div>
+
+          <div
+            class="pulse-onboarding-dimmer pulse-onboarding-dimmer-right"
+            aria-hidden="true"
+          ></div>
+
+          <div
+            class="pulse-onboarding-dimmer pulse-onboarding-dimmer-bottom"
+            aria-hidden="true"
+          ></div>
+
+          <div
+            class="pulse-onboarding-dimmer pulse-onboarding-dimmer-left"
+            aria-hidden="true"
+          ></div>
+
+          <div
+            class="pulse-onboarding-spotlight"
+            id="pulseOnboardingSpotlight"
+            aria-hidden="true"
+          ></div>
+
+          <article
+            class="pulse-onboarding-card"
+            id="pulseOnboardingCard"
+          >
+            <div class="pulse-onboarding-card-top">
+              <span
+                class="pulse-onboarding-step"
+                id="pulseOnboardingStep"
+              >
+                КРОК 1 · SUBID
+              </span>
+
+              <button
+                class="pulse-onboarding-skip"
+                id="pulseOnboardingSkip"
+                type="button"
+              >
+                Пропустити
+              </button>
+            </div>
+
+            <h2 id="pulseOnboardingTitle">
+              Підтвердьте свій SUBID
+            </h2>
+
+            <p
+              class="pulse-onboarding-copy"
+              id="pulseOnboardingCopy"
+            ></p>
+
+            <div
+              class="pulse-onboarding-example"
+              id="pulseOnboardingExample"
+            >
+              <span>ПРИКЛАД</span>
+
+              <code>
+                ...?subid=<strong>AB12CD</strong>
+              </code>
+
+              <small>
+                Скопіюйте тільки значення після =
+              </small>
+            </div>
+
+            <div class="pulse-onboarding-progress">
+              <span class="is-active"></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+
+            <div class="pulse-onboarding-actions">
+              <button
+                class="pulse-onboarding-back"
+                id="pulseOnboardingBack"
+                type="button"
+                hidden
+              >
+                Назад
+              </button>
+
+              <button
+                class="pulse-onboarding-next"
+                id="pulseOnboardingNext"
+                type="button"
+              >
+                ДАЛІ
+              </button>
+            </div>
+          </article>
+        </section>
 
         <!-- Повний каталог слотів -->
         <section
@@ -1450,6 +1557,6 @@
     </main>
 
     <script src="notifications.js?v=20260803-1"></script>
-    <script src="home.js?v=20260807-risk-compact-1"></script>
+    <script src="home.js?v=20260808-onboarding-1"></script>
   </body>
 </html>
