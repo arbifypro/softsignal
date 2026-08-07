@@ -3930,3 +3930,232 @@ body.all-slots-open .bottom-nav {
     margin-top: 7px;
   }
 }
+
+/* =========================================================
+   ПОВІДОМЛЕННЯ ПРО АКТИВНИЙ СИГНАЛ
+   Ізольовані стилі. Інші елементи не змінюються.
+   ========================================================= */
+
+.active-signal-notice[hidden] {
+  display: none !important;
+}
+
+.active-signal-notice {
+  position: absolute;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding:
+    max(22px, env(safe-area-inset-top))
+    22px
+    max(22px, env(safe-area-inset-bottom));
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 180ms ease;
+}
+
+.active-signal-notice.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.active-signal-notice-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    rgba(1, 2, 5, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.active-signal-notice-dialog {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 320px);
+  padding: 22px 20px 18px;
+  overflow: hidden;
+  border:
+    1px solid
+    rgba(167, 85, 255, 0.18);
+  border-radius: 19px;
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(145, 62, 255, 0.14),
+      transparent 42%
+    ),
+    linear-gradient(
+      150deg,
+      rgba(17, 14, 27, 0.985),
+      rgba(6, 7, 12, 0.99)
+    );
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  text-align: center;
+  transform: translateY(10px) scale(0.985);
+  transition:
+    transform 180ms ease;
+}
+
+.active-signal-notice.is-open
+.active-signal-notice-dialog {
+  transform: translateY(0) scale(1);
+}
+
+.active-signal-notice-icon {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  border:
+    1px solid
+    rgba(46, 229, 138, 0.28);
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle,
+      rgba(35, 217, 126, 0.12),
+      rgba(16, 75, 46, 0.035)
+    );
+  box-shadow:
+    0 0 0 8px rgba(40, 224, 133, 0.025),
+    0 0 24px rgba(37, 226, 132, 0.10);
+}
+
+.active-signal-notice-icon span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #2be78a;
+  box-shadow:
+    0 0 11px rgba(43, 231, 138, 0.78);
+}
+
+.active-signal-notice-icon::after {
+  position: absolute;
+  inset: -8px;
+  border:
+    1px solid
+    rgba(46, 229, 138, 0.10);
+  border-radius: inherit;
+  content: "";
+  animation:
+    activeSignalNoticePulse
+    1.8s
+    ease-out
+    infinite;
+}
+
+.active-signal-notice-kicker {
+  margin: 14px 0 0;
+  color: #9c6fc5;
+  font-size: 8px;
+  font-weight: 780;
+  letter-spacing: 0.18em;
+}
+
+.active-signal-notice-dialog h2 {
+  margin: 6px 0 0;
+  color: #f6f2fa;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.active-signal-notice-copy {
+  margin: 9px auto 0;
+  max-width: 250px;
+  color: #85838f;
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+.active-signal-notice-time {
+  margin-top: 17px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.055);
+  border-radius: 12px;
+  background:
+    rgba(255, 255, 255, 0.025);
+}
+
+.active-signal-notice-time span {
+  color: #696775;
+  font-size: 8px;
+  font-weight: 760;
+  letter-spacing: 0.12em;
+}
+
+.active-signal-notice-time strong {
+  color: #70e9a8;
+  font-variant-numeric: tabular-nums;
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+}
+
+.active-signal-notice-button {
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px 16px;
+  border:
+    1px solid
+    rgba(191, 119, 255, 0.18);
+  border-radius: 11px;
+  color: #f7f3fb;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(148, 59, 225, 0.96),
+      rgba(101, 28, 178, 0.98)
+    );
+  box-shadow:
+    0 8px 22px rgba(98, 29, 176, 0.23),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  font-size: 9px;
+  font-weight: 820;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition:
+    transform 150ms ease,
+    filter 150ms ease;
+}
+
+.active-signal-notice-button:active {
+  transform: scale(0.985);
+}
+
+.active-signal-notice-button:hover {
+  filter: brightness(1.06);
+}
+
+body.active-signal-notice-open
+.signal-overlay,
+body.active-signal-notice-open
+.all-slots-overlay {
+  pointer-events: none;
+}
+
+@keyframes activeSignalNoticePulse {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.72);
+  }
+
+  80%,
+  100% {
+    opacity: 0;
+    transform: scale(1.65);
+  }
+}
