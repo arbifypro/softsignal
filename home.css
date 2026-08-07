@@ -4488,8 +4488,8 @@ body.active-signal-notice-open
 }
 
 /* =========================================================
-   ARBIFY PULSE — ПЕРШЕ ЗНАЙОМСТВО / ONBOARDING
-   Ізольований шар. Існуючий інтерфейс не змінюється.
+   ARBIFY PULSE — ONBOARDING GLASS 2.0
+   Тільки onboarding. Інший інтерфейс не змінюється.
    ========================================================= */
 
 .pulse-onboarding[hidden] {
@@ -4504,7 +4504,7 @@ body.active-signal-notice-open
   opacity: 0;
   pointer-events: none;
   transition:
-    opacity 180ms ease;
+    opacity 220ms ease;
 }
 
 .pulse-onboarding.is-open {
@@ -4512,68 +4512,68 @@ body.active-signal-notice-open
   pointer-events: auto;
 }
 
+/* Матовий фон навколо spotlight */
 .pulse-onboarding-dimmer {
   position: absolute;
   z-index: 1;
   background:
-    rgba(2, 3, 8, 0.72);
+    rgba(2, 3, 8, 0.48);
   backdrop-filter:
-    blur(8px);
+    blur(11px)
+    saturate(0.82);
   -webkit-backdrop-filter:
-    blur(8px);
+    blur(11px)
+    saturate(0.82);
   transition:
-    left 230ms
-      cubic-bezier(0.2, 0.75, 0.2, 1),
-    top 230ms
-      cubic-bezier(0.2, 0.75, 0.2, 1),
-    width 230ms
-      cubic-bezier(0.2, 0.75, 0.2, 1),
-    height 230ms
-      cubic-bezier(0.2, 0.75, 0.2, 1);
+    left 250ms cubic-bezier(0.2, 0.78, 0.2, 1),
+    top 250ms cubic-bezier(0.2, 0.78, 0.2, 1),
+    width 250ms cubic-bezier(0.2, 0.78, 0.2, 1),
+    height 250ms cubic-bezier(0.2, 0.78, 0.2, 1);
 }
 
+/* М'який світловий контур замість яскравої рамки */
 .pulse-onboarding-spotlight {
   position: absolute;
   z-index: 2;
   border:
     1px solid
-    rgba(186, 103, 255, 0.54);
-  border-radius: 16px;
+    rgba(221, 194, 255, 0.32);
+  border-radius: 18px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.018),
+      rgba(157, 86, 226, 0.025)
+    );
   box-shadow:
-    0 0 0 1px
-      rgba(169, 77, 255, 0.11),
-    0 0 24px
-      rgba(145, 62, 235, 0.20),
-    inset 0 0 18px
-      rgba(163, 72, 255, 0.045);
+    0 0 0 1px rgba(185, 120, 245, 0.045),
+    0 0 21px rgba(153, 73, 229, 0.13),
+    0 0 44px rgba(126, 53, 194, 0.055),
+    inset 0 1px 0 rgba(255, 255, 255, 0.055);
   pointer-events: none;
   transition:
-    left 230ms
-      cubic-bezier(0.2, 0.75, 0.2, 1),
-    top 230ms
-      cubic-bezier(0.2, 0.75, 0.2, 1),
-    width 230ms
-      cubic-bezier(0.2, 0.75, 0.2, 1),
-    height 230ms
-      cubic-bezier(0.2, 0.75, 0.2, 1);
+    left 250ms cubic-bezier(0.2, 0.78, 0.2, 1),
+    top 250ms cubic-bezier(0.2, 0.78, 0.2, 1),
+    width 250ms cubic-bezier(0.2, 0.78, 0.2, 1),
+    height 250ms cubic-bezier(0.2, 0.78, 0.2, 1);
 }
 
 .pulse-onboarding-spotlight::after {
   position: absolute;
-  inset: -5px;
+  inset: -6px;
   border:
     1px solid
-    rgba(184, 97, 255, 0.12);
-  border-radius:
-    calc(16px + 5px);
+    rgba(195, 139, 241, 0.075);
+  border-radius: 24px;
   content: "";
   animation:
-    pulseOnboardingSpotlightPulse
-    1.8s
+    pulseOnboardingGlassPulse
+    2.4s
     ease-in-out
     infinite;
 }
 
+/* Основна glass-картка */
 .pulse-onboarding-card {
   position: absolute;
   z-index: 4;
@@ -4583,67 +4583,92 @@ body.active-signal-notice-open
       326px
     );
   padding:
-    16px
-    16px
+    17px
+    17px
     15px;
   overflow: hidden;
   border:
     1px solid
-    rgba(255, 255, 255, 0.075);
-  border-radius: 17px;
+    rgba(255, 255, 255, 0.115);
+  border-radius: 20px;
   background:
     radial-gradient(
-      circle at 88% -18%,
-      rgba(151, 68, 232, 0.13),
+      circle at 94% -5%,
+      rgba(194, 134, 255, 0.105),
       transparent 38%
     ),
     linear-gradient(
-      155deg,
-      rgba(18, 18, 27, 0.985),
-      rgba(7, 8, 13, 0.992)
+      145deg,
+      rgba(37, 36, 49, 0.52),
+      rgba(12, 13, 20, 0.46)
     );
+  backdrop-filter:
+    blur(24px)
+    saturate(1.22);
+  -webkit-backdrop-filter:
+    blur(24px)
+    saturate(1.22);
   box-shadow:
-    0 26px 64px
-      rgba(0, 0, 0, 0.48),
-    inset 0 1px 0
-      rgba(255, 255, 255, 0.035);
+    0 28px 68px rgba(0, 0, 0, 0.34),
+    0 8px 22px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.025);
   opacity: 0;
+  filter: blur(5px);
   transform:
-    translateY(7px)
+    translateY(8px)
     scale(0.985);
   transition:
-    left 230ms
-      cubic-bezier(0.2, 0.75, 0.2, 1),
-    top 230ms
-      cubic-bezier(0.2, 0.75, 0.2, 1),
-    opacity 170ms ease,
-    transform 190ms ease;
+    left 250ms cubic-bezier(0.2, 0.78, 0.2, 1),
+    top 250ms cubic-bezier(0.2, 0.78, 0.2, 1),
+    opacity 190ms ease,
+    filter 220ms ease,
+    transform 230ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+/* Ледь помітний відблиск скла зверху */
 .pulse-onboarding-card::before {
   position: absolute;
   top: 0;
-  right: 18px;
-  left: 18px;
+  right: 14px;
+  left: 14px;
   height: 1px;
   background:
     linear-gradient(
       90deg,
       transparent,
-      rgba(180, 93, 247, 0.38),
+      rgba(255, 255, 255, 0.30) 38%,
+      rgba(196, 137, 247, 0.22) 62%,
       transparent
     );
   content: "";
 }
 
+.pulse-onboarding-card::after {
+  position: absolute;
+  top: -74px;
+  right: -52px;
+  width: 150px;
+  height: 120px;
+  border-radius: 50%;
+  background:
+    rgba(195, 136, 255, 0.055);
+  filter: blur(28px);
+  content: "";
+  pointer-events: none;
+}
+
 .pulse-onboarding-card.is-step-visible {
   opacity: 1;
+  filter: blur(0);
   transform:
     translateY(0)
     scale(1);
 }
 
 .pulse-onboarding-card-top {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -4651,64 +4676,113 @@ body.active-signal-notice-open
 }
 
 .pulse-onboarding-step {
-  color: #9a6fc3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(218, 190, 240, 0.75);
   font-size: 7px;
-  font-weight: 780;
-  letter-spacing: 0.15em;
+  font-weight: 760;
+  letter-spacing: 0.16em;
+}
+
+.pulse-onboarding-step::before {
+  width: 5px;
+  height: 5px;
+  flex: 0 0 5px;
+  border-radius: 50%;
+  background:
+    rgba(190, 125, 242, 0.88);
+  box-shadow:
+    0 0 8px
+    rgba(182, 106, 241, 0.35);
+  content: "";
 }
 
 .pulse-onboarding-skip {
-  padding: 4px 0 4px 8px;
+  position: relative;
+  z-index: 1;
+  padding: 5px 0 5px 10px;
   border: 0;
-  color: #62616c;
+  color: rgba(203, 199, 211, 0.43);
   background: none;
   font-size: 8px;
   cursor: pointer;
+  transition:
+    color 150ms ease,
+    opacity 150ms ease;
+}
+
+.pulse-onboarding-skip:hover {
+  color: rgba(239, 235, 244, 0.72);
 }
 
 .pulse-onboarding-card h2 {
-  margin: 12px 0 0;
-  color: #f3f0f6;
-  font-size: 17px;
-  font-weight: 670;
-  letter-spacing: -0.025em;
-  line-height: 1.18;
+  position: relative;
+  z-index: 1;
+  margin: 14px 0 0;
+  color: rgba(250, 248, 252, 0.96);
+  font-size: 18px;
+  font-weight: 640;
+  letter-spacing: -0.03em;
+  line-height: 1.16;
+  text-shadow:
+    0 1px 16px
+    rgba(255, 255, 255, 0.035);
 }
 
 .pulse-onboarding-copy {
-  margin: 7px 0 0;
-  color: #85828e;
+  position: relative;
+  z-index: 1;
+  margin: 8px 0 0;
+  color: rgba(212, 207, 218, 0.58);
   font-size: 9px;
-  line-height: 1.52;
+  line-height: 1.55;
 }
 
 .pulse-onboarding-example[hidden] {
   display: none !important;
 }
 
+/* Скляний приклад SUBID */
 .pulse-onboarding-example {
-  margin-top: 12px;
-  padding: 10px 11px;
+  position: relative;
+  z-index: 1;
+  margin-top: 13px;
+  padding:
+    10px
+    11px
+    9px;
   border:
     1px solid
-    rgba(255, 255, 255, 0.055);
-  border-radius: 11px;
+    rgba(255, 255, 255, 0.075);
+  border-radius: 12px;
   background:
-    rgba(255, 255, 255, 0.025);
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.055),
+      rgba(255, 255, 255, 0.018)
+    );
+  box-shadow:
+    inset 0 1px 0
+    rgba(255, 255, 255, 0.04);
+  backdrop-filter:
+    blur(10px);
+  -webkit-backdrop-filter:
+    blur(10px);
 }
 
 .pulse-onboarding-example > span {
   display: block;
-  color: #595761;
+  color: rgba(184, 179, 191, 0.42);
   font-size: 6px;
-  font-weight: 780;
-  letter-spacing: 0.13em;
+  font-weight: 760;
+  letter-spacing: 0.14em;
 }
 
 .pulse-onboarding-example code {
   display: block;
-  margin-top: 5px;
-  color: #85838d;
+  margin-top: 6px;
+  color: rgba(221, 216, 226, 0.62);
   font-family:
     ui-monospace,
     SFMono-Regular,
@@ -4721,58 +4795,117 @@ body.active-signal-notice-open
 }
 
 .pulse-onboarding-example code strong {
-  color: #cf9cf2;
-  font-weight: 720;
+  display: inline-block;
+  padding:
+    2px
+    5px;
+  border:
+    1px solid
+    rgba(196, 131, 246, 0.12);
+  border-radius: 5px;
+  color: #ddb5fa;
+  background:
+    rgba(171, 93, 229, 0.10);
+  font-weight: 700;
+  box-shadow:
+    0 0 10px
+    rgba(174, 95, 231, 0.06);
 }
 
 .pulse-onboarding-example small {
   display: block;
-  margin-top: 5px;
-  color: #62606a;
+  margin-top: 6px;
+  color: rgba(183, 178, 190, 0.38);
   font-size: 7px;
 }
 
+/* 01 / 04 — тонкий software-progress */
 .pulse-onboarding-progress {
-  margin-top: 13px;
-  display: flex;
-  align-items: center;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  margin-top: 15px;
+  padding-top: 12px;
+  display: grid;
+  grid-template-columns:
+    repeat(4, 1fr);
   gap: 5px;
 }
 
 .pulse-onboarding-progress > span {
-  width: 4px;
-  height: 4px;
+  position: relative;
+  width: 100%;
+  height: 2px;
   border-radius: 999px;
   background:
-    rgba(255, 255, 255, 0.11);
+    rgba(255, 255, 255, 0.075);
   transition:
-    width 160ms ease,
-    background 160ms ease,
-    box-shadow 160ms ease;
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.pulse-onboarding-progress > span::before {
+  position: absolute;
+  top: -12px;
+  left: 0;
+  color:
+    rgba(199, 194, 205, 0.30);
+  font-size: 6px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  line-height: 1;
+}
+
+.pulse-onboarding-progress
+> span:nth-child(1)::before {
+  content: "01";
+}
+
+.pulse-onboarding-progress
+> span:nth-child(2)::before {
+  content: "02";
+}
+
+.pulse-onboarding-progress
+> span:nth-child(3)::before {
+  content: "03";
+}
+
+.pulse-onboarding-progress
+> span:nth-child(4)::before {
+  content: "04";
 }
 
 .pulse-onboarding-progress
 > span.is-complete {
   background:
-    rgba(165, 91, 220, 0.40);
+    rgba(177, 108, 226, 0.32);
 }
 
 .pulse-onboarding-progress
 > span.is-active {
-  width: 18px;
   background:
     linear-gradient(
       90deg,
-      #873dd4,
-      #b968ee
+      rgba(164, 82, 219, 0.72),
+      rgba(218, 158, 255, 0.88)
     );
   box-shadow:
-    0 0 8px
-      rgba(169, 82, 231, 0.26);
+    0 0 9px
+    rgba(182, 102, 235, 0.18);
 }
 
+.pulse-onboarding-progress
+> span.is-active::before {
+  color:
+    rgba(229, 196, 251, 0.84);
+}
+
+/* Скляні кнопки */
 .pulse-onboarding-actions {
-  margin-top: 13px;
+  position: relative;
+  z-index: 1;
+  margin-top: 14px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -4785,52 +4918,82 @@ body.active-signal-notice-open
 
 .pulse-onboarding-back,
 .pulse-onboarding-next {
-  min-height: 34px;
+  min-height: 35px;
   padding: 0 13px;
-  border-radius: 9px;
+  border-radius: 10px;
   font-size: 8px;
-  font-weight: 750;
-  letter-spacing: 0.07em;
+  font-weight: 720;
+  letter-spacing: 0.075em;
   cursor: pointer;
+  backdrop-filter:
+    blur(12px);
+  -webkit-backdrop-filter:
+    blur(12px);
   transition:
-    transform 140ms ease,
-    filter 140ms ease,
-    border-color 140ms ease,
-    background 140ms ease;
+    transform 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease,
+    background 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .pulse-onboarding-back {
   border:
     1px solid
-    rgba(255, 255, 255, 0.065);
-  color: #8e8b96;
+    rgba(255, 255, 255, 0.075);
+  color:
+    rgba(215, 210, 220, 0.56);
   background:
+    rgba(255, 255, 255, 0.025);
+  box-shadow:
+    inset 0 1px 0
     rgba(255, 255, 255, 0.025);
 }
 
 .pulse-onboarding-next {
-  min-width: 88px;
+  min-width: 94px;
   border:
     1px solid
-    rgba(195, 126, 249, 0.17);
-  color: #f4eef8;
+    rgba(225, 188, 255, 0.14);
+  color:
+    rgba(249, 245, 252, 0.92);
   background:
     linear-gradient(
-      180deg,
-      rgba(138, 55, 207, 0.94),
-      rgba(92, 28, 157, 0.98)
+      145deg,
+      rgba(166, 91, 220, 0.24),
+      rgba(98, 47, 143, 0.16)
     );
   box-shadow:
-    0 7px 18px
-      rgba(91, 26, 158, 0.20),
+    0 8px 18px
+    rgba(0, 0, 0, 0.12),
     inset 0 1px 0
-      rgba(255, 255, 255, 0.11);
+    rgba(255, 255, 255, 0.09),
+    0 0 18px
+    rgba(154, 77, 211, 0.055);
+}
+
+.pulse-onboarding-next:hover {
+  border-color:
+    rgba(230, 196, 255, 0.24);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(178, 98, 232, 0.31),
+      rgba(110, 51, 156, 0.19)
+    );
+}
+
+.pulse-onboarding-back:hover {
+  color:
+    rgba(239, 235, 243, 0.76);
+  border-color:
+    rgba(255, 255, 255, 0.11);
 }
 
 .pulse-onboarding-back:active,
 .pulse-onboarding-next:active,
 .pulse-onboarding-skip:active {
-  transform: scale(0.97);
+  transform: scale(0.975);
 }
 
 body.pulse-onboarding-open
@@ -4842,14 +5005,14 @@ body.pulse-onboarding-open
   pointer-events: none;
 }
 
-@keyframes pulseOnboardingSpotlightPulse {
+@keyframes pulseOnboardingGlassPulse {
   0%,
   100% {
-    opacity: 0.35;
+    opacity: 0.26;
   }
 
   50% {
-    opacity: 0.9;
+    opacity: 0.68;
   }
 }
 
@@ -4859,30 +5022,37 @@ body.pulse-onboarding-open
       14px
       14px
       13px;
+    border-radius: 18px;
   }
 
   .pulse-onboarding-card h2 {
-    margin-top: 9px;
-    font-size: 15px;
+    margin-top: 10px;
+    font-size: 16px;
   }
 
   .pulse-onboarding-copy {
+    margin-top: 6px;
     font-size: 8px;
     line-height: 1.46;
   }
 
   .pulse-onboarding-example {
     margin-top: 9px;
-    padding: 8px 9px;
+    padding:
+      8px
+      9px;
   }
 
-  .pulse-onboarding-progress,
+  .pulse-onboarding-progress {
+    margin-top: 11px;
+  }
+
   .pulse-onboarding-actions {
-    margin-top: 10px;
+    margin-top: 11px;
   }
 
   .pulse-onboarding-back,
   .pulse-onboarding-next {
-    min-height: 31px;
+    min-height: 32px;
   }
 }
