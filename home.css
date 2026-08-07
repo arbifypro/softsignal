@@ -4486,3 +4486,403 @@ body.active-signal-notice-open
     margin-top: 11px;
   }
 }
+
+/* =========================================================
+   ARBIFY PULSE — ПЕРШЕ ЗНАЙОМСТВО / ONBOARDING
+   Ізольований шар. Існуючий інтерфейс не змінюється.
+   ========================================================= */
+
+.pulse-onboarding[hidden] {
+  display: none !important;
+}
+
+.pulse-onboarding {
+  position: absolute;
+  inset: 0;
+  z-index: 82;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 180ms ease;
+}
+
+.pulse-onboarding.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.pulse-onboarding-dimmer {
+  position: absolute;
+  z-index: 1;
+  background:
+    rgba(2, 3, 8, 0.72);
+  backdrop-filter:
+    blur(8px);
+  -webkit-backdrop-filter:
+    blur(8px);
+  transition:
+    left 230ms
+      cubic-bezier(0.2, 0.75, 0.2, 1),
+    top 230ms
+      cubic-bezier(0.2, 0.75, 0.2, 1),
+    width 230ms
+      cubic-bezier(0.2, 0.75, 0.2, 1),
+    height 230ms
+      cubic-bezier(0.2, 0.75, 0.2, 1);
+}
+
+.pulse-onboarding-spotlight {
+  position: absolute;
+  z-index: 2;
+  border:
+    1px solid
+    rgba(186, 103, 255, 0.54);
+  border-radius: 16px;
+  box-shadow:
+    0 0 0 1px
+      rgba(169, 77, 255, 0.11),
+    0 0 24px
+      rgba(145, 62, 235, 0.20),
+    inset 0 0 18px
+      rgba(163, 72, 255, 0.045);
+  pointer-events: none;
+  transition:
+    left 230ms
+      cubic-bezier(0.2, 0.75, 0.2, 1),
+    top 230ms
+      cubic-bezier(0.2, 0.75, 0.2, 1),
+    width 230ms
+      cubic-bezier(0.2, 0.75, 0.2, 1),
+    height 230ms
+      cubic-bezier(0.2, 0.75, 0.2, 1);
+}
+
+.pulse-onboarding-spotlight::after {
+  position: absolute;
+  inset: -5px;
+  border:
+    1px solid
+    rgba(184, 97, 255, 0.12);
+  border-radius:
+    calc(16px + 5px);
+  content: "";
+  animation:
+    pulseOnboardingSpotlightPulse
+    1.8s
+    ease-in-out
+    infinite;
+}
+
+.pulse-onboarding-card {
+  position: absolute;
+  z-index: 4;
+  width:
+    min(
+      calc(100% - 32px),
+      326px
+    );
+  padding:
+    16px
+    16px
+    15px;
+  overflow: hidden;
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.075);
+  border-radius: 17px;
+  background:
+    radial-gradient(
+      circle at 88% -18%,
+      rgba(151, 68, 232, 0.13),
+      transparent 38%
+    ),
+    linear-gradient(
+      155deg,
+      rgba(18, 18, 27, 0.985),
+      rgba(7, 8, 13, 0.992)
+    );
+  box-shadow:
+    0 26px 64px
+      rgba(0, 0, 0, 0.48),
+    inset 0 1px 0
+      rgba(255, 255, 255, 0.035);
+  opacity: 0;
+  transform:
+    translateY(7px)
+    scale(0.985);
+  transition:
+    left 230ms
+      cubic-bezier(0.2, 0.75, 0.2, 1),
+    top 230ms
+      cubic-bezier(0.2, 0.75, 0.2, 1),
+    opacity 170ms ease,
+    transform 190ms ease;
+}
+
+.pulse-onboarding-card::before {
+  position: absolute;
+  top: 0;
+  right: 18px;
+  left: 18px;
+  height: 1px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(180, 93, 247, 0.38),
+      transparent
+    );
+  content: "";
+}
+
+.pulse-onboarding-card.is-step-visible {
+  opacity: 1;
+  transform:
+    translateY(0)
+    scale(1);
+}
+
+.pulse-onboarding-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pulse-onboarding-step {
+  color: #9a6fc3;
+  font-size: 7px;
+  font-weight: 780;
+  letter-spacing: 0.15em;
+}
+
+.pulse-onboarding-skip {
+  padding: 4px 0 4px 8px;
+  border: 0;
+  color: #62616c;
+  background: none;
+  font-size: 8px;
+  cursor: pointer;
+}
+
+.pulse-onboarding-card h2 {
+  margin: 12px 0 0;
+  color: #f3f0f6;
+  font-size: 17px;
+  font-weight: 670;
+  letter-spacing: -0.025em;
+  line-height: 1.18;
+}
+
+.pulse-onboarding-copy {
+  margin: 7px 0 0;
+  color: #85828e;
+  font-size: 9px;
+  line-height: 1.52;
+}
+
+.pulse-onboarding-example[hidden] {
+  display: none !important;
+}
+
+.pulse-onboarding-example {
+  margin-top: 12px;
+  padding: 10px 11px;
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.055);
+  border-radius: 11px;
+  background:
+    rgba(255, 255, 255, 0.025);
+}
+
+.pulse-onboarding-example > span {
+  display: block;
+  color: #595761;
+  font-size: 6px;
+  font-weight: 780;
+  letter-spacing: 0.13em;
+}
+
+.pulse-onboarding-example code {
+  display: block;
+  margin-top: 5px;
+  color: #85838d;
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.pulse-onboarding-example code strong {
+  color: #cf9cf2;
+  font-weight: 720;
+}
+
+.pulse-onboarding-example small {
+  display: block;
+  margin-top: 5px;
+  color: #62606a;
+  font-size: 7px;
+}
+
+.pulse-onboarding-progress {
+  margin-top: 13px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pulse-onboarding-progress > span {
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background:
+    rgba(255, 255, 255, 0.11);
+  transition:
+    width 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.pulse-onboarding-progress
+> span.is-complete {
+  background:
+    rgba(165, 91, 220, 0.40);
+}
+
+.pulse-onboarding-progress
+> span.is-active {
+  width: 18px;
+  background:
+    linear-gradient(
+      90deg,
+      #873dd4,
+      #b968ee
+    );
+  box-shadow:
+    0 0 8px
+      rgba(169, 82, 231, 0.26);
+}
+
+.pulse-onboarding-actions {
+  margin-top: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.pulse-onboarding-back[hidden] {
+  display: none !important;
+}
+
+.pulse-onboarding-back,
+.pulse-onboarding-next {
+  min-height: 34px;
+  padding: 0 13px;
+  border-radius: 9px;
+  font-size: 8px;
+  font-weight: 750;
+  letter-spacing: 0.07em;
+  cursor: pointer;
+  transition:
+    transform 140ms ease,
+    filter 140ms ease,
+    border-color 140ms ease,
+    background 140ms ease;
+}
+
+.pulse-onboarding-back {
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.065);
+  color: #8e8b96;
+  background:
+    rgba(255, 255, 255, 0.025);
+}
+
+.pulse-onboarding-next {
+  min-width: 88px;
+  border:
+    1px solid
+    rgba(195, 126, 249, 0.17);
+  color: #f4eef8;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(138, 55, 207, 0.94),
+      rgba(92, 28, 157, 0.98)
+    );
+  box-shadow:
+    0 7px 18px
+      rgba(91, 26, 158, 0.20),
+    inset 0 1px 0
+      rgba(255, 255, 255, 0.11);
+}
+
+.pulse-onboarding-back:active,
+.pulse-onboarding-next:active,
+.pulse-onboarding-skip:active {
+  transform: scale(0.97);
+}
+
+body.pulse-onboarding-open
+.bottom-nav,
+body.pulse-onboarding-open
+.content,
+body.pulse-onboarding-open
+.topbar {
+  pointer-events: none;
+}
+
+@keyframes pulseOnboardingSpotlightPulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@media (max-height: 760px) and (max-width: 559px) {
+  .pulse-onboarding-card {
+    padding:
+      14px
+      14px
+      13px;
+  }
+
+  .pulse-onboarding-card h2 {
+    margin-top: 9px;
+    font-size: 15px;
+  }
+
+  .pulse-onboarding-copy {
+    font-size: 8px;
+    line-height: 1.46;
+  }
+
+  .pulse-onboarding-example {
+    margin-top: 9px;
+    padding: 8px 9px;
+  }
+
+  .pulse-onboarding-progress,
+  .pulse-onboarding-actions {
+    margin-top: 10px;
+  }
+
+  .pulse-onboarding-back,
+  .pulse-onboarding-next {
+    min-height: 31px;
+  }
+}
