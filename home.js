@@ -8,6 +8,7 @@ const SUBID_STORAGE_KEY = "arbifyVerifiedSubId";
 const FAVORITE_SLOTS_STORAGE_KEY = "arbifyFavoriteSlots";
 const ACTIVE_SIGNAL_TIMER_STORAGE_KEY = "arbifyActiveSignalTimer";
 const RISK_PROFILE_STORAGE_KEY = "arbifyRiskProfile";
+const ONBOARDING_STORAGE_KEY = "arbifyOnboardingSeen";
 
 const slotGrid = document.querySelector(".slot-grid");
 const signalButton = document.querySelector("#signalButton");
@@ -136,6 +137,67 @@ const riskProfile = document.querySelector(
 const riskProfileOptions = document.querySelectorAll(
   ".risk-profile-option"
 );
+
+const pulseApp = document.querySelector(".pulse-app");
+
+const pulseOnboarding = document.querySelector(
+  "#pulseOnboarding"
+);
+
+const pulseOnboardingSpotlight = document.querySelector(
+  "#pulseOnboardingSpotlight"
+);
+
+const pulseOnboardingCard = document.querySelector(
+  "#pulseOnboardingCard"
+);
+
+const pulseOnboardingStep = document.querySelector(
+  "#pulseOnboardingStep"
+);
+
+const pulseOnboardingTitle = document.querySelector(
+  "#pulseOnboardingTitle"
+);
+
+const pulseOnboardingCopy = document.querySelector(
+  "#pulseOnboardingCopy"
+);
+
+const pulseOnboardingExample = document.querySelector(
+  "#pulseOnboardingExample"
+);
+
+const pulseOnboardingSkip = document.querySelector(
+  "#pulseOnboardingSkip"
+);
+
+const pulseOnboardingBack = document.querySelector(
+  "#pulseOnboardingBack"
+);
+
+const pulseOnboardingNext = document.querySelector(
+  "#pulseOnboardingNext"
+);
+
+const pulseOnboardingDots = document.querySelectorAll(
+  ".pulse-onboarding-progress > span"
+);
+
+const pulseOnboardingDimmers = {
+  top: document.querySelector(
+    ".pulse-onboarding-dimmer-top"
+  ),
+  right: document.querySelector(
+    ".pulse-onboarding-dimmer-right"
+  ),
+  bottom: document.querySelector(
+    ".pulse-onboarding-dimmer-bottom"
+  ),
+  left: document.querySelector(
+    ".pulse-onboarding-dimmer-left"
+  ),
+};
 
 const signalProfileTemplates = {
   balanced: {
@@ -914,11 +976,481 @@ let activeSignalNoticeInterval;
 let activeSignalNoticeRevealTimer;
 let activeSignalTimerState = loadActiveSignalTimerState();
 let selectedRiskProfile = loadRiskProfile();
+let pulseOnboardingIndex = 0;
+let pulseOnboardingTimer;
+let pulseOnboardingResizeFrame;
 
 updateRiskProfileInterface();
 
 
 
+
+
+const pulseOnboardingSteps = [
+  {
+    kicker: "КРОК 1 · SUBID",
+    title: "Підтвердьте свій SUBID",
+    copy:
+      "Під час першого запуску система попросить SUBID. " +
+      "Вставте значення, яке знаходиться після знака «=» " +
+      "у вашому реєстраційному посиланні.",
+    target: "#signalCard",
+    example: true,
+    padding: 8,
+  },
+  {
+    kicker: "КРОК 2 · ГРА",
+    title: "Оберіть потрібний слот",
+    copy:
+      "Натисніть на гру, для якої хочете сформувати сигнал. " +
+      "Обраний слот буде підсвічено.",
+    target: ".slot-grid",
+    example: false,
+    padding: 7,
+  },
+  {
+    kicker: "КРОК 3 · РИЗИК",
+    title: "Налаштуйте профіль ризику",
+    copy:
+      "Оберіть низький, середній або високий рівень. " +
+      "Система використає саме цей профіль у новому сигналі.",
+    target: "#riskProfile",
+    example: false,
+    padding: 7,
+  },
+  {
+    kicker: "КРОК 4 · ЗАПУСК",
+    title: "Запустіть аналіз",
+    copy:
+      "Коли гра та профіль ризику обрані, натисніть «Запустити». " +
+      "Якщо SUBID ще не підтверджено — система спочатку попросить його.",
+    target: "#signalButton",
+    example: false,
+    padding: 8,
+  },
+];
+
+function hasSeenPulseOnboarding() {
+  try {
+    return (
+      localStorage.getItem(
+        ONBOARDING_STORAGE_KEY
+      ) === "true"
+    );
+  } catch {
+    return false;
+  }
+}
+
+function markPulseOnboardingSeen() {
+  try {
+    localStorage.setItem(
+      ONBOARDING_STORAGE_KEY,
+      "true"
+    );
+  } catch {
+    /* Навчання просто може показатися знову. */
+  }
+}
+
+function setPulseOnboardingDimmer(
+  element,
+  left,
+  top,
+  width,
+  height
+) {
+  if (!element) {
+    return;
+  }
+
+  element.style.left = `${Math.max(0, left)}px`;
+  element.style.top = `${Math.max(0, top)}px`;
+  element.style.width = `${Math.max(0, width)}px`;
+  element.style.height = `${Math.max(0, height)}px`;
+}
+
+function positionPulseOnboarding() {
+  if (
+    !pulseOnboarding ||
+    pulseOnboarding.hidden ||
+    !pulseApp
+  ) {
+    return;
+  }
+
+  const step =
+    pulseOnboardingSteps[
+      pulseOnboardingIndex
+    ];
+
+  const target =
+    document.querySelector(
+      step.target
+    );
+
+  if (!target) {
+    return;
+  }
+
+  const appRect =
+    pulseApp.getBoundingClientRect();
+
+  const targetRect =
+    target.getBoundingClientRect();
+
+  const padding =
+    Number(step.padding) || 7;
+
+  const left = Math.max(
+    8,
+    targetRect.left -
+      appRect.left -
+      padding
+  );
+
+  const top = Math.max(
+    8,
+    targetRect.top -
+      appRect.top -
+      padding
+  );
+
+  const right = Math.min(
+    appRect.width - 8,
+    targetRect.right -
+      appRect.left +
+      padding
+  );
+
+  const bottom = Math.min(
+    appRect.height - 8,
+    targetRect.bottom -
+      appRect.top +
+      padding
+  );
+
+  const width = Math.max(
+    1,
+    right - left
+  );
+
+  const height = Math.max(
+    1,
+    bottom - top
+  );
+
+  pulseOnboardingSpotlight.style.left =
+    `${left}px`;
+
+  pulseOnboardingSpotlight.style.top =
+    `${top}px`;
+
+  pulseOnboardingSpotlight.style.width =
+    `${width}px`;
+
+  pulseOnboardingSpotlight.style.height =
+    `${height}px`;
+
+  setPulseOnboardingDimmer(
+    pulseOnboardingDimmers.top,
+    0,
+    0,
+    appRect.width,
+    top
+  );
+
+  setPulseOnboardingDimmer(
+    pulseOnboardingDimmers.bottom,
+    0,
+    bottom,
+    appRect.width,
+    appRect.height - bottom
+  );
+
+  setPulseOnboardingDimmer(
+    pulseOnboardingDimmers.left,
+    0,
+    top,
+    left,
+    height
+  );
+
+  setPulseOnboardingDimmer(
+    pulseOnboardingDimmers.right,
+    right,
+    top,
+    appRect.width - right,
+    height
+  );
+
+  window.requestAnimationFrame(() => {
+    const cardRect =
+      pulseOnboardingCard
+        .getBoundingClientRect();
+
+    const cardWidth =
+      cardRect.width;
+
+    const cardHeight =
+      cardRect.height;
+
+    const targetCenter =
+      left + width / 2;
+
+    const minimumGap = 14;
+
+    let cardLeft =
+      targetCenter -
+      cardWidth / 2;
+
+    cardLeft = Math.max(
+      16,
+      Math.min(
+        cardLeft,
+        appRect.width -
+          cardWidth -
+          16
+      )
+    );
+
+    const roomBelow =
+      appRect.height - bottom;
+
+    const roomAbove =
+      top;
+
+    let cardTop;
+
+    if (
+      roomBelow >=
+      cardHeight +
+        minimumGap +
+        18
+    ) {
+      cardTop =
+        bottom + minimumGap;
+    } else if (
+      roomAbove >=
+      cardHeight +
+        minimumGap +
+        18
+    ) {
+      cardTop =
+        top -
+        cardHeight -
+        minimumGap;
+    } else {
+      cardTop =
+        Math.max(
+          16,
+          Math.min(
+            appRect.height -
+              cardHeight -
+              16,
+            appRect.height / 2 -
+              cardHeight / 2
+          )
+        );
+    }
+
+    pulseOnboardingCard.style.left =
+      `${cardLeft}px`;
+
+    pulseOnboardingCard.style.top =
+      `${cardTop}px`;
+  });
+}
+
+function renderPulseOnboardingStep() {
+  if (!pulseOnboarding) {
+    return;
+  }
+
+  const step =
+    pulseOnboardingSteps[
+      pulseOnboardingIndex
+    ];
+
+  pulseOnboardingStep.textContent =
+    step.kicker;
+
+  pulseOnboardingTitle.textContent =
+    step.title;
+
+  pulseOnboardingCopy.textContent =
+    step.copy;
+
+  pulseOnboardingExample.hidden =
+    !step.example;
+
+  pulseOnboardingBack.hidden =
+    pulseOnboardingIndex === 0;
+
+  pulseOnboardingNext.textContent =
+    pulseOnboardingIndex ===
+    pulseOnboardingSteps.length - 1
+      ? "РОЗПОЧАТИ"
+      : "ДАЛІ";
+
+  pulseOnboardingDots.forEach(
+    (dot, index) => {
+      dot.classList.toggle(
+        "is-active",
+        index ===
+          pulseOnboardingIndex
+      );
+
+      dot.classList.toggle(
+        "is-complete",
+        index <
+          pulseOnboardingIndex
+      );
+    }
+  );
+
+  pulseOnboardingCard.classList.remove(
+    "is-step-visible"
+  );
+
+  window.requestAnimationFrame(() => {
+    positionPulseOnboarding();
+
+    window.requestAnimationFrame(() => {
+      pulseOnboardingCard.classList.add(
+        "is-step-visible"
+      );
+    });
+  });
+}
+
+function openPulseOnboarding() {
+  if (
+    !pulseOnboarding ||
+    hasSeenPulseOnboarding()
+  ) {
+    return;
+  }
+
+  if (
+    !allSlotsOverlay.hidden ||
+    !subIdModal.hidden ||
+    !signalOverlay.hidden ||
+    (
+      activeSignalNotice &&
+      !activeSignalNotice.hidden
+    )
+  ) {
+    return;
+  }
+
+  pulseOnboardingIndex = 0;
+
+  pulseOnboarding.hidden = false;
+
+  document.body.classList.add(
+    "pulse-onboarding-open"
+  );
+
+  renderPulseOnboardingStep();
+
+  window.requestAnimationFrame(() => {
+    pulseOnboarding.classList.add(
+      "is-open"
+    );
+  });
+}
+
+function closePulseOnboarding(
+  remember = true
+) {
+  if (!pulseOnboarding) {
+    return;
+  }
+
+  if (remember) {
+    markPulseOnboardingSeen();
+  }
+
+  window.clearTimeout(
+    pulseOnboardingTimer
+  );
+
+  window.cancelAnimationFrame(
+    pulseOnboardingResizeFrame
+  );
+
+  pulseOnboarding.classList.remove(
+    "is-open"
+  );
+
+  document.body.classList.remove(
+    "pulse-onboarding-open"
+  );
+
+  window.setTimeout(() => {
+    pulseOnboarding.hidden = true;
+  }, 190);
+}
+
+function schedulePulseOnboarding() {
+  if (
+    hasSeenPulseOnboarding() ||
+    hasActiveSignalTimer()
+  ) {
+    return;
+  }
+
+  window.clearTimeout(
+    pulseOnboardingTimer
+  );
+
+  pulseOnboardingTimer =
+    window.setTimeout(
+      openPulseOnboarding,
+      650
+    );
+}
+
+function goToNextPulseOnboardingStep() {
+  if (
+    pulseOnboardingIndex >=
+    pulseOnboardingSteps.length - 1
+  ) {
+    closePulseOnboarding(true);
+    return;
+  }
+
+  pulseOnboardingIndex += 1;
+  renderPulseOnboardingStep();
+}
+
+function goToPreviousPulseOnboardingStep() {
+  if (pulseOnboardingIndex <= 0) {
+    return;
+  }
+
+  pulseOnboardingIndex -= 1;
+  renderPulseOnboardingStep();
+}
+
+function syncPulseOnboardingPosition() {
+  if (
+    !pulseOnboarding ||
+    pulseOnboarding.hidden
+  ) {
+    return;
+  }
+
+  window.cancelAnimationFrame(
+    pulseOnboardingResizeFrame
+  );
+
+  pulseOnboardingResizeFrame =
+    window.requestAnimationFrame(
+      positionPulseOnboarding
+    );
+}
 
 function normalizeRiskProfile(value) {
   const normalized = String(value || "")
@@ -1783,6 +2315,8 @@ async function initializeHomeState() {
   document.documentElement.dataset
     .arbifyPageReady = "true";
 
+  schedulePulseOnboarding();
+
   return true;
 }
 
@@ -2496,6 +3030,33 @@ activeSignalNoticeBackdrop?.addEventListener(
   closeActiveSignalNotice
 );
 
+pulseOnboardingNext?.addEventListener(
+  "click",
+  goToNextPulseOnboardingStep
+);
+
+pulseOnboardingBack?.addEventListener(
+  "click",
+  goToPreviousPulseOnboardingStep
+);
+
+pulseOnboardingSkip?.addEventListener(
+  "click",
+  () => {
+    closePulseOnboarding(true);
+  }
+);
+
+window.addEventListener(
+  "resize",
+  syncPulseOnboardingPosition
+);
+
+window.visualViewport?.addEventListener(
+  "resize",
+  syncPulseOnboardingPosition
+);
+
 notificationButton.addEventListener(
   "click",
   () => {
@@ -2592,6 +3153,15 @@ document.addEventListener(
   (event) => {
     if (
       event.key === "Escape" &&
+      pulseOnboarding &&
+      !pulseOnboarding.hidden
+    ) {
+      closePulseOnboarding(true);
+      return;
+    }
+
+    if (
+      event.key === "Escape" &&
       activeSignalNotice &&
       !activeSignalNotice.hidden
     ) {
@@ -2649,6 +3219,14 @@ window.addEventListener(
 
     window.clearTimeout(
       activeSignalNoticeRevealTimer
+    );
+
+    window.clearTimeout(
+      pulseOnboardingTimer
+    );
+
+    window.cancelAnimationFrame(
+      pulseOnboardingResizeFrame
     );
   }
 );
