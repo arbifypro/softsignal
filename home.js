@@ -892,7 +892,6 @@ const scanStages = [
 renderSlotCatalog();
 renderAllSlotsCatalog();
 updateFavoriteInterface();
-updateRiskProfileInterface();
 
 const slotCards =
   slotGrid.querySelectorAll(".slot-card");
@@ -915,6 +914,8 @@ let activeSignalNoticeInterval;
 let activeSignalNoticeRevealTimer;
 let activeSignalTimerState = loadActiveSignalTimerState();
 let selectedRiskProfile = loadRiskProfile();
+
+updateRiskProfileInterface();
 
 
 
