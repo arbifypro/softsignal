@@ -7,6 +7,7 @@ const SUBID_SUCCESS_DELAY = 850;
 const SUBID_STORAGE_KEY = "arbifyVerifiedSubId";
 const FAVORITE_SLOTS_STORAGE_KEY = "arbifyFavoriteSlots";
 const ACTIVE_SIGNAL_TIMER_STORAGE_KEY = "arbifyActiveSignalTimer";
+const RISK_PROFILE_STORAGE_KEY = "arbifyRiskProfile";
 
 const slotGrid = document.querySelector(".slot-grid");
 const signalButton = document.querySelector("#signalButton");
@@ -126,6 +127,14 @@ const activeSignalNoticeButton = document.querySelector(
 );
 const activeSignalNoticeTime = document.querySelector(
   "#activeSignalNoticeTime"
+);
+
+const riskProfile = document.querySelector(
+  "#riskProfile"
+);
+
+const riskProfileOptions = document.querySelectorAll(
+  ".risk-profile-option"
 );
 
 const signalProfileTemplates = {
@@ -883,6 +892,7 @@ const scanStages = [
 renderSlotCatalog();
 renderAllSlotsCatalog();
 updateFavoriteInterface();
+updateRiskProfileInterface();
 
 const slotCards =
   slotGrid.querySelectorAll(".slot-card");
@@ -904,8 +914,104 @@ let activeSignalTimerInterval;
 let activeSignalNoticeInterval;
 let activeSignalNoticeRevealTimer;
 let activeSignalTimerState = loadActiveSignalTimerState();
+let selectedRiskProfile = loadRiskProfile();
 
 
+
+
+function normalizeRiskProfile(value) {
+  const normalized = String(value || "")
+    .trim()
+    .toUpperCase();
+
+  return [
+    "НИЗЬКИЙ",
+    "СЕРЕДНІЙ",
+    "ВИСОКИЙ",
+  ].includes(normalized)
+    ? normalized
+    : "СЕРЕДНІЙ";
+}
+
+function loadRiskProfile() {
+  try {
+    return normalizeRiskProfile(
+      localStorage.getItem(
+        RISK_PROFILE_STORAGE_KEY
+      ) || "СЕРЕДНІЙ"
+    );
+  } catch {
+    return "СЕРЕДНІЙ";
+  }
+}
+
+function saveRiskProfile(value) {
+  selectedRiskProfile =
+    normalizeRiskProfile(value);
+
+  try {
+    localStorage.setItem(
+      RISK_PROFILE_STORAGE_KEY,
+      selectedRiskProfile
+    );
+  } catch {
+    /* Профіль залишиться активним до перезавантаження. */
+  }
+}
+
+function hasActiveSignalTimer() {
+  const timerState =
+    loadActiveSignalTimerState();
+
+  return Boolean(
+    timerState &&
+    timerState.endAt > Date.now()
+  );
+}
+
+function updateRiskProfileInterface() {
+  riskProfileOptions.forEach((button) => {
+    const isActive =
+      button.dataset.risk ===
+      selectedRiskProfile;
+
+    button.classList.toggle(
+      "is-active",
+      isActive
+    );
+
+    button.setAttribute(
+      "aria-checked",
+      String(isActive)
+    );
+  });
+
+  const isLocked =
+    hasActiveSignalTimer();
+
+  riskProfile?.classList.toggle(
+    "is-locked",
+    isLocked
+  );
+
+  riskProfile?.setAttribute(
+    "aria-disabled",
+    String(isLocked)
+  );
+}
+
+function selectRiskProfile(value) {
+  if (hasActiveSignalTimer()) {
+    activeSignalTimerState =
+      loadActiveSignalTimerState();
+
+    openActiveSignalNotice();
+    return;
+  }
+
+  saveRiskProfile(value);
+  updateRiskProfileInterface();
+}
 
 function stopActiveSignalNoticeInterval() {
   window.clearInterval(
@@ -1206,10 +1312,13 @@ function renderActiveSignalTimer() {
     !isFinished
   );
 
+  updateRiskProfileInterface();
+
   if (isFinished) {
     stopActiveSignalTimerInterval();
     clearActiveSignalTimerState();
     resultNewButton.hidden = false;
+    updateRiskProfileInterface();
 
     signalOverlayTitle.textContent =
       "СИГНАЛ ЗАВЕРШЕНО";
@@ -1452,7 +1561,18 @@ function applySelectedSlot(
     return;
   }
 
-  slotCards.forEach((card) => {
+  riskProfileOptions.forEach((button) => {
+  button.addEventListener(
+    "click",
+    () => {
+      selectRiskProfile(
+        button.dataset.risk
+      );
+    }
+  );
+});
+
+slotCards.forEach((card) => {
     card.classList.toggle(
       "is-selected",
       card === matchingCard
@@ -1927,7 +2047,7 @@ function createSignal(slot) {
     slotImage: slot.image,
     bet: `₴${randomItem(profile.bets)}`,
     spins: randomItem(profile.spins),
-    risk: randomItem(profile.risks),
+    risk: selectedRiskProfile,
     duration: randomItem(profile.durations),
     createdAt: Date.now(),
   };
