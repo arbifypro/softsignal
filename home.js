@@ -1884,62 +1884,6 @@ allSlotsSearchClear?.addEventListener(
   }
 );
 
-allSlotsFavoritesButton?.addEventListener(
-  "click",
-  () => {
-    const nextCategory =
-      activeSlotCategory === "favorites"
-        ? "all"
-        : "favorites";
-
-    setActiveSlotCategory(nextCategory);
-  }
-);
-
-allSlotsCategories?.addEventListener(
-  "click",
-  (event) => {
-    const button = event.target.closest(
-      ".all-slots-category"
-    );
-
-    if (!button) {
-      return;
-    }
-
-    setActiveSlotCategory(
-      button.dataset.category
-    );
-  }
-);
-
-/*
- * Нижня навігація.
- * Кнопка «Сигнали» відкриває LIVE-стрічку.
- */
-navItems.forEach((item) => {
-  item.addEventListener("click", () => {
-    const sectionName =
-      item.dataset.section;
-
-    if (
-      sectionName === "Сигнали"
-    ) {
-      window.location.href =
-        "signals.html";
-
-      return;
-    }
-
-    if (
-      sectionName !== "Головна"
-    ) {
-      showToast(
-        `Розділ «${sectionName}» готується`
-      );
-    }
-  });
-});
 
 document.addEventListener(
   "keydown",
