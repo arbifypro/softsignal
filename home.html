@@ -192,7 +192,7 @@
       }
     </style>
 
-    <link rel="stylesheet" href="home.css?v=20260807-active-timer-1" />
+    <link rel="stylesheet" href="home.css?v=20260807-active-notice-1" />
     <link rel="stylesheet" href="notifications.css" />
 
     <link
@@ -902,6 +902,61 @@
           </div>
         </section>
 
+
+        <!-- Повідомлення про вже активний сигнал -->
+        <section
+          class="active-signal-notice"
+          id="activeSignalNotice"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="activeSignalNoticeTitle"
+          hidden
+        >
+          <div
+            class="active-signal-notice-backdrop"
+            id="activeSignalNoticeBackdrop"
+            aria-hidden="true"
+          ></div>
+
+          <div class="active-signal-notice-dialog">
+            <div
+              class="active-signal-notice-icon"
+              aria-hidden="true"
+            >
+              <span></span>
+            </div>
+
+            <p class="active-signal-notice-kicker">
+              PULSE STATUS
+            </p>
+
+            <h2 id="activeSignalNoticeTitle">
+              Сигнал уже активний
+            </h2>
+
+            <p class="active-signal-notice-copy">
+              Дочекайтеся завершення поточного сигналу,
+              перш ніж запускати новий.
+            </p>
+
+            <div class="active-signal-notice-time">
+              <span>ЗАЛИШИЛОСЬ</span>
+
+              <strong id="activeSignalNoticeTime">
+                00:00
+              </strong>
+            </div>
+
+            <button
+              class="active-signal-notice-button"
+              id="activeSignalNoticeButton"
+              type="button"
+            >
+              ЗРОЗУМІЛО
+            </button>
+          </div>
+        </section>
+
         <!-- Повноекранний процес сканування -->
         <section
           class="signal-overlay"
@@ -1341,6 +1396,6 @@
     </main>
 
     <script src="notifications.js?v=20260803-1"></script>
-    <script src="home.js?v=20260807-active-timer-1"></script>
+    <script src="home.js?v=20260807-active-notice-1"></script>
   </body>
 </html>
