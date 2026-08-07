@@ -174,7 +174,25 @@
       }
     </style>
 
-    <link rel="stylesheet" href="home.css?v=20260807-2245" />
+
+    <style id="catalog-categories-critical-styles">
+      .all-slots-categories {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+      }
+
+      .all-slots-category-heart {
+        width: 14px !important;
+        height: 14px !important;
+        display: inline-grid !important;
+        place-items: center !important;
+        flex: 0 0 14px !important;
+        font-size: 16px !important;
+        line-height: 14px !important;
+      }
+    </style>
+
+    <link rel="stylesheet" href="home.css?v=20260807-2252" />
     <link rel="stylesheet" href="notifications.css" />
 
     <link
@@ -680,18 +698,7 @@
                 aria-selected="false"
                 aria-pressed="false"
               >
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M20.8 4.7c-2-2-5.2-2-7.2 0L12 6.3l-1.6-1.6c-2-2-5.2-2-7.2 0s-2 5.2 0 7.2L12 20.7l8.8-8.8c2-2 2-5.2 0-7.2Z"></path>
-                </svg>
-
+                <span class="all-slots-category-heart" aria-hidden="true">♡</span>
                 <span>Обране</span>
                 <strong id="favoriteSlotsCount">0</strong>
               </button>
