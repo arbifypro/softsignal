@@ -184,20 +184,9 @@ const pulseOnboardingDots = document.querySelectorAll(
   ".pulse-onboarding-progress > span"
 );
 
-const pulseOnboardingDimmers = {
-  top: document.querySelector(
-    ".pulse-onboarding-dimmer-top"
-  ),
-  right: document.querySelector(
-    ".pulse-onboarding-dimmer-right"
-  ),
-  bottom: document.querySelector(
-    ".pulse-onboarding-dimmer-bottom"
-  ),
-  left: document.querySelector(
-    ".pulse-onboarding-dimmer-left"
-  ),
-};
+const pulseOnboardingBackdrop = document.querySelector(
+  "#pulseOnboardingBackdrop"
+);
 
 const signalProfileTemplates = {
   balanced: {
@@ -979,6 +968,7 @@ let selectedRiskProfile = loadRiskProfile();
 let pulseOnboardingIndex = 0;
 let pulseOnboardingTimer;
 let pulseOnboardingResizeFrame;
+let pulseOnboardingTransitionTimer;
 
 updateRiskProfileInterface();
 
@@ -994,9 +984,10 @@ const pulseOnboardingSteps = [
       "Під час першого запуску система попросить SUBID. " +
       "Вставте значення, яке знаходиться після знака «=» " +
       "у вашому реєстраційному посиланні.",
-    target: "#signalCard",
+    target: null,
     example: true,
-    padding: 8,
+    focus: false,
+    className: "is-step-subid",
   },
   {
     kicker: "КРОК 2 · ГРА",
@@ -1006,7 +997,10 @@ const pulseOnboardingSteps = [
       "Обраний слот буде підсвічено.",
     target: ".slot-grid",
     example: false,
-    padding: 7,
+    focus: true,
+    paddingX: 10,
+    paddingY: 8,
+    className: "is-step-game",
   },
   {
     kicker: "КРОК 3 · РИЗИК",
@@ -1016,7 +1010,10 @@ const pulseOnboardingSteps = [
       "Система використає саме цей профіль у новому сигналі.",
     target: "#riskProfile",
     example: false,
-    padding: 7,
+    focus: true,
+    paddingX: 9,
+    paddingY: 8,
+    className: "is-step-risk",
   },
   {
     kicker: "КРОК 4 · ЗАПУСК",
@@ -1026,8 +1023,18 @@ const pulseOnboardingSteps = [
       "Якщо SUBID ще не підтверджено — система спочатку попросить його.",
     target: "#signalButton",
     example: false,
-    padding: 8,
+    focus: true,
+    paddingX: 12,
+    paddingY: 10,
+    className: "is-step-launch",
   },
+];
+
+const PULSE_ONBOARDING_STEP_CLASSES = [
+  "is-step-subid",
+  "is-step-game",
+  "is-step-risk",
+  "is-step-launch",
 ];
 
 function hasSeenPulseOnboarding() {
@@ -1053,21 +1060,190 @@ function markPulseOnboardingSeen() {
   }
 }
 
-function setPulseOnboardingDimmer(
-  element,
-  left,
-  top,
-  width,
-  height
-) {
-  if (!element) {
+function setPulseOnboardingStepClass(step) {
+  PULSE_ONBOARDING_STEP_CLASSES.forEach(
+    (className) => {
+      pulseOnboarding.classList.remove(
+        className
+      );
+
+      document.body.classList.remove(
+        `pulse-onboarding-${className}`
+      );
+    }
+  );
+
+  if (!step?.className) {
     return;
   }
 
-  element.style.left = `${Math.max(0, left)}px`;
-  element.style.top = `${Math.max(0, top)}px`;
-  element.style.width = `${Math.max(0, width)}px`;
-  element.style.height = `${Math.max(0, height)}px`;
+  pulseOnboarding.classList.add(
+    step.className
+  );
+
+  document.body.classList.add(
+    `pulse-onboarding-${step.className}`
+  );
+}
+
+function clearPulseOnboardingStepClasses() {
+  PULSE_ONBOARDING_STEP_CLASSES.forEach(
+    (className) => {
+      pulseOnboarding?.classList.remove(
+        className
+      );
+
+      document.body.classList.remove(
+        `pulse-onboarding-${className}`
+      );
+    }
+  );
+}
+
+function setPulseOnboardingFocus(
+  appRect,
+  targetRect,
+  step
+) {
+  if (
+    !pulseOnboardingBackdrop ||
+    !pulseOnboardingSpotlight
+  ) {
+    return null;
+  }
+
+  if (
+    !step.focus ||
+    !targetRect
+  ) {
+    pulseOnboarding.classList.add(
+      "is-no-focus"
+    );
+
+    pulseOnboardingBackdrop.style.removeProperty(
+      "--focus-x"
+    );
+    pulseOnboardingBackdrop.style.removeProperty(
+      "--focus-y"
+    );
+    pulseOnboardingBackdrop.style.removeProperty(
+      "--focus-rx"
+    );
+    pulseOnboardingBackdrop.style.removeProperty(
+      "--focus-ry"
+    );
+
+    pulseOnboardingSpotlight.style.opacity = "0";
+
+    return null;
+  }
+
+  pulseOnboarding.classList.remove(
+    "is-no-focus"
+  );
+
+  const paddingX =
+    Number(step.paddingX) || 9;
+
+  const paddingY =
+    Number(step.paddingY) || 8;
+
+  const left = Math.max(
+    10,
+    targetRect.left -
+      appRect.left -
+      paddingX
+  );
+
+  const top = Math.max(
+    10,
+    targetRect.top -
+      appRect.top -
+      paddingY
+  );
+
+  const right = Math.min(
+    appRect.width - 10,
+    targetRect.right -
+      appRect.left +
+      paddingX
+  );
+
+  const bottom = Math.min(
+    appRect.height - 10,
+    targetRect.bottom -
+      appRect.top +
+      paddingY
+  );
+
+  const width = Math.max(
+    1,
+    right - left
+  );
+
+  const height = Math.max(
+    1,
+    bottom - top
+  );
+
+  const centerX =
+    left + width / 2;
+
+  const centerY =
+    top + height / 2;
+
+  const radiusX = Math.max(
+    58,
+    width / 2 + 24
+  );
+
+  const radiusY = Math.max(
+    42,
+    height / 2 + 22
+  );
+
+  pulseOnboardingBackdrop.style.setProperty(
+    "--focus-x",
+    `${centerX}px`
+  );
+
+  pulseOnboardingBackdrop.style.setProperty(
+    "--focus-y",
+    `${centerY}px`
+  );
+
+  pulseOnboardingBackdrop.style.setProperty(
+    "--focus-rx",
+    `${radiusX}px`
+  );
+
+  pulseOnboardingBackdrop.style.setProperty(
+    "--focus-ry",
+    `${radiusY}px`
+  );
+
+  pulseOnboardingSpotlight.style.left =
+    `${left}px`;
+
+  pulseOnboardingSpotlight.style.top =
+    `${top}px`;
+
+  pulseOnboardingSpotlight.style.width =
+    `${width}px`;
+
+  pulseOnboardingSpotlight.style.height =
+    `${height}px`;
+
+  return {
+    left,
+    top,
+    right,
+    bottom,
+    width,
+    height,
+    centerX,
+    centerY,
+  };
 }
 
 function positionPulseOnboarding() {
@@ -1084,105 +1260,26 @@ function positionPulseOnboarding() {
       pulseOnboardingIndex
     ];
 
-  const target =
-    document.querySelector(
-      step.target
-    );
-
-  if (!target) {
-    return;
-  }
-
   const appRect =
     pulseApp.getBoundingClientRect();
 
+  const target =
+    step.target
+      ? document.querySelector(
+          step.target
+        )
+      : null;
+
   const targetRect =
-    target.getBoundingClientRect();
+    target?.getBoundingClientRect() ||
+    null;
 
-  const padding =
-    Number(step.padding) || 7;
-
-  const left = Math.max(
-    8,
-    targetRect.left -
-      appRect.left -
-      padding
-  );
-
-  const top = Math.max(
-    8,
-    targetRect.top -
-      appRect.top -
-      padding
-  );
-
-  const right = Math.min(
-    appRect.width - 8,
-    targetRect.right -
-      appRect.left +
-      padding
-  );
-
-  const bottom = Math.min(
-    appRect.height - 8,
-    targetRect.bottom -
-      appRect.top +
-      padding
-  );
-
-  const width = Math.max(
-    1,
-    right - left
-  );
-
-  const height = Math.max(
-    1,
-    bottom - top
-  );
-
-  pulseOnboardingSpotlight.style.left =
-    `${left}px`;
-
-  pulseOnboardingSpotlight.style.top =
-    `${top}px`;
-
-  pulseOnboardingSpotlight.style.width =
-    `${width}px`;
-
-  pulseOnboardingSpotlight.style.height =
-    `${height}px`;
-
-  setPulseOnboardingDimmer(
-    pulseOnboardingDimmers.top,
-    0,
-    0,
-    appRect.width,
-    top
-  );
-
-  setPulseOnboardingDimmer(
-    pulseOnboardingDimmers.bottom,
-    0,
-    bottom,
-    appRect.width,
-    appRect.height - bottom
-  );
-
-  setPulseOnboardingDimmer(
-    pulseOnboardingDimmers.left,
-    0,
-    top,
-    left,
-    height
-  );
-
-  setPulseOnboardingDimmer(
-    pulseOnboardingDimmers.right,
-    right,
-    top,
-    appRect.width - right,
-    height
-  );
+  const focus =
+    setPulseOnboardingFocus(
+      appRect,
+      targetRect,
+      step
+    );
 
   window.requestAnimationFrame(() => {
     const cardRect =
@@ -1195,14 +1292,8 @@ function positionPulseOnboarding() {
     const cardHeight =
       cardRect.height;
 
-    const targetCenter =
-      left + width / 2;
-
-    const minimumGap = 14;
-
     let cardLeft =
-      targetCenter -
-      cardWidth / 2;
+      (appRect.width - cardWidth) / 2;
 
     cardLeft = Math.max(
       16,
@@ -1214,45 +1305,64 @@ function positionPulseOnboarding() {
       )
     );
 
-    const roomBelow =
-      appRect.height - bottom;
-
-    const roomAbove =
-      top;
-
     let cardTop;
 
-    if (
-      roomBelow >=
-      cardHeight +
-        minimumGap +
-        18
-    ) {
+    if (!focus) {
       cardTop =
-        bottom + minimumGap;
-    } else if (
-      roomAbove >=
-      cardHeight +
-        minimumGap +
-        18
-    ) {
-      cardTop =
-        top -
-        cardHeight -
-        minimumGap;
+        appRect.height / 2 -
+        cardHeight / 2 -
+        16;
     } else {
-      cardTop =
-        Math.max(
-          16,
-          Math.min(
-            appRect.height -
-              cardHeight -
-              16,
-            appRect.height / 2 -
-              cardHeight / 2
-          )
-        );
+      const minimumGap = 20;
+
+      const roomBelow =
+        appRect.height -
+        focus.bottom;
+
+      const roomAbove =
+        focus.top;
+
+      if (
+        roomBelow >=
+        cardHeight +
+          minimumGap +
+          18
+      ) {
+        cardTop =
+          focus.bottom +
+          minimumGap;
+      } else if (
+        roomAbove >=
+        cardHeight +
+          minimumGap +
+          18
+      ) {
+        cardTop =
+          focus.top -
+          cardHeight -
+          minimumGap;
+      } else {
+        const focusIsLower =
+          focus.centerY >
+          appRect.height / 2;
+
+        cardTop = focusIsLower
+          ? 18
+          : appRect.height -
+            cardHeight -
+            18;
+      }
     }
+
+    cardTop = Math.max(
+      16,
+      Math.min(
+        cardTop,
+        appRect.height -
+          cardHeight -
+          16
+      )
+    );
 
     pulseOnboardingCard.style.left =
       `${cardLeft}px`;
@@ -1262,7 +1372,7 @@ function positionPulseOnboarding() {
   });
 }
 
-function renderPulseOnboardingStep() {
+function applyPulseOnboardingStep() {
   if (!pulseOnboarding) {
     return;
   }
@@ -1271,6 +1381,8 @@ function renderPulseOnboardingStep() {
     pulseOnboardingSteps[
       pulseOnboardingIndex
     ];
+
+  setPulseOnboardingStepClass(step);
 
   pulseOnboardingStep.textContent =
     step.kicker;
@@ -1309,19 +1421,66 @@ function renderPulseOnboardingStep() {
     }
   );
 
+  positionPulseOnboarding();
+
+  window.requestAnimationFrame(() => {
+    pulseOnboardingCard.classList.add(
+      "is-step-visible"
+    );
+
+    pulseOnboarding.classList.add(
+      "is-focus-visible"
+    );
+  });
+}
+
+function renderPulseOnboardingStep(
+  animated = true
+) {
+  if (!pulseOnboarding) {
+    return;
+  }
+
+  window.clearTimeout(
+    pulseOnboardingTransitionTimer
+  );
+
+  if (!animated) {
+    pulseOnboardingCard.classList.remove(
+      "is-step-visible"
+    );
+
+    pulseOnboarding.classList.remove(
+      "is-focus-visible",
+      "is-changing"
+    );
+
+    applyPulseOnboardingStep();
+    return;
+  }
+
+  pulseOnboarding.classList.add(
+    "is-changing"
+  );
+
   pulseOnboardingCard.classList.remove(
     "is-step-visible"
   );
 
-  window.requestAnimationFrame(() => {
-    positionPulseOnboarding();
+  pulseOnboarding.classList.remove(
+    "is-focus-visible"
+  );
 
-    window.requestAnimationFrame(() => {
-      pulseOnboardingCard.classList.add(
-        "is-step-visible"
-      );
-    });
-  });
+  pulseOnboardingTransitionTimer =
+    window.setTimeout(() => {
+      applyPulseOnboardingStep();
+
+      window.requestAnimationFrame(() => {
+        pulseOnboarding.classList.remove(
+          "is-changing"
+        );
+      });
+    }, 145);
 }
 
 function openPulseOnboarding() {
@@ -1345,14 +1504,17 @@ function openPulseOnboarding() {
   }
 
   pulseOnboardingIndex = 0;
-
   pulseOnboarding.hidden = false;
 
   document.body.classList.add(
     "pulse-onboarding-open"
   );
 
-  renderPulseOnboardingStep();
+  pulseOnboarding.classList.add(
+    "is-no-focus"
+  );
+
+  renderPulseOnboardingStep(false);
 
   window.requestAnimationFrame(() => {
     pulseOnboarding.classList.add(
@@ -1376,13 +1538,21 @@ function closePulseOnboarding(
     pulseOnboardingTimer
   );
 
+  window.clearTimeout(
+    pulseOnboardingTransitionTimer
+  );
+
   window.cancelAnimationFrame(
     pulseOnboardingResizeFrame
   );
 
   pulseOnboarding.classList.remove(
-    "is-open"
+    "is-open",
+    "is-focus-visible",
+    "is-changing"
   );
+
+  clearPulseOnboardingStepClasses();
 
   document.body.classList.remove(
     "pulse-onboarding-open"
@@ -1390,7 +1560,7 @@ function closePulseOnboarding(
 
   window.setTimeout(() => {
     pulseOnboarding.hidden = true;
-  }, 190);
+  }, 240);
 }
 
 function schedulePulseOnboarding() {
@@ -1422,7 +1592,7 @@ function goToNextPulseOnboardingStep() {
   }
 
   pulseOnboardingIndex += 1;
-  renderPulseOnboardingStep();
+  renderPulseOnboardingStep(true);
 }
 
 function goToPreviousPulseOnboardingStep() {
@@ -1431,7 +1601,7 @@ function goToPreviousPulseOnboardingStep() {
   }
 
   pulseOnboardingIndex -= 1;
-  renderPulseOnboardingStep();
+  renderPulseOnboardingStep(true);
 }
 
 function syncPulseOnboardingPosition() {
@@ -3223,6 +3393,10 @@ window.addEventListener(
 
     window.clearTimeout(
       pulseOnboardingTimer
+    );
+
+    window.clearTimeout(
+      pulseOnboardingTransitionTimer
     );
 
     window.cancelAnimationFrame(
