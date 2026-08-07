@@ -6,6 +6,7 @@ const SUBID_VERIFY_DELAY = 1200;
 const SUBID_SUCCESS_DELAY = 850;
 const SUBID_STORAGE_KEY = "arbifyVerifiedSubId";
 const FAVORITE_SLOTS_STORAGE_KEY = "arbifyFavoriteSlots";
+const ACTIVE_SIGNAL_TIMER_STORAGE_KEY = "arbifyActiveSignalTimer";
 
 const slotGrid = document.querySelector(".slot-grid");
 const signalButton = document.querySelector("#signalButton");
@@ -94,6 +95,25 @@ const resultRisk = document.querySelector("#resultRisk");
 const resultDuration = document.querySelector("#resultDuration");
 const resultActionButton = document.querySelector("#resultActionButton");
 const resultNewButton = document.querySelector("#resultNewButton");
+
+const activeSignalTimer = document.querySelector(
+  "#activeSignalTimer"
+);
+const activeSignalTimerStatus = document.querySelector(
+  "#activeSignalTimerStatus"
+);
+const activeSignalTimerSlot = document.querySelector(
+  "#activeSignalTimerSlot"
+);
+const activeSignalTimerValue = document.querySelector(
+  "#activeSignalTimerValue"
+);
+const activeSignalTimerProgress = document.querySelector(
+  "#activeSignalTimerProgress"
+);
+const activeSignalTimerHint = document.querySelector(
+  "#activeSignalTimerHint"
+);
 
 const signalProfileTemplates = {
   balanced: {
@@ -867,6 +887,294 @@ let homeState = {};
 let homeInitializationPromise = null;
 let stateSaveQueue = Promise.resolve({});
 let stateSaveErrorWasShown = false;
+let activeSignalTimerInterval;
+let activeSignalTimerState = loadActiveSignalTimerState();
+
+
+function parseSignalDurationToMilliseconds(duration) {
+  const match = String(duration || "")
+    .trim()
+    .match(/^(\d{1,2}):([0-5]\d)$/);
+
+  if (!match) {
+    return 0;
+  }
+
+  const minutes = Number(match[1]);
+  const seconds = Number(match[2]);
+
+  return (minutes * 60 + seconds) * 1000;
+}
+
+function formatActiveSignalRemaining(milliseconds) {
+  const totalSeconds = Math.max(
+    0,
+    Math.ceil(milliseconds / 1000)
+  );
+
+  const minutes = Math.floor(
+    totalSeconds / 60
+  );
+
+  const seconds = totalSeconds % 60;
+
+  return (
+    String(minutes).padStart(2, "0") +
+    ":" +
+    String(seconds).padStart(2, "0")
+  );
+}
+
+function loadActiveSignalTimerState() {
+  try {
+    const rawValue = localStorage.getItem(
+      ACTIVE_SIGNAL_TIMER_STORAGE_KEY
+    );
+
+    if (!rawValue) {
+      return null;
+    }
+
+    const parsedValue = JSON.parse(rawValue);
+
+    if (
+      !parsedValue ||
+      typeof parsedValue !== "object" ||
+      !Number.isFinite(parsedValue.endAt) ||
+      !Number.isFinite(parsedValue.startedAt) ||
+      !Number.isFinite(parsedValue.durationMs) ||
+      !parsedValue.signal
+    ) {
+      return null;
+    }
+
+    return parsedValue;
+  } catch {
+    return null;
+  }
+}
+
+function saveActiveSignalTimerState(state) {
+  activeSignalTimerState = state;
+
+  try {
+    localStorage.setItem(
+      ACTIVE_SIGNAL_TIMER_STORAGE_KEY,
+      JSON.stringify(state)
+    );
+  } catch {
+    /* Таймер продовжить працювати до закриття сторінки. */
+  }
+}
+
+function clearActiveSignalTimerState() {
+  activeSignalTimerState = null;
+
+  try {
+    localStorage.removeItem(
+      ACTIVE_SIGNAL_TIMER_STORAGE_KEY
+    );
+  } catch {
+    /* Локальне очищення не критичне. */
+  }
+}
+
+function stopActiveSignalTimerInterval() {
+  window.clearInterval(
+    activeSignalTimerInterval
+  );
+
+  activeSignalTimerInterval = undefined;
+}
+
+function setActiveSignalTimerButtons(isRunning) {
+  resultActionButton.hidden = isRunning;
+  resultNewButton.hidden = isRunning;
+}
+
+function renderActiveSignalTimer() {
+  if (
+    !activeSignalTimerState ||
+    !activeSignalTimer
+  ) {
+    return false;
+  }
+
+  const now = Date.now();
+  const remainingMs = Math.max(
+    0,
+    activeSignalTimerState.endAt - now
+  );
+
+  const durationMs = Math.max(
+    1,
+    activeSignalTimerState.durationMs
+  );
+
+  const progress = Math.max(
+    0,
+    Math.min(
+      1,
+      remainingMs / durationMs
+    )
+  );
+
+  const isFinished = remainingMs <= 0;
+  const isEnding =
+    !isFinished &&
+    remainingMs <= 30000;
+
+  activeSignalTimer.hidden = false;
+
+  activeSignalTimer.classList.toggle(
+    "is-ending",
+    isEnding
+  );
+
+  activeSignalTimer.classList.toggle(
+    "is-finished",
+    isFinished
+  );
+
+  activeSignalTimerValue.textContent =
+    formatActiveSignalRemaining(
+      remainingMs
+    );
+
+  activeSignalTimerProgress.style.width =
+    `${progress * 100}%`;
+
+  activeSignalTimerSlot.textContent =
+    activeSignalTimerState.signal
+      ?.slotName || "";
+
+  activeSignalTimerStatus.textContent =
+    isFinished
+      ? "СИГНАЛ ЗАВЕРШЕНО"
+      : "СИГНАЛ АКТИВНИЙ";
+
+  activeSignalTimerHint.textContent =
+    isFinished
+      ? "Час сигналу завершився. Можна створити новий сигнал"
+      : "Дотримуйтесь параметрів сигналу до завершення таймера";
+
+  setActiveSignalTimerButtons(
+    !isFinished
+  );
+
+  if (isFinished) {
+    stopActiveSignalTimerInterval();
+    clearActiveSignalTimerState();
+    resultNewButton.hidden = false;
+
+    signalOverlayTitle.textContent =
+      "СИГНАЛ ЗАВЕРШЕНО";
+
+    return false;
+  }
+
+  signalOverlayTitle.textContent =
+    "СИГНАЛ АКТИВНИЙ";
+
+  return true;
+}
+
+function beginActiveSignalTimerLoop() {
+  stopActiveSignalTimerInterval();
+
+  if (!renderActiveSignalTimer()) {
+    return;
+  }
+
+  activeSignalTimerInterval =
+    window.setInterval(
+      renderActiveSignalTimer,
+      250
+    );
+}
+
+function startActiveSignalTimer(signal) {
+  const durationMs =
+    parseSignalDurationToMilliseconds(
+      signal?.duration
+    );
+
+  if (!durationMs) {
+    showToast(
+      "Не вдалося визначити тривалість сигналу"
+    );
+
+    return;
+  }
+
+  const startedAt = Date.now();
+
+  saveActiveSignalTimerState({
+    signal: {
+      ...signal,
+    },
+    startedAt,
+    endAt: startedAt + durationMs,
+    durationMs,
+  });
+
+  activeSignal = {
+    ...signal,
+  };
+
+  activeSignalTimer.hidden = false;
+  beginActiveSignalTimerLoop();
+
+  showToast(
+    `Сигнал для ${signal.slotName} активовано`
+  );
+}
+
+function restoreActiveSignalTimerIfAvailable() {
+  if (!activeSignalTimerState) {
+    return false;
+  }
+
+  if (
+    activeSignalTimerState.endAt <=
+    Date.now()
+  ) {
+    clearActiveSignalTimerState();
+    return false;
+  }
+
+  activeSignal = {
+    ...activeSignalTimerState.signal,
+  };
+
+  fillResult(activeSignal);
+
+  scanView.hidden = true;
+  resultView.hidden = false;
+  signalOverlay.hidden = false;
+
+  signalOverlay.classList.remove(
+    "is-scanning"
+  );
+
+  signalOverlay.classList.add(
+    "is-result"
+  );
+
+  document.body.classList.add(
+    "signal-overlay-open"
+  );
+
+  window.requestAnimationFrame(() => {
+    signalOverlay.classList.add(
+      "is-open"
+    );
+  });
+
+  beginActiveSignalTimerLoop();
+
+  return true;
+}
 
 function showToast(message) {
   window.clearTimeout(toastTimer);
@@ -1510,6 +1818,19 @@ function prepareScan(slot) {
   selectedSlot = slot;
   activeSignal = null;
 
+  stopActiveSignalTimerInterval();
+
+  if (activeSignalTimer) {
+    activeSignalTimer.hidden = true;
+    activeSignalTimer.classList.remove(
+      "is-ending",
+      "is-finished"
+    );
+  }
+
+  resultActionButton.hidden = false;
+  resultNewButton.hidden = false;
+
   signalOverlayTitle.textContent =
     "НОВИЙ СИГНАЛ";
 
@@ -1580,6 +1901,17 @@ function closeSignalOverlay() {
 }
 
 function fillResult(signal) {
+  if (activeSignalTimer) {
+    activeSignalTimer.hidden = true;
+    activeSignalTimer.classList.remove(
+      "is-ending",
+      "is-finished"
+    );
+  }
+
+  resultActionButton.hidden = false;
+  resultNewButton.hidden = false;
+
   resultSlotImage.src =
     signal.slotImage;
 
@@ -1739,6 +2071,18 @@ signalButton.addEventListener(
       return;
     }
 
+    activeSignalTimerState =
+      loadActiveSignalTimerState();
+
+    if (
+      activeSignalTimerState &&
+      activeSignalTimerState.endAt >
+        Date.now()
+    ) {
+      restoreActiveSignalTimerIfAvailable();
+      return;
+    }
+
     const verifiedSubId =
       getStoredSubId();
 
@@ -1832,15 +2176,9 @@ resultActionButton.addEventListener(
       return;
     }
 
-    const message =
-      `Сигнал для ${activeSignal.slotName} активовано на ` +
-      activeSignal.duration;
-
-    closeSignalOverlay();
-
-    window.setTimeout(() => {
-      showToast(message);
-    }, 240);
+    startActiveSignalTimer(
+      activeSignal
+    );
   }
 );
 
@@ -1983,6 +2321,7 @@ window.addEventListener(
     );
 
     stopScanning();
+    stopActiveSignalTimerInterval();
   }
 );
 
