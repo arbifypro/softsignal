@@ -1,3691 +1,2608 @@
-:root {
-  --background: #020307;
-  --foreground: #f8f7ff;
-  --muted: #8f90a2;
-  --gold: #f4c44e;
-  --purple: #8d42ff;
-  --purple-bright: #b95cff;
-  --green: #21e780;
-  --panel: rgba(9, 10, 18, 0.88);
-  --line: rgba(255, 255, 255, 0.08);
+"use strict";
 
-  color-scheme: dark;
-  background-color: #020307;
+const SCAN_DURATION = 4600;
+const RESULT_REVEAL_DELAY = 420;
+const SUBID_VERIFY_DELAY = 1200;
+const SUBID_SUCCESS_DELAY = 850;
+const SUBID_STORAGE_KEY = "arbifyVerifiedSubId";
+const FAVORITE_SLOTS_STORAGE_KEY = "arbifyFavoriteSlots";
+const ACTIVE_SIGNAL_TIMER_STORAGE_KEY = "arbifyActiveSignalTimer";
+
+const slotGrid = document.querySelector(".slot-grid");
+const signalButton = document.querySelector("#signalButton");
+const notificationButton = document.querySelector("#notificationButton");
+const allSlotsButton = document.querySelector("#allSlotsButton");
+const allSlotsOverlay = document.querySelector("#allSlotsOverlay");
+const allSlotsBackButton = document.querySelector("#allSlotsBackButton");
+const allSlotsGrid = document.querySelector("#allSlotsGrid");
+const allSlotsCount = document.querySelector("#allSlotsCount");
+const allSlotsTitle = document.querySelector("#allSlotsTitle");
+const allSlotsSearchInput = document.querySelector(
+  "#allSlotsSearchInput"
+);
+const allSlotsSearchClear = document.querySelector(
+  "#allSlotsSearchClear"
+);
+const allSlotsEmpty = document.querySelector(
+  "#allSlotsEmpty"
+);
+const allSlotsEmptyTitle = document.querySelector(
+  "#allSlotsEmptyTitle"
+);
+const allSlotsEmptyText = document.querySelector(
+  "#allSlotsEmptyText"
+);
+const allSlotsCategories = document.querySelector(
+  "#allSlotsCategories"
+);
+const favoriteSlotsCount = document.querySelector(
+  "#favoriteSlotsCount"
+);
+
+const allSlotsFavoritesButton = document.querySelector(
+  "#allSlotsFavoritesButton"
+);
+const navItems = document.querySelectorAll(".nav-item");
+const toast = document.querySelector("#toast");
+const toastText = document.querySelector("#toastText");
+
+const subIdModal = document.querySelector("#subIdModal");
+
+const subIdModalBackdrop = document.querySelector(
+  ".subid-modal-backdrop"
+);
+
+const subIdDialog = document.querySelector(".subid-dialog");
+
+const subIdCloseButton = document.querySelector(
+  "#subIdCloseButton"
+);
+
+const subIdFormView = document.querySelector("#subIdFormView");
+
+const subIdSuccessView = document.querySelector(
+  "#subIdSuccessView"
+);
+
+const subIdForm = document.querySelector("#subIdForm");
+const subIdField = document.querySelector("#subIdField");
+const subIdInput = document.querySelector("#subIdInput");
+const subIdMessage = document.querySelector("#subIdMessage");
+
+const subIdVerifyButton = document.querySelector(
+  "#subIdVerifyButton"
+);
+
+const subIdVerifyText = document.querySelector(
+  "#subIdVerifyText"
+);
+
+const signalOverlay = document.querySelector("#signalOverlay");
+const signalOverlayTitle = document.querySelector("#signalOverlayTitle");
+const signalBackButton = document.querySelector("#signalBackButton");
+const scanView = document.querySelector("#scanView");
+const resultView = document.querySelector("#resultView");
+const scanSlotImage = document.querySelector("#scanSlotImage");
+const scanSlotName = document.querySelector("#scanSlotName");
+const scanStatus = document.querySelector("#scanStatus");
+const scanPercent = document.querySelector("#scanPercent");
+const scanProgress = document.querySelector("#scanProgress");
+const resultSlotImage = document.querySelector("#resultSlotImage");
+const resultSlotName = document.querySelector("#resultSlotName");
+const resultBet = document.querySelector("#resultBet");
+const resultSpins = document.querySelector("#resultSpins");
+const resultRisk = document.querySelector("#resultRisk");
+const resultDuration = document.querySelector("#resultDuration");
+const resultActionButton = document.querySelector("#resultActionButton");
+const resultNewButton = document.querySelector("#resultNewButton");
+
+const activeSignalTimer = document.querySelector(
+  "#activeSignalTimer"
+);
+const activeSignalTimerStatus = document.querySelector(
+  "#activeSignalTimerStatus"
+);
+const activeSignalTimerSlot = document.querySelector(
+  "#activeSignalTimerSlot"
+);
+const activeSignalTimerValue = document.querySelector(
+  "#activeSignalTimerValue"
+);
+const activeSignalTimerProgress = document.querySelector(
+  "#activeSignalTimerProgress"
+);
+const activeSignalTimerHint = document.querySelector(
+  "#activeSignalTimerHint"
+);
+
+const signalProfileTemplates = {
+  balanced: {
+    bets: [10, 20, 25, 30],
+    spins: [8, 10, 12, 15],
+    risks: ["НИЗЬКИЙ", "СЕРЕДНІЙ"],
+    durations: ["02:30", "03:00", "03:30"],
+  },
+
+  dynamic: {
+    bets: [10, 15, 20, 25],
+    spins: [10, 12, 15, 18],
+    risks: ["СЕРЕДНІЙ", "ВИСОКИЙ"],
+    durations: ["02:45", "03:00", "04:00"],
+  },
+
+  focused: {
+    bets: [15, 20, 30, 40],
+    spins: [7, 9, 11, 14],
+    risks: ["НИЗЬКИЙ", "СЕРЕДНІЙ"],
+    durations: ["02:00", "02:30", "03:00"],
+  },
+};
+
+/*
+ * Популярні реальні слоти.
+ * Нові обкладинки можна поступово додавати в assets/slots.
+ * Поки конкретного файла немає, автоматично показується
+ * одна з наявних обкладинок без помилки на сторінці.
+ */
+const slotCatalog = [
+  {
+    name: "Gates of Olympus",
+    image: "assets/slots/gates-of-olympus.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#8d4cff",
+    profile: "balanced",
+  },
+  {
+    name: "Sweet Bonanza",
+    image: "assets/slots/sweet-bonanza.webp",
+    fallbackImage: "assets/candy-spiral.webp",
+    accent: "#ff4ecb",
+    profile: "dynamic",
+  },
+  {
+    name: "The Dog House Megaways",
+    image: "assets/slots/the-dog-house-megaways.webp",
+    fallbackImage: "assets/candy-spiral.webp",
+    accent: "#ffb347",
+    profile: "dynamic",
+  },
+  {
+    name: "Big Bass Bonanza",
+    image: "assets/slots/big-bass-bonanza.webp",
+    fallbackImage: "assets/gem-rocket.webp",
+    accent: "#21d4ff",
+    profile: "focused",
+  },
+  {
+    name: "Book of Dead",
+    image: "assets/slots/book-of-dead.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#d7b950",
+    profile: "balanced",
+  },
+  {
+    name: "Starlight Princess",
+    image: "assets/slots/starlight-princess.webp",
+    fallbackImage: "assets/candy-spiral.webp",
+    accent: "#ca62ff",
+    profile: "dynamic",
+  },
+  {
+    name: "Sugar Rush",
+    image: "assets/slots/sugar-rush.webp",
+    fallbackImage: "assets/candy-spiral.webp",
+    accent: "#ff5aa9",
+    profile: "dynamic",
+  },
+  {
+    name: "The Dog House Multihold",
+    image: "assets/slots/the-dog-house-multihold.webp",
+    fallbackImage: "assets/candy-spiral.webp",
+    accent: "#ff9f43",
+    profile: "focused",
+  },
+  {
+    name: "Fruit Party",
+    image: "assets/slots/fruit-party.webp",
+    fallbackImage: "assets/candy-spiral.webp",
+    accent: "#9cff57",
+    profile: "dynamic",
+  },
+  {
+    name: "Big Bass Splash",
+    image: "assets/slots/big-bass-splash.webp",
+    fallbackImage: "assets/gem-rocket.webp",
+    accent: "#20c9ff",
+    profile: "focused",
+  },
+  {
+    name: "Starburst",
+    image: "assets/slots/starburst.webp",
+    fallbackImage: "assets/gem-rocket.webp",
+    accent: "#9b6cff",
+    profile: "balanced",
+  },
+  {
+    name: "Gonzo's Quest",
+    image: "assets/slots/gonzos-quest.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#4fd47c",
+    profile: "balanced",
+  },
+  {
+    name: "Fire Joker",
+    image: "assets/slots/fire-joker.webp",
+    fallbackImage: "assets/gem-rocket.webp",
+    accent: "#ff5a3c",
+    profile: "focused",
+  },
+  {
+    name: "Wolf Gold",
+    image: "assets/slots/wolf-gold.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#e9c46a",
+    profile: "balanced",
+  },
+  {
+    name: "Buffalo King Megaways",
+    image: "assets/slots/buffalo-king-megaways.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#c78b52",
+    profile: "dynamic",
+  },
+  {
+    name: "Great Rhino Megaways",
+    image: "assets/slots/great-rhino-megaways.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#8bc34a",
+    profile: "balanced",
+  },
+  {
+    name: "Madame Destiny Megaways",
+    image: "assets/slots/madame-destiny-megaways.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#b95cff",
+    profile: "dynamic",
+  },
+  {
+    name: "Wanted Dead or a Wild",
+    image: "assets/slots/wanted-dead-or-a-wild.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#ff7043",
+    profile: "dynamic",
+  },
+  {
+    name: "Money Train 3",
+    image: "assets/slots/money-train-3.webp",
+    fallbackImage: "assets/gem-rocket.webp",
+    accent: "#b0bec5",
+    profile: "focused",
+  },
+  {
+    name: "Reactoonz",
+    image: "assets/slots/reactoonz.webp",
+    fallbackImage: "assets/gem-rocket.webp",
+    accent: "#71e6ff",
+    profile: "dynamic",
+  },
+  {
+    name: "Legacy of Dead",
+    image: "assets/slots/legacy-of-dead.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#d6ad60",
+    profile: "balanced",
+  },
+  {
+    name: "Dead or Alive 2",
+    image: "assets/slots/dead-or-alive-2.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#c49a6c",
+    profile: "focused",
+  },
+  {
+    name: "Jammin' Jars",
+    image: "assets/slots/jammin-jars.webp",
+    fallbackImage: "assets/candy-spiral.webp",
+    accent: "#ff4fcf",
+    profile: "dynamic",
+  },
+  {
+    name: "Immortal Romance",
+    image: "assets/slots/immortal-romance.webp",
+    fallbackImage: "assets/mythic-thunder.webp",
+    accent: "#d64f8f",
+    profile: "balanced",
+  },
+ ];
+
+const popularSlotNames = new Set(
+  slotCatalog.slice(0, 8).map((slot) => slot.name)
+);
+
+const newSlotNames = new Set([
+  "The Dog House Multihold",
+  "Wanted Dead or a Wild",
+  "Money Train 3",
+  "Reactoonz",
+  "Jammin' Jars",
+  "Immortal Romance",
+]);
+
+const categoryLabels = {
+  all: "Усі слоти",
+  popular: "Популярні слоти",
+  new: "Нові слоти",
+  megaways: "Megaways",
+  favorites: "Обране",
+};
+
+let activeSlotCategory = "all";
+let favoriteSlotNames = loadFavoriteSlots();
+
+const signalProfiles = Object.fromEntries(
+  slotCatalog.map((slot) => {
+    return [
+      slot.name,
+      signalProfileTemplates[slot.profile],
+    ];
+  })
+);
+
+function createSlotCard(slot, index) {
+  const card = document.createElement("div");
+  const imageWrap = document.createElement("span");
+  const image = document.createElement("img");
+  const shine = document.createElement("span");
+  const selectedCheck = document.createElement("span");
+  const favoriteButton = document.createElement("button");
+  const slotName = document.createElement("span");
+
+  card.className = "slot-card";
+  card.dataset.slot = slot.name;
+  card.setAttribute("role", "button");
+  card.setAttribute("tabindex", "0");
+  card.setAttribute("aria-label", `Обрати слот ${slot.name}`);
+  card.style.setProperty(
+    "--slot-accent",
+    slot.accent
+  );
+
+  if (index === 0) {
+    card.classList.add("is-selected");
+  }
+
+  imageWrap.className = "slot-image-wrap";
+  image.src = slot.image;
+  image.alt = slot.name;
+  image.loading = index < 3 ? "eager" : "lazy";
+  image.decoding = "async";
+  image.draggable = false;
+
+  image.addEventListener(
+    "error",
+    () => {
+      if (
+        image.dataset.fallbackApplied === "true"
+      ) {
+        return;
+      }
+
+      image.dataset.fallbackApplied = "true";
+      image.src = slot.fallbackImage;
+    },
+    {
+      once: true,
+    }
+  );
+
+  shine.className = "slot-shine";
+  selectedCheck.className = "selected-check";
+  selectedCheck.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+  selectedCheck.textContent = "✓";
+
+  favoriteButton.className = "slot-favorite-button";
+  favoriteButton.type = "button";
+  favoriteButton.dataset.favoriteSlot = slot.name;
+  favoriteButton.innerHTML = `
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M20.8 4.7c-2-2-5.2-2-7.2 0L12 6.3l-1.6-1.6c-2-2-5.2-2-7.2 0s-2 5.2 0 7.2L12 20.7l8.8-8.8c2-2 2-5.2 0-7.2Z"></path>
+    </svg>
+  `;
+
+  updateFavoriteButton(
+    favoriteButton,
+    slot.name
+  );
+
+  favoriteButton.addEventListener(
+    "click",
+    (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleFavoriteSlot(slot.name);
+    }
+  );
+
+  slotName.className = "slot-name";
+  slotName.textContent = slot.name;
+
+  imageWrap.append(
+    image,
+    shine,
+    selectedCheck,
+    favoriteButton
+  );
+
+  card.append(
+    imageWrap,
+    slotName
+  );
+
+  card.addEventListener(
+    "keydown",
+    (event) => {
+      if (
+        event.key === "Enter" ||
+        event.key === " "
+      ) {
+        event.preventDefault();
+        card.click();
+      }
+    }
+  );
+
+  return card;
 }
 
-* {
-  box-sizing: border-box;
+function loadFavoriteSlots() {
+  try {
+    const storedValue = JSON.parse(
+      localStorage.getItem(
+        FAVORITE_SLOTS_STORAGE_KEY
+      ) || "[]"
+    );
+
+    if (!Array.isArray(storedValue)) {
+      return new Set();
+    }
+
+    return new Set(
+      storedValue.filter((slotName) => {
+        return slotCatalog.some((slot) => {
+          return slot.name === slotName;
+        });
+      })
+    );
+  } catch {
+    return new Set();
+  }
 }
 
-html {
-  min-height: 100%;
-  background: #020307 !important;
-  background-color: #020307 !important;
-  overscroll-behavior: none;
-  touch-action: pan-y;
-  -ms-touch-action: pan-y;
-  -webkit-text-size-adjust: 100%;
+function saveFavoriteSlots() {
+  try {
+    localStorage.setItem(
+      FAVORITE_SLOTS_STORAGE_KEY,
+      JSON.stringify([...favoriteSlotNames])
+    );
+  } catch {
+    /* Обране працюватиме до перезавантаження. */
+  }
 }
 
-body {
-  min-height: 100%;
-  margin: 0;
-  background: #020307 !important;
-  background-color: #020307 !important;
-  color: var(--foreground);
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-  overscroll-behavior: none;
-  touch-action: pan-y;
-  -ms-touch-action: pan-y;
-  -webkit-text-size-adjust: 100%;
-}
+function updateFavoriteButton(
+  button,
+  slotName
+) {
+  const isFavorite =
+    favoriteSlotNames.has(slotName);
 
-button,
-input {
-  font: inherit;
-}
+  button.classList.toggle(
+    "is-favorite",
+    isFavorite
+  );
 
-button {
-  color: inherit;
-}
+  button.setAttribute(
+    "aria-pressed",
+    String(isFavorite)
+  );
 
-.page-shell {
-  position: relative;
-  min-height: 100vh;
-  min-height: 100svh;
-  overflow: hidden;
-  display: grid;
-  place-items: start center;
-  isolation: isolate;
-  background: #020307;
-  background-color: #020307;
-}
-
-.ambient {
-  position: fixed;
-  z-index: -1;
-  width: 24rem;
-  height: 24rem;
-  border-radius: 999px;
-  filter: blur(110px);
-  opacity: 0.15;
-  pointer-events: none;
-}
-
-.ambient-one {
-  top: -12rem;
-  left: calc(50% - 23rem);
-  background: #8b35ff;
-}
-
-.ambient-two {
-  right: calc(50% - 24rem);
-  bottom: -13rem;
-  background: #4c13a6;
-}
-
-.pulse-app {
-  position: relative;
-  width: min(100%, 430px);
-  min-height: 100vh;
-  min-height: 100svh;
-  overflow: hidden;
-  background: linear-gradient(
-    180deg,
-    #06070d 0%,
-    #020309 54%,
-    #05060c 100%
+  button.setAttribute(
+    "aria-label",
+    isFavorite
+      ? `Видалити ${slotName} з обраного`
+      : `Додати ${slotName} в обране`
   );
 }
 
-.app-noise {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  opacity: 0.18;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.08'/%3E%3C/svg%3E");
-}
-
-.top-glow {
-  display: none !important;
-}
-
-.topbar,
-.content,
-.bottom-nav {
-  position: relative;
-  z-index: 2;
-}
-
-.topbar {
-  height: 82px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding:
-    max(10px, env(safe-area-inset-top))
-    20px
-    0;
-  background-color: #06070d;
-}
-
-.mini-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.brand-mark {
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(244, 196, 78, 0.2);
-  border-radius: 50%;
-  color: var(--gold);
-  background:
-    radial-gradient(
-      circle,
-      rgba(244, 196, 78, 0.1),
-      transparent 65%
-    ),
-    #08090f;
-  box-shadow:
-    inset 0 0 16px
-    rgba(244, 196, 78, 0.05);
-}
-
-.crown {
-  width: 25px;
-  height: 20px;
-  filter:
-    drop-shadow(
-      0 0 6px
-      rgba(244, 196, 78, 0.35)
-    );
-}
-
-.brand-name {
-  margin: 0;
-  color: #fff1bc;
-  font-family:
-    Georgia,
-    "Times New Roman",
-    serif;
-  font-size: 16px;
-  letter-spacing: 0.2em;
-  line-height: 1;
-}
-
-.brand-pulse {
-  margin: 5px 0 0;
-  color: var(--gold);
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.25em;
-  line-height: 1;
-}
-
-.icon-button {
-  position: relative;
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 50%;
-  background: rgba(10, 11, 19, 0.88);
-  cursor: pointer;
-  transition:
-    transform 160ms ease,
-    border-color 160ms ease,
-    background 160ms ease;
-}
-
-.icon-button:hover {
-  border-color: rgba(185, 92, 255, 0.5);
-  background: rgba(21, 13, 34, 0.95);
-}
-
-.icon-button:active {
-  transform: scale(0.94);
-}
-
-.icon-button svg {
-  width: 20px;
-  height: 20px;
-  color: #e4e1ec;
-}
-
-.notification-dot {
-  position: absolute;
-  top: 7px;
-  right: 7px;
-  width: 7px;
-  height: 7px;
-  border: 2px solid #08090f;
-  border-radius: 50%;
-  background: #ff395f;
-  box-sizing: content-box;
-}
-
-.content {
-  padding:
-    10px
-    18px
-    calc(104px + env(safe-area-inset-bottom));
-}
-
-.access-card {
-  position: relative;
-  overflow: hidden;
-  padding: 17px;
-  border: 1px solid rgba(255, 255, 255, 0.075);
-  border-radius: 17px;
-  background:
-    linear-gradient(
-      135deg,
-      rgba(21, 23, 35, 0.92),
-      rgba(7, 8, 14, 0.88)
-    ),
-    #090a11;
-  box-shadow:
-    0 18px 40px rgba(0, 0, 0, 0.26),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
-}
-
-.access-card::before {
-  content: "";
-  position: absolute;
-  top: -60px;
-  right: -40px;
-  width: 160px;
-  height: 130px;
-  border-radius: 50%;
-  background: rgba(90, 226, 139, 0.08);
-  filter: blur(34px);
-}
-
-.access-card-top {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-}
-
-.micro-label,
-.eyebrow {
-  margin: 0;
-  color: #77798a;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-}
-
-.access-status {
-  margin: 8px 0 0;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  color: var(--green);
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-}
-
-.live-dot {
-  position: relative;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--green);
-  box-shadow:
-    0 0 11px
-    rgba(33, 231, 128, 0.85);
-}
-
-.live-dot::after {
-  content: "";
-  position: absolute;
-  inset: -4px;
-  border: 1px solid rgba(33, 231, 128, 0.35);
-  border-radius: inherit;
-  animation: livePulse 1.8s ease-out infinite;
-}
-
-.key-badge {
-  min-width: 91px;
-  padding: 9px 12px;
-  border: 1px solid rgba(244, 196, 78, 0.12);
-  border-radius: 11px;
-  background: rgba(244, 196, 78, 0.045);
-  text-align: right;
-}
-
-.key-badge span {
-  display: block;
-  color: #6f7080;
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-}
-
-.key-badge strong {
-  display: block;
-  margin-top: 3px;
-  color: #e9d184;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-}
-
-.access-divider {
-  height: 1px;
-  margin: 15px 0 13px;
-  background:
-    linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.07),
-      transparent
-    );
-}
-
-.system-row {
-  position: relative;
-  display: grid;
-  grid-template-columns: 29px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 10px;
-}
-
-.system-orb {
-  width: 29px;
-  height: 29px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(153, 71, 255, 0.3);
-  border-radius: 50%;
-  background: rgba(137, 51, 255, 0.08);
-  box-shadow:
-    inset 0 0 10px
-    rgba(141, 66, 255, 0.18);
-}
-
-.system-orb span {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #ad60ff;
-  box-shadow: 0 0 10px #a84dff;
-}
-
-.system-row p {
-  min-width: 0;
-  margin: 0;
-}
-
-.system-row strong,
-.system-row p span {
-  display: block;
-}
-
-.system-row strong {
-  color: #d8d6e0;
-  font-size: 11px;
-  font-weight: 650;
-}
-
-.system-row p span {
-  margin-top: 3px;
-  color: #6d6e7d;
-  font-size: 9px;
-}
-
-.online-pill {
-  padding: 5px 7px;
-  border: 1px solid rgba(33, 231, 128, 0.15);
-  border-radius: 999px;
-  color: #66e8a3;
-  background: rgba(33, 231, 128, 0.06);
-  font-size: 7px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-}
-
-.slots-section {
-  margin-top: 27px;
-}
-
-.section-title-row {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.eyebrow {
-  color: #8462a8;
-}
-
-.section-title-row h1 {
-  margin: 5px 0 0;
-  color: #f4f2f8;
-  font-size: 18px;
-  font-weight: 650;
-  letter-spacing: -0.025em;
-}
-
-.text-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  padding: 8px 0 3px 10px;
-  border: 0;
-  color: #d7b950;
-  background: none;
-  font-size: 10px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.text-link svg {
-  width: 13px;
-  height: 13px;
-}
-
-.slot-grid {
-  display: grid;
-  width: 100%;
-  min-width: 0;
-  grid-template-columns: none;
-  grid-auto-flow: column;
-  grid-auto-columns: calc(33.333333% - 6.666667px);
-  gap: 10px;
-  margin-top: 11px;
-  padding: 3px 0 4px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  overscroll-behavior-x: contain;
-  scroll-behavior: smooth;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-.slot-grid::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-.slot-card {
-  min-width: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
-  scroll-snap-align: start;
-  scroll-snap-stop: normal;
-}
-
-.slot-image-wrap {
-  position: relative;
-  display: block;
-  aspect-ratio: 1 / 1.06;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 14px;
-  background: #0d0e17;
-  box-shadow:
-    0 10px 24px
-    rgba(0, 0, 0, 0.24);
-  transition:
-    transform 190ms ease,
-    border-color 190ms ease,
-    box-shadow 190ms ease;
-}
-
-.slot-image-wrap img {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
-  transition:
-    transform 420ms
-    cubic-bezier(0.2, 0.75, 0.2, 1);
-}
-
-.slot-image-wrap::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(
-      180deg,
-      transparent 52%,
-      rgba(0, 0, 0, 0.26)
-    );
-  pointer-events: none;
-}
-
-.slot-shine {
-  position: absolute;
-  z-index: 2;
-  top: -30%;
-  left: -70%;
-  width: 40%;
-  height: 160%;
-  transform: rotate(18deg);
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.18),
-      transparent
-    );
-  transition: left 500ms ease;
-  pointer-events: none;
-}
-
-.selected-check {
-  position: absolute;
-  z-index: 3;
-  top: 7px;
-  right: 7px;
-  width: 20px;
-  height: 20px;
-  display: grid;
-  place-items: center;
-  border:
-    1px solid
-    color-mix(
-      in srgb,
-      var(--slot-accent) 72%,
-      white
-    );
-  border-radius: 50%;
-  color: white;
-  background:
-    color-mix(
-      in srgb,
-      var(--slot-accent) 77%,
-      #170929
-    );
-  box-shadow:
-    0 0 14px
-    color-mix(
-      in srgb,
-      var(--slot-accent) 60%,
-      transparent
-    );
-  font-size: 10px;
-  font-weight: 900;
-  opacity: 0;
-  transform: scale(0.72);
-  transition:
-    opacity 180ms ease,
-    transform 180ms ease;
-}
-
-.slot-name {
-  display: block;
-  overflow: hidden;
-  margin-top: 8px;
-  padding: 0 3px;
-  color: #a8a7b3;
-  font-size: 10px;
-  font-weight: 570;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  transition: color 180ms ease;
-}
-
-.slot-card:hover .slot-image-wrap {
-  transform: translateY(-2px);
-  border-color:
-    color-mix(
-      in srgb,
-      var(--slot-accent) 46%,
-      transparent
-    );
-}
-
-.slot-card:hover img {
-  transform: scale(1.045);
-}
-
-.slot-card:hover .slot-shine {
-  left: 130%;
-}
-
-.slot-card.is-selected .slot-image-wrap {
-  border-color:
-    color-mix(
-      in srgb,
-      var(--slot-accent) 72%,
-      white
-    );
-  box-shadow:
-    0 0 0 1px
-    color-mix(
-      in srgb,
-      var(--slot-accent) 20%,
-      transparent
-    ),
-    0 12px 28px rgba(0, 0, 0, 0.3),
-    0 0 25px
-    color-mix(
-      in srgb,
-      var(--slot-accent) 13%,
-      transparent
-    );
-}
-
-.slot-card.is-selected .selected-check {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.slot-card.is-selected .slot-name {
-  color: #efedf6;
-}
-
-.signal-card {
-  position: relative;
-  overflow: hidden;
-  min-height: 168px;
-  margin-top: 25px;
-  padding: 19px;
-  display: grid;
-  grid-template-columns: 108px minmax(0, 1fr);
-  grid-template-rows: auto auto;
-  align-items: center;
-  column-gap: 15px;
-  border: 1px solid rgba(153, 66, 255, 0.24);
-  border-radius: 19px;
-  background:
-    radial-gradient(
-      circle at 15% 50%,
-      rgba(141, 66, 255, 0.14),
-      transparent 38%
-    ),
-    linear-gradient(
-      135deg,
-      rgba(15, 10, 27, 0.98),
-      rgba(6, 7, 13, 0.98)
-    );
-  box-shadow:
-    0 18px 38px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
-}
-
-.signal-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background:
-    linear-gradient(
-      115deg,
-      transparent 28%,
-      rgba(177, 81, 255, 0.07),
-      transparent 67%
-    );
-  transform: translateX(-100%);
-  animation: cardShine 5s ease-in-out infinite;
-  pointer-events: none;
-}
-
-.signal-card-glow {
-  position: absolute;
-  left: 10px;
-  top: 30px;
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: rgba(138, 50, 255, 0.16);
-  filter: blur(26px);
-}
-
-.radar {
-  position: relative;
-  z-index: 1;
-  grid-row: 1 / 3;
-  width: 104px;
-  height: 104px;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  border: 1px solid rgba(180, 93, 255, 0.28);
-  border-radius: 50%;
-  background:
-    radial-gradient(
-      circle,
-      rgba(110, 31, 203, 0.12),
-      transparent 63%
-    ),
-    #080710;
-  box-shadow:
-    inset 0 0 30px rgba(134, 47, 239, 0.13),
-    0 0 22px rgba(122, 36, 223, 0.1);
-}
-
-.radar-circle,
-.radar-cross,
-.radar-sweep,
-.radar-core {
-  position: absolute;
-}
-
-.radar-circle {
-  border: 1px solid rgba(174, 86, 255, 0.19);
-  border-radius: 50%;
-}
-
-.radar-circle-one {
-  width: 78%;
-  height: 78%;
-}
-
-.radar-circle-two {
-  width: 51%;
-  height: 51%;
-}
-
-.radar-circle-three {
-  width: 25%;
-  height: 25%;
-}
-
-.radar-cross {
-  background: rgba(178, 93, 255, 0.15);
-}
-
-.radar-cross-x {
-  width: 100%;
-  height: 1px;
-}
-
-.radar-cross-y {
-  width: 1px;
-  height: 100%;
-}
-
-.radar-sweep {
-  inset: 50% 50% 0 0;
-  transform-origin: 100% 0;
-  background:
-    conic-gradient(
-      from 268deg,
-      rgba(176, 82, 255, 0.62),
-      transparent 30deg
-    );
-  filter:
-    drop-shadow(
-      0 0 5px
-      rgba(182, 92, 255, 0.85)
-    );
-  animation: radarSpin 3.2s linear infinite;
-}
-
-.radar-core {
-  width: 20px;
-  height: 20px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(217, 169, 255, 0.55);
-  border-radius: 50%;
-  background: rgba(117, 35, 215, 0.24);
-  box-shadow:
-    0 0 18px
-    rgba(170, 73, 255, 0.62);
-}
-
-.radar-core span {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: white;
-  box-shadow:
-    0 0 7px white,
-    0 0 13px #bd61ff;
-}
-
-.signal-copy {
-  position: relative;
-  z-index: 1;
-  align-self: end;
-  padding-top: 2px;
-}
-
-.signal-kicker {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #8e70ac;
-  font-size: 8px;
-  font-weight: 800;
-  letter-spacing: 0.11em;
-}
-
-.signal-kicker span {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #a94dff;
-  box-shadow: 0 0 8px #a94dff;
-}
-
-.signal-copy h2 {
-  margin: 6px 0 0;
-  color: #f5f1fa;
-  font-size: 16px;
-  font-weight: 780;
-  letter-spacing: -0.015em;
-}
-
-.signal-copy > p:last-child {
-  margin: 5px 0 0;
-  color: #7a7887;
-  font-size: 9px;
-  line-height: 1.4;
-}
-
-.signal-button {
-  position: relative;
-  z-index: 2;
-  align-self: start;
-  width: fit-content;
-  min-width: 125px;
-  margin-top: 10px;
-  padding: 10px 13px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  border: 1px solid rgba(207, 139, 255, 0.22);
-  border-radius: 10px;
-  color: #fff;
-  background:
-    linear-gradient(
-      180deg,
-      #9f43ef,
-      #6b16c7
-    );
-  box-shadow:
-    0 7px 20px rgba(112, 26, 200, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22);
-  font-size: 9px;
-  font-weight: 850;
-  letter-spacing: 0.06em;
-  cursor: pointer;
-  transition:
-    transform 160ms ease,
-    filter 160ms ease;
-}
-
-.signal-button svg {
-  width: 15px;
-  height: 15px;
-}
-
-.signal-button:hover {
-  filter: brightness(1.1);
-}
-
-.signal-button:active {
-  transform:
-    translateY(1px)
-    scale(0.98);
-}
-
-.signal-button:disabled {
-  cursor: wait;
-  opacity: 0.78;
-}
-
-.signal-card.is-scanning .radar-sweep {
-  animation-duration: 0.7s;
-}
-
-.signal-card.is-scanning .radar {
-  border-color: rgba(216, 159, 255, 0.58);
-  box-shadow:
-    inset 0 0 34px rgba(157, 60, 255, 0.24),
-    0 0 28px rgba(139, 43, 232, 0.2);
-}
-
-.responsible-line {
-  margin: 17px auto 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  color: #555663;
-}
-
-.responsible-line span {
-  width: 22px;
-  height: 22px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 50%;
-  font-size: 7px;
-  font-weight: 800;
-}
-
-.responsible-line p {
-  margin: 0;
-  font-size: 8px;
-}
-
-.bottom-nav {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height:
-    calc(
-      78px + env(safe-area-inset-bottom)
-    );
-  padding:
-    8px
-    14px
-    env(safe-area-inset-bottom);
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  align-items: start;
-  border-top: 1px solid rgba(255, 255, 255, 0.075);
-  background:
-    linear-gradient(
-      180deg,
-      rgba(8, 9, 15, 0.96),
-      rgba(4, 5, 10, 1)
-    ),
-    #05060b;
-  box-shadow:
-    0 -14px 30px
-    rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(18px);
-}
-
-.bottom-nav::before {
-  content: "";
-  position: absolute;
-  top: -1px;
-  left: 4%;
-  width: 22%;
-  height: 1px;
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      #9f4dff,
-      transparent
-    );
-  opacity: 0.65;
-}
-
-.nav-item {
-  position: relative;
-  height: 62px;
-  padding: 4px 2px 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  border: 0;
-  color: #676875;
-  background: none;
-  font-size: 8px;
-  font-weight: 560;
-  cursor: pointer;
-  text-decoration: none;
-  transition: color 170ms ease;
-}
-
-.nav-icon {
-  position: relative;
-  width: 32px;
-  height: 31px;
-  display: grid;
-  place-items: center;
-  border-radius: 10px;
-}
-
-.nav-icon svg {
-  width: 21px;
-  height: 21px;
-}
-
-.nav-item:hover {
-  color: #b8b5c1;
-}
-
-.nav-item.is-active {
-  color: #b95cff;
-}
-
-.nav-item.is-active .nav-icon {
-  background:
-    radial-gradient(
-      circle,
-      rgba(158, 66, 255, 0.2),
-      transparent 70%
-    );
-  text-shadow:
-    0 0 12px
-    rgba(174, 73, 255, 0.6);
-}
-
-.nav-item.is-active::after {
-  content: "";
-  position: absolute;
-  bottom: 2px;
-  width: 16px;
-  height: 2px;
-  border-radius: 999px;
-  background: #a84bff;
-  box-shadow:
-    0 0 9px
-    rgba(168, 75, 255, 0.85);
-}
-
-.toast {
-  position: absolute;
-  z-index: 20;
-  left: 50%;
-  bottom:
-    calc(
-      88px + env(safe-area-inset-bottom)
-    );
-  width: max-content;
-  max-width: calc(100% - 36px);
-  padding: 11px 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid rgba(176, 88, 255, 0.24);
-  border-radius: 12px;
-  color: #dbd7e3;
-  background: rgba(18, 14, 26, 0.96);
-  box-shadow:
-    0 15px 35px
-    rgba(0, 0, 0, 0.38);
-  backdrop-filter: blur(16px);
-  font-size: 10px;
-  text-align: center;
-  opacity: 0;
-  pointer-events: none;
-  transform: translate(-50%, 12px);
-  transition:
-    opacity 190ms ease,
-    transform 190ms ease;
-}
-
-.toast.is-visible {
-  opacity: 1;
-  transform: translate(-50%, 0);
-}
-
-.toast-dot {
-  flex: 0 0 auto;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #ac52ff;
-  box-shadow: 0 0 9px #ac52ff;
-}
-
-@keyframes livePulse {
-  0% {
-    opacity: 0.8;
-    transform: scale(0.7);
-  }
-
-  80%,
-  100% {
-    opacity: 0;
-    transform: scale(1.8);
-  }
-}
-
-@keyframes radarSpin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes cardShine {
-  0%,
-  48% {
-    transform: translateX(-100%);
-  }
-
-  68%,
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-/* Телефони: повністю чорний фон системних областей */
-@media (max-width: 559px) {
-  html,
-  body,
-  .page-shell {
-    background: #020307 !important;
-    background-color: #020307 !important;
-  }
-
-  .ambient {
-    display: none !important;
-  }
-
-  .pulse-app {
-    min-height: 100vh;
-    min-height: 100svh;
-    background:
-      linear-gradient(
-        180deg,
-        #06070d 0%,
-        #020309 54%,
-        #05060c 100%
-      ) !important;
-  }
-}
-
-/* Комп’ютери та великі екрани */
-@media (min-width: 560px) {
-  body {
-    background:
-      radial-gradient(
-        circle at 50% -10%,
-        rgba(105, 37, 186, 0.13),
-        transparent 32rem
-      ),
-      #020307 !important;
-  }
-
-  .page-shell {
-    padding: 22px 0;
-    background: transparent;
-  }
-
-  .pulse-app {
-    min-height: calc(100svh - 44px);
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    border-radius: 24px;
-    box-shadow:
-      0 36px 90px rgba(0, 0, 0, 0.58),
-      0 0 0 1px rgba(138, 57, 232, 0.05);
-  }
-
-  .bottom-nav {
-    border-radius: 0 0 23px 23px;
-  }
-}
-
-@media (max-height: 760px) and (max-width: 559px) {
-  .topbar {
-    height: 72px;
-  }
-
-  .content {
-    padding-top: 4px;
-  }
-
-  .slots-section {
-    margin-top: 21px;
-  }
-
-  .signal-card {
-    min-height: 151px;
-    margin-top: 20px;
-    grid-template-columns:
-      94px
-      minmax(0, 1fr);
-  }
-
-  .radar {
-    width: 92px;
-    height: 92px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* Приховуємо смугу прокрутки, але залишаємо саму прокрутку */
-html,
-body {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-html::-webkit-scrollbar,
-body::-webkit-scrollbar,
-.page-shell::-webkit-scrollbar,
-.pulse-app::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
-  background: transparent;
-}
-
-/* Повністю статична головна сторінка без вертикального гортання */
-html,
-body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden !important;
-  overscroll-behavior: none;
-}
-
-body {
-  position: fixed;
-  inset: 0;
-}
-
-.page-shell,
-.pulse-app {
-  height: 100vh;
-  height: 100svh;
-  height: 100dvh;
-  min-height: 0 !important;
-  max-height: 100dvh;
-  overflow: hidden !important;
-}
-
-/* =========================================================
-   ЕКРАН СКАНУВАННЯ ТА ГОТОВОГО СИГНАЛУ
-   ========================================================= */
-
-.signal-overlay[hidden],
-.scan-view[hidden],
-.result-view[hidden] {
-  display: none !important;
-}
-
-.signal-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  overflow: hidden;
-  flex-direction: column;
-  color: #f8f7ff;
-  background:
-    radial-gradient(
-      circle at 50% 34%,
-      rgba(126, 36, 226, 0.16),
-      transparent 34%
-    ),
-    linear-gradient(
-      180deg,
-      #06070e 0%,
-      #020309 56%,
-      #04050a 100%
-    );
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(12px);
-  transition:
-    opacity 220ms ease,
-    transform 220ms ease;
-}
-
-.signal-overlay::before {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background-image:
-    linear-gradient(
-      rgba(159, 77, 255, 0.025) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      rgba(159, 77, 255, 0.025) 1px,
-      transparent 1px
-    );
-  background-size: 34px 34px;
-  content: "";
-  pointer-events: none;
-  mask-image:
-    radial-gradient(
-      circle at 50% 40%,
-      #000,
-      transparent 72%
-    );
-  -webkit-mask-image:
-    radial-gradient(
-      circle at 50% 40%,
-      #000,
-      transparent 72%
-    );
-}
-
-.signal-overlay::after {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background:
-    radial-gradient(
-      circle at 50% 100%,
-      rgba(117, 30, 218, 0.1),
-      transparent 35%
-    );
-  content: "";
-  pointer-events: none;
-}
-
-.signal-overlay.is-open {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
-.signal-overlay.is-result {
-  background:
-    radial-gradient(
-      circle at 50% 20%,
-      rgba(24, 217, 119, 0.1),
-      transparent 27%
-    ),
-    radial-gradient(
-      circle at 50% 74%,
-      rgba(110, 39, 206, 0.1),
-      transparent 32%
-    ),
-    linear-gradient(
-      180deg,
-      #05070c 0%,
-      #020407 100%
-    );
-}
-
-/* Верхня панель */
-
-.signal-overlay-header {
-  position: relative;
-  z-index: 3;
-  min-height:
-    calc(
-      64px + env(safe-area-inset-top)
-    );
-  padding:
-    max(12px, env(safe-area-inset-top))
-    18px
-    10px;
-  display: grid;
-  grid-template-columns:
-    42px
-    minmax(0, 1fr)
-    42px;
-  align-items: center;
-  flex: 0 0 auto;
-}
-
-.signal-overlay-header p {
-  margin: 0;
-  color: #f3eff8;
-  font-size: 12px;
-  font-weight: 720;
-  letter-spacing: 0.08em;
-  text-align: center;
-}
-
-.signal-back-button {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 50%;
-  color: #d7d4de;
-  background: rgba(11, 12, 20, 0.82);
-  cursor: pointer;
-  transition:
-    transform 160ms ease,
-    border-color 160ms ease;
-}
-
-.signal-back-button svg {
-  width: 20px;
-  height: 20px;
-}
-
-.signal-back-button:active {
-  transform: scale(0.93);
-}
-
-.signal-back-button:focus-visible,
-.result-action-button:focus-visible,
-.result-new-button:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 3px;
-}
-
-.signal-header-spacer {
-  width: 42px;
-  height: 42px;
-}
-
-/* Екран сканування */
-
-.scan-view {
-  position: relative;
-  z-index: 2;
-  min-height: 0;
-  padding:
-    4px
-    24px
-    max(22px, env(safe-area-inset-bottom));
-  display: flex;
-  align-items: center;
-  flex: 1 1 auto;
-  flex-direction: column;
-}
-
-.scan-slot {
-  width: min(100%, 330px);
-  min-height: 64px;
-  padding: 9px 12px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border: 1px solid rgba(178, 83, 255, 0.16);
-  border-radius: 15px;
-  background:
-    linear-gradient(
-      120deg,
-      rgba(126, 47, 207, 0.1),
-      rgba(7, 8, 14, 0.88)
-    ),
-    #080910;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.025),
-    0 15px 34px rgba(0, 0, 0, 0.22);
-}
-
-.scan-slot img {
-  width: 46px;
-  height: 46px;
-  flex: 0 0 auto;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 11px;
-  object-fit: cover;
-  box-shadow:
-    0 0 18px rgba(142, 65, 234, 0.2);
-}
-
-.scan-slot div {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.scan-slot span {
-  color: #9c79bd;
-  font-size: 8px;
-  font-weight: 750;
-  letter-spacing: 0.16em;
-}
-
-.scan-slot strong {
-  overflow: hidden;
-  color: #f5f1fa;
-  font-size: 13px;
-  font-weight: 680;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Великий радар */
-
-.scan-radar {
-  position: relative;
-  width: 218px;
-  height: 218px;
-  margin-top:
-    clamp(
-      18px,
-      4.7vh,
-      42px
-    );
-  flex: 0 0 auto;
-  overflow: hidden;
-  border: 1px solid rgba(172, 77, 255, 0.34);
-  border-radius: 50%;
-  background:
-    repeating-radial-gradient(
-      circle,
-      transparent 0 23px,
-      rgba(171, 82, 255, 0.1) 24px 25px
-    ),
-    radial-gradient(
-      circle,
-      rgba(128, 42, 213, 0.18),
-      rgba(28, 11, 48, 0.55) 58%,
-      rgba(6, 7, 13, 0.92) 72%
-    );
-  box-shadow:
-    inset 0 0 45px rgba(137, 42, 226, 0.2),
-    0 0 34px rgba(126, 37, 218, 0.14);
-}
-
-.scan-radar::before,
-.scan-radar::after {
-  position: absolute;
-  z-index: 2;
-  content: "";
-  pointer-events: none;
-}
-
-.scan-radar::before {
-  top: 50%;
-  right: 8%;
-  left: 8%;
-  height: 1px;
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(186, 105, 255, 0.25),
-      transparent
-    );
-}
-
-.scan-radar::after {
-  top: 8%;
-  bottom: 8%;
-  left: 50%;
-  width: 1px;
-  background:
-    linear-gradient(
-      180deg,
-      transparent,
-      rgba(186, 105, 255, 0.25),
-      transparent
-    );
-}
-
-.scan-ring {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  border: 1px solid rgba(181, 90, 255, 0.16);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.scan-ring-one {
-  width: 76%;
-  height: 76%;
-}
-
-.scan-ring-two {
-  width: 52%;
-  height: 52%;
-}
-
-.scan-ring-three {
-  width: 27%;
-  height: 27%;
-}
-
-.scan-line {
-  position: absolute;
-  z-index: 2;
-  opacity: 0.5;
-}
-
-.scan-line-horizontal {
-  top: 50%;
-  right: 0;
-  left: 0;
-  height: 1px;
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(170, 75, 255, 0.35),
-      transparent
-    );
-}
-
-.scan-line-vertical {
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 1px;
-  background:
-    linear-gradient(
-      180deg,
-      transparent,
-      rgba(170, 75, 255, 0.35),
-      transparent
-    );
-}
-
-.scan-sweep {
-  position: absolute;
-  inset: -1px;
-  z-index: 3;
-  border-radius: 50%;
-  background:
-    conic-gradient(
-      from -32deg,
-      transparent 0deg,
-      transparent 275deg,
-      rgba(162, 65, 255, 0.02) 288deg,
-      rgba(172, 74, 255, 0.48) 343deg,
-      rgba(219, 156, 255, 0.8) 357deg,
-      transparent 360deg
-    );
-  animation:
-    fullScanSweep
-    1.65s
-    linear
-    infinite;
-}
-
-.scan-sweep::after {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 47%;
-  height: 1px;
-  background:
-    linear-gradient(
-      90deg,
-      rgba(229, 182, 255, 0.95),
-      rgba(168, 67, 255, 0.45),
-      transparent
-    );
-  box-shadow:
-    0 0 10px rgba(192, 105, 255, 0.75);
-  content: "";
-  transform-origin: left center;
-}
-
-.scan-center {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: 6;
-  width: 27px;
-  height: 27px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(208, 145, 255, 0.38);
-  border-radius: 50%;
-  background: rgba(105, 31, 173, 0.42);
-  box-shadow:
-    0 0 0 8px rgba(133, 43, 218, 0.07),
-    0 0 22px rgba(183, 87, 255, 0.52);
-  transform: translate(-50%, -50%);
-}
-
-.scan-center::before {
-  position: absolute;
-  inset: -9px;
-  border: 1px solid rgba(185, 91, 255, 0.2);
-  border-radius: 50%;
-  content: "";
-  animation:
-    scanCenterPulse
-    1.6s
-    ease-out
-    infinite;
-}
-
-.scan-center span {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #f5eaff;
-  box-shadow:
-    0 0 10px #dfb3ff,
-    0 0 20px #a948ff;
-}
-
-/* Текст і прогрес сканування */
-
-.scan-copy {
-  margin-top:
-    clamp(
-      17px,
-      3.4vh,
-      30px
-    );
-  text-align: center;
-}
-
-.scan-kicker {
-  margin: 0 0 7px;
-  color: #ad62e8;
-  font-size: 8px;
-  font-weight: 760;
-  letter-spacing: 0.2em;
-}
-
-.scan-copy h2 {
-  margin: 0;
-  color: #fbf9ff;
-  font-size: 22px;
-  font-weight: 740;
-  letter-spacing: 0.025em;
-}
-
-.scan-copy > p:not(.scan-kicker) {
-  min-height: 17px;
-  margin: 8px 0 0;
-  color: #888594;
-  font-size: 10px;
-}
-
-.scan-copy > strong {
-  display: block;
-  margin-top: 12px;
-  color: #faf7ff;
-  font-size: 32px;
-  font-weight: 620;
-  line-height: 1;
-  text-shadow:
-    0 0 20px rgba(183, 83, 255, 0.22);
-}
-
-.scan-progress {
-  width: min(100%, 290px);
-  height: 4px;
-  margin-top: 18px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.scan-progress span {
-  display: block;
-  width: 0;
-  height: 100%;
-  border-radius: inherit;
-  background:
-    linear-gradient(
-      90deg,
-      #7921d6,
-      #c15aff,
-      #e4a5ff
-    );
-  box-shadow:
-    0 0 12px rgba(190, 89, 255, 0.62);
-  transition: width 90ms linear;
-}
-
-.scan-wait {
-  margin: auto 0 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  color: #666472;
-  font-size: 9px;
-}
-
-.scan-wait span {
-  width: 11px;
-  height: 11px;
-  border: 2px solid rgba(178, 79, 255, 0.2);
-  border-top-color: #aa49ef;
-  border-radius: 50%;
-  animation:
-    scanWaitSpin
-    0.8s
-    linear
-    infinite;
-}
-
-/* Екран готового сигналу */
-
-.result-view {
-  position: relative;
-  z-index: 2;
-  min-height: 0;
-  padding:
-    8px
-    24px
-    max(18px, env(safe-area-inset-bottom));
-  display: flex;
-  align-items: center;
-  flex: 1 1 auto;
-  flex-direction: column;
-  animation:
-    resultViewIn
-    360ms
-    ease-out
-    both;
-}
-
-.result-success-icon {
-  position: relative;
-  width: 58px;
-  height: 58px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(47, 245, 142, 0.38);
-  border-radius: 50%;
-  color: #35f18e;
-  background:
-    radial-gradient(
-      circle,
-      rgba(31, 213, 119, 0.16),
-      rgba(10, 67, 38, 0.08)
-    );
-  box-shadow:
-    0 0 0 9px rgba(38, 218, 124, 0.035),
-    0 0 34px rgba(35, 231, 130, 0.16);
-}
-
-.result-success-icon::after {
-  position: absolute;
-  inset: -10px;
-  border: 1px solid rgba(44, 234, 136, 0.12);
-  border-radius: 50%;
-  content: "";
-  animation:
-    resultSuccessPulse
-    1.9s
-    ease-out
-    infinite;
-}
-
-.result-success-icon svg {
-  width: 30px;
-  height: 30px;
-}
-
-.result-kicker {
-  margin: 17px 0 0;
-  color: #31e887;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.2em;
-}
-
-.result-view > h2 {
-  margin: 7px 0 0;
-  color: #fbfafc;
-  font-family:
-    Georgia,
-    "Times New Roman",
-    serif;
-  font-size: 24px;
-  font-weight: 500;
-}
-
-.result-slot-card {
-  width: min(100%, 340px);
-  min-height: 72px;
-  margin-top: 18px;
-  padding: 10px 12px;
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  border: 1px solid rgba(184, 84, 255, 0.18);
-  border-radius: 15px;
-  background:
-    linear-gradient(
-      120deg,
-      rgba(121, 43, 199, 0.11),
-      rgba(8, 9, 15, 0.92)
-    ),
-    #080910;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.025),
-    0 16px 34px rgba(0, 0, 0, 0.24);
-}
-
-.result-slot-card img {
-  width: 52px;
-  height: 52px;
-  flex: 0 0 auto;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  object-fit: cover;
-}
-
-.result-slot-card div {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.result-slot-card span {
-  color: #9072a8;
-  font-size: 8px;
-  font-weight: 750;
-  letter-spacing: 0.15em;
-}
-
-.result-slot-card strong {
-  overflow: hidden;
-  color: #f7f3fa;
-  font-size: 14px;
-  font-weight: 690;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Таблиця результату */
-
-.result-details {
-  width: min(100%, 340px);
-  margin-top: 13px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 15px;
-  background:
-    linear-gradient(
-      140deg,
-      rgba(16, 18, 28, 0.92),
-      rgba(6, 7, 12, 0.96)
-    ),
-    #080910;
-}
-
-.result-row {
-  min-height: 47px;
-  padding: 0 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.result-row:last-child {
-  border-bottom: 0;
-}
-
-.result-row > span {
-  color: #858391;
-  font-size: 10px;
-}
-
-.result-row > strong {
-  color: #f3c94e;
-  font-size: 12px;
-  font-weight: 750;
-}
-
-.result-risk {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.result-risk span {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: currentColor;
-  box-shadow: 0 0 8px currentColor;
-}
-
-.result-risk[data-level="низький"] {
-  color: #36e58c;
-}
-
-.result-risk[data-level="середній"] {
-  color: #f3c94e;
-}
-
-.result-risk[data-level="високий"] {
-  color: #ff657b;
-}
-
-/* Кнопки результату */
-
-.result-action-button {
-  width: min(100%, 340px);
-  height: 54px;
-  margin-top: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  border: 1px solid rgba(99, 255, 172, 0.24);
-  border-radius: 11px;
-  color: #fff;
-  background:
-    linear-gradient(
-      180deg,
-      #13c66b,
-      #07964e
-    );
-  box-shadow:
-    0 15px 30px rgba(7, 166, 82, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14);
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  transition:
-    transform 160ms ease,
-    filter 160ms ease;
-}
-
-.result-action-button svg {
-  width: 17px;
-  height: 17px;
-}
-
-.result-action-button:active {
-  transform:
-    translateY(1px)
-    scale(0.99);
-}
-
-.result-new-button {
-  margin-top: 13px;
-  padding: 7px 10px;
-  border: 0;
-  color: #898694;
-  background: none;
-  cursor: pointer;
-  font-size: 9px;
-  font-weight: 650;
-  letter-spacing: 0.04em;
-}
-
-.result-warning {
-  margin: auto 0 0;
-  color: #4e4d58;
-  font-size: 8px;
-  text-align: center;
-}
-
-/* Анімації */
-
-@keyframes fullScanSweep {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes scanCenterPulse {
-  0% {
-    opacity: 0.8;
-    transform: scale(0.72);
-  }
-
-  80%,
-  100% {
-    opacity: 0;
-    transform: scale(1.9);
-  }
-}
-
-@keyframes scanWaitSpin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes resultViewIn {
-  from {
-    opacity: 0;
-    transform:
-      translateY(12px)
-      scale(0.985);
-  }
-
-  to {
-    opacity: 1;
-    transform:
-      translateY(0)
-      scale(1);
-  }
-}
-
-@keyframes resultSuccessPulse {
-  0% {
-    opacity: 0.65;
-    transform: scale(0.72);
-  }
-
-  80%,
-  100% {
-    opacity: 0;
-    transform: scale(1.55);
-  }
-}
-
-/* Невисокі телефони */
-
-@media (max-height: 760px) and (max-width: 559px) {
-  .signal-overlay-header {
-    min-height:
-      calc(
-        54px + env(safe-area-inset-top)
+function updateFavoriteInterface() {
+  document
+    .querySelectorAll(
+      ".slot-favorite-button"
+    )
+    .forEach((button) => {
+      updateFavoriteButton(
+        button,
+        button.dataset.favoriteSlot
       );
-    padding-bottom: 5px;
+    });
+
+  if (favoriteSlotsCount) {
+    favoriteSlotsCount.textContent =
+      String(favoriteSlotNames.size);
   }
 
-  .scan-view {
-    padding-top: 0;
-    padding-bottom:
-      max(
-        10px,
-        env(safe-area-inset-bottom)
+  if (allSlotsFavoritesButton) {
+    const favoritesAreOpen =
+      activeSlotCategory === "favorites";
+
+    allSlotsFavoritesButton.classList.toggle(
+      "is-active",
+      favoritesAreOpen
+    );
+
+    allSlotsFavoritesButton.setAttribute(
+      "aria-pressed",
+      String(favoritesAreOpen)
+    );
+
+    allSlotsFavoritesButton.setAttribute(
+      "aria-selected",
+      String(favoritesAreOpen)
+    );
+  }
+}
+
+function toggleFavoriteSlot(slotName) {
+  const isRemoving =
+    favoriteSlotNames.has(slotName);
+
+  if (isRemoving) {
+    favoriteSlotNames.delete(slotName);
+  } else {
+    favoriteSlotNames.add(slotName);
+  }
+
+  saveFavoriteSlots();
+  updateFavoriteInterface();
+
+  showToast(
+    isRemoving
+      ? `${slotName} видалено з обраного`
+      : `${slotName} додано в обране`
+  );
+
+  if (
+    activeSlotCategory === "favorites"
+  ) {
+    renderAllSlotsCatalog(
+      allSlotsSearchInput?.value || ""
+    );
+  }
+}
+
+function slotMatchesCategory(
+  slot,
+  category
+) {
+  if (category === "popular") {
+    return popularSlotNames.has(slot.name);
+  }
+
+  if (category === "new") {
+    return newSlotNames.has(slot.name);
+  }
+
+  if (category === "megaways") {
+    return slot.name
+      .toLocaleLowerCase("uk-UA")
+      .includes("megaways");
+  }
+
+  if (category === "favorites") {
+    return favoriteSlotNames.has(slot.name);
+  }
+
+  return true;
+}
+
+function setActiveSlotCategory(category) {
+  activeSlotCategory =
+    categoryLabels[category]
+      ? category
+      : "all";
+
+  allSlotsCategories
+    ?.querySelectorAll(
+      ".all-slots-category"
+    )
+    .forEach((button) => {
+      const isActive =
+        button.dataset.category ===
+        activeSlotCategory;
+
+      button.classList.toggle(
+        "is-active",
+        isActive
+      );
+
+      button.setAttribute(
+        "aria-selected",
+        String(isActive)
+      );
+    });
+
+  if (allSlotsTitle) {
+    allSlotsTitle.textContent =
+      categoryLabels[activeSlotCategory];
+  }
+
+  renderAllSlotsCatalog(
+    allSlotsSearchInput?.value || ""
+  );
+
+  updateFavoriteInterface();
+}
+
+function normalizeSlotSearch(value) {
+  return String(value || "")
+    .trim()
+    .toLocaleLowerCase("uk-UA");
+}
+
+function renderAllSlotsCatalog(searchValue = "") {
+  if (!allSlotsGrid) {
+    return;
+  }
+
+  const normalizedSearch =
+    normalizeSlotSearch(searchValue);
+
+  const filteredSlots =
+    slotCatalog.filter((slot) => {
+      const matchesCategory =
+        slotMatchesCategory(
+          slot,
+          activeSlotCategory
+        );
+
+      const matchesSearch =
+        !normalizedSearch ||
+        normalizeSlotSearch(
+          slot.name
+        ).includes(normalizedSearch);
+
+      return (
+        matchesCategory &&
+        matchesSearch
+      );
+    });
+
+  const fragment =
+    document.createDocumentFragment();
+
+  filteredSlots.forEach((slot) => {
+    const card = createSlotCard(slot, -1);
+
+    card.addEventListener(
+      "click",
+      async () => {
+        if (!(await ensureHomeReady())) {
+          return;
+        }
+
+        applySelectedSlot(slot.name);
+
+        showToast(
+          `${slot.name} обрано`
+        );
+
+        void persistStatePatch({
+          selectedSlot: slot.name,
+        });
+
+        closeAllSlotsOverlay();
+      }
+    );
+
+    fragment.appendChild(card);
+  });
+
+  allSlotsGrid.replaceChildren(fragment);
+
+  if (allSlotsCount) {
+    allSlotsCount.textContent =
+      String(filteredSlots.length);
+  }
+
+  if (allSlotsEmpty) {
+    allSlotsEmpty.hidden =
+      filteredSlots.length > 0;
+  }
+
+  if (
+    filteredSlots.length === 0 &&
+    allSlotsEmptyTitle &&
+    allSlotsEmptyText
+  ) {
+    if (
+      activeSlotCategory ===
+        "favorites" &&
+      !normalizedSearch
+    ) {
+      allSlotsEmptyTitle.textContent =
+        "Обраних слотів ще немає";
+      allSlotsEmptyText.textContent =
+        "Натисніть сердечко на слоті, щоб додати його сюди";
+    } else {
+      allSlotsEmptyTitle.textContent =
+        "Нічого не знайдено";
+      allSlotsEmptyText.textContent =
+        "Спробуйте іншу назву або категорію";
+    }
+  }
+
+  if (allSlotsSearchClear) {
+    allSlotsSearchClear.hidden =
+      normalizedSearch.length === 0;
+  }
+
+  applyAllSlotsSelection();
+  updateFavoriteInterface();
+}
+
+function openAllSlotsOverlay() {
+  if (!allSlotsOverlay) {
+    return;
+  }
+
+  window.clearTimeout(toastTimer);
+  toast.classList.remove("is-visible");
+
+  if (allSlotsSearchInput) {
+    allSlotsSearchInput.value = "";
+  }
+
+  setActiveSlotCategory("all");
+  allSlotsOverlay.hidden = false;
+
+  document.body.classList.add(
+    "all-slots-open"
+  );
+
+  window.requestAnimationFrame(() => {
+    allSlotsOverlay.classList.add(
+      "is-open"
+    );
+  });
+}
+
+function closeAllSlotsOverlay() {
+  if (!allSlotsOverlay) {
+    return;
+  }
+
+  allSlotsOverlay.classList.remove(
+    "is-open"
+  );
+
+  document.body.classList.remove(
+    "all-slots-open"
+  );
+
+  window.setTimeout(() => {
+    allSlotsOverlay.hidden = true;
+  }, 220);
+}
+
+function applyAllSlotsSelection() {
+  if (!allSlotsGrid) {
+    return;
+  }
+
+  const selectedName =
+    getSelectedSlot().name;
+
+  allSlotsGrid
+    .querySelectorAll(".slot-card")
+    .forEach((card) => {
+      card.classList.toggle(
+        "is-selected",
+        card.dataset.slot === selectedName
+      );
+    });
+}
+
+function renderSlotCatalog() {
+  if (!slotGrid) {
+    return;
+  }
+
+  const fragment =
+    document.createDocumentFragment();
+
+  slotCatalog.forEach((slot, index) => {
+    fragment.appendChild(
+      createSlotCard(slot, index)
+    );
+  });
+
+  slotGrid.replaceChildren(fragment);
+}
+
+const scanStages = [
+  {
+    from: 0,
+    message: "Підключення до аналітичного ядра",
+  },
+  {
+    from: 18,
+    message: "Отримання поточних параметрів слота",
+  },
+  {
+    from: 38,
+    message: "Аналіз останніх ігрових циклів",
+  },
+  {
+    from: 61,
+    message: "Розрахунок оптимальних параметрів",
+  },
+  {
+    from: 82,
+    message: "Перевірка результату системою Pulse",
+  },
+  {
+    from: 96,
+    message: "Формування готового сигналу",
+  },
+];
+
+renderSlotCatalog();
+renderAllSlotsCatalog();
+updateFavoriteInterface();
+
+const slotCards =
+  slotGrid.querySelectorAll(".slot-card");
+
+let toastTimer;
+let subIdVerifyTimer;
+let subIdSuccessTimer;
+let subIdCloseTimer;
+let scanFrame;
+let resultRevealTimer;
+let selectedSlot = getSelectedSlot();
+let activeSignal = null;
+let homeReady = false;
+let homeState = {};
+let homeInitializationPromise = null;
+let stateSaveQueue = Promise.resolve({});
+let stateSaveErrorWasShown = false;
+let activeSignalTimerInterval;
+let activeSignalTimerState = loadActiveSignalTimerState();
+
+
+function parseSignalDurationToMilliseconds(duration) {
+  const match = String(duration || "")
+    .trim()
+    .match(/^(\d{1,2}):([0-5]\d)$/);
+
+  if (!match) {
+    return 0;
+  }
+
+  const minutes = Number(match[1]);
+  const seconds = Number(match[2]);
+
+  return (minutes * 60 + seconds) * 1000;
+}
+
+function formatActiveSignalRemaining(milliseconds) {
+  const totalSeconds = Math.max(
+    0,
+    Math.ceil(milliseconds / 1000)
+  );
+
+  const minutes = Math.floor(
+    totalSeconds / 60
+  );
+
+  const seconds = totalSeconds % 60;
+
+  return (
+    String(minutes).padStart(2, "0") +
+    ":" +
+    String(seconds).padStart(2, "0")
+  );
+}
+
+function loadActiveSignalTimerState() {
+  try {
+    const rawValue = localStorage.getItem(
+      ACTIVE_SIGNAL_TIMER_STORAGE_KEY
+    );
+
+    if (!rawValue) {
+      return null;
+    }
+
+    const parsedValue = JSON.parse(rawValue);
+
+    if (
+      !parsedValue ||
+      typeof parsedValue !== "object" ||
+      !Number.isFinite(parsedValue.endAt) ||
+      !Number.isFinite(parsedValue.startedAt) ||
+      !Number.isFinite(parsedValue.durationMs) ||
+      !parsedValue.signal
+    ) {
+      return null;
+    }
+
+    return parsedValue;
+  } catch {
+    return null;
+  }
+}
+
+function saveActiveSignalTimerState(state) {
+  activeSignalTimerState = state;
+
+  try {
+    localStorage.setItem(
+      ACTIVE_SIGNAL_TIMER_STORAGE_KEY,
+      JSON.stringify(state)
+    );
+  } catch {
+    /* Таймер продовжить працювати до закриття сторінки. */
+  }
+}
+
+function clearActiveSignalTimerState() {
+  activeSignalTimerState = null;
+
+  try {
+    localStorage.removeItem(
+      ACTIVE_SIGNAL_TIMER_STORAGE_KEY
+    );
+  } catch {
+    /* Локальне очищення не критичне. */
+  }
+}
+
+function stopActiveSignalTimerInterval() {
+  window.clearInterval(
+    activeSignalTimerInterval
+  );
+
+  activeSignalTimerInterval = undefined;
+}
+
+function setActiveSignalTimerButtons(isRunning) {
+  resultActionButton.hidden = isRunning;
+  resultNewButton.hidden = isRunning;
+}
+
+function renderActiveSignalTimer() {
+  if (
+    !activeSignalTimerState ||
+    !activeSignalTimer
+  ) {
+    return false;
+  }
+
+  const now = Date.now();
+  const remainingMs = Math.max(
+    0,
+    activeSignalTimerState.endAt - now
+  );
+
+  const durationMs = Math.max(
+    1,
+    activeSignalTimerState.durationMs
+  );
+
+  const progress = Math.max(
+    0,
+    Math.min(
+      1,
+      remainingMs / durationMs
+    )
+  );
+
+  const isFinished = remainingMs <= 0;
+  const isEnding =
+    !isFinished &&
+    remainingMs <= 30000;
+
+  activeSignalTimer.hidden = false;
+
+  activeSignalTimer.classList.toggle(
+    "is-ending",
+    isEnding
+  );
+
+  activeSignalTimer.classList.toggle(
+    "is-finished",
+    isFinished
+  );
+
+  activeSignalTimerValue.textContent =
+    formatActiveSignalRemaining(
+      remainingMs
+    );
+
+  activeSignalTimerProgress.style.width =
+    `${progress * 100}%`;
+
+  activeSignalTimerSlot.textContent =
+    activeSignalTimerState.signal
+      ?.slotName || "";
+
+  activeSignalTimerStatus.textContent =
+    isFinished
+      ? "СИГНАЛ ЗАВЕРШЕНО"
+      : "СИГНАЛ АКТИВНИЙ";
+
+  activeSignalTimerHint.textContent =
+    isFinished
+      ? "Час сигналу завершився. Можна створити новий сигнал"
+      : "Дотримуйтесь параметрів сигналу до завершення таймера";
+
+  setActiveSignalTimerButtons(
+    !isFinished
+  );
+
+  if (isFinished) {
+    stopActiveSignalTimerInterval();
+    clearActiveSignalTimerState();
+    resultNewButton.hidden = false;
+
+    signalOverlayTitle.textContent =
+      "СИГНАЛ ЗАВЕРШЕНО";
+
+    return false;
+  }
+
+  signalOverlayTitle.textContent =
+    "СИГНАЛ АКТИВНИЙ";
+
+  return true;
+}
+
+function beginActiveSignalTimerLoop() {
+  stopActiveSignalTimerInterval();
+
+  if (!renderActiveSignalTimer()) {
+    return;
+  }
+
+  activeSignalTimerInterval =
+    window.setInterval(
+      renderActiveSignalTimer,
+      250
+    );
+}
+
+function startActiveSignalTimer(signal) {
+  const durationMs =
+    parseSignalDurationToMilliseconds(
+      signal?.duration
+    );
+
+  if (!durationMs) {
+    showToast(
+      "Не вдалося визначити тривалість сигналу"
+    );
+
+    return;
+  }
+
+  const startedAt = Date.now();
+
+  saveActiveSignalTimerState({
+    signal: {
+      ...signal,
+    },
+    startedAt,
+    endAt: startedAt + durationMs,
+    durationMs,
+  });
+
+  activeSignal = {
+    ...signal,
+  };
+
+  activeSignalTimer.hidden = false;
+  beginActiveSignalTimerLoop();
+
+  showToast(
+    `Сигнал для ${signal.slotName} активовано`
+  );
+}
+
+function restoreActiveSignalTimerIfAvailable() {
+  if (!activeSignalTimerState) {
+    return false;
+  }
+
+  if (
+    activeSignalTimerState.endAt <=
+    Date.now()
+  ) {
+    clearActiveSignalTimerState();
+    return false;
+  }
+
+  activeSignal = {
+    ...activeSignalTimerState.signal,
+  };
+
+  fillResult(activeSignal);
+
+  scanView.hidden = true;
+  resultView.hidden = false;
+  signalOverlay.hidden = false;
+
+  signalOverlay.classList.remove(
+    "is-scanning"
+  );
+
+  signalOverlay.classList.add(
+    "is-result"
+  );
+
+  document.body.classList.add(
+    "signal-overlay-open"
+  );
+
+  window.requestAnimationFrame(() => {
+    signalOverlay.classList.add(
+      "is-open"
+    );
+  });
+
+  beginActiveSignalTimerLoop();
+
+  return true;
+}
+
+function showToast(message) {
+  window.clearTimeout(toastTimer);
+
+  toastText.textContent = message;
+  toast.classList.add("is-visible");
+
+  toastTimer = window.setTimeout(() => {
+    toast.classList.remove("is-visible");
+  }, 2400);
+}
+
+function getArbifyApi() {
+  if (!window.ARBIFY_API) {
+    throw new Error(
+      "ARBIFY API is not loaded"
+    );
+  }
+
+  return window.ARBIFY_API;
+}
+
+async function recordSignalCreatedActivity(
+  signal
+) {
+  const api = getArbifyApi();
+
+  if (!api.isTelegramMiniApp()) {
+    return null;
+  }
+
+  const result = await api.recordActivity(
+    "signal-created",
+    {
+      slotName:
+        signal?.slotName || "",
+    }
+  );
+
+  homeState = {
+    ...api.getCurrentState(),
+  };
+
+  return result;
+}
+
+function getStoredSubId() {
+  const databaseSubId =
+    normalizeSubId(homeState.subid || "");
+
+  if (databaseSubId) {
+    return databaseSubId;
+  }
+
+  try {
+    return normalizeSubId(
+      sessionStorage.getItem(
+        SUBID_STORAGE_KEY
+      ) || ""
+    );
+  } catch {
+    return "";
+  }
+}
+
+function getLegacySignalCount() {
+  try {
+    const value = Number(
+      localStorage.getItem(
+        "arbifyCreatedSignalCount"
+      )
+    );
+
+    return Number.isSafeInteger(value) &&
+      value > 0
+      ? value
+      : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function getCreatedSignalCount() {
+  const value = Number(
+    homeState.taskProgress
+      ?.createdSignalCount
+  );
+
+  if (
+    Number.isSafeInteger(value) &&
+    value >= 0
+  ) {
+    return value;
+  }
+
+  return getLegacySignalCount();
+}
+
+function applySelectedSlot(
+  slotName
+) {
+  if (!slotName) {
+    return;
+  }
+
+  const matchingCard =
+    [...slotCards].find((card) => {
+      return card.dataset.slot === slotName;
+    });
+
+  if (!matchingCard) {
+    return;
+  }
+
+  slotCards.forEach((card) => {
+    card.classList.toggle(
+      "is-selected",
+      card === matchingCard
+    );
+  });
+
+  selectedSlot = getSelectedSlot();
+}
+
+function applyDatabaseState(state) {
+  homeState = {
+    ...(state || {}),
+  };
+
+  const savedSubId =
+    normalizeSubId(homeState.subid || "");
+
+  if (savedSubId) {
+    try {
+      sessionStorage.setItem(
+        SUBID_STORAGE_KEY,
+        savedSubId
+      );
+    } catch {
+      /*
+       * SUBID вже збережений у базі.
+       */
+    }
+  }
+
+  applySelectedSlot(
+    homeState.selectedSlot
+  );
+
+  if (homeState.lastSignal) {
+    try {
+      sessionStorage.setItem(
+        "arbifyLastSignal",
+        JSON.stringify(
+          homeState.lastSignal
+        )
+      );
+    } catch {
+      /*
+       * Останній сигнал уже є у базі.
+       */
+    }
+  }
+}
+
+function persistStatePatch(
+  statePatch,
+  options = {}
+) {
+  const required =
+    options.required === true;
+
+  homeState = {
+    ...homeState,
+    ...statePatch,
+  };
+
+  const operation = stateSaveQueue
+    .catch(() => {
+      return homeState;
+    })
+    .then(async () => {
+      const api = getArbifyApi();
+      const savedState =
+        await api.saveState(
+          statePatch
+        );
+
+      homeState = {
+        ...savedState,
+      };
+
+      stateSaveErrorWasShown = false;
+
+      return homeState;
+    });
+
+  stateSaveQueue = operation.catch(
+    (error) => {
+      console.error(
+        "ARBIFY state save error:",
+        error.message
+      );
+
+      if (
+        !required &&
+        !stateSaveErrorWasShown
+      ) {
+        stateSaveErrorWasShown = true;
+
+        showToast(
+          "Не вдалося синхронізувати дані"
+        );
+      }
+
+      return homeState;
+    }
+  );
+
+  return required
+    ? operation
+    : stateSaveQueue;
+}
+
+async function migrateLegacyState() {
+  const patch = {};
+  const legacySubId = getStoredSubId();
+  const legacySignalCount =
+    getLegacySignalCount();
+
+  if (
+    !homeState.subid &&
+    legacySubId
+  ) {
+    patch.subid = legacySubId;
+  }
+
+  if (
+    !homeState.selectedSlot &&
+    selectedSlot?.name
+  ) {
+    patch.selectedSlot =
+      selectedSlot.name;
+  }
+
+  if (
+    !homeState.taskProgress
+      ?.createdSignalCount &&
+    legacySignalCount > 0
+  ) {
+    patch.taskProgress = {
+      ...(homeState.taskProgress || {}),
+      createdSignalCount:
+        legacySignalCount,
+    };
+  }
+
+  if (!homeState.lastSignal) {
+    try {
+      const legacyLastSignal =
+        sessionStorage.getItem(
+          "arbifyLastSignal"
+        );
+
+      if (legacyLastSignal) {
+        patch.lastSignal =
+          JSON.parse(
+            legacyLastSignal
+          );
+      }
+    } catch {
+      /*
+       * Пошкоджені локальні дані
+       * просто не переносимо.
+       */
+    }
+  }
+
+  if (Object.keys(patch).length > 0) {
+    await persistStatePatch(
+      patch,
+      {
+        required: true,
+      }
+    );
+  }
+}
+
+async function initializeHomeState() {
+  const api = getArbifyApi();
+  const user = await api.authenticate();
+
+  if (!user?.accessGranted) {
+    window.location.replace(
+      "index.html"
+    );
+
+    return false;
+  }
+
+  try {
+    sessionStorage.setItem(
+      "arbifyAccess",
+      "granted"
+    );
+  } catch {
+    /*
+     * Доступ підтверджує сервер.
+     */
+  }
+
+  applyDatabaseState(
+    user.state ||
+      api.getCurrentState()
+  );
+
+  homeReady = true;
+
+  await migrateLegacyState();
+  applyDatabaseState(homeState);
+
+  document.documentElement.dataset
+    .arbifyPageReady = "true";
+
+  return true;
+}
+
+function beginHomeInitialization() {
+  if (!homeInitializationPromise) {
+    homeInitializationPromise =
+      initializeHomeState().catch(
+        (error) => {
+          homeReady = false;
+
+          console.error(
+            "ARBIFY home initialization error:",
+            error.message
+          );
+
+          showToast(
+            "Не вдалося підключитися до профілю"
+          );
+
+          return false;
+        }
       );
   }
 
-  .scan-slot {
-    min-height: 56px;
-    padding: 7px 10px;
+  return homeInitializationPromise;
+}
+
+async function ensureHomeReady() {
+  if (homeReady) {
+    return true;
   }
 
-  .scan-slot img {
-    width: 40px;
-    height: 40px;
+  return Boolean(
+    await beginHomeInitialization()
+  );
+}
+
+function normalizeSubId(value) {
+  return value
+    .trim()
+    .replace(/\s+/g, "")
+    .slice(0, 64);
+}
+
+function resetSubIdModal() {
+  subIdDialog.classList.remove(
+    "is-checking",
+    "is-success"
+  );
+
+  subIdField.classList.remove(
+    "has-error",
+    "is-checking"
+  );
+
+  subIdFormView.hidden = false;
+  subIdSuccessView.hidden = true;
+  subIdMessage.innerHTML = "&nbsp;";
+  subIdVerifyButton.disabled = false;
+  subIdVerifyText.textContent = "ПЕРЕВІРИТИ SUBID";
+}
+
+function openSubIdModal() {
+  window.clearTimeout(toastTimer);
+  window.clearTimeout(subIdCloseTimer);
+
+  toast.classList.remove("is-visible");
+  resetSubIdModal();
+
+  subIdInput.value = "";
+  subIdModal.hidden = false;
+
+  document.body.classList.add(
+    "subid-modal-open"
+  );
+
+  window.requestAnimationFrame(() => {
+    subIdModal.classList.add("is-open");
+  });
+}
+
+function closeSubIdModal(afterClose) {
+  window.clearTimeout(subIdVerifyTimer);
+  window.clearTimeout(subIdSuccessTimer);
+  window.clearTimeout(subIdCloseTimer);
+
+  subIdInput.blur();
+  subIdModal.classList.remove("is-open");
+
+  document.body.classList.remove(
+    "subid-modal-open"
+  );
+
+  subIdCloseTimer = window.setTimeout(() => {
+    subIdModal.hidden = true;
+    resetSubIdModal();
+
+    if (typeof afterClose === "function") {
+      afterClose();
+    }
+  }, 220);
+}
+
+function showSubIdError(message) {
+  subIdDialog.classList.remove("is-checking");
+  subIdField.classList.remove("is-checking");
+
+  void subIdField.offsetWidth;
+
+  subIdField.classList.add("has-error");
+  subIdMessage.textContent = message;
+  subIdVerifyButton.disabled = false;
+  subIdVerifyText.textContent = "ПЕРЕВІРИТИ SUBID";
+  subIdInput.focus();
+}
+
+function startSubIdVerification(subId) {
+  subIdInput.blur();
+  subIdMessage.innerHTML = "&nbsp;";
+  subIdField.classList.remove("has-error");
+  subIdField.classList.add("is-checking");
+  subIdDialog.classList.add("is-checking");
+  subIdVerifyButton.disabled = true;
+  subIdVerifyText.textContent = "ПЕРЕВІРЯЄМО...";
+
+  /*
+   * ДЕМО-ПЕРЕВІРКА:
+   * зараз будь-який непорожній SUBID вважається правильним.
+   * Пізніше цей таймер замінимо запитом до серверного API,
+   * яке перевірятиме реєстрацію через Keitaro.
+   */
+  subIdVerifyTimer = window.setTimeout(
+    async () => {
+      try {
+        await persistStatePatch(
+          {
+            subid: subId,
+          },
+          {
+            required: true,
+          }
+        );
+
+        try {
+          sessionStorage.setItem(
+            SUBID_STORAGE_KEY,
+            subId
+          );
+        } catch {
+          /*
+           * SUBID уже збережено
+           * у серверній базі.
+           */
+        }
+
+        let noticeWasSent = false;
+
+        try {
+          noticeWasSent =
+            sessionStorage.getItem(
+              PULSE_SUBID_NOTICE_KEY
+            ) === "true";
+        } catch {
+          /*
+           * Сповіщення не впливає
+           * на підтвердження SUBID.
+           */
+        }
+
+        if (!noticeWasSent) {
+          try {
+            sessionStorage.setItem(
+              PULSE_SUBID_NOTICE_KEY,
+              "true"
+            );
+          } catch {
+            /*
+             * Продовжуємо без локальної
+             * позначки сповіщення.
+             */
+          }
+
+          pulseHomeUseNotifications(
+            (notificationsApi) => {
+              notificationsApi.add({
+                type: "success",
+                category:
+                  "SUBID ПІДТВЕРДЖЕНО",
+                title:
+                  "Реєстрацію знайдено",
+                message:
+                  `SUBID ${pulseMaskSubId(subId)} успішно підтверджено. ` +
+                  "Доступ до створення сигналів відкрито.",
+              });
+            }
+          );
+        }
+
+        subIdDialog.classList.remove(
+          "is-checking"
+        );
+
+        subIdDialog.classList.add(
+          "is-success"
+        );
+
+        subIdField.classList.remove(
+          "is-checking"
+        );
+
+        subIdFormView.hidden = true;
+        subIdSuccessView.hidden = false;
+
+        subIdSuccessTimer =
+          window.setTimeout(() => {
+            closeSubIdModal(() => {
+              startSignalFlow();
+            });
+          }, SUBID_SUCCESS_DELAY);
+      } catch (error) {
+        console.error(
+          "SUBID save error:",
+          error.message
+        );
+
+        showSubIdError(
+          "Не вдалося зберегти SUBID. Спробуйте ще раз"
+        );
+      }
+    },
+    SUBID_VERIFY_DELAY
+  );
+}
+
+function getSelectedSlot() {
+  const selectedCard =
+    document.querySelector(".slot-card.is-selected") ||
+    slotCards[0];
+
+  const image = selectedCard.querySelector("img");
+
+  return {
+    name: selectedCard.dataset.slot,
+    image: image.getAttribute("src"),
+  };
+}
+
+function randomItem(items) {
+  return items[
+    Math.floor(
+      Math.random() * items.length
+    )
+  ];
+}
+
+function createSignal(slot) {
+  const profile =
+    signalProfiles[slot.name] ||
+    signalProfiles["Gates of Olympus"];
+
+  return {
+    slotName: slot.name,
+    slotImage: slot.image,
+    bet: `₴${randomItem(profile.bets)}`,
+    spins: randomItem(profile.spins),
+    risk: randomItem(profile.risks),
+    duration: randomItem(profile.durations),
+    createdAt: Date.now(),
+  };
+}
+
+function saveSignal(signal) {
+  try {
+    sessionStorage.setItem(
+      "arbifyLastSignal",
+      JSON.stringify(signal)
+    );
+  } catch {
+    /*
+     * Основна копія сигналу
+     * зберігається на сервері.
+     */
   }
 
-  .scan-radar {
-    width: 174px;
-    height: 174px;
-    margin-top: 14px;
+  const previousHistory =
+    Array.isArray(
+      homeState.signalHistory
+    )
+      ? homeState.signalHistory
+      : [];
+
+  const signalHistory = [
+    signal,
+    ...previousHistory,
+  ].slice(0, 50);
+
+  void persistStatePatch({
+    lastSignal: signal,
+    signalHistory,
+  });
+}
+
+function setScanStage(percent) {
+  const currentStage = [...scanStages]
+    .reverse()
+    .find((stage) => {
+      return percent >= stage.from;
+    });
+
+  if (currentStage) {
+    scanStatus.textContent =
+      currentStage.message;
+  }
+}
+
+function prepareScan(slot) {
+  selectedSlot = slot;
+  activeSignal = null;
+
+  stopActiveSignalTimerInterval();
+
+  if (activeSignalTimer) {
+    activeSignalTimer.hidden = true;
+    activeSignalTimer.classList.remove(
+      "is-ending",
+      "is-finished"
+    );
   }
 
-  .scan-copy {
-    margin-top: 13px;
+  resultActionButton.hidden = false;
+  resultNewButton.hidden = false;
+
+  signalOverlayTitle.textContent =
+    "НОВИЙ СИГНАЛ";
+
+  scanSlotImage.src = slot.image;
+  scanSlotName.textContent = slot.name;
+
+  scanStatus.textContent =
+    scanStages[0].message;
+
+  scanPercent.textContent = "0%";
+  scanProgress.style.width = "0%";
+
+  resultView.hidden = true;
+  scanView.hidden = false;
+
+  signalOverlay.classList.remove(
+    "is-result"
+  );
+
+  signalOverlay.classList.add(
+    "is-scanning"
+  );
+}
+
+function openSignalOverlay() {
+  window.clearTimeout(toastTimer);
+  toast.classList.remove("is-visible");
+
+  signalOverlay.hidden = false;
+
+  document.body.classList.add(
+    "signal-overlay-open"
+  );
+
+  window.requestAnimationFrame(() => {
+    signalOverlay.classList.add(
+      "is-open"
+    );
+  });
+}
+
+function stopScanning() {
+  window.cancelAnimationFrame(scanFrame);
+  window.clearTimeout(resultRevealTimer);
+
+  scanFrame = undefined;
+  resultRevealTimer = undefined;
+}
+
+function closeSignalOverlay() {
+  stopScanning();
+
+  signalOverlay.classList.remove(
+    "is-open",
+    "is-scanning",
+    "is-result"
+  );
+
+  document.body.classList.remove(
+    "signal-overlay-open"
+  );
+
+  window.setTimeout(() => {
+    signalOverlay.hidden = true;
+    scanView.hidden = false;
+    resultView.hidden = true;
+  }, 220);
+}
+
+function fillResult(signal) {
+  if (activeSignalTimer) {
+    activeSignalTimer.hidden = true;
+    activeSignalTimer.classList.remove(
+      "is-ending",
+      "is-finished"
+    );
   }
 
-  .scan-copy h2 {
-    font-size: 19px;
-  }
+  resultActionButton.hidden = false;
+  resultNewButton.hidden = false;
 
-  .scan-copy > p:not(.scan-kicker) {
-    margin-top: 6px;
-  }
+  resultSlotImage.src =
+    signal.slotImage;
 
-  .scan-copy > strong {
-    margin-top: 8px;
-    font-size: 27px;
-  }
+  resultSlotName.textContent =
+    signal.slotName;
 
-  .scan-progress {
-    margin-top: 12px;
-  }
+  resultBet.textContent =
+    signal.bet;
 
-  .result-view {
-    padding-top: 2px;
-    padding-bottom:
-      max(
-        8px,
-        env(safe-area-inset-bottom)
+  resultSpins.textContent =
+    String(signal.spins);
+
+  resultDuration.textContent =
+    signal.duration;
+
+  resultRisk.innerHTML = `
+    <span></span>
+    ${signal.risk}
+  `;
+
+  resultRisk.dataset.level =
+    signal.risk.toLowerCase();
+}
+
+function showSignalResult() {
+  activeSignal =
+    createSignal(selectedSlot);
+
+  saveSignal(activeSignal);
+  fillResult(activeSignal);
+
+  scanPercent.textContent = "100%";
+  scanProgress.style.width = "100%";
+
+  scanStatus.textContent =
+    "Сигнал успішно сформовано";
+
+  resultRevealTimer =
+    window.setTimeout(() => {
+      scanView.hidden = true;
+      resultView.hidden = false;
+
+      signalOverlayTitle.textContent =
+        "СИГНАЛ ГОТОВИЙ";
+
+      signalOverlay.classList.remove(
+        "is-scanning"
       );
+
+      signalOverlay.classList.add(
+        "is-result"
+      );
+    }, RESULT_REVEAL_DELAY);
+}
+
+function runScan() {
+  stopScanning();
+
+  const startedAt =
+    performance.now();
+
+  function updateScan(currentTime) {
+    const elapsed =
+      currentTime - startedAt;
+
+    const rawProgress =
+      Math.min(
+        elapsed / SCAN_DURATION,
+        1
+      );
+
+    const easedProgress =
+      1 -
+      Math.pow(
+        1 - rawProgress,
+        1.45
+      );
+
+    const percent =
+      Math.min(
+        Math.floor(
+          easedProgress * 100
+        ),
+        rawProgress < 1
+          ? 99
+          : 100
+      );
+
+    scanPercent.textContent =
+      `${percent}%`;
+
+    scanProgress.style.width =
+      `${percent}%`;
+
+    setScanStage(percent);
+
+    if (rawProgress < 1) {
+      scanFrame =
+        window.requestAnimationFrame(
+          updateScan
+        );
+
+      return;
+    }
+
+    showSignalResult();
   }
 
-  .result-success-icon {
-    width: 46px;
-    height: 46px;
-  }
-
-  .result-success-icon svg {
-    width: 25px;
-    height: 25px;
-  }
-
-  .result-kicker {
-    margin-top: 11px;
-  }
-
-  .result-view > h2 {
-    margin-top: 4px;
-    font-size: 20px;
-  }
-
-  .result-slot-card {
-    min-height: 61px;
-    margin-top: 11px;
-    padding: 7px 10px;
-  }
-
-  .result-slot-card img {
-    width: 44px;
-    height: 44px;
-  }
-
-  .result-details {
-    margin-top: 9px;
-  }
-
-  .result-row {
-    min-height: 39px;
-  }
-
-  .result-action-button {
-    height: 47px;
-    margin-top: 10px;
-  }
-
-  .result-new-button {
-    margin-top: 6px;
-  }
-}
-
-@media (min-width: 560px) {
-  .signal-overlay {
-    border-radius: 23px;
-  }
-}
-
-/* =========================================================
-   SUBID — ЧИСТЕ МОДАЛЬНЕ ВІКНО
-   ========================================================= */
-
-.sr-only {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  overflow: hidden !important;
-  border: 0 !important;
-  clip: rect(0, 0, 0, 0) !important;
-  clip-path: inset(50%) !important;
-  white-space: nowrap !important;
-}
-
-.subid-modal[hidden],
-.subid-form-view[hidden],
-.subid-success-view[hidden] {
-  display: none !important;
-}
-
-.subid-modal {
-  position: absolute;
-  inset: 0;
-  z-index: 80;
-  width: 100%;
-  height: 100%;
-  padding: max(18px, env(safe-area-inset-top)) 17px
-    max(18px, env(safe-area-inset-bottom));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  isolation: isolate;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 300ms ease;
-}
-
-.subid-modal-backdrop {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background:
-    radial-gradient(
-      circle at 50% 42%,
-      rgba(127, 38, 224, 0.12),
-      transparent 40%
-    ),
-    rgba(1, 2, 7, 0.74);
-  backdrop-filter: blur(4px) saturate(0.78) brightness(0.62);
-  -webkit-backdrop-filter: blur(4px) saturate(0.78) brightness(0.62);
-  opacity: 0;
-  transition: opacity 340ms ease;
-}
-
-.subid-modal.is-open {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.subid-modal.is-open .subid-modal-backdrop {
-  opacity: 1;
-}
-
-body.subid-modal-open .topbar,
-body.subid-modal-open .content,
-body.subid-modal-open .bottom-nav {
-  filter: blur(1px) saturate(0.76) brightness(0.66);
-  pointer-events: none;
-  transform: scale(0.99);
-  transform-origin: center;
-  transition:
-    filter 330ms ease,
-    transform 420ms cubic-bezier(0.16, 0.84, 0.26, 1);
-}
-
-.subid-dialog {
-  position: relative;
-  z-index: 2;
-  width: min(100%, 356px);
-  min-height: 420px;
-  padding: 27px 22px 21px;
-  overflow: hidden;
-  border: 1px solid rgba(182, 87, 255, 0.3);
-  border-radius: 25px;
-  color: #f8f5fc;
-  background:
-    radial-gradient(
-      circle at 50% -6%,
-      rgba(166, 66, 255, 0.22),
-      transparent 34%
-    ),
-    radial-gradient(
-      circle at 102% 102%,
-      rgba(244, 196, 78, 0.055),
-      transparent 34%
-    ),
-    linear-gradient(
-      156deg,
-      rgba(18, 14, 30, 0.99),
-      rgba(7, 8, 15, 0.995) 61%,
-      rgba(10, 7, 17, 0.995)
-    );
-  box-shadow:
-    0 34px 90px rgba(0, 0, 0, 0.7),
-    0 0 0 1px rgba(139, 49, 231, 0.07),
-    0 0 48px rgba(122, 30, 216, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.055);
-  opacity: 0;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transform: translate3d(0, 28px, 0) scale(0.94);
-  transition:
-    opacity 210ms ease,
-    transform 230ms ease,
-    border-color 220ms ease,
-    box-shadow 220ms ease;
-}
-
-.subid-dialog::before {
-  position: absolute;
-  top: -68px;
-  left: 50%;
-  z-index: 0;
-  width: 245px;
-  height: 160px;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(155, 59, 255, 0.18),
-    rgba(155, 59, 255, 0.055) 48%,
-    transparent 74%
-  );
-  content: "";
-  pointer-events: none;
-  transform: translateX(-50%);
-}
-
-.subid-dialog::after {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background-image:
-    linear-gradient(rgba(191, 111, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(191, 111, 255, 0.02) 1px, transparent 1px);
-  background-size: 30px 30px;
-  content: "";
-  opacity: 0.55;
-  pointer-events: none;
-  mask-image: radial-gradient(circle at 50% 32%, #000, transparent 76%);
-  -webkit-mask-image: radial-gradient(circle at 50% 32%, #000, transparent 76%);
-}
-
-.subid-modal.is-open .subid-dialog {
-  animation: subIdModalEntrance 540ms
-    cubic-bezier(0.16, 0.84, 0.26, 1.06) both;
-}
-
-.subid-close-button,
-.subid-icon,
-.subid-form-view,
-.subid-success-view {
-  position: relative;
-  z-index: 2;
-}
-
-.subid-close-button {
-  position: absolute;
-  top: 13px;
-  right: 13px;
-  width: 35px;
-  height: 35px;
-  padding: 0;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 50%;
-  color: #918e9d;
-  background: rgba(8, 9, 16, 0.72);
-  cursor: pointer;
-  transition:
-    color 160ms ease,
-    border-color 160ms ease,
-    background 160ms ease,
-    transform 160ms ease;
-}
-
-.subid-close-button:hover {
-  border-color: rgba(189, 91, 255, 0.4);
-  color: #f5f1f8;
-  background: rgba(28, 17, 42, 0.92);
-}
-
-.subid-close-button:active {
-  transform: scale(0.92);
-}
-
-.subid-close-button svg {
-  width: 17px;
-  height: 17px;
-}
-
-.subid-close-button:focus-visible,
-.subid-verify-button:focus-visible {
-  outline: 2px solid rgba(244, 196, 78, 0.88);
-  outline-offset: 3px;
-}
-
-.subid-icon {
-  width: 61px;
-  height: 61px;
-  margin: 0 auto;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(192, 101, 255, 0.34);
-  border-radius: 20px;
-  color: #d69bff;
-  background:
-    radial-gradient(
-      circle,
-      rgba(172, 73, 255, 0.2),
-      rgba(78, 23, 130, 0.07) 68%
-    ),
-    rgba(13, 10, 23, 0.92);
-  box-shadow:
-    0 0 0 8px rgba(154, 59, 243, 0.03),
-    0 13px 30px rgba(0, 0, 0, 0.27),
-    0 0 28px rgba(148, 50, 239, 0.13),
-    inset 0 1px 0 rgba(255, 255, 255, 0.055);
-  animation: subIdIconFloat 3.5s 650ms ease-in-out infinite;
-}
-
-.subid-icon::before {
-  position: absolute;
-  inset: -8px;
-  border: 1px solid rgba(190, 91, 255, 0.15);
-  border-radius: 27px;
-  content: "";
-  pointer-events: none;
-  animation: subIdIconRing 2.4s 700ms ease-out infinite;
-}
-
-.subid-icon svg {
-  width: 32px;
-  height: 32px;
-  filter: drop-shadow(0 0 8px rgba(190, 97, 255, 0.38));
-}
-
-.subid-form-view {
-  text-align: center;
-  animation: subIdContentEntrance 440ms 150ms ease-out both;
-}
-
-.subid-kicker {
-  margin: 21px 0 0;
-  color: #bc76ed;
-  font-size: 8px;
-  font-weight: 820;
-  letter-spacing: 0.2em;
-}
-
-.subid-form-view h2 {
-  margin: 7px 0 0;
-  color: #fbf9ff;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 25px;
-  font-weight: 500;
-  letter-spacing: -0.025em;
-  line-height: 1.12;
-}
-
-.subid-description {
-  max-width: 286px;
-  margin: 9px auto 0;
-  color: #8c8999;
-  font-size: 10px;
-  line-height: 1.5;
-}
-
-.subid-form {
-  margin-top: 18px;
-}
-
-.subid-field {
-  position: relative;
-  width: 100%;
-  height: 55px;
-  padding: 0 15px;
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 14px;
-  color: #bd72ed;
-  background: linear-gradient(
-    180deg,
-    rgba(15, 16, 27, 0.97),
-    rgba(7, 8, 15, 0.99)
-  );
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.025),
-    0 11px 25px rgba(0, 0, 0, 0.19);
-  cursor: text;
-  transition:
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    background 180ms ease;
-}
-
-.subid-field > svg {
-  width: 20px;
-  height: 20px;
-  flex: 0 0 auto;
-}
-
-.subid-field input {
-  min-width: 0;
-  height: 100%;
-  flex: 1 1 auto;
-  padding: 0;
-  border: 0;
-  outline: 0;
-  color: #f8f5fb;
-  background: transparent;
-  caret-color: #c65fff;
-  font-size: 16px;
-  font-weight: 540;
-  letter-spacing: 0.02em;
-}
-
-.subid-field input::placeholder {
-  color: #686675;
-  opacity: 1;
-}
-
-.subid-field:focus-within {
-  border-color: rgba(191, 89, 255, 0.76);
-  background: linear-gradient(
-    180deg,
-    rgba(21, 16, 34, 0.99),
-    rgba(9, 8, 18, 0.995)
-  );
-  box-shadow:
-    0 0 0 3px rgba(153, 55, 244, 0.09),
-    0 0 25px rgba(138, 40, 232, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.035);
-}
-
-.subid-field.has-error {
-  border-color: rgba(255, 76, 111, 0.72);
-  color: #ff6884;
-  box-shadow:
-    0 0 0 3px rgba(255, 56, 94, 0.075),
-    0 0 22px rgba(255, 49, 88, 0.075);
-  animation: subIdFieldShake 330ms ease;
-}
-
-.subid-field.is-checking {
-  border-color: rgba(190, 92, 255, 0.62);
-  box-shadow:
-    0 0 0 3px rgba(154, 55, 245, 0.085),
-    0 0 28px rgba(153, 52, 244, 0.13);
-}
-
-.subid-message {
-  min-height: 19px;
-  margin: 0;
-  padding: 4px 3px 0;
-  color: #ff6b86;
-  font-size: 8px;
-  line-height: 1.35;
-  text-align: left;
-}
-
-.subid-verify-button {
-  position: relative;
-  width: 100%;
-  height: 51px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  border: 1px solid rgba(217, 157, 255, 0.27);
-  border-radius: 13px;
-  color: #fff;
-  background: linear-gradient(180deg, #ad4df5, #741bd1);
-  box-shadow:
-    0 14px 30px rgba(108, 20, 197, 0.28),
-    0 0 22px rgba(154, 48, 239, 0.13),
-    inset 0 1px 0 rgba(255, 255, 255, 0.24);
-  cursor: pointer;
-  font-size: 9px;
-  font-weight: 850;
-  letter-spacing: 0.1em;
-  transition:
-    transform 160ms ease,
-    filter 160ms ease,
-    box-shadow 180ms ease;
-}
-
-.subid-verify-button::before {
-  position: absolute;
-  top: -45%;
-  left: -42%;
-  width: 30%;
-  height: 190%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.24),
-    transparent
-  );
-  content: "";
-  pointer-events: none;
-  transform: rotate(17deg);
-  animation: subIdButtonGlint 4.8s ease-in-out infinite;
-}
-
-.subid-verify-button:hover {
-  filter: brightness(1.09);
-}
-
-.subid-verify-button:active {
-  transform: translateY(1px) scale(0.99);
-}
-
-.subid-verify-button:disabled {
-  cursor: wait;
-  opacity: 0.88;
-}
-
-.subid-button-loader {
-  width: 16px;
-  height: 16px;
-  display: none;
-  border: 2px solid rgba(255, 255, 255, 0.24);
-  border-top-color: #fff;
-  border-radius: 50%;
-}
-
-.subid-dialog.is-checking .subid-button-loader {
-  display: block;
-  animation: subIdLoaderSpin 0.75s linear infinite;
-}
-
-.subid-hint {
-  margin: 12px 0 0;
-  color: #5e5c6a;
-  font-size: 7px;
-  line-height: 1.4;
-}
-
-.subid-success-view {
-  min-height: 350px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  text-align: center;
-  animation: subIdSuccessEntrance 360ms ease-out both;
-}
-
-.subid-dialog.is-success .subid-icon {
-  display: none;
-}
-
-.subid-success-check {
-  position: relative;
-  width: 72px;
-  height: 72px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(53, 241, 142, 0.4);
-  border-radius: 50%;
-  color: #35f18e;
-  background: radial-gradient(
-    circle,
-    rgba(32, 220, 122, 0.16),
-    rgba(8, 55, 32, 0.075)
-  );
-  box-shadow:
-    0 0 0 11px rgba(42, 229, 133, 0.032),
-    0 0 36px rgba(37, 231, 130, 0.19);
-}
-
-.subid-success-check::after {
-  position: absolute;
-  inset: -12px;
-  border: 1px solid rgba(54, 239, 143, 0.13);
-  border-radius: 50%;
-  content: "";
-  animation: subIdSuccessRing 1.7s ease-out infinite;
-}
-
-.subid-success-check svg {
-  width: 36px;
-  height: 36px;
-}
-
-.subid-success-view > p {
-  margin: 25px 0 0;
-  color: #3cec92;
-  font-size: 8px;
-  font-weight: 850;
-  letter-spacing: 0.18em;
-}
-
-.subid-success-view > h2 {
-  margin: 9px 0 0;
-  color: #fafdfb;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 26px;
-  font-weight: 500;
-}
-
-.subid-success-view > span {
-  margin-top: 9px;
-  color: #817f8c;
-  font-size: 9px;
-}
-
-.subid-dialog.is-success {
-  border-color: rgba(45, 230, 135, 0.25);
-  background:
-    radial-gradient(
-      circle at 50% 18%,
-      rgba(28, 216, 117, 0.1),
-      transparent 38%
-    ),
-    linear-gradient(
-      156deg,
-      rgba(10, 20, 18, 0.99),
-      rgba(5, 9, 12, 0.995)
+  scanFrame =
+    window.requestAnimationFrame(
+      updateScan
     );
 }
 
-/* =========================================================
-   SUBID — ПАНЕЛЬ НАД КЛАВІАТУРОЮ
-   ========================================================= */
+function startSignalFlow() {
+  const slot = getSelectedSlot();
 
-.subid-modal:focus-within {
-  position: fixed;
-  top: var(--subid-visual-top, 0px);
-  right: auto;
-  bottom: auto;
-  left: 50%;
-  width: min(100%, 430px);
-  height: var(--subid-visual-height, 100dvh);
-  padding: 8px 10px;
-  align-items: flex-end;
-  justify-content: center;
-  overflow: hidden;
-  transform: translateX(-50%);
+  prepareScan(slot);
+  openSignalOverlay();
+  runScan();
 }
 
-.subid-modal:focus-within .subid-modal-backdrop {
-  position: absolute;
-  inset: 0;
-}
+slotCards.forEach((card) => {
+  card.addEventListener("click", async () => {
+    if (!(await ensureHomeReady())) {
+      return;
+    }
 
-.subid-modal.is-open:focus-within .subid-dialog,
-.subid-modal.is-open .subid-dialog:focus-within {
-  width: 100%;
-  min-height: 0;
-  max-height: calc(var(--subid-visual-height, 100dvh) - 16px);
-  margin: 0;
-  padding: 18px 16px 14px;
-  overflow-x: hidden;
-  overflow-y: auto;
-  border-color: rgba(184, 83, 255, 0.34);
-  border-radius: 23px;
-  background:
-    radial-gradient(
-      circle at 88% -10%,
-      rgba(165, 66, 255, 0.18),
-      transparent 36%
-    ),
-    linear-gradient(
-      155deg,
-      rgba(17, 13, 28, 0.995),
-      rgba(7, 8, 15, 0.998)
+    slotCards.forEach((item) => {
+      item.classList.remove(
+        "is-selected"
+      );
+    });
+
+    card.classList.add(
+      "is-selected"
     );
-  box-shadow:
-    0 -18px 54px rgba(0, 0, 0, 0.44),
-    0 18px 50px rgba(0, 0, 0, 0.52),
-    0 0 32px rgba(129, 34, 222, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.055);
-  opacity: 1;
-  animation: subIdKeyboardSheetEntrance 300ms
-    cubic-bezier(0.16, 0.84, 0.26, 1) both;
-  transform: translate3d(0, 0, 0) scale(1);
-  scrollbar-width: none;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-}
 
-.subid-modal:focus-within .subid-dialog::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
-}
+    selectedSlot =
+      getSelectedSlot();
 
-.subid-modal:focus-within .subid-dialog::before {
-  top: 8px;
-  left: 50%;
-  width: 38px;
-  height: 3px;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    rgba(183, 88, 255, 0.25),
-    rgba(214, 151, 255, 0.72),
-    rgba(183, 88, 255, 0.25)
+    showToast(
+      `${selectedSlot.name} обрано`
+    );
+
+    void persistStatePatch({
+      selectedSlot:
+        selectedSlot.name,
+    });
+  });
+});
+
+signalButton.addEventListener(
+  "click",
+  async () => {
+    if (!(await ensureHomeReady())) {
+      return;
+    }
+
+    activeSignalTimerState =
+      loadActiveSignalTimerState();
+
+    if (
+      activeSignalTimerState &&
+      activeSignalTimerState.endAt >
+        Date.now()
+    ) {
+      restoreActiveSignalTimerIfAvailable();
+      return;
+    }
+
+    const verifiedSubId =
+      getStoredSubId();
+
+    if (verifiedSubId) {
+      startSignalFlow();
+      return;
+    }
+
+    openSubIdModal();
+  }
+);
+
+subIdInput.addEventListener(
+  "input",
+  () => {
+    subIdField.classList.remove(
+      "has-error"
+    );
+
+    subIdMessage.innerHTML =
+      "&nbsp;";
+  }
+);
+
+subIdForm.addEventListener(
+  "submit",
+  (event) => {
+    event.preventDefault();
+
+    if (
+      subIdVerifyButton.disabled
+    ) {
+      return;
+    }
+
+    const subId =
+      normalizeSubId(
+        subIdInput.value
+      );
+
+    subIdInput.value = subId;
+
+    if (!subId) {
+      showSubIdError(
+        "Введіть свій SUBID для перевірки"
+      );
+
+      return;
+    }
+
+    startSubIdVerification(subId);
+  }
+);
+
+subIdCloseButton.addEventListener(
+  "click",
+  () => {
+    closeSubIdModal();
+  }
+);
+
+subIdModalBackdrop.addEventListener(
+  "click",
+  () => {
+    closeSubIdModal();
+  }
+);
+
+signalBackButton.addEventListener(
+  "click",
+  () => {
+    closeSignalOverlay();
+  }
+);
+
+resultNewButton.addEventListener(
+  "click",
+  () => {
+    prepareScan(
+      getSelectedSlot()
+    );
+
+    runScan();
+  }
+);
+
+resultActionButton.addEventListener(
+  "click",
+  () => {
+    if (!activeSignal) {
+      return;
+    }
+
+    startActiveSignalTimer(
+      activeSignal
+    );
+  }
+);
+
+notificationButton.addEventListener(
+  "click",
+  () => {
+    showToast(
+      "Нових сповіщень поки немає"
+    );
+  }
+);
+
+allSlotsButton.addEventListener(
+  "click",
+  async () => {
+    if (!(await ensureHomeReady())) {
+      return;
+    }
+
+    openAllSlotsOverlay();
+  }
+);
+
+allSlotsBackButton.addEventListener(
+  "click",
+  () => {
+    closeAllSlotsOverlay();
+  }
+);
+
+allSlotsSearchInput?.addEventListener(
+  "input",
+  () => {
+    renderAllSlotsCatalog(
+      allSlotsSearchInput.value
+    );
+  }
+);
+
+allSlotsSearchClear?.addEventListener(
+  "click",
+  () => {
+    allSlotsSearchInput.value = "";
+    renderAllSlotsCatalog();
+    allSlotsSearchInput.focus();
+  }
+);
+
+
+allSlotsCategories?.addEventListener(
+  "click",
+  (event) => {
+    const button = event.target.closest(
+      ".all-slots-category"
+    );
+
+    if (!button) {
+      return;
+    }
+
+    setActiveSlotCategory(
+      button.dataset.category
+    );
+  }
+);
+
+/*
+ * Нижня навігація.
+ * Кнопка «Сигнали» відкриває LIVE-стрічку.
+ */
+navItems.forEach((item) => {
+  item.addEventListener("click", () => {
+    const sectionName =
+      item.dataset.section;
+
+    if (
+      sectionName === "Сигнали"
+    ) {
+      window.location.href =
+        "signals.html";
+
+      return;
+    }
+
+    if (
+      sectionName !== "Головна"
+    ) {
+      showToast(
+        `Розділ «${sectionName}» готується`
+      );
+    }
+  });
+});
+
+document.addEventListener(
+  "keydown",
+  (event) => {
+    if (
+      event.key === "Escape" &&
+      !allSlotsOverlay.hidden
+    ) {
+      closeAllSlotsOverlay();
+      return;
+    }
+
+    if (
+      event.key === "Escape" &&
+      !subIdModal.hidden
+    ) {
+      closeSubIdModal();
+      return;
+    }
+
+    if (
+      event.key === "Escape" &&
+      !signalOverlay.hidden
+    ) {
+      closeSignalOverlay();
+    }
+  }
+);
+
+window.addEventListener(
+  "beforeunload",
+  () => {
+    window.clearTimeout(
+      toastTimer
+    );
+
+    window.clearTimeout(
+      subIdVerifyTimer
+    );
+
+    window.clearTimeout(
+      subIdSuccessTimer
+    );
+
+    window.clearTimeout(
+      subIdCloseTimer
+    );
+
+    stopScanning();
+    stopActiveSignalTimerInterval();
+  }
+);
+
+/*
+ * Реальна висота екрана під час відкритої клавіатури.
+ * Потрібно для iPhone Safari та Telegram WebView.
+ */
+function syncSubIdVisualViewport() {
+  const viewport =
+    window.visualViewport;
+
+  const viewportHeight =
+    viewport?.height ||
+    window.innerHeight;
+
+  const viewportTop =
+    viewport?.offsetTop || 0;
+
+  const coveredHeight =
+    Math.max(
+      0,
+      window.innerHeight -
+        viewportHeight -
+        viewportTop
+    );
+
+  document.documentElement.style.setProperty(
+    "--subid-visual-height",
+    `${viewportHeight}px`
   );
-  opacity: 1;
-  transform: translateX(-50%);
-}
 
-.subid-modal:focus-within .subid-dialog::after {
-  opacity: 0.28;
-}
-
-.subid-modal:focus-within .subid-icon,
-.subid-modal:focus-within .subid-description,
-.subid-modal:focus-within .subid-hint {
-  display: none;
-}
-
-.subid-modal:focus-within .subid-close-button {
-  top: 12px;
-  right: 12px;
-  width: 32px;
-  height: 32px;
-}
-
-.subid-modal:focus-within .subid-form-view {
-  text-align: left;
-  animation: none;
-}
-
-.subid-modal:focus-within .subid-kicker {
-  margin: 5px 38px 0 0;
-  font-size: 7px;
-  letter-spacing: 0.18em;
-}
-
-.subid-modal:focus-within .subid-form-view h2 {
-  margin: 5px 42px 0 0;
-  font-size: 22px;
-  line-height: 1.08;
-}
-
-.subid-modal:focus-within .subid-form {
-  margin-top: 14px;
-}
-
-.subid-modal:focus-within .subid-field {
-  height: 52px;
-  border-radius: 13px;
-}
-
-.subid-modal:focus-within .subid-message {
-  min-height: 16px;
-  padding-top: 2px;
-}
-
-.subid-modal:focus-within .subid-verify-button {
-  height: 48px;
-  border-radius: 12px;
-}
-
-/* =========================================================
-   SUBID — АНІМАЦІЇ
-   ========================================================= */
-
-@keyframes subIdModalEntrance {
-  0% {
-    opacity: 0;
-    transform: translate3d(0, 28px, 0) scale(0.94);
-  }
-
-  72% {
-    opacity: 1;
-    transform: translate3d(0, -3px, 0) scale(1.008);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-}
-
-@keyframes subIdContentEntrance {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 10px, 0);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes subIdKeyboardSheetEntrance {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 24px, 0) scale(0.985);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-}
-
-@keyframes subIdIconFloat {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
-
-  50% {
-    transform: translate3d(0, -3px, 0);
-  }
-}
-
-@keyframes subIdIconRing {
-  0% {
-    opacity: 0.55;
-    transform: scale(0.84);
-  }
-
-  78%,
-  100% {
-    opacity: 0;
-    transform: scale(1.3);
-  }
-}
-
-@keyframes subIdFieldShake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-
-  25% {
-    transform: translateX(-5px);
-  }
-
-  50% {
-    transform: translateX(5px);
-  }
-
-  75% {
-    transform: translateX(-3px);
-  }
-}
-
-@keyframes subIdLoaderSpin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes subIdButtonGlint {
-  0%,
-  62% {
-    left: -42%;
-    opacity: 0;
-  }
-
-  68% {
-    opacity: 0.62;
-  }
-
-  82%,
-  100% {
-    left: 118%;
-    opacity: 0;
-  }
-}
-
-@keyframes subIdSuccessEntrance {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 10px, 0) scale(0.97);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-}
-
-@keyframes subIdSuccessRing {
-  0% {
-    opacity: 0.68;
-    transform: scale(0.75);
-  }
-
-  80%,
-  100% {
-    opacity: 0;
-    transform: scale(1.45);
-  }
-}
-
-@media (max-height: 700px) and (max-width: 559px) {
-  .subid-dialog {
-    min-height: 0;
-    max-height: calc(100% - 16px);
-    padding: 20px 18px 16px;
-    overflow-y: auto;
-    border-radius: 21px;
-  }
-
-  .subid-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 17px;
-  }
-
-  .subid-icon svg {
-    width: 27px;
-    height: 27px;
-  }
-
-  .subid-kicker {
-    margin-top: 15px;
-  }
-
-  .subid-form-view h2 {
-    font-size: 22px;
-  }
-
-  .subid-description {
-    margin-top: 6px;
-    font-size: 9px;
-  }
-
-  .subid-form {
-    margin-top: 12px;
-  }
-
-  .subid-field {
-    height: 51px;
-  }
-
-  .subid-verify-button {
-    height: 48px;
-  }
-
-  .subid-hint {
-    margin-top: 8px;
-  }
-}
-
-@media (min-width: 560px) {
-  .subid-modal {
-    border-radius: 23px;
-  }
-}
-
-/* Блокуємо головну сторінку, поки відкрите вікно SUBID */
-html:has(body.subid-modal-open),
-body.subid-modal-open {
-  width: 100%;
-  height: 100%;
-  overflow: hidden !important;
-  overscroll-behavior: none !important;
-}
-
-body.subid-modal-open {
-  position: fixed !important;
-  inset: 0 !important;
-}
-
-body.subid-modal-open .page-shell,
-body.subid-modal-open .pulse-app,
-body.subid-modal-open .content {
-  height: 100% !important;
-  overflow: hidden !important;
-  overscroll-behavior: none !important;
-}
-
-body.subid-modal-open .topbar,
-body.subid-modal-open .content,
-body.subid-modal-open .bottom-nav {
-  touch-action: none;
-}
-
-body.subid-modal-open .subid-modal {
-  overscroll-behavior: none;
-}
-
-body.subid-modal-open .subid-modal-backdrop {
-  touch-action: none;
-}
-
-/* iPhone Safari — прибираємо щілину над клавіатурою */
-.subid-modal:focus-within {
-  overflow: visible !important;
-}
-
-.subid-modal:focus-within::after {
-  position: absolute;
-  right: -2px;
-  bottom: -120px;
-  left: -2px;
-  z-index: 1;
-  height: 134px;
-  background: linear-gradient(
-    180deg,
-    rgba(2, 3, 7, 0.94),
-    #020307 38%
+  document.documentElement.style.setProperty(
+    "--subid-visual-top",
+    `${viewportTop}px`
   );
-  content: "";
-  pointer-events: none;
-  transform: translateZ(0);
-  backdrop-filter: blur(8px) saturate(0.75);
-  -webkit-backdrop-filter: blur(8px) saturate(0.75);
+
+  const keyboardIsOpen =
+    !subIdModal.hidden &&
+    coveredHeight >
+      Math.max(
+        120,
+        window.innerHeight * 0.18
+      );
+
+  document.body.classList.toggle(
+    "subid-keyboard-open",
+    keyboardIsOpen
+  );
 }
 
-.subid-modal:focus-within .subid-dialog {
-  position: relative;
-  z-index: 2;
+function scheduleSubIdViewportSync() {
+  syncSubIdVisualViewport();
+
+  window.setTimeout(
+    syncSubIdVisualViewport,
+    80
+  );
+
+  window.setTimeout(
+    syncSubIdVisualViewport,
+    260
+  );
+
+  window.setTimeout(
+    syncSubIdVisualViewport,
+    420
+  );
 }
 
-/* =========================================================
-   ПОВНИЙ КАТАЛОГ СЛОТІВ — КНОПКА «УСІ»
-   ========================================================= */
+subIdInput.addEventListener(
+  "focus",
+  scheduleSubIdViewportSync
+);
 
-.all-slots-overlay[hidden] {
-  display: none !important;
+subIdInput.addEventListener(
+  "blur",
+  scheduleSubIdViewportSync
+);
+
+window.visualViewport?.addEventListener(
+  "resize",
+  syncSubIdVisualViewport
+);
+
+window.visualViewport?.addEventListener(
+  "scroll",
+  syncSubIdVisualViewport
+);
+
+window.addEventListener(
+  "orientationchange",
+  scheduleSubIdViewportSync
+);
+
+syncSubIdVisualViewport();
+
+/*
+ * =========================================================
+ * PULSE — СПОВІЩЕННЯ ГОЛОВНОЇ СТОРІНКИ
+ * Цей блок має бути в самому кінці home.js.
+ * =========================================================
+ */
+
+const PULSE_SIGNAL_COUNT_KEY =
+  "arbifyCreatedSignalCount";
+
+const PULSE_SUBID_NOTICE_KEY =
+  "arbifySubIdNoticeSent";
+
+function pulseHomeUseNotifications(action) {
+  if (window.PulseNotifications) {
+    action(window.PulseNotifications);
+    return;
+  }
+
+  document.addEventListener(
+    "pulse:notifications-ready",
+    () => {
+      if (window.PulseNotifications) {
+        action(window.PulseNotifications);
+      }
+    },
+    {
+      once: true,
+    }
+  );
 }
 
-.all-slots-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 45;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  color: #f8f7ff;
-  background:
-    radial-gradient(
-      circle at 50% 0%,
-      rgba(128, 41, 220, 0.16),
-      transparent 31%
-    ),
-    linear-gradient(
-      180deg,
-      #06070d 0%,
-      #020309 58%,
-      #04050a 100%
+function pulseIncrementSignalCount() {
+  const synchronizedValue =
+    getCreatedSignalCount();
+
+  try {
+    localStorage.setItem(
+      PULSE_SIGNAL_COUNT_KEY,
+      String(synchronizedValue)
     );
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(12px);
-  transition:
-    opacity 220ms ease,
-    transform 220ms ease;
-}
-
-.all-slots-overlay.is-open {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
-.all-slots-header {
-  position: relative;
-  z-index: 2;
-  min-height: calc(78px + env(safe-area-inset-top));
-  padding:
-    max(12px, env(safe-area-inset-top))
-    18px
-    12px;
-  display: grid;
-  grid-template-columns: 42px minmax(0, 1fr) 42px;
-  align-items: center;
-  gap: 12px;
-  flex: 0 0 auto;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.065);
-  background: rgba(6, 7, 13, 0.92);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-}
-
-.all-slots-header > div {
-  min-width: 0;
-  text-align: center;
-}
-
-.all-slots-header p {
-  margin: 0;
-  color: #9467bb;
-  font-size: 8px;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-}
-
-.all-slots-header h2 {
-  margin: 5px 0 0;
-  color: #f5f2f8;
-  font-size: 18px;
-  font-weight: 680;
-  letter-spacing: -0.02em;
-}
-
-.all-slots-back-button {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 50%;
-  color: #d7d4de;
-  background: rgba(11, 12, 20, 0.82);
-  cursor: pointer;
-  transition:
-    transform 160ms ease,
-    border-color 160ms ease;
-}
-
-.all-slots-back-button:active {
-  transform: scale(0.93);
-}
-
-.all-slots-back-button svg {
-  width: 20px;
-  height: 20px;
-}
-
-.all-slots-count {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  justify-self: end;
-  border: 1px solid rgba(185, 92, 255, 0.22);
-  border-radius: 50%;
-  color: #c98cff;
-  background: rgba(141, 66, 255, 0.08);
-  font-size: 10px;
-  font-weight: 800;
-}
-
-.all-slots-content {
-  min-height: 0;
-  padding:
-    18px
-    18px
-    max(24px, env(safe-area-inset-bottom));
-  flex: 1 1 auto;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-.all-slots-content::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-.all-slots-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px 10px;
-  padding-bottom: 8px;
-}
-
-.all-slots-grid .slot-card {
-  scroll-snap-align: none;
-}
-
-.all-slots-grid .slot-name {
-  margin-top: 7px;
-  font-size: 9px;
-  text-align: center;
-}
-
-body.all-slots-open .topbar,
-body.all-slots-open .content,
-body.all-slots-open .bottom-nav {
-  pointer-events: none;
-}
-
-@media (max-height: 700px) and (max-width: 559px) {
-  .all-slots-header {
-    min-height: calc(66px + env(safe-area-inset-top));
-    padding-bottom: 8px;
+  } catch {
+    /*
+     * Лічильник уже збережений
+     * у серверній базі.
+     */
   }
 
-  .all-slots-content {
-    padding-top: 14px;
+  return synchronizedValue;
+}
+
+function pulseMaskSubId(subId) {
+  const normalizedValue =
+    String(subId || "").trim();
+
+  if (normalizedValue.length <= 4) {
+    return normalizedValue;
   }
 
-  .all-slots-grid {
-    gap: 13px 10px;
+  return (
+    normalizedValue.slice(0, 2) +
+    "•".repeat(
+      Math.min(
+        normalizedValue.length - 4,
+        6
+      )
+    ) +
+    normalizedValue.slice(-2)
+  );
+}
+
+const pulseOriginalShowSignalResult =
+  showSignalResult;
+
+function pulseSendSignalNotification(
+  signal,
+  signalCount
+) {
+  pulseHomeUseNotifications(
+    (notificationsApi) => {
+      notificationsApi.addSignal({
+        title:
+          `Сигнал для ${signal.slotName} готовий`,
+        message:
+          `Ставка ${signal.bet} · ` +
+          `${signal.spins} обертань · ` +
+          `ризик ${signal.risk.toLowerCase()}. ` +
+          `Усього створено сигналів: ${signalCount}.`,
+      });
+    }
+  );
+}
+
+async function pulseRegisterSignalResult(
+  signal
+) {
+  const api = getArbifyApi();
+
+  if (api.isTelegramMiniApp()) {
+    try {
+      const result =
+        await recordSignalCreatedActivity(
+          signal
+        );
+
+      const signalCount = Number(
+        result?.rewards?.progress
+          ?.createdSignalCount
+      );
+
+      pulseSendSignalNotification(
+        signal,
+        Number.isSafeInteger(
+          signalCount
+        )
+          ? signalCount
+          : getCreatedSignalCount()
+      );
+
+      return;
+    } catch (error) {
+      console.error(
+        "Signal activity save error:",
+        error.message
+      );
+
+      showToast(
+        "Сигнал створено, але прогрес ще не синхронізовано"
+      );
+
+      return;
+    }
   }
-}
 
-@media (min-width: 560px) {
-  .all-slots-overlay {
-    border-radius: 23px;
-  }
-}
+  const localSignalCount =
+    getCreatedSignalCount() + 1;
 
-/* =========================================================
-   ОБРАНЕ У КАТАЛОЗІ — ІЗОЛЬОВАНІ СТИЛІ
-   ========================================================= */
+  homeState = {
+    ...homeState,
+    taskProgress: {
+      ...(homeState.taskProgress || {}),
+      createdSignalCount:
+        localSignalCount,
+    },
+  };
 
-/* Сердечка не впливають на картки головної сторінки. */
-.slot-favorite-button {
-  display: none;
-}
-
-/* Компактна кнопка-фільтр під пошуком. */
-.catalog-favorites-row {
-  width: 100%;
-  margin: -4px 0 15px;
-  display: flex;
-  justify-content: flex-start;
-}
-
-.catalog-favorites-button {
-  min-height: 34px;
-  padding: 0 10px;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  border: 1px solid rgba(255, 255, 255, 0.075);
-  border-radius: 11px;
-  color: #8e8b98;
-  background: rgba(255, 255, 255, 0.035);
-  cursor: pointer;
-  font-size: 10px;
-  font-weight: 650;
-  line-height: 1;
-  transition:
-    color 160ms ease,
-    border-color 160ms ease,
-    background 160ms ease,
-    transform 160ms ease;
-}
-
-.catalog-favorites-button:active {
-  transform: scale(0.97);
-}
-
-.catalog-favorites-button svg {
-  width: 15px !important;
-  height: 15px !important;
-  min-width: 15px;
-  max-width: 15px;
-  display: block;
-}
-
-.catalog-favorites-button strong {
-  min-width: 20px;
-  height: 20px;
-  padding: 0 5px;
-  display: inline-grid;
-  place-items: center;
-  border-radius: 999px;
-  color: #aaa6b3;
-  background: rgba(255, 255, 255, 0.055);
-  font-size: 9px;
-  font-weight: 750;
-}
-
-.catalog-favorites-button.is-active {
-  border-color: rgba(255, 94, 148, 0.3);
-  color: #ff7aa7;
-  background: rgba(255, 70, 132, 0.085);
-}
-
-.catalog-favorites-button.is-active svg {
-  fill: currentColor;
-}
-
-.catalog-favorites-button.is-active strong {
-  color: #ffd2e1;
-  background: rgba(255, 91, 145, 0.14);
-}
-
-/* Сердечко показується лише в повному каталозі. */
-.all-slots-grid .slot-favorite-button {
-  position: absolute;
-  z-index: 5;
-  top: 7px;
-  left: 7px;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.13);
-  border-radius: 50%;
-  color: rgba(255, 255, 255, 0.78);
-  background: rgba(5, 6, 11, 0.7);
-  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.24);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  cursor: pointer;
-  transition:
-    transform 160ms ease,
-    color 160ms ease,
-    border-color 160ms ease,
-    background 160ms ease;
-}
-
-.all-slots-grid .slot-favorite-button:active {
-  transform: scale(0.9);
-}
-
-.all-slots-grid .slot-favorite-button svg {
-  width: 15px !important;
-  height: 15px !important;
-  min-width: 15px;
-  max-width: 15px;
-  display: block;
-}
-
-.all-slots-grid .slot-favorite-button.is-favorite {
-  border-color: rgba(255, 101, 151, 0.38);
-  color: #ff699b;
-  background: rgba(60, 12, 31, 0.78);
-  box-shadow:
-    0 5px 14px rgba(0, 0, 0, 0.24),
-    0 0 14px rgba(255, 83, 140, 0.16);
-}
-
-.all-slots-grid .slot-favorite-button.is-favorite svg {
-  fill: currentColor;
-}
-
-/* Позначка вибраного слота залишається справа, сердечко — зліва. */
-.all-slots-grid .selected-check {
-  right: 7px;
-  left: auto;
-}
-
-/* =========================================================
-   КАТЕГОРІЇ СЛОТІВ — PREMIUM TABS
-   Ізольовано тільки для повного каталогу.
-   ========================================================= */
-
-.all-slots-categories {
-  position: relative;
-  width: 100%;
-  margin: -4px 0 16px;
-  padding: 4px;
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  gap: 2px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.055);
-  border-radius: 14px;
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.025),
-      rgba(255, 255, 255, 0.008)
-    ),
-    rgba(7, 8, 14, 0.64);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.025),
-    0 8px 24px rgba(0, 0, 0, 0.12);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-.all-slots-categories::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-.all-slots-category {
-  position: relative;
-  min-height: 34px;
-  padding: 0 11px;
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  overflow: hidden;
-  border: 0;
-  border-radius: 10px;
-  color: #777581;
-  background: transparent;
-  box-shadow: none;
-  font-size: 10px;
-  font-weight: 620;
-  letter-spacing: 0.005em;
-  line-height: 1;
-  white-space: nowrap;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition:
-    color 160ms ease,
-    background 160ms ease,
-    box-shadow 160ms ease,
-    transform 160ms ease;
-}
-
-.all-slots-category::before {
-  position: absolute;
-  right: 9px;
-  bottom: 0;
-  left: 9px;
-  height: 1px;
-  border-radius: 999px;
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(195, 119, 255, 0.9),
-      transparent
+  try {
+    localStorage.setItem(
+      PULSE_SIGNAL_COUNT_KEY,
+      String(localSignalCount)
     );
-  content: "";
-  opacity: 0;
-  transform: scaleX(0.45);
-  transition:
-    opacity 170ms ease,
-    transform 170ms ease;
-}
-
-.all-slots-category:active {
-  transform: scale(0.975);
-}
-
-.all-slots-category.is-active {
-  color: #eee7f7;
-  background:
-    radial-gradient(
-      circle at 50% 120%,
-      rgba(171, 81, 255, 0.16),
-      transparent 66%
-    ),
-    rgba(151, 69, 224, 0.065);
-  box-shadow:
-    inset 0 0 0 1px rgba(190, 121, 255, 0.09),
-    inset 0 1px 0 rgba(255, 255, 255, 0.035);
-}
-
-.all-slots-category.is-active::before {
-  opacity: 1;
-  transform: scaleX(1);
-}
-
-.all-slots-category-heart {
-  width: 14px;
-  height: 14px;
-  display: inline-grid;
-  place-items: center;
-  flex: 0 0 14px;
-  color: #8f8c99;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 14px;
-  transform: translateY(-0.5px);
-}
-
-.all-slots-category-favorites {
-  padding-right: 8px;
-}
-
-.all-slots-category-favorites strong {
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  display: inline-grid;
-  place-items: center;
-  border: 0;
-  border-radius: 999px;
-  color: #918e9a;
-  background: rgba(255, 255, 255, 0.045);
-  font-size: 8px;
-  font-weight: 760;
-  line-height: 1;
-}
-
-.all-slots-category-favorites.is-active {
-  color: #f1e9f6;
-  background:
-    radial-gradient(
-      circle at 50% 120%,
-      rgba(255, 91, 145, 0.10),
-      transparent 66%
-    ),
-    rgba(151, 69, 224, 0.055);
-}
-
-.all-slots-category-favorites.is-active .all-slots-category-heart {
-  color: #e8a2bb;
-}
-
-.all-slots-category-favorites.is-active strong {
-  color: #d9c7d0;
-  background: rgba(255, 255, 255, 0.055);
-}
-
-@media (hover: hover) {
-  .all-slots-category:not(.is-active):hover {
-    color: #aaa7b2;
-    background: rgba(255, 255, 255, 0.02);
+  } catch {
+    /* Локальний деморежим. */
   }
+
+  pulseSendSignalNotification(
+    signal,
+    localSignalCount
+  );
+}
+
+showSignalResult = function () {
+  pulseOriginalShowSignalResult();
+
+  if (!activeSignal) {
+    return;
+  }
+
+  const signal = {
+    ...activeSignal,
+  };
+
+  void pulseRegisterSignalResult(
+    signal
+  );
+};
+
+if (document.readyState === "loading") {
+  document.addEventListener(
+    "DOMContentLoaded",
+    beginHomeInitialization,
+    {
+      once: true,
+    }
+  );
+} else {
+  beginHomeInitialization();
 }
