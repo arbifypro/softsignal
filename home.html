@@ -192,7 +192,7 @@
       }
     </style>
 
-    <link rel="stylesheet" href="home.css?v=20260807-active-notice-1" />
+    <link rel="stylesheet" href="home.css?v=20260807-active-notice-premium-1" />
     <link rel="stylesheet" href="notifications.css" />
 
     <link
@@ -919,24 +919,29 @@
           ></div>
 
           <div class="active-signal-notice-dialog">
-            <div
-              class="active-signal-notice-icon"
-              aria-hidden="true"
-            >
-              <span></span>
+            <div class="active-signal-notice-head">
+              <div class="active-signal-notice-status">
+                <span aria-hidden="true"></span>
+                АКТИВНИЙ СИГНАЛ
+              </div>
+
+              <div
+                class="active-signal-notice-pulse"
+                aria-hidden="true"
+              >
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
             </div>
 
-            <p class="active-signal-notice-kicker">
-              PULSE STATUS
-            </p>
-
             <h2 id="activeSignalNoticeTitle">
-              Сигнал уже активний
+              Поточний сигнал ще триває
             </h2>
 
             <p class="active-signal-notice-copy">
-              Дочекайтеся завершення поточного сигналу,
-              перш ніж запускати новий.
+              Новий сигнал стане доступним після завершення
+              поточного сеансу.
             </p>
 
             <div class="active-signal-notice-time">
@@ -947,15 +952,23 @@
               </strong>
             </div>
 
+            <div
+              class="active-signal-notice-progress"
+              aria-hidden="true"
+            >
+              <span></span>
+            </div>
+
             <button
               class="active-signal-notice-button"
               id="activeSignalNoticeButton"
               type="button"
             >
-              ЗРОЗУМІЛО
+              ПОВЕРНУТИСЯ ДО СИГНАЛУ
             </button>
           </div>
         </section>
+
 
         <!-- Повноекранний процес сканування -->
         <section
@@ -1396,6 +1409,6 @@
     </main>
 
     <script src="notifications.js?v=20260803-1"></script>
-    <script src="home.js?v=20260807-active-notice-1"></script>
+    <script src="home.js?v=20260807-active-notice-premium-1"></script>
   </body>
 </html>
