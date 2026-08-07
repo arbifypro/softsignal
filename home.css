@@ -1,3671 +1,1299 @@
-:root {
-  --background: #020307;
-  --foreground: #f8f7ff;
-  --muted: #8f90a2;
-  --gold: #f4c44e;
-  --purple: #8d42ff;
-  --purple-bright: #b95cff;
-  --green: #21e780;
-  --panel: rgba(9, 10, 18, 0.88);
-  --line: rgba(255, 255, 255, 0.08);
-
-  color-scheme: dark;
-  background-color: #020307;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html {
-  min-height: 100%;
-  background: #020307 !important;
-  background-color: #020307 !important;
-  overscroll-behavior: none;
-  touch-action: pan-y;
-  -ms-touch-action: pan-y;
-  -webkit-text-size-adjust: 100%;
-}
-
-body {
-  min-height: 100%;
-  margin: 0;
-  background: #020307 !important;
-  background-color: #020307 !important;
-  color: var(--foreground);
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-  overscroll-behavior: none;
-  touch-action: pan-y;
-  -ms-touch-action: pan-y;
-  -webkit-text-size-adjust: 100%;
-}
-
-button,
-input {
-  font: inherit;
-}
-
-button {
-  color: inherit;
-}
-
-.page-shell {
-  position: relative;
-  min-height: 100vh;
-  min-height: 100svh;
-  overflow: hidden;
-  display: grid;
-  place-items: start center;
-  isolation: isolate;
-  background: #020307;
-  background-color: #020307;
-}
-
-.ambient {
-  position: fixed;
-  z-index: -1;
-  width: 24rem;
-  height: 24rem;
-  border-radius: 999px;
-  filter: blur(110px);
-  opacity: 0.15;
-  pointer-events: none;
-}
-
-.ambient-one {
-  top: -12rem;
-  left: calc(50% - 23rem);
-  background: #8b35ff;
-}
-
-.ambient-two {
-  right: calc(50% - 24rem);
-  bottom: -13rem;
-  background: #4c13a6;
-}
-
-.pulse-app {
-  position: relative;
-  width: min(100%, 430px);
-  min-height: 100vh;
-  min-height: 100svh;
-  overflow: hidden;
-  background: linear-gradient(
-    180deg,
-    #06070d 0%,
-    #020309 54%,
-    #05060c 100%
-  );
-}
-
-.app-noise {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  opacity: 0.18;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.08'/%3E%3C/svg%3E");
-}
-
-.top-glow {
-  display: none !important;
-}
-
-.topbar,
-.content,
-.bottom-nav {
-  position: relative;
-  z-index: 2;
-}
-
-.topbar {
-  height: 82px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding:
-    max(10px, env(safe-area-inset-top))
-    20px
-    0;
-  background-color: #06070d;
-}
-
-.mini-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.brand-mark {
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(244, 196, 78, 0.2);
-  border-radius: 50%;
-  color: var(--gold);
-  background:
-    radial-gradient(
-      circle,
-      rgba(244, 196, 78, 0.1),
-      transparent 65%
-    ),
-    #08090f;
-  box-shadow:
-    inset 0 0 16px
-    rgba(244, 196, 78, 0.05);
-}
-
-.crown {
-  width: 25px;
-  height: 20px;
-  filter:
-    drop-shadow(
-      0 0 6px
-      rgba(244, 196, 78, 0.35)
-    );
-}
-
-.brand-name {
-  margin: 0;
-  color: #fff1bc;
-  font-family:
-    Georgia,
-    "Times New Roman",
-    serif;
-  font-size: 16px;
-  letter-spacing: 0.2em;
-  line-height: 1;
-}
-
-.brand-pulse {
-  margin: 5px 0 0;
-  color: var(--gold);
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.25em;
-  line-height: 1;
-}
-
-.icon-button {
-  position: relative;
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 50%;
-  background: rgba(10, 11, 19, 0.88);
-  cursor: pointer;
-  transition:
-    transform 160ms ease,
-    border-color 160ms ease,
-    background 160ms ease;
-}
-
-.icon-button:hover {
-  border-color: rgba(185, 92, 255, 0.5);
-  background: rgba(21, 13, 34, 0.95);
-}
-
-.icon-button:active {
-  transform: scale(0.94);
-}
-
-.icon-button svg {
-  width: 20px;
-  height: 20px;
-  color: #e4e1ec;
-}
-
-.notification-dot {
-  position: absolute;
-  top: 7px;
-  right: 7px;
-  width: 7px;
-  height: 7px;
-  border: 2px solid #08090f;
-  border-radius: 50%;
-  background: #ff395f;
-  box-sizing: content-box;
-}
-
-.content {
-  padding:
-    10px
-    18px
-    calc(104px + env(safe-area-inset-bottom));
-}
-
-.access-card {
-  position: relative;
-  overflow: hidden;
-  padding: 17px;
-  border: 1px solid rgba(255, 255, 255, 0.075);
-  border-radius: 17px;
-  background:
-    linear-gradient(
-      135deg,
-      rgba(21, 23, 35, 0.92),
-      rgba(7, 8, 14, 0.88)
-    ),
-    #090a11;
-  box-shadow:
-    0 18px 40px rgba(0, 0, 0, 0.26),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
-}
-
-.access-card::before {
-  content: "";
-  position: absolute;
-  top: -60px;
-  right: -40px;
-  width: 160px;
-  height: 130px;
-  border-radius: 50%;
-  background: rgba(90, 226, 139, 0.08);
-  filter: blur(34px);
-}
-
-.access-card-top {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-}
-
-.micro-label,
-.eyebrow {
-  margin: 0;
-  color: #77798a;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-}
-
-.access-status {
-  margin: 8px 0 0;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  color: var(--green);
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-}
-
-.live-dot {
-  position: relative;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--green);
-  box-shadow:
-    0 0 11px
-    rgba(33, 231, 128, 0.85);
-}
-
-.live-dot::after {
-  content: "";
-  position: absolute;
-  inset: -4px;
-  border: 1px solid rgba(33, 231, 128, 0.35);
-  border-radius: inherit;
-  animation: livePulse 1.8s ease-out infinite;
-}
-
-.key-badge {
-  min-width: 91px;
-  padding: 9px 12px;
-  border: 1px solid rgba(244, 196, 78, 0.12);
-  border-radius: 11px;
-  background: rgba(244, 196, 78, 0.045);
-  text-align: right;
-}
-
-.key-badge span {
-  display: block;
-  color: #6f7080;
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-}
-
-.key-badge strong {
-  display: block;
-  margin-top: 3px;
-  color: #e9d184;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-}
-
-.access-divider {
-  height: 1px;
-  margin: 15px 0 13px;
-  background:
-    linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.07),
-      transparent
-    );
-}
-
-.system-row {
-  position: relative;
-  display: grid;
-  grid-template-columns: 29px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 10px;
-}
-
-.system-orb {
-  width: 29px;
-  height: 29px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(153, 71, 255, 0.3);
-  border-radius: 50%;
-  background: rgba(137, 51, 255, 0.08);
-  box-shadow:
-    inset 0 0 10px
-    rgba(141, 66, 255, 0.18);
-}
-
-.system-orb span {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #ad60ff;
-  box-shadow: 0 0 10px #a84dff;
-}
-
-.system-row p {
-  min-width: 0;
-  margin: 0;
-}
-
-.system-row strong,
-.system-row p span {
-  display: block;
-}
-
-.system-row strong {
-  color: #d8d6e0;
-  font-size: 11px;
-  font-weight: 650;
-}
-
-.system-row p span {
-  margin-top: 3px;
-  color: #6d6e7d;
-  font-size: 9px;
-}
-
-.online-pill {
-  padding: 5px 7px;
-  border: 1px solid rgba(33, 231, 128, 0.15);
-  border-radius: 999px;
-  color: #66e8a3;
-  background: rgba(33, 231, 128, 0.06);
-  font-size: 7px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-}
-
-.slots-section {
-  margin-top: 27px;
-}
-
-.section-title-row {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.eyebrow {
-  color: #8462a8;
-}
-
-.section-title-row h1 {
-  margin: 5px 0 0;
-  color: #f4f2f8;
-  font-size: 18px;
-  font-weight: 650;
-  letter-spacing: -0.025em;
-}
-
-.text-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  padding: 8px 0 3px 10px;
-  border: 0;
-  color: #d7b950;
-  background: none;
-  font-size: 10px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.text-link svg {
-  width: 13px;
-  height: 13px;
-}
-
-.slot-grid {
-  display: grid;
-  width: 100%;
-  min-width: 0;
-  grid-template-columns: none;
-  grid-auto-flow: column;
-  grid-auto-columns: calc(33.333333% - 6.666667px);
-  gap: 10px;
-  margin-top: 11px;
-  padding: 3px 0 4px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  overscroll-behavior-x: contain;
-  scroll-behavior: smooth;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-.slot-grid::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-.slot-card {
-  min-width: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
-  scroll-snap-align: start;
-  scroll-snap-stop: normal;
-}
-
-.slot-image-wrap {
-  position: relative;
-  display: block;
-  aspect-ratio: 1 / 1.06;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 14px;
-  background: #0d0e17;
-  box-shadow:
-    0 10px 24px
-    rgba(0, 0, 0, 0.24);
-  transition:
-    transform 190ms ease,
-    border-color 190ms ease,
-    box-shadow 190ms ease;
-}
-
-.slot-image-wrap img {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
-  transition:
-    transform 420ms
-    cubic-bezier(0.2, 0.75, 0.2, 1);
-}
-
-.slot-image-wrap::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(
-      180deg,
-      transparent 52%,
-      rgba(0, 0, 0, 0.26)
-    );
-  pointer-events: none;
-}
-
-.slot-shine {
-  position: absolute;
-  z-index: 2;
-  top: -30%;
-  left: -70%;
-  width: 40%;
-  height: 160%;
-  transform: rotate(18deg);
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.18),
-      transparent
-    );
-  transition: left 500ms ease;
-  pointer-events: none;
-}
-
-.selected-check {
-  position: absolute;
-  z-index: 3;
-  top: 7px;
-  right: 7px;
-  width: 20px;
-  height: 20px;
-  display: grid;
-  place-items: center;
-  border:
-    1px solid
-    color-mix(
-      in srgb,
-      var(--slot-accent) 72%,
-      white
-    );
-  border-radius: 50%;
-  color: white;
-  background:
-    color-mix(
-      in srgb,
-      var(--slot-accent) 77%,
-      #170929
-    );
-  box-shadow:
-    0 0 14px
-    color-mix(
-      in srgb,
-      var(--slot-accent) 60%,
-      transparent
-    );
-  font-size: 10px;
-  font-weight: 900;
-  opacity: 0;
-  transform: scale(0.72);
-  transition:
-    opacity 180ms ease,
-    transform 180ms ease;
-}
-
-.slot-name {
-  display: block;
-  overflow: hidden;
-  margin-top: 8px;
-  padding: 0 3px;
-  color: #a8a7b3;
-  font-size: 10px;
-  font-weight: 570;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  transition: color 180ms ease;
-}
-
-.slot-card:hover .slot-image-wrap {
-  transform: translateY(-2px);
-  border-color:
-    color-mix(
-      in srgb,
-      var(--slot-accent) 46%,
-      transparent
-    );
-}
-
-.slot-card:hover img {
-  transform: scale(1.045);
-}
-
-.slot-card:hover .slot-shine {
-  left: 130%;
-}
-
-.slot-card.is-selected .slot-image-wrap {
-  border-color:
-    color-mix(
-      in srgb,
-      var(--slot-accent) 72%,
-      white
-    );
-  box-shadow:
-    0 0 0 1px
-    color-mix(
-      in srgb,
-      var(--slot-accent) 20%,
-      transparent
-    ),
-    0 12px 28px rgba(0, 0, 0, 0.3),
-    0 0 25px
-    color-mix(
-      in srgb,
-      var(--slot-accent) 13%,
-      transparent
-    );
-}
-
-.slot-card.is-selected .selected-check {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.slot-card.is-selected .slot-name {
-  color: #efedf6;
-}
-
-.signal-card {
-  position: relative;
-  overflow: hidden;
-  min-height: 168px;
-  margin-top: 25px;
-  padding: 19px;
-  display: grid;
-  grid-template-columns: 108px minmax(0, 1fr);
-  grid-template-rows: auto auto;
-  align-items: center;
-  column-gap: 15px;
-  border: 1px solid rgba(153, 66, 255, 0.24);
-  border-radius: 19px;
-  background:
-    radial-gradient(
-      circle at 15% 50%,
-      rgba(141, 66, 255, 0.14),
-      transparent 38%
-    ),
-    linear-gradient(
-      135deg,
-      rgba(15, 10, 27, 0.98),
-      rgba(6, 7, 13, 0.98)
-    );
-  box-shadow:
-    0 18px 38px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
-}
-
-.signal-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background:
-    linear-gradient(
-      115deg,
-      transparent 28%,
-      rgba(177, 81, 255, 0.07),
-      transparent 67%
-    );
-  transform: translateX(-100%);
-  animation: cardShine 5s ease-in-out infinite;
-  pointer-events: none;
-}
-
-.signal-card-glow {
-  position: absolute;
-  left: 10px;
-  top: 30px;
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: rgba(138, 50, 255, 0.16);
-  filter: blur(26px);
-}
-
-.radar {
-  position: relative;
-  z-index: 1;
-  grid-row: 1 / 3;
-  width: 104px;
-  height: 104px;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  border: 1px solid rgba(180, 93, 255, 0.28);
-  border-radius: 50%;
-  background:
-    radial-gradient(
-      circle,
-      rgba(110, 31, 203, 0.12),
-      transparent 63%
-    ),
-    #080710;
-  box-shadow:
-    inset 0 0 30px rgba(134, 47, 239, 0.13),
-    0 0 22px rgba(122, 36, 223, 0.1);
-}
-
-.radar-circle,
-.radar-cross,
-.radar-sweep,
-.radar-core {
-  position: absolute;
-}
-
-.radar-circle {
-  border: 1px solid rgba(174, 86, 255, 0.19);
-  border-radius: 50%;
-}
-
-.radar-circle-one {
-  width: 78%;
-  height: 78%;
-}
-
-.radar-circle-two {
-  width: 51%;
-  height: 51%;
-}
-
-.radar-circle-three {
-  width: 25%;
-  height: 25%;
-}
-
-.radar-cross {
-  background: rgba(178, 93, 255, 0.15);
-}
-
-.radar-cross-x {
-  width: 100%;
-  height: 1px;
-}
-
-.radar-cross-y {
-  width: 1px;
-  height: 100%;
-}
-
-.radar-sweep {
-  inset: 50% 50% 0 0;
-  transform-origin: 100% 0;
-  background:
-    conic-gradient(
-      from 268deg,
-      rgba(176, 82, 255, 0.62),
-      transparent 30deg
-    );
-  filter:
-    drop-shadow(
-      0 0 5px
-      rgba(182, 92, 255, 0.85)
-    );
-  animation: radarSpin 3.2s linear infinite;
-}
-
-.radar-core {
-  width: 20px;
-  height: 20px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(217, 169, 255, 0.55);
-  border-radius: 50%;
-  background: rgba(117, 35, 215, 0.24);
-  box-shadow:
-    0 0 18px
-    rgba(170, 73, 255, 0.62);
-}
-
-.radar-core span {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: white;
-  box-shadow:
-    0 0 7px white,
-    0 0 13px #bd61ff;
-}
-
-.signal-copy {
-  position: relative;
-  z-index: 1;
-  align-self: end;
-  padding-top: 2px;
-}
-
-.signal-kicker {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #8e70ac;
-  font-size: 8px;
-  font-weight: 800;
-  letter-spacing: 0.11em;
-}
-
-.signal-kicker span {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #a94dff;
-  box-shadow: 0 0 8px #a94dff;
-}
-
-.signal-copy h2 {
-  margin: 6px 0 0;
-  color: #f5f1fa;
-  font-size: 16px;
-  font-weight: 780;
-  letter-spacing: -0.015em;
-}
-
-.signal-copy > p:last-child {
-  margin: 5px 0 0;
-  color: #7a7887;
-  font-size: 9px;
-  line-height: 1.4;
-}
-
-.signal-button {
-  position: relative;
-  z-index: 2;
-  align-self: start;
-  width: fit-content;
-  min-width: 125px;
-  margin-top: 10px;
-  padding: 10px 13px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  border: 1px solid rgba(207, 139, 255, 0.22);
-  border-radius: 10px;
-  color: #fff;
-  background:
-    linear-gradient(
-      180deg,
-      #9f43ef,
-      #6b16c7
-    );
-  box-shadow:
-    0 7px 20px rgba(112, 26, 200, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22);
-  font-size: 9px;
-  font-weight: 850;
-  letter-spacing: 0.06em;
-  cursor: pointer;
-  transition:
-    transform 160ms ease,
-    filter 160ms ease;
-}
-
-.signal-button svg {
-  width: 15px;
-  height: 15px;
-}
-
-.signal-button:hover {
-  filter: brightness(1.1);
-}
-
-.signal-button:active {
-  transform:
-    translateY(1px)
-    scale(0.98);
-}
-
-.signal-button:disabled {
-  cursor: wait;
-  opacity: 0.78;
-}
-
-.signal-card.is-scanning .radar-sweep {
-  animation-duration: 0.7s;
-}
-
-.signal-card.is-scanning .radar {
-  border-color: rgba(216, 159, 255, 0.58);
-  box-shadow:
-    inset 0 0 34px rgba(157, 60, 255, 0.24),
-    0 0 28px rgba(139, 43, 232, 0.2);
-}
-
-.responsible-line {
-  margin: 17px auto 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  color: #555663;
-}
-
-.responsible-line span {
-  width: 22px;
-  height: 22px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 50%;
-  font-size: 7px;
-  font-weight: 800;
-}
-
-.responsible-line p {
-  margin: 0;
-  font-size: 8px;
-}
-
-.bottom-nav {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height:
-    calc(
-      78px + env(safe-area-inset-bottom)
-    );
-  padding:
-    8px
-    14px
-    env(safe-area-inset-bottom);
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  align-items: start;
-  border-top: 1px solid rgba(255, 255, 255, 0.075);
-  background:
-    linear-gradient(
-      180deg,
-      rgba(8, 9, 15, 0.96),
-      rgba(4, 5, 10, 1)
-    ),
-    #05060b;
-  box-shadow:
-    0 -14px 30px
-    rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(18px);
-}
-
-.bottom-nav::before {
-  content: "";
-  position: absolute;
-  top: -1px;
-  left: 4%;
-  width: 22%;
-  height: 1px;
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      #9f4dff,
-      transparent
-    );
-  opacity: 0.65;
-}
-
-.nav-item {
-  position: relative;
-  height: 62px;
-  padding: 4px 2px 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  border: 0;
-  color: #676875;
-  background: none;
-  font-size: 8px;
-  font-weight: 560;
-  cursor: pointer;
-  text-decoration: none;
-  transition: color 170ms ease;
-}
-
-.nav-icon {
-  position: relative;
-  width: 32px;
-  height: 31px;
-  display: grid;
-  place-items: center;
-  border-radius: 10px;
-}
-
-.nav-icon svg {
-  width: 21px;
-  height: 21px;
-}
-
-.nav-item:hover {
-  color: #b8b5c1;
-}
-
-.nav-item.is-active {
-  color: #b95cff;
-}
-
-.nav-item.is-active .nav-icon {
-  background:
-    radial-gradient(
-      circle,
-      rgba(158, 66, 255, 0.2),
-      transparent 70%
-    );
-  text-shadow:
-    0 0 12px
-    rgba(174, 73, 255, 0.6);
-}
-
-.nav-item.is-active::after {
-  content: "";
-  position: absolute;
-  bottom: 2px;
-  width: 16px;
-  height: 2px;
-  border-radius: 999px;
-  background: #a84bff;
-  box-shadow:
-    0 0 9px
-    rgba(168, 75, 255, 0.85);
-}
-
-.toast {
-  position: absolute;
-  z-index: 20;
-  left: 50%;
-  bottom:
-    calc(
-      88px + env(safe-area-inset-bottom)
-    );
-  width: max-content;
-  max-width: calc(100% - 36px);
-  padding: 11px 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid rgba(176, 88, 255, 0.24);
-  border-radius: 12px;
-  color: #dbd7e3;
-  background: rgba(18, 14, 26, 0.96);
-  box-shadow:
-    0 15px 35px
-    rgba(0, 0, 0, 0.38);
-  backdrop-filter: blur(16px);
-  font-size: 10px;
-  text-align: center;
-  opacity: 0;
-  pointer-events: none;
-  transform: translate(-50%, 12px);
-  transition:
-    opacity 190ms ease,
-    transform 190ms ease;
-}
-
-.toast.is-visible {
-  opacity: 1;
-  transform: translate(-50%, 0);
-}
-
-.toast-dot {
-  flex: 0 0 auto;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #ac52ff;
-  box-shadow: 0 0 9px #ac52ff;
-}
-
-@keyframes livePulse {
-  0% {
-    opacity: 0.8;
-    transform: scale(0.7);
-  }
-
-  80%,
-  100% {
-    opacity: 0;
-    transform: scale(1.8);
-  }
-}
-
-@keyframes radarSpin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes cardShine {
-  0%,
-  48% {
-    transform: translateX(-100%);
-  }
-
-  68%,
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-/* Телефони: повністю чорний фон системних областей */
-@media (max-width: 559px) {
-  html,
-  body,
-  .page-shell {
-    background: #020307 !important;
-    background-color: #020307 !important;
-  }
-
-  .ambient {
-    display: none !important;
-  }
-
-  .pulse-app {
-    min-height: 100vh;
-    min-height: 100svh;
-    background:
-      linear-gradient(
-        180deg,
-        #06070d 0%,
-        #020309 54%,
-        #05060c 100%
-      ) !important;
-  }
-}
-
-/* Комп’ютери та великі екрани */
-@media (min-width: 560px) {
-  body {
-    background:
-      radial-gradient(
-        circle at 50% -10%,
-        rgba(105, 37, 186, 0.13),
-        transparent 32rem
-      ),
-      #020307 !important;
-  }
-
-  .page-shell {
-    padding: 22px 0;
-    background: transparent;
-  }
-
-  .pulse-app {
-    min-height: calc(100svh - 44px);
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    border-radius: 24px;
-    box-shadow:
-      0 36px 90px rgba(0, 0, 0, 0.58),
-      0 0 0 1px rgba(138, 57, 232, 0.05);
-  }
-
-  .bottom-nav {
-    border-radius: 0 0 23px 23px;
-  }
-}
-
-@media (max-height: 760px) and (max-width: 559px) {
-  .topbar {
-    height: 72px;
-  }
-
-  .content {
-    padding-top: 4px;
-  }
-
-  .slots-section {
-    margin-top: 21px;
-  }
-
-  .signal-card {
-    min-height: 151px;
-    margin-top: 20px;
-    grid-template-columns:
-      94px
-      minmax(0, 1fr);
-  }
-
-  .radar {
-    width: 92px;
-    height: 92px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* Приховуємо смугу прокрутки, але залишаємо саму прокрутку */
-html,
-body {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-html::-webkit-scrollbar,
-body::-webkit-scrollbar,
-.page-shell::-webkit-scrollbar,
-.pulse-app::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
-  background: transparent;
-}
-
-/* Повністю статична головна сторінка без вертикального гортання */
-html,
-body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden !important;
-  overscroll-behavior: none;
-}
-
-body {
-  position: fixed;
-  inset: 0;
-}
-
-.page-shell,
-.pulse-app {
-  height: 100vh;
-  height: 100svh;
-  height: 100dvh;
-  min-height: 0 !important;
-  max-height: 100dvh;
-  overflow: hidden !important;
-}
-
-/* =========================================================
-   ЕКРАН СКАНУВАННЯ ТА ГОТОВОГО СИГНАЛУ
-   ========================================================= */
-
-.signal-overlay[hidden],
-.scan-view[hidden],
-.result-view[hidden] {
-  display: none !important;
-}
-
-.signal-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  overflow: hidden;
-  flex-direction: column;
-  color: #f8f7ff;
-  background:
-    radial-gradient(
-      circle at 50% 34%,
-      rgba(126, 36, 226, 0.16),
-      transparent 34%
-    ),
-    linear-gradient(
-      180deg,
-      #06070e 0%,
-      #020309 56%,
-      #04050a 100%
-    );
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(12px);
-  transition:
-    opacity 220ms ease,
-    transform 220ms ease;
-}
-
-.signal-overlay::before {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background-image:
-    linear-gradient(
-      rgba(159, 77, 255, 0.025) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      rgba(159, 77, 255, 0.025) 1px,
-      transparent 1px
-    );
-  background-size: 34px 34px;
-  content: "";
-  pointer-events: none;
-  mask-image:
-    radial-gradient(
-      circle at 50% 40%,
-      #000,
-      transparent 72%
-    );
-  -webkit-mask-image:
-    radial-gradient(
-      circle at 50% 40%,
-      #000,
-      transparent 72%
-    );
-}
-
-.signal-overlay::after {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background:
-    radial-gradient(
-      circle at 50% 100%,
-      rgba(117, 30, 218, 0.1),
-      transparent 35%
-    );
-  content: "";
-  pointer-events: none;
-}
-
-.signal-overlay.is-open {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
-.signal-overlay.is-result {
-  background:
-    radial-gradient(
-      circle at 50% 20%,
-      rgba(24, 217, 119, 0.1),
-      transparent 27%
-    ),
-    radial-gradient(
-      circle at 50% 74%,
-      rgba(110, 39, 206, 0.1),
-      transparent 32%
-    ),
-    linear-gradient(
-      180deg,
-      #05070c 0%,
-      #020407 100%
-    );
-}
-
-/* Верхня панель */
-
-.signal-overlay-header {
-  position: relative;
-  z-index: 3;
-  min-height:
-    calc(
-      64px + env(safe-area-inset-top)
-    );
-  padding:
-    max(12px, env(safe-area-inset-top))
-    18px
-    10px;
-  display: grid;
-  grid-template-columns:
-    42px
-    minmax(0, 1fr)
-    42px;
-  align-items: center;
-  flex: 0 0 auto;
-}
-
-.signal-overlay-header p {
-  margin: 0;
-  color: #f3eff8;
-  font-size: 12px;
-  font-weight: 720;
-  letter-spacing: 0.08em;
-  text-align: center;
-}
-
-.signal-back-button {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 50%;
-  color: #d7d4de;
-  background: rgba(11, 12, 20, 0.82);
-  cursor: pointer;
-  transition:
-    transform 160ms ease,
-    border-color 160ms ease;
-}
-
-.signal-back-button svg {
-  width: 20px;
-  height: 20px;
-}
-
-.signal-back-button:active {
-  transform: scale(0.93);
-}
-
-.signal-back-button:focus-visible,
-.result-action-button:focus-visible,
-.result-new-button:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 3px;
-}
-
-.signal-header-spacer {
-  width: 42px;
-  height: 42px;
-}
-
-/* Екран сканування */
-
-.scan-view {
-  position: relative;
-  z-index: 2;
-  min-height: 0;
-  padding:
-    4px
-    24px
-    max(22px, env(safe-area-inset-bottom));
-  display: flex;
-  align-items: center;
-  flex: 1 1 auto;
-  flex-direction: column;
-}
-
-.scan-slot {
-  width: min(100%, 330px);
-  min-height: 64px;
-  padding: 9px 12px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border: 1px solid rgba(178, 83, 255, 0.16);
-  border-radius: 15px;
-  background:
-    linear-gradient(
-      120deg,
-      rgba(126, 47, 207, 0.1),
-      rgba(7, 8, 14, 0.88)
-    ),
-    #080910;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.025),
-    0 15px 34px rgba(0, 0, 0, 0.22);
-}
-
-.scan-slot img {
-  width: 46px;
-  height: 46px;
-  flex: 0 0 auto;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 11px;
-  object-fit: cover;
-  box-shadow:
-    0 0 18px rgba(142, 65, 234, 0.2);
-}
-
-.scan-slot div {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.scan-slot span {
-  color: #9c79bd;
-  font-size: 8px;
-  font-weight: 750;
-  letter-spacing: 0.16em;
-}
-
-.scan-slot strong {
-  overflow: hidden;
-  color: #f5f1fa;
-  font-size: 13px;
-  font-weight: 680;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Великий радар */
-
-.scan-radar {
-  position: relative;
-  width: 218px;
-  height: 218px;
-  margin-top:
-    clamp(
-      18px,
-      4.7vh,
-      42px
-    );
-  flex: 0 0 auto;
-  overflow: hidden;
-  border: 1px solid rgba(172, 77, 255, 0.34);
-  border-radius: 50%;
-  background:
-    repeating-radial-gradient(
-      circle,
-      transparent 0 23px,
-      rgba(171, 82, 255, 0.1) 24px 25px
-    ),
-    radial-gradient(
-      circle,
-      rgba(128, 42, 213, 0.18),
-      rgba(28, 11, 48, 0.55) 58%,
-      rgba(6, 7, 13, 0.92) 72%
-    );
-  box-shadow:
-    inset 0 0 45px rgba(137, 42, 226, 0.2),
-    0 0 34px rgba(126, 37, 218, 0.14);
-}
-
-.scan-radar::before,
-.scan-radar::after {
-  position: absolute;
-  z-index: 2;
-  content: "";
-  pointer-events: none;
-}
-
-.scan-radar::before {
-  top: 50%;
-  right: 8%;
-  left: 8%;
-  height: 1px;
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(186, 105, 255, 0.25),
-      transparent
-    );
-}
-
-.scan-radar::after {
-  top: 8%;
-  bottom: 8%;
-  left: 50%;
-  width: 1px;
-  background:
-    linear-gradient(
-      180deg,
-      transparent,
-      rgba(186, 105, 255, 0.25),
-      transparent
-    );
-}
-
-.scan-ring {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  border: 1px solid rgba(181, 90, 255, 0.16);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.scan-ring-one {
-  width: 76%;
-  height: 76%;
-}
-
-.scan-ring-two {
-  width: 52%;
-  height: 52%;
-}
-
-.scan-ring-three {
-  width: 27%;
-  height: 27%;
-}
-
-.scan-line {
-  position: absolute;
-  z-index: 2;
-  opacity: 0.5;
-}
-
-.scan-line-horizontal {
-  top: 50%;
-  right: 0;
-  left: 0;
-  height: 1px;
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(170, 75, 255, 0.35),
-      transparent
-    );
-}
-
-.scan-line-vertical {
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 1px;
-  background:
-    linear-gradient(
-      180deg,
-      transparent,
-      rgba(170, 75, 255, 0.35),
-      transparent
-    );
-}
-
-.scan-sweep {
-  position: absolute;
-  inset: -1px;
-  z-index: 3;
-  border-radius: 50%;
-  background:
-    conic-gradient(
-      from -32deg,
-      transparent 0deg,
-      transparent 275deg,
-      rgba(162, 65, 255, 0.02) 288deg,
-      rgba(172, 74, 255, 0.48) 343deg,
-      rgba(219, 156, 255, 0.8) 357deg,
-      transparent 360deg
-    );
-  animation:
-    fullScanSweep
-    1.65s
-    linear
-    infinite;
-}
-
-.scan-sweep::after {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 47%;
-  height: 1px;
-  background:
-    linear-gradient(
-      90deg,
-      rgba(229, 182, 255, 0.95),
-      rgba(168, 67, 255, 0.45),
-      transparent
-    );
-  box-shadow:
-    0 0 10px rgba(192, 105, 255, 0.75);
-  content: "";
-  transform-origin: left center;
-}
-
-.scan-center {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: 6;
-  width: 27px;
-  height: 27px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(208, 145, 255, 0.38);
-  border-radius: 50%;
-  background: rgba(105, 31, 173, 0.42);
-  box-shadow:
-    0 0 0 8px rgba(133, 43, 218, 0.07),
-    0 0 22px rgba(183, 87, 255, 0.52);
-  transform: translate(-50%, -50%);
-}
-
-.scan-center::before {
-  position: absolute;
-  inset: -9px;
-  border: 1px solid rgba(185, 91, 255, 0.2);
-  border-radius: 50%;
-  content: "";
-  animation:
-    scanCenterPulse
-    1.6s
-    ease-out
-    infinite;
-}
-
-.scan-center span {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #f5eaff;
-  box-shadow:
-    0 0 10px #dfb3ff,
-    0 0 20px #a948ff;
-}
-
-/* Текст і прогрес сканування */
-
-.scan-copy {
-  margin-top:
-    clamp(
-      17px,
-      3.4vh,
-      30px
-    );
-  text-align: center;
-}
-
-.scan-kicker {
-  margin: 0 0 7px;
-  color: #ad62e8;
-  font-size: 8px;
-  font-weight: 760;
-  letter-spacing: 0.2em;
-}
-
-.scan-copy h2 {
-  margin: 0;
-  color: #fbf9ff;
-  font-size: 22px;
-  font-weight: 740;
-  letter-spacing: 0.025em;
-}
-
-.scan-copy > p:not(.scan-kicker) {
-  min-height: 17px;
-  margin: 8px 0 0;
-  color: #888594;
-  font-size: 10px;
-}
-
-.scan-copy > strong {
-  display: block;
-  margin-top: 12px;
-  color: #faf7ff;
-  font-size: 32px;
-  font-weight: 620;
-  line-height: 1;
-  text-shadow:
-    0 0 20px rgba(183, 83, 255, 0.22);
-}
-
-.scan-progress {
-  width: min(100%, 290px);
-  height: 4px;
-  margin-top: 18px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.scan-progress span {
-  display: block;
-  width: 0;
-  height: 100%;
-  border-radius: inherit;
-  background:
-    linear-gradient(
-      90deg,
-      #7921d6,
-      #c15aff,
-      #e4a5ff
-    );
-  box-shadow:
-    0 0 12px rgba(190, 89, 255, 0.62);
-  transition: width 90ms linear;
-}
-
-.scan-wait {
-  margin: auto 0 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  color: #666472;
-  font-size: 9px;
-}
-
-.scan-wait span {
-  width: 11px;
-  height: 11px;
-  border: 2px solid rgba(178, 79, 255, 0.2);
-  border-top-color: #aa49ef;
-  border-radius: 50%;
-  animation:
-    scanWaitSpin
-    0.8s
-    linear
-    infinite;
-}
-
-/* Екран готового сигналу */
-
-.result-view {
-  position: relative;
-  z-index: 2;
-  min-height: 0;
-  padding:
-    8px
-    24px
-    max(18px, env(safe-area-inset-bottom));
-  display: flex;
-  align-items: center;
-  flex: 1 1 auto;
-  flex-direction: column;
-  animation:
-    resultViewIn
-    360ms
-    ease-out
-    both;
-}
-
-.result-success-icon {
-  position: relative;
-  width: 58px;
-  height: 58px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(47, 245, 142, 0.38);
-  border-radius: 50%;
-  color: #35f18e;
-  background:
-    radial-gradient(
-      circle,
-      rgba(31, 213, 119, 0.16),
-      rgba(10, 67, 38, 0.08)
-    );
-  box-shadow:
-    0 0 0 9px rgba(38, 218, 124, 0.035),
-    0 0 34px rgba(35, 231, 130, 0.16);
-}
-
-.result-success-icon::after {
-  position: absolute;
-  inset: -10px;
-  border: 1px solid rgba(44, 234, 136, 0.12);
-  border-radius: 50%;
-  content: "";
-  animation:
-    resultSuccessPulse
-    1.9s
-    ease-out
-    infinite;
-}
-
-.result-success-icon svg {
-  width: 30px;
-  height: 30px;
-}
-
-.result-kicker {
-  margin: 17px 0 0;
-  color: #31e887;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.2em;
-}
-
-.result-view > h2 {
-  margin: 7px 0 0;
-  color: #fbfafc;
-  font-family:
-    Georgia,
-    "Times New Roman",
-    serif;
-  font-size: 24px;
-  font-weight: 500;
-}
-
-.result-slot-card {
-  width: min(100%, 340px);
-  min-height: 72px;
-  margin-top: 18px;
-  padding: 10px 12px;
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  border: 1px solid rgba(184, 84, 255, 0.18);
-  border-radius: 15px;
-  background:
-    linear-gradient(
-      120deg,
-      rgba(121, 43, 199, 0.11),
-      rgba(8, 9, 15, 0.92)
-    ),
-    #080910;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.025),
-    0 16px 34px rgba(0, 0, 0, 0.24);
-}
-
-.result-slot-card img {
-  width: 52px;
-  height: 52px;
-  flex: 0 0 auto;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  object-fit: cover;
-}
-
-.result-slot-card div {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.result-slot-card span {
-  color: #9072a8;
-  font-size: 8px;
-  font-weight: 750;
-  letter-spacing: 0.15em;
-}
-
-.result-slot-card strong {
-  overflow: hidden;
-  color: #f7f3fa;
-  font-size: 14px;
-  font-weight: 690;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Таблиця результату */
-
-.result-details {
-  width: min(100%, 340px);
-  margin-top: 13px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 15px;
-  background:
-    linear-gradient(
-      140deg,
-      rgba(16, 18, 28, 0.92),
-      rgba(6, 7, 12, 0.96)
-    ),
-    #080910;
-}
-
-.result-row {
-  min-height: 47px;
-  padding: 0 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.result-row:last-child {
-  border-bottom: 0;
-}
-
-.result-row > span {
-  color: #858391;
-  font-size: 10px;
-}
-
-.result-row > strong {
-  color: #f3c94e;
-  font-size: 12px;
-  font-weight: 750;
-}
-
-.result-risk {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.result-risk span {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: currentColor;
-  box-shadow: 0 0 8px currentColor;
-}
-
-.result-risk[data-level="низький"] {
-  color: #36e58c;
-}
-
-.result-risk[data-level="середній"] {
-  color: #f3c94e;
-}
-
-.result-risk[data-level="високий"] {
-  color: #ff657b;
-}
-
-/* Кнопки результату */
-
-.result-action-button {
-  width: min(100%, 340px);
-  height: 54px;
-  margin-top: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  border: 1px solid rgba(99, 255, 172, 0.24);
-  border-radius: 11px;
-  color: #fff;
-  background:
-    linear-gradient(
-      180deg,
-      #13c66b,
-      #07964e
-    );
-  box-shadow:
-    0 15px 30px rgba(7, 166, 82, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14);
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  transition:
-    transform 160ms ease,
-    filter 160ms ease;
-}
-
-.result-action-button svg {
-  width: 17px;
-  height: 17px;
-}
-
-.result-action-button:active {
-  transform:
-    translateY(1px)
-    scale(0.99);
-}
-
-.result-new-button {
-  margin-top: 13px;
-  padding: 7px 10px;
-  border: 0;
-  color: #898694;
-  background: none;
-  cursor: pointer;
-  font-size: 9px;
-  font-weight: 650;
-  letter-spacing: 0.04em;
-}
-
-.result-warning {
-  margin: auto 0 0;
-  color: #4e4d58;
-  font-size: 8px;
-  text-align: center;
-}
-
-/* Анімації */
-
-@keyframes fullScanSweep {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes scanCenterPulse {
-  0% {
-    opacity: 0.8;
-    transform: scale(0.72);
-  }
-
-  80%,
-  100% {
-    opacity: 0;
-    transform: scale(1.9);
-  }
-}
-
-@keyframes scanWaitSpin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes resultViewIn {
-  from {
-    opacity: 0;
-    transform:
-      translateY(12px)
-      scale(0.985);
-  }
-
-  to {
-    opacity: 1;
-    transform:
-      translateY(0)
-      scale(1);
-  }
-}
-
-@keyframes resultSuccessPulse {
-  0% {
-    opacity: 0.65;
-    transform: scale(0.72);
-  }
-
-  80%,
-  100% {
-    opacity: 0;
-    transform: scale(1.55);
-  }
-}
-
-/* Невисокі телефони */
-
-@media (max-height: 760px) and (max-width: 559px) {
-  .signal-overlay-header {
-    min-height:
-      calc(
-        54px + env(safe-area-inset-top)
-      );
-    padding-bottom: 5px;
-  }
-
-  .scan-view {
-    padding-top: 0;
-    padding-bottom:
-      max(
-        10px,
-        env(safe-area-inset-bottom)
-      );
-  }
-
-  .scan-slot {
-    min-height: 56px;
-    padding: 7px 10px;
-  }
-
-  .scan-slot img {
-    width: 40px;
-    height: 40px;
-  }
-
-  .scan-radar {
-    width: 174px;
-    height: 174px;
-    margin-top: 14px;
-  }
-
-  .scan-copy {
-    margin-top: 13px;
-  }
-
-  .scan-copy h2 {
-    font-size: 19px;
-  }
-
-  .scan-copy > p:not(.scan-kicker) {
-    margin-top: 6px;
-  }
-
-  .scan-copy > strong {
-    margin-top: 8px;
-    font-size: 27px;
-  }
-
-  .scan-progress {
-    margin-top: 12px;
-  }
-
-  .result-view {
-    padding-top: 2px;
-    padding-bottom:
-      max(
-        8px,
-        env(safe-area-inset-bottom)
-      );
-  }
-
-  .result-success-icon {
-    width: 46px;
-    height: 46px;
-  }
-
-  .result-success-icon svg {
-    width: 25px;
-    height: 25px;
-  }
-
-  .result-kicker {
-    margin-top: 11px;
-  }
-
-  .result-view > h2 {
-    margin-top: 4px;
-    font-size: 20px;
-  }
-
-  .result-slot-card {
-    min-height: 61px;
-    margin-top: 11px;
-    padding: 7px 10px;
-  }
-
-  .result-slot-card img {
-    width: 44px;
-    height: 44px;
-  }
-
-  .result-details {
-    margin-top: 9px;
-  }
-
-  .result-row {
-    min-height: 39px;
-  }
-
-  .result-action-button {
-    height: 47px;
-    margin-top: 10px;
-  }
-
-  .result-new-button {
-    margin-top: 6px;
-  }
-}
-
-@media (min-width: 560px) {
-  .signal-overlay {
-    border-radius: 23px;
-  }
-}
-
-/* =========================================================
-   SUBID — ЧИСТЕ МОДАЛЬНЕ ВІКНО
-   ========================================================= */
-
-.sr-only {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  overflow: hidden !important;
-  border: 0 !important;
-  clip: rect(0, 0, 0, 0) !important;
-  clip-path: inset(50%) !important;
-  white-space: nowrap !important;
-}
-
-.subid-modal[hidden],
-.subid-form-view[hidden],
-.subid-success-view[hidden] {
-  display: none !important;
-}
-
-.subid-modal {
-  position: absolute;
-  inset: 0;
-  z-index: 80;
-  width: 100%;
-  height: 100%;
-  padding: max(18px, env(safe-area-inset-top)) 17px
-    max(18px, env(safe-area-inset-bottom));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  isolation: isolate;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 300ms ease;
-}
-
-.subid-modal-backdrop {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background:
-    radial-gradient(
-      circle at 50% 42%,
-      rgba(127, 38, 224, 0.12),
-      transparent 40%
-    ),
-    rgba(1, 2, 7, 0.74);
-  backdrop-filter: blur(4px) saturate(0.78) brightness(0.62);
-  -webkit-backdrop-filter: blur(4px) saturate(0.78) brightness(0.62);
-  opacity: 0;
-  transition: opacity 340ms ease;
-}
-
-.subid-modal.is-open {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.subid-modal.is-open .subid-modal-backdrop {
-  opacity: 1;
-}
-
-body.subid-modal-open .topbar,
-body.subid-modal-open .content,
-body.subid-modal-open .bottom-nav {
-  filter: blur(1px) saturate(0.76) brightness(0.66);
-  pointer-events: none;
-  transform: scale(0.99);
-  transform-origin: center;
-  transition:
-    filter 330ms ease,
-    transform 420ms cubic-bezier(0.16, 0.84, 0.26, 1);
-}
-
-.subid-dialog {
-  position: relative;
-  z-index: 2;
-  width: min(100%, 356px);
-  min-height: 420px;
-  padding: 27px 22px 21px;
-  overflow: hidden;
-  border: 1px solid rgba(182, 87, 255, 0.3);
-  border-radius: 25px;
-  color: #f8f5fc;
-  background:
-    radial-gradient(
-      circle at 50% -6%,
-      rgba(166, 66, 255, 0.22),
-      transparent 34%
-    ),
-    radial-gradient(
-      circle at 102% 102%,
-      rgba(244, 196, 78, 0.055),
-      transparent 34%
-    ),
-    linear-gradient(
-      156deg,
-      rgba(18, 14, 30, 0.99),
-      rgba(7, 8, 15, 0.995) 61%,
-      rgba(10, 7, 17, 0.995)
-    );
-  box-shadow:
-    0 34px 90px rgba(0, 0, 0, 0.7),
-    0 0 0 1px rgba(139, 49, 231, 0.07),
-    0 0 48px rgba(122, 30, 216, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.055);
-  opacity: 0;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transform: translate3d(0, 28px, 0) scale(0.94);
-  transition:
-    opacity 210ms ease,
-    transform 230ms ease,
-    border-color 220ms ease,
-    box-shadow 220ms ease;
-}
-
-.subid-dialog::before {
-  position: absolute;
-  top: -68px;
-  left: 50%;
-  z-index: 0;
-  width: 245px;
-  height: 160px;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(155, 59, 255, 0.18),
-    rgba(155, 59, 255, 0.055) 48%,
-    transparent 74%
-  );
-  content: "";
-  pointer-events: none;
-  transform: translateX(-50%);
-}
-
-.subid-dialog::after {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background-image:
-    linear-gradient(rgba(191, 111, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(191, 111, 255, 0.02) 1px, transparent 1px);
-  background-size: 30px 30px;
-  content: "";
-  opacity: 0.55;
-  pointer-events: none;
-  mask-image: radial-gradient(circle at 50% 32%, #000, transparent 76%);
-  -webkit-mask-image: radial-gradient(circle at 50% 32%, #000, transparent 76%);
-}
-
-.subid-modal.is-open .subid-dialog {
-  animation: subIdModalEntrance 540ms
-    cubic-bezier(0.16, 0.84, 0.26, 1.06) both;
-}
-
-.subid-close-button,
-.subid-icon,
-.subid-form-view,
-.subid-success-view {
-  position: relative;
-  z-index: 2;
-}
-
-.subid-close-button {
-  position: absolute;
-  top: 13px;
-  right: 13px;
-  width: 35px;
-  height: 35px;
-  padding: 0;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 50%;
-  color: #918e9d;
-  background: rgba(8, 9, 16, 0.72);
-  cursor: pointer;
-  transition:
-    color 160ms ease,
-    border-color 160ms ease,
-    background 160ms ease,
-    transform 160ms ease;
-}
-
-.subid-close-button:hover {
-  border-color: rgba(189, 91, 255, 0.4);
-  color: #f5f1f8;
-  background: rgba(28, 17, 42, 0.92);
-}
-
-.subid-close-button:active {
-  transform: scale(0.92);
-}
-
-.subid-close-button svg {
-  width: 17px;
-  height: 17px;
-}
-
-.subid-close-button:focus-visible,
-.subid-verify-button:focus-visible {
-  outline: 2px solid rgba(244, 196, 78, 0.88);
-  outline-offset: 3px;
-}
-
-.subid-icon {
-  width: 61px;
-  height: 61px;
-  margin: 0 auto;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(192, 101, 255, 0.34);
-  border-radius: 20px;
-  color: #d69bff;
-  background:
-    radial-gradient(
-      circle,
-      rgba(172, 73, 255, 0.2),
-      rgba(78, 23, 130, 0.07) 68%
-    ),
-    rgba(13, 10, 23, 0.92);
-  box-shadow:
-    0 0 0 8px rgba(154, 59, 243, 0.03),
-    0 13px 30px rgba(0, 0, 0, 0.27),
-    0 0 28px rgba(148, 50, 239, 0.13),
-    inset 0 1px 0 rgba(255, 255, 255, 0.055);
-  animation: subIdIconFloat 3.5s 650ms ease-in-out infinite;
-}
-
-.subid-icon::before {
-  position: absolute;
-  inset: -8px;
-  border: 1px solid rgba(190, 91, 255, 0.15);
-  border-radius: 27px;
-  content: "";
-  pointer-events: none;
-  animation: subIdIconRing 2.4s 700ms ease-out infinite;
-}
-
-.subid-icon svg {
-  width: 32px;
-  height: 32px;
-  filter: drop-shadow(0 0 8px rgba(190, 97, 255, 0.38));
-}
-
-.subid-form-view {
-  text-align: center;
-  animation: subIdContentEntrance 440ms 150ms ease-out both;
-}
-
-.subid-kicker {
-  margin: 21px 0 0;
-  color: #bc76ed;
-  font-size: 8px;
-  font-weight: 820;
-  letter-spacing: 0.2em;
-}
-
-.subid-form-view h2 {
-  margin: 7px 0 0;
-  color: #fbf9ff;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 25px;
-  font-weight: 500;
-  letter-spacing: -0.025em;
-  line-height: 1.12;
-}
-
-.subid-description {
-  max-width: 286px;
-  margin: 9px auto 0;
-  color: #8c8999;
-  font-size: 10px;
-  line-height: 1.5;
-}
-
-.subid-form {
-  margin-top: 18px;
-}
-
-.subid-field {
-  position: relative;
-  width: 100%;
-  height: 55px;
-  padding: 0 15px;
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 14px;
-  color: #bd72ed;
-  background: linear-gradient(
-    180deg,
-    rgba(15, 16, 27, 0.97),
-    rgba(7, 8, 15, 0.99)
-  );
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.025),
-    0 11px 25px rgba(0, 0, 0, 0.19);
-  cursor: text;
-  transition:
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    background 180ms ease;
-}
-
-.subid-field > svg {
-  width: 20px;
-  height: 20px;
-  flex: 0 0 auto;
-}
-
-.subid-field input {
-  min-width: 0;
-  height: 100%;
-  flex: 1 1 auto;
-  padding: 0;
-  border: 0;
-  outline: 0;
-  color: #f8f5fb;
-  background: transparent;
-  caret-color: #c65fff;
-  font-size: 16px;
-  font-weight: 540;
-  letter-spacing: 0.02em;
-}
-
-.subid-field input::placeholder {
-  color: #686675;
-  opacity: 1;
-}
-
-.subid-field:focus-within {
-  border-color: rgba(191, 89, 255, 0.76);
-  background: linear-gradient(
-    180deg,
-    rgba(21, 16, 34, 0.99),
-    rgba(9, 8, 18, 0.995)
-  );
-  box-shadow:
-    0 0 0 3px rgba(153, 55, 244, 0.09),
-    0 0 25px rgba(138, 40, 232, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.035);
-}
-
-.subid-field.has-error {
-  border-color: rgba(255, 76, 111, 0.72);
-  color: #ff6884;
-  box-shadow:
-    0 0 0 3px rgba(255, 56, 94, 0.075),
-    0 0 22px rgba(255, 49, 88, 0.075);
-  animation: subIdFieldShake 330ms ease;
-}
-
-.subid-field.is-checking {
-  border-color: rgba(190, 92, 255, 0.62);
-  box-shadow:
-    0 0 0 3px rgba(154, 55, 245, 0.085),
-    0 0 28px rgba(153, 52, 244, 0.13);
-}
-
-.subid-message {
-  min-height: 19px;
-  margin: 0;
-  padding: 4px 3px 0;
-  color: #ff6b86;
-  font-size: 8px;
-  line-height: 1.35;
-  text-align: left;
-}
-
-.subid-verify-button {
-  position: relative;
-  width: 100%;
-  height: 51px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  border: 1px solid rgba(217, 157, 255, 0.27);
-  border-radius: 13px;
-  color: #fff;
-  background: linear-gradient(180deg, #ad4df5, #741bd1);
-  box-shadow:
-    0 14px 30px rgba(108, 20, 197, 0.28),
-    0 0 22px rgba(154, 48, 239, 0.13),
-    inset 0 1px 0 rgba(255, 255, 255, 0.24);
-  cursor: pointer;
-  font-size: 9px;
-  font-weight: 850;
-  letter-spacing: 0.1em;
-  transition:
-    transform 160ms ease,
-    filter 160ms ease,
-    box-shadow 180ms ease;
-}
-
-.subid-verify-button::before {
-  position: absolute;
-  top: -45%;
-  left: -42%;
-  width: 30%;
-  height: 190%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.24),
-    transparent
-  );
-  content: "";
-  pointer-events: none;
-  transform: rotate(17deg);
-  animation: subIdButtonGlint 4.8s ease-in-out infinite;
-}
-
-.subid-verify-button:hover {
-  filter: brightness(1.09);
-}
-
-.subid-verify-button:active {
-  transform: translateY(1px) scale(0.99);
-}
-
-.subid-verify-button:disabled {
-  cursor: wait;
-  opacity: 0.88;
-}
-
-.subid-button-loader {
-  width: 16px;
-  height: 16px;
-  display: none;
-  border: 2px solid rgba(255, 255, 255, 0.24);
-  border-top-color: #fff;
-  border-radius: 50%;
-}
-
-.subid-dialog.is-checking .subid-button-loader {
-  display: block;
-  animation: subIdLoaderSpin 0.75s linear infinite;
-}
-
-.subid-hint {
-  margin: 12px 0 0;
-  color: #5e5c6a;
-  font-size: 7px;
-  line-height: 1.4;
-}
-
-.subid-success-view {
-  min-height: 350px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  text-align: center;
-  animation: subIdSuccessEntrance 360ms ease-out both;
-}
-
-.subid-dialog.is-success .subid-icon {
-  display: none;
-}
-
-.subid-success-check {
-  position: relative;
-  width: 72px;
-  height: 72px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(53, 241, 142, 0.4);
-  border-radius: 50%;
-  color: #35f18e;
-  background: radial-gradient(
-    circle,
-    rgba(32, 220, 122, 0.16),
-    rgba(8, 55, 32, 0.075)
-  );
-  box-shadow:
-    0 0 0 11px rgba(42, 229, 133, 0.032),
-    0 0 36px rgba(37, 231, 130, 0.19);
-}
-
-.subid-success-check::after {
-  position: absolute;
-  inset: -12px;
-  border: 1px solid rgba(54, 239, 143, 0.13);
-  border-radius: 50%;
-  content: "";
-  animation: subIdSuccessRing 1.7s ease-out infinite;
-}
-
-.subid-success-check svg {
-  width: 36px;
-  height: 36px;
-}
-
-.subid-success-view > p {
-  margin: 25px 0 0;
-  color: #3cec92;
-  font-size: 8px;
-  font-weight: 850;
-  letter-spacing: 0.18em;
-}
-
-.subid-success-view > h2 {
-  margin: 9px 0 0;
-  color: #fafdfb;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 26px;
-  font-weight: 500;
-}
-
-.subid-success-view > span {
-  margin-top: 9px;
-  color: #817f8c;
-  font-size: 9px;
-}
-
-.subid-dialog.is-success {
-  border-color: rgba(45, 230, 135, 0.25);
-  background:
-    radial-gradient(
-      circle at 50% 18%,
-      rgba(28, 216, 117, 0.1),
-      transparent 38%
-    ),
-    linear-gradient(
-      156deg,
-      rgba(10, 20, 18, 0.99),
-      rgba(5, 9, 12, 0.995)
-    );
-}
-
-/* =========================================================
-   SUBID — ПАНЕЛЬ НАД КЛАВІАТУРОЮ
-   ========================================================= */
-
-.subid-modal:focus-within {
-  position: fixed;
-  top: var(--subid-visual-top, 0px);
-  right: auto;
-  bottom: auto;
-  left: 50%;
-  width: min(100%, 430px);
-  height: var(--subid-visual-height, 100dvh);
-  padding: 8px 10px;
-  align-items: flex-end;
-  justify-content: center;
-  overflow: hidden;
-  transform: translateX(-50%);
-}
-
-.subid-modal:focus-within .subid-modal-backdrop {
-  position: absolute;
-  inset: 0;
-}
-
-.subid-modal.is-open:focus-within .subid-dialog,
-.subid-modal.is-open .subid-dialog:focus-within {
-  width: 100%;
-  min-height: 0;
-  max-height: calc(var(--subid-visual-height, 100dvh) - 16px);
-  margin: 0;
-  padding: 18px 16px 14px;
-  overflow-x: hidden;
-  overflow-y: auto;
-  border-color: rgba(184, 83, 255, 0.34);
-  border-radius: 23px;
-  background:
-    radial-gradient(
-      circle at 88% -10%,
-      rgba(165, 66, 255, 0.18),
-      transparent 36%
-    ),
-    linear-gradient(
-      155deg,
-      rgba(17, 13, 28, 0.995),
-      rgba(7, 8, 15, 0.998)
-    );
-  box-shadow:
-    0 -18px 54px rgba(0, 0, 0, 0.44),
-    0 18px 50px rgba(0, 0, 0, 0.52),
-    0 0 32px rgba(129, 34, 222, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.055);
-  opacity: 1;
-  animation: subIdKeyboardSheetEntrance 300ms
-    cubic-bezier(0.16, 0.84, 0.26, 1) both;
-  transform: translate3d(0, 0, 0) scale(1);
-  scrollbar-width: none;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-}
-
-.subid-modal:focus-within .subid-dialog::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-.subid-modal:focus-within .subid-dialog::before {
-  top: 8px;
-  left: 50%;
-  width: 38px;
-  height: 3px;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    rgba(183, 88, 255, 0.25),
-    rgba(214, 151, 255, 0.72),
-    rgba(183, 88, 255, 0.25)
-  );
-  opacity: 1;
-  transform: translateX(-50%);
-}
-
-.subid-modal:focus-within .subid-dialog::after {
-  opacity: 0.28;
-}
-
-.subid-modal:focus-within .subid-icon,
-.subid-modal:focus-within .subid-description,
-.subid-modal:focus-within .subid-hint {
-  display: none;
-}
-
-.subid-modal:focus-within .subid-close-button {
-  top: 12px;
-  right: 12px;
-  width: 32px;
-  height: 32px;
-}
-
-.subid-modal:focus-within .subid-form-view {
-  text-align: left;
-  animation: none;
-}
-
-.subid-modal:focus-within .subid-kicker {
-  margin: 5px 38px 0 0;
-  font-size: 7px;
-  letter-spacing: 0.18em;
-}
-
-.subid-modal:focus-within .subid-form-view h2 {
-  margin: 5px 42px 0 0;
-  font-size: 22px;
-  line-height: 1.08;
-}
-
-.subid-modal:focus-within .subid-form {
-  margin-top: 14px;
-}
-
-.subid-modal:focus-within .subid-field {
-  height: 52px;
-  border-radius: 13px;
-}
-
-.subid-modal:focus-within .subid-message {
-  min-height: 16px;
-  padding-top: 2px;
-}
-
-.subid-modal:focus-within .subid-verify-button {
-  height: 48px;
-  border-radius: 12px;
-}
-
-/* =========================================================
-   SUBID — АНІМАЦІЇ
-   ========================================================= */
-
-@keyframes subIdModalEntrance {
-  0% {
-    opacity: 0;
-    transform: translate3d(0, 28px, 0) scale(0.94);
-  }
-
-  72% {
-    opacity: 1;
-    transform: translate3d(0, -3px, 0) scale(1.008);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-}
-
-@keyframes subIdContentEntrance {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 10px, 0);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes subIdKeyboardSheetEntrance {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 24px, 0) scale(0.985);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-}
-
-@keyframes subIdIconFloat {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
-
-  50% {
-    transform: translate3d(0, -3px, 0);
-  }
-}
-
-@keyframes subIdIconRing {
-  0% {
-    opacity: 0.55;
-    transform: scale(0.84);
-  }
-
-  78%,
-  100% {
-    opacity: 0;
-    transform: scale(1.3);
-  }
-}
-
-@keyframes subIdFieldShake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-
-  25% {
-    transform: translateX(-5px);
-  }
-
-  50% {
-    transform: translateX(5px);
-  }
-
-  75% {
-    transform: translateX(-3px);
-  }
-}
-
-@keyframes subIdLoaderSpin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes subIdButtonGlint {
-  0%,
-  62% {
-    left: -42%;
-    opacity: 0;
-  }
-
-  68% {
-    opacity: 0.62;
-  }
-
-  82%,
-  100% {
-    left: 118%;
-    opacity: 0;
-  }
-}
-
-@keyframes subIdSuccessEntrance {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 10px, 0) scale(0.97);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-}
-
-@keyframes subIdSuccessRing {
-  0% {
-    opacity: 0.68;
-    transform: scale(0.75);
-  }
-
-  80%,
-  100% {
-    opacity: 0;
-    transform: scale(1.45);
-  }
-}
-
-@media (max-height: 700px) and (max-width: 559px) {
-  .subid-dialog {
-    min-height: 0;
-    max-height: calc(100% - 16px);
-    padding: 20px 18px 16px;
-    overflow-y: auto;
-    border-radius: 21px;
-  }
-
-  .subid-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 17px;
-  }
-
-  .subid-icon svg {
-    width: 27px;
-    height: 27px;
-  }
-
-  .subid-kicker {
-    margin-top: 15px;
-  }
-
-  .subid-form-view h2 {
-    font-size: 22px;
-  }
-
-  .subid-description {
-    margin-top: 6px;
-    font-size: 9px;
-  }
-
-  .subid-form {
-    margin-top: 12px;
-  }
-
-  .subid-field {
-    height: 51px;
-  }
-
-  .subid-verify-button {
-    height: 48px;
-  }
-
-  .subid-hint {
-    margin-top: 8px;
-  }
-}
-
-@media (min-width: 560px) {
-  .subid-modal {
-    border-radius: 23px;
-  }
-}
-
-/* Блокуємо головну сторінку, поки відкрите вікно SUBID */
-html:has(body.subid-modal-open),
-body.subid-modal-open {
-  width: 100%;
-  height: 100%;
-  overflow: hidden !important;
-  overscroll-behavior: none !important;
-}
-
-body.subid-modal-open {
-  position: fixed !important;
-  inset: 0 !important;
-}
-
-body.subid-modal-open .page-shell,
-body.subid-modal-open .pulse-app,
-body.subid-modal-open .content {
-  height: 100% !important;
-  overflow: hidden !important;
-  overscroll-behavior: none !important;
-}
-
-body.subid-modal-open .topbar,
-body.subid-modal-open .content,
-body.subid-modal-open .bottom-nav {
-  touch-action: none;
-}
-
-body.subid-modal-open .subid-modal {
-  overscroll-behavior: none;
-}
-
-body.subid-modal-open .subid-modal-backdrop {
-  touch-action: none;
-}
-
-/* iPhone Safari — прибираємо щілину над клавіатурою */
-.subid-modal:focus-within {
-  overflow: visible !important;
-}
-
-.subid-modal:focus-within::after {
-  position: absolute;
-  right: -2px;
-  bottom: -120px;
-  left: -2px;
-  z-index: 1;
-  height: 134px;
-  background: linear-gradient(
-    180deg,
-    rgba(2, 3, 7, 0.94),
-    #020307 38%
-  );
-  content: "";
-  pointer-events: none;
-  transform: translateZ(0);
-  backdrop-filter: blur(8px) saturate(0.75);
-  -webkit-backdrop-filter: blur(8px) saturate(0.75);
-}
-
-.subid-modal:focus-within .subid-dialog {
-  position: relative;
-  z-index: 2;
-}
-
-/* =========================================================
-   ПОВНИЙ КАТАЛОГ СЛОТІВ — КНОПКА «УСІ»
-   ========================================================= */
-
-.all-slots-overlay[hidden] {
-  display: none !important;
-}
-
-.all-slots-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 45;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  color: #f8f7ff;
-  background:
-    radial-gradient(
-      circle at 50% 0%,
-      rgba(128, 41, 220, 0.16),
-      transparent 31%
-    ),
-    linear-gradient(
-      180deg,
-      #06070d 0%,
-      #020309 58%,
-      #04050a 100%
-    );
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(12px);
-  transition:
-    opacity 220ms ease,
-    transform 220ms ease;
-}
-
-.all-slots-overlay.is-open {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
-.all-slots-header {
-  position: relative;
-  z-index: 2;
-  min-height: calc(78px + env(safe-area-inset-top));
-  padding:
-    max(12px, env(safe-area-inset-top))
-    18px
-    12px;
-  display: grid;
-  grid-template-columns: 42px minmax(0, 1fr) 42px;
-  align-items: center;
-  gap: 12px;
-  flex: 0 0 auto;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.065);
-  background: rgba(6, 7, 13, 0.92);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-}
-
-.all-slots-header > div {
-  min-width: 0;
-  text-align: center;
-}
-
-.all-slots-header p {
-  margin: 0;
-  color: #9467bb;
-  font-size: 8px;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-}
-
-.all-slots-header h2 {
-  margin: 5px 0 0;
-  color: #f5f2f8;
-  font-size: 18px;
-  font-weight: 680;
-  letter-spacing: -0.02em;
-}
-
-.all-slots-back-button {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 50%;
-  color: #d7d4de;
-  background: rgba(11, 12, 20, 0.82);
-  cursor: pointer;
-  transition:
-    transform 160ms ease,
-    border-color 160ms ease;
-}
-
-.all-slots-back-button:active {
-  transform: scale(0.93);
-}
-
-.all-slots-back-button svg {
-  width: 20px;
-  height: 20px;
-}
-
-.all-slots-count {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  justify-self: end;
-  border: 1px solid rgba(185, 92, 255, 0.22);
-  border-radius: 50%;
-  color: #c98cff;
-  background: rgba(141, 66, 255, 0.08);
-  font-size: 10px;
-  font-weight: 800;
-}
-
-.all-slots-content {
-  min-height: 0;
-  padding:
-    18px
-    18px
-    max(24px, env(safe-area-inset-bottom));
-  flex: 1 1 auto;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-.all-slots-content::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-.all-slots-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px 10px;
-  padding-bottom: 8px;
-}
-
-.all-slots-grid .slot-card {
-  scroll-snap-align: none;
-}
-
-.all-slots-grid .slot-name {
-  margin-top: 7px;
-  font-size: 9px;
-  text-align: center;
-}
-
-body.all-slots-open .topbar,
-body.all-slots-open .content,
-body.all-slots-open .bottom-nav {
-  pointer-events: none;
-}
-
-@media (max-height: 700px) and (max-width: 559px) {
-  .all-slots-header {
-    min-height: calc(66px + env(safe-area-inset-top));
-    padding-bottom: 8px;
-  }
-
-  .all-slots-content {
-    padding-top: 14px;
-  }
-
-  .all-slots-grid {
-    gap: 13px 10px;
-  }
-}
-
-@media (min-width: 560px) {
-  .all-slots-overlay {
-    border-radius: 23px;
-  }
-}
-
-/* =========================================================
-   ОБРАНЕ У КАТАЛОЗІ — ІЗОЛЬОВАНІ СТИЛІ
-   ========================================================= */
-
-/* Сердечка не впливають на картки головної сторінки. */
-.slot-favorite-button {
-  display: none;
-}
-
-/* Компактна кнопка-фільтр під пошуком. */
-.catalog-favorites-row {
-  width: 100%;
-  margin: -4px 0 15px;
-  display: flex;
-  justify-content: flex-start;
-}
-
-.catalog-favorites-button {
-  min-height: 34px;
-  padding: 0 10px;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  border: 1px solid rgba(255, 255, 255, 0.075);
-  border-radius: 11px;
-  color: #8e8b98;
-  background: rgba(255, 255, 255, 0.035);
-  cursor: pointer;
-  font-size: 10px;
-  font-weight: 650;
-  line-height: 1;
-  transition:
-    color 160ms ease,
-    border-color 160ms ease,
-    background 160ms ease,
-    transform 160ms ease;
-}
-
-.catalog-favorites-button:active {
-  transform: scale(0.97);
-}
-
-.catalog-favorites-button svg {
-  width: 15px !important;
-  height: 15px !important;
-  min-width: 15px;
-  max-width: 15px;
-  display: block;
-}
-
-.catalog-favorites-button strong {
-  min-width: 20px;
-  height: 20px;
-  padding: 0 5px;
-  display: inline-grid;
-  place-items: center;
-  border-radius: 999px;
-  color: #aaa6b3;
-  background: rgba(255, 255, 255, 0.055);
-  font-size: 9px;
-  font-weight: 750;
-}
-
-.catalog-favorites-button.is-active {
-  border-color: rgba(255, 94, 148, 0.3);
-  color: #ff7aa7;
-  background: rgba(255, 70, 132, 0.085);
-}
-
-.catalog-favorites-button.is-active svg {
-  fill: currentColor;
-}
-
-.catalog-favorites-button.is-active strong {
-  color: #ffd2e1;
-  background: rgba(255, 91, 145, 0.14);
-}
-
-/* Сердечко показується лише в повному каталозі. */
-.all-slots-grid .slot-favorite-button {
-  position: absolute;
-  z-index: 5;
-  top: 7px;
-  left: 7px;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.13);
-  border-radius: 50%;
-  color: rgba(255, 255, 255, 0.78);
-  background: rgba(5, 6, 11, 0.7);
-  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.24);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  cursor: pointer;
-  transition:
-    transform 160ms ease,
-    color 160ms ease,
-    border-color 160ms ease,
-    background 160ms ease;
-}
-
-.all-slots-grid .slot-favorite-button:active {
-  transform: scale(0.9);
-}
-
-.all-slots-grid .slot-favorite-button svg {
-  width: 15px !important;
-  height: 15px !important;
-  min-width: 15px;
-  max-width: 15px;
-  display: block;
-}
-
-.all-slots-grid .slot-favorite-button.is-favorite {
-  border-color: rgba(255, 101, 151, 0.38);
-  color: #ff699b;
-  background: rgba(60, 12, 31, 0.78);
-  box-shadow:
-    0 5px 14px rgba(0, 0, 0, 0.24),
-    0 0 14px rgba(255, 83, 140, 0.16);
-}
-
-.all-slots-grid .slot-favorite-button.is-favorite svg {
-  fill: currentColor;
-}
-
-/* Позначка вибраного слота залишається справа, сердечко — зліва. */
-.all-slots-grid .selected-check {
-  right: 7px;
-  left: auto;
-}
-
-/* =========================================================
-   КАТЕГОРІЇ СЛОТІВ — ІЗОЛЬОВАНІ СТИЛІ
-   ========================================================= */
-
-.all-slots-categories {
-  position: relative;
-  width: 100%;
-  margin: -4px 0 15px;
-  padding: 1px 0 3px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x proximity;
-}
-
-.all-slots-categories::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-.all-slots-category {
-  position: relative;
-  min-height: 34px;
-  padding: 0 12px;
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 11px;
-  color: #888693;
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.035),
-      rgba(255, 255, 255, 0.018)
-    );
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.025);
-  font-size: 10px;
-  font-weight: 650;
-  line-height: 1;
-  white-space: nowrap;
-  cursor: pointer;
-  scroll-snap-align: start;
-  -webkit-tap-highlight-color: transparent;
-  transition:
-    color 160ms ease,
-    border-color 160ms ease,
-    background 160ms ease,
-    box-shadow 160ms ease,
-    transform 160ms ease;
-}
-
-.all-slots-category:active {
-  transform: scale(0.97);
-}
-
-.all-slots-category.is-active {
-  border-color: rgba(181, 91, 255, 0.30);
-  color: #d9b8f7;
-  background:
-    linear-gradient(
-      180deg,
-      rgba(147, 68, 219, 0.14),
-      rgba(103, 43, 160, 0.08)
-    );
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.045),
-    0 5px 16px rgba(78, 25, 126, 0.10);
-}
-
-.all-slots-category.is-active::after {
-  position: absolute;
-  right: 11px;
-  bottom: 4px;
-  left: 11px;
-  height: 1px;
-  border-radius: 999px;
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(199, 121, 255, 0.72),
-      transparent
-    );
-  content: "";
-  opacity: 0.72;
-}
-
-.all-slots-category-favorites {
-  padding-right: 9px;
-}
-
-.all-slots-category-favorites svg {
-  width: 14px !important;
-  height: 14px !important;
-  min-width: 14px;
-  max-width: 14px;
-  display: block;
-}
-
-.all-slots-category-favorites strong {
-  min-width: 19px;
-  height: 19px;
-  padding: 0 5px;
-  display: inline-grid;
-  place-items: center;
-  border-radius: 999px;
-  color: #a6a2ae;
-  background: rgba(255, 255, 255, 0.055);
-  font-size: 8px;
-  font-weight: 780;
-  line-height: 1;
-}
-
-.all-slots-category-favorites.is-active {
-  border-color: rgba(255, 102, 151, 0.27);
-  color: #f2a0bc;
-  background:
-    linear-gradient(
-      180deg,
-      rgba(105, 32, 58, 0.18),
-      rgba(64, 17, 36, 0.10)
-    );
-}
-
-.all-slots-category-favorites.is-active svg {
-  fill: currentColor;
-}
-
-.all-slots-category-favorites.is-active strong {
-  color: #ffd0df;
-  background: rgba(255, 91, 145, 0.12);
-}
-
-@media (hover: hover) {
-  .all-slots-category:hover {
-    border-color: rgba(185, 92, 255, 0.18);
-    color: #bcb8c5;
-  }
-
-  .all-slots-category.is-active:hover {
-    color: #e2c9f8;
-  }
-}
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+
+    <meta
+      name="description"
+      content="Головна панель платформи ARBIFY PULSE."
+    />
+
+    <meta name="theme-color" content="#020307" />
+
+    <meta
+      name="theme-color"
+      content="#020307"
+      media="(prefers-color-scheme: light)"
+    />
+
+    <meta
+      name="theme-color"
+      content="#020307"
+      media="(prefers-color-scheme: dark)"
+    />
+
+    <meta name="color-scheme" content="dark" />
+
+    <meta
+      name="msapplication-navbutton-color"
+      content="#020307"
+    />
+
+    <meta
+      name="apple-mobile-web-app-capable"
+      content="yes"
+    />
+
+    <meta
+      name="mobile-web-app-capable"
+      content="yes"
+    />
+
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black"
+    />
+
+    <meta
+      name="apple-mobile-web-app-title"
+      content="ARBIFY PULSE"
+    />
+
+    <title>ARBIFY PULSE — Головна</title>
+
+    <link
+      rel="icon"
+      href="assets/favicon.svg"
+      type="image/svg+xml"
+    />
+
+    <link
+      rel="manifest"
+      href="manifest.json"
+    />
+
+    <link
+      rel="preload"
+      href="assets/mythic-thunder.webp"
+      as="image"
+    />
+
+    <style>
+      :root {
+        color-scheme: dark;
+        background-color: #020307;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-width: 100%;
+        min-height: 100%;
+        background: #020307 !important;
+        background-color: #020307 !important;
+        touch-action: pan-y;
+        -ms-touch-action: pan-y;
+        overscroll-behavior: none;
+      }
+    </style>
+
+
+    <style id="catalog-search-critical-styles">
+      .catalog-search-wrap {
+        width: 100%;
+        margin: 0 0 16px;
+      }
+
+      .catalog-search-box {
+        width: 100%;
+        height: 44px;
+        padding: 0 12px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.055);
+      }
+
+      .catalog-search-box > svg {
+        width: 18px !important;
+        height: 18px !important;
+        min-width: 18px !important;
+        min-height: 18px !important;
+        max-width: 18px !important;
+        max-height: 18px !important;
+        flex: 0 0 18px !important;
+        display: block !important;
+        color: #8f8d9a;
+      }
+
+      .catalog-search-box input {
+        width: 100%;
+        min-width: 0;
+        height: 100%;
+        padding: 0;
+        border: 0;
+        outline: 0;
+        color: #f2eff7;
+        background: transparent;
+        font: inherit;
+        font-size: 13px;
+        appearance: none;
+        -webkit-appearance: none;
+      }
+
+      .catalog-search-box input::placeholder {
+        color: #777582;
+        opacity: 1;
+      }
+
+      .catalog-search-clear {
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        padding: 0;
+        display: grid;
+        place-items: center;
+        border: 0;
+        border-radius: 50%;
+        color: #8e8b98;
+        background: rgba(255, 255, 255, 0.055);
+      }
+
+      .catalog-search-clear[hidden] {
+        display: none !important;
+      }
+
+      .catalog-search-clear svg {
+        width: 14px !important;
+        height: 14px !important;
+        max-width: 14px !important;
+        max-height: 14px !important;
+        display: block !important;
+      }
+
+      .catalog-search-empty[hidden] {
+        display: none !important;
+      }
+    </style>
+
+
+    <style id="catalog-categories-critical-styles">
+      .all-slots-categories {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+      }
+
+      .all-slots-category-heart {
+        width: 14px !important;
+        height: 14px !important;
+        display: inline-grid !important;
+        place-items: center !important;
+        flex: 0 0 14px !important;
+        font-size: 16px !important;
+        line-height: 14px !important;
+      }
+    </style>
+
+    <link rel="stylesheet" href="home.css?v=20260807-2252" />
+    <link rel="stylesheet" href="notifications.css" />
+
+    <link
+      rel="stylesheet"
+      href="transitions.css?v=20260730-1"
+    />
+
+    <script src="https://telegram.org/js/telegram-web-app.js?63"></script>
+    <script src="telegram.js?v=20260804-2"></script>
+    <script src="transitions.js?v=20260730-1"></script>
+  </head>
+
+  <body>
+    <main class="page-shell">
+      <div class="ambient ambient-one"></div>
+      <div class="ambient ambient-two"></div>
+
+      <section
+        class="pulse-app"
+        aria-label="Головна ARBIFY PULSE"
+      >
+        <div class="app-noise"></div>
+
+        <header class="topbar">
+          <div class="mini-brand">
+            <span class="brand-mark">
+              <svg
+                class="crown"
+                aria-hidden="true"
+                viewBox="0 0 64 48"
+                fill="none"
+              >
+                <path
+                  d="M9 36 5 13l16 10L32 5l11 18 16-10-4 23H9Z"
+                  stroke="currentColor"
+                  stroke-width="2.4"
+                  stroke-linejoin="round"
+                ></path>
+
+                <path
+                  d="M12 42h40M14 36h36"
+                  stroke="currentColor"
+                  stroke-width="2.4"
+                  stroke-linecap="round"
+                ></path>
+
+                <circle
+                  cx="5"
+                  cy="11"
+                  r="2.5"
+                  fill="currentColor"
+                ></circle>
+
+                <circle
+                  cx="32"
+                  cy="3"
+                  r="2.5"
+                  fill="currentColor"
+                ></circle>
+
+                <circle
+                  cx="59"
+                  cy="11"
+                  r="2.5"
+                  fill="currentColor"
+                ></circle>
+              </svg>
+            </span>
+
+            <div>
+              <p class="brand-name">
+                ARBIFY
+              </p>
+
+              <p class="brand-pulse">
+                — PULSE —
+              </p>
+            </div>
+          </div>
+
+          <button
+            class="icon-button notification-button"
+            id="notificationButton"
+            type="button"
+            aria-label="Сповіщення"
+            aria-controls="pulseNotificationCenter"
+            aria-expanded="false"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M6.2 10.2c0-3.6 2.1-6.2 5.8-6.2s5.8 2.6 5.8 6.2v4l1.7 2.4h-15l1.7-2.4v-4Z"
+              ></path>
+
+              <path
+                d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"
+              ></path>
+            </svg>
+
+            <span
+              class="notification-dot"
+              aria-hidden="true"
+            ></span>
+
+            <span
+              class="notification-badge"
+              data-notification-badge
+              aria-label="Нові сповіщення"
+              hidden
+            >
+              0
+            </span>
+          </button>
+        </header>
+
+        <div class="content">
+          <section class="access-card">
+            <div class="access-card-top">
+              <div>
+                <p class="micro-label">
+                  СТАТУС ДОСТУПУ
+                </p>
+
+                <p class="access-status">
+                  <span class="live-dot"></span>
+                  АКТИВНИЙ
+                </p>
+              </div>
+
+              <div class="key-badge">
+                <span>КЛЮЧ</span>
+                <strong>K7••••</strong>
+              </div>
+            </div>
+
+            <div class="access-divider"></div>
+
+            <div class="system-row">
+              <span class="system-orb">
+                <span></span>
+              </span>
+
+              <p>
+                <strong>
+                  Pulse Core онлайн
+                </strong>
+
+                <span>
+                  Система готова до аналізу
+                </span>
+              </p>
+
+              <span class="online-pill">
+                ONLINE
+              </span>
+            </div>
+          </section>
+
+          <section class="slots-section">
+            <div class="section-title-row">
+              <div>
+                <p class="eyebrow">
+                  ОБЕРИ ГРУ
+                </p>
+
+                <h1>
+                  Популярні слоти
+                </h1>
+              </div>
+
+              <button
+                class="text-link"
+                id="allSlotsButton"
+                type="button"
+              >
+                Усі
+
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m9 5 7 7-7 7"></path>
+                </svg>
+              </button>
+            </div>
+
+            <div class="slot-grid">
+              <button
+                class="slot-card is-selected"
+                data-slot="Thunder Crown"
+                type="button"
+                style="--slot-accent: #8d4cff"
+              >
+                <span class="slot-image-wrap">
+                  <img
+                    src="assets/mythic-thunder.webp"
+                    alt=""
+                  />
+
+                  <span class="slot-shine"></span>
+
+                  <span class="selected-check">
+                    ✓
+                  </span>
+                </span>
+
+                <span class="slot-name">
+                  Thunder Crown
+                </span>
+              </button>
+
+              <button
+                class="slot-card"
+                data-slot="Candy Spiral"
+                type="button"
+                style="--slot-accent: #ff4ecb"
+              >
+                <span class="slot-image-wrap">
+                  <img
+                    src="assets/candy-spiral.webp"
+                    alt=""
+                  />
+
+                  <span class="slot-shine"></span>
+
+                  <span class="selected-check">
+                    ✓
+                  </span>
+                </span>
+
+                <span class="slot-name">
+                  Candy Spiral
+                </span>
+              </button>
+
+              <button
+                class="slot-card"
+                data-slot="Gem Rocket"
+                type="button"
+                style="--slot-accent: #21d4ff"
+              >
+                <span class="slot-image-wrap">
+                  <img
+                    src="assets/gem-rocket.webp"
+                    alt=""
+                  />
+
+                  <span class="slot-shine"></span>
+
+                  <span class="selected-check">
+                    ✓
+                  </span>
+                </span>
+
+                <span class="slot-name">
+                  Gem Rocket
+                </span>
+              </button>
+            </div>
+          </section>
+
+          <section
+            class="signal-card"
+            id="signalCard"
+          >
+            <div class="signal-card-glow"></div>
+
+            <div
+              class="radar"
+              aria-hidden="true"
+            >
+              <span
+                class="radar-circle radar-circle-one"
+              ></span>
+
+              <span
+                class="radar-circle radar-circle-two"
+              ></span>
+
+              <span
+                class="radar-circle radar-circle-three"
+              ></span>
+
+              <span
+                class="radar-cross radar-cross-x"
+              ></span>
+
+              <span
+                class="radar-cross radar-cross-y"
+              ></span>
+
+              <span class="radar-sweep"></span>
+
+              <span class="radar-core">
+                <span></span>
+              </span>
+            </div>
+
+            <div class="signal-copy">
+              <p class="signal-kicker">
+                <span></span>
+                PULSE ANALYSIS
+              </p>
+
+              <h2 id="signalTitle">
+                НОВИЙ СИГНАЛ
+              </h2>
+
+              <p id="signalDescription">
+                Запусти аналіз для вибраного слота
+              </p>
+            </div>
+
+            <button
+              class="signal-button"
+              id="signalButton"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="m13.5 2-6 11h5l-2 9 7-12h-5l1-8Z"
+                ></path>
+              </svg>
+
+              <span id="signalButtonText">
+                ЗАПУСТИТИ
+              </span>
+            </button>
+          </section>
+
+          <div class="responsible-line">
+            <span>18+</span>
+
+            <p>
+              Грай відповідально. Результат гри залежить
+              від випадковості.
+            </p>
+          </div>
+        </div>
+
+
+        <!-- Повний каталог слотів -->
+        <section
+          class="all-slots-overlay"
+          id="allSlotsOverlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="allSlotsTitle"
+          hidden
+        >
+          <header class="all-slots-header">
+            <button
+              class="all-slots-back-button"
+              id="allSlotsBackButton"
+              type="button"
+              aria-label="Повернутися на головну"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m15 5-7 7 7 7"></path>
+              </svg>
+            </button>
+
+            <div>
+              <p>КАТАЛОГ ІГОР</p>
+              <h2 id="allSlotsTitle">Усі слоти</h2>
+            </div>
+
+            <span
+              class="all-slots-count"
+              id="allSlotsCount"
+            >
+              0
+            </span>
+          </header>
+
+          <div class="all-slots-content">
+            <div class="catalog-search-wrap">
+              <label class="catalog-search-box" for="allSlotsSearchInput">
+                <svg width="18" height="18" style="width:18px!important;height:18px!important;min-width:18px!important;min-height:18px!important;max-width:18px!important;max-height:18px!important;display:block!important;flex:0 0 18px!important;"
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="11" cy="11" r="6.5"></circle>
+                  <path d="m16 16 4 4"></path>
+                </svg>
+
+                <input
+                  id="allSlotsSearchInput"
+                  type="text"
+                  placeholder="Знайти слот"
+                  maxlength="60"
+                  autocomplete="off"
+                  autocapitalize="off"
+                  spellcheck="false"
+                />
+
+                <button
+                  class="catalog-search-clear"
+                  id="allSlotsSearchClear"
+                  type="button"
+                  aria-label="Очистити пошук"
+                  hidden
+                >
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                  >
+                    <path d="M7 7l10 10M17 7 7 17"></path>
+                  </svg>
+                </button>
+              </label>
+            </div>
+
+            <div
+              class="all-slots-categories"
+              id="allSlotsCategories"
+              role="tablist"
+              aria-label="Категорії слотів"
+            >
+              <button
+                class="all-slots-category is-active"
+                type="button"
+                data-category="all"
+                role="tab"
+                aria-selected="true"
+              >
+                Усі
+              </button>
+
+              <button
+                class="all-slots-category"
+                type="button"
+                data-category="popular"
+                role="tab"
+                aria-selected="false"
+              >
+                Популярні
+              </button>
+
+              <button
+                class="all-slots-category"
+                type="button"
+                data-category="new"
+                role="tab"
+                aria-selected="false"
+              >
+                Нові
+              </button>
+
+              <button
+                class="all-slots-category"
+                type="button"
+                data-category="megaways"
+                role="tab"
+                aria-selected="false"
+              >
+                Megaways
+              </button>
+
+              <button
+                class="all-slots-category all-slots-category-favorites"
+                id="allSlotsFavoritesButton"
+                type="button"
+                data-category="favorites"
+                role="tab"
+                aria-selected="false"
+                aria-pressed="false"
+              >
+                <span class="all-slots-category-heart" aria-hidden="true">♡</span>
+                <span>Обране</span>
+                <strong id="favoriteSlotsCount">0</strong>
+              </button>
+            </div>
+
+<div
+              class="all-slots-grid"
+              id="allSlotsGrid"
+            ></div>
+
+            <div
+              class="catalog-search-empty"
+              id="allSlotsEmpty"
+              hidden
+            >
+              <strong id="allSlotsEmptyTitle">Нічого не знайдено</strong>
+              <span id="allSlotsEmptyText">Спробуйте іншу назву слота</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Вікно перевірки SUBID -->
+        <section
+          class="subid-modal"
+          id="subIdModal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="subIdModalTitle"
+          hidden
+        >
+          <div
+            class="subid-modal-backdrop"
+            aria-hidden="true"
+          ></div>
+
+          <div class="subid-dialog">
+            <button
+              class="subid-close-button"
+              id="subIdCloseButton"
+              type="button"
+              aria-label="Закрити перевірку SUBID"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              >
+                <path
+                  d="M6 6l12 12M18 6 6 18"
+                ></path>
+              </svg>
+            </button>
+
+            <div class="subid-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 32 32"
+                fill="none"
+              >
+                <path
+                  d="M12.5 18.5a6 6 0 1 1 4.4 3.4"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                ></path>
+
+                <path
+                  d="M17 17 27 7M22 7h5v5"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+              </svg>
+            </div>
+
+            <div
+              class="subid-form-view"
+              id="subIdFormView"
+            >
+              <p class="subid-kicker">
+                ПЕРЕВІРКА РЕЄСТРАЦІЇ
+              </p>
+
+              <h2 id="subIdModalTitle">
+                Введіть свій SUBID
+              </h2>
+
+              <p class="subid-description">
+                Вкажіть SUBID, який був доданий до вашого
+                персонального посилання на реєстрацію.
+              </p>
+
+              <form
+                class="subid-form"
+                id="subIdForm"
+                novalidate
+              >
+                <label
+                  class="subid-field"
+                  id="subIdField"
+                >
+                  <span class="sr-only">
+                    Ваш SUBID
+                  </span>
+
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle
+                      cx="8"
+                      cy="15.5"
+                      r="3.5"
+                    ></circle>
+
+                    <path
+                      d="m10.6 13 7.6-7.6M16 7.7l2.3 2.3M18.2 5.5l1.7 1.7"
+                    ></path>
+                  </svg>
+
+                  <input
+                    id="subIdInput"
+                    type="text"
+                    placeholder="Введіть ваш SUBID"
+                    maxlength="64"
+                    autocomplete="off"
+                    autocapitalize="off"
+                    spellcheck="false"
+                  />
+                </label>
+
+                <p
+                  class="subid-message"
+                  id="subIdMessage"
+                  aria-live="polite"
+                >
+                  &nbsp;
+                </p>
+
+                <button
+                  class="subid-verify-button"
+                  id="subIdVerifyButton"
+                  type="submit"
+                >
+                  <span class="subid-button-loader"></span>
+
+                  <span id="subIdVerifyText">
+                    ПЕРЕВІРИТИ SUBID
+                  </span>
+                </button>
+              </form>
+
+              <p class="subid-hint">
+                SUBID знаходиться в кінці вашого
+                реєстраційного посилання
+              </p>
+            </div>
+
+            <div
+              class="subid-success-view"
+              id="subIdSuccessView"
+              hidden
+            >
+              <div class="subid-success-check">
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 32 32"
+                  fill="none"
+                >
+                  <path
+                    d="m8.5 16.5 5 5 10-11"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>
+                </svg>
+              </div>
+
+              <p>
+                РЕЄСТРАЦІЮ ПІДТВЕРДЖЕНО
+              </p>
+
+              <h2>
+                Доступ дозволено
+              </h2>
+
+              <span>
+                Запускаємо аналіз вибраного слота
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Повноекранний процес сканування -->
+        <section
+          class="signal-overlay"
+          id="signalOverlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="signalOverlayTitle"
+          hidden
+        >
+          <header class="signal-overlay-header">
+            <button
+              class="signal-back-button"
+              id="signalBackButton"
+              type="button"
+              aria-label="Повернутися на головну"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="m15 5-7 7 7 7"
+                ></path>
+              </svg>
+            </button>
+
+            <p id="signalOverlayTitle">
+              НОВИЙ СИГНАЛ
+            </p>
+
+            <span
+              class="signal-header-spacer"
+              aria-hidden="true"
+            ></span>
+          </header>
+
+          <div
+            class="scan-view"
+            id="scanView"
+          >
+            <div class="scan-slot">
+              <img
+                id="scanSlotImage"
+                src="assets/mythic-thunder.webp"
+                alt=""
+              />
+
+              <div>
+                <span>
+                  АНАЛІЗ СЛОТА
+                </span>
+
+                <strong id="scanSlotName">
+                  Thunder Crown
+                </strong>
+              </div>
+            </div>
+
+            <div
+              class="scan-radar"
+              aria-hidden="true"
+            >
+              <span
+                class="scan-ring scan-ring-one"
+              ></span>
+
+              <span
+                class="scan-ring scan-ring-two"
+              ></span>
+
+              <span
+                class="scan-ring scan-ring-three"
+              ></span>
+
+              <span
+                class="scan-line scan-line-horizontal"
+              ></span>
+
+              <span
+                class="scan-line scan-line-vertical"
+              ></span>
+
+              <span class="scan-sweep"></span>
+
+              <span class="scan-center">
+                <span></span>
+              </span>
+            </div>
+
+            <div class="scan-copy">
+              <p class="scan-kicker">
+                PULSE CORE ANALYSIS
+              </p>
+
+              <h2>
+                СКАНУВАННЯ...
+              </h2>
+
+              <p id="scanStatus">
+                Підключення до аналітичного ядра
+              </p>
+
+              <strong id="scanPercent">
+                0%
+              </strong>
+            </div>
+
+            <div
+              class="scan-progress"
+              aria-hidden="true"
+            >
+              <span id="scanProgress"></span>
+            </div>
+
+            <p class="scan-wait">
+              Зачекай декілька секунд
+              <span></span>
+            </p>
+          </div>
+
+          <div
+            class="result-view"
+            id="resultView"
+            hidden
+          >
+            <div class="result-success-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 32 32"
+                fill="none"
+              >
+                <path
+                  d="m8.5 16.5 5 5 10-11"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+              </svg>
+            </div>
+
+            <p class="result-kicker">
+              СИГНАЛ ГОТОВИЙ
+            </p>
+
+            <h2>
+              Можна починати
+            </h2>
+
+            <div class="result-slot-card">
+              <img
+                id="resultSlotImage"
+                src="assets/mythic-thunder.webp"
+                alt=""
+              />
+
+              <div>
+                <span>
+                  ОБРАНИЙ СЛОТ
+                </span>
+
+                <strong id="resultSlotName">
+                  Thunder Crown
+                </strong>
+              </div>
+            </div>
+
+            <div class="result-details">
+              <div class="result-row">
+                <span>
+                  Рекомендована ставка
+                </span>
+
+                <strong id="resultBet">
+                  ₴20
+                </strong>
+              </div>
+
+              <div class="result-row">
+                <span>
+                  Кількість обертань
+                </span>
+
+                <strong id="resultSpins">
+                  12
+                </strong>
+              </div>
+
+              <div class="result-row">
+                <span>
+                  Рівень ризику
+                </span>
+
+                <strong
+                  class="result-risk"
+                  id="resultRisk"
+                >
+                  <span></span>
+                  СЕРЕДНІЙ
+                </strong>
+              </div>
+
+              <div class="result-row">
+                <span>
+                  Тривалість сигналу
+                </span>
+
+                <strong id="resultDuration">
+                  03:00
+                </strong>
+              </div>
+            </div>
+
+            <button
+              class="result-action-button"
+              id="resultActionButton"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="m13.5 2-6 11h5l-2 9 7-12h-5l1-8Z"
+                ></path>
+              </svg>
+
+              <span>
+                ПОЧАТИ СИГНАЛ
+              </span>
+            </button>
+
+            <button
+              class="result-new-button"
+              id="resultNewButton"
+              type="button"
+            >
+              СТВОРИТИ НОВИЙ СИГНАЛ
+            </button>
+
+            <p class="result-warning">
+              18+ · Результат гри залежить від випадковості
+            </p>
+          </div>
+        </section>
+
+        <nav
+          class="bottom-nav"
+          aria-label="Головне меню"
+        >
+          <button
+            class="nav-item is-active"
+            type="button"
+            data-section="Головна"
+          >
+            <span class="nav-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="m3.5 10.4 8.5-7 8.5 7"
+                ></path>
+
+                <path
+                  d="M5.8 9.2v10.2h12.4V9.2M9.5 19.4v-6.2h5v6.2"
+                ></path>
+              </svg>
+            </span>
+
+            <span>Головна</span>
+          </button>
+
+          <a
+            class="nav-item"
+            href="signals.html"
+            data-section="Сигнали"
+          >
+            <span class="nav-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M12 4v16"
+                ></path>
+
+                <path
+                  d="M7.8 7.4a6 6 0 0 0 0 9.2M16.2 7.4a6 6 0 0 1 0 9.2"
+                ></path>
+
+                <path
+                  d="M4.7 4.3a10.2 10.2 0 0 0 0 15.4M19.3 4.3a10.2 10.2 0 0 1 0 15.4"
+                ></path>
+              </svg>
+            </span>
+
+            <span>Сигнали</span>
+          </a>
+
+          <a
+            class="nav-item"
+            href="bonuses.html"
+            data-section="Бонуси"
+          >
+            <span class="nav-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M4 10.2h16v10H4zM3 6.8h18v3.4H3zM12 6.8v13.4"
+                ></path>
+
+                <path
+                  d="M11.7 6.7C9.8 6.9 7 6.5 7 4.5 7 2.2 11 3 11.7 6.7ZM12.3 6.7c1.9.2 4.7-.2 4.7-2.2 0-2.3-4-1.5-4.7 2.2Z"
+                ></path>
+              </svg>
+            </span>
+
+            <span>Бонуси</span>
+          </a>
+
+          <a
+            class="nav-item"
+            href="profile.html"
+            data-section="Профіль"
+          >
+            <span class="nav-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle
+                  cx="12"
+                  cy="8"
+                  r="4"
+                ></circle>
+
+                <path
+                  d="M4.8 20c.7-4 3.1-6 7.2-6s6.5 2 7.2 6"
+                ></path>
+              </svg>
+            </span>
+
+            <span>Профіль</span>
+          </a>
+        </nav>
+
+        <div
+          class="toast"
+          id="toast"
+          role="status"
+          aria-live="polite"
+        >
+          <span class="toast-dot"></span>
+          <span id="toastText"></span>
+        </div>
+      </section>
+    </main>
+
+    <script src="notifications.js?v=20260803-1"></script>
+    <script src="home.js?v=20260807-2245"></script>
+  </body>
+</html>
