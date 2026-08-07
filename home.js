@@ -902,6 +902,7 @@ let stateSaveQueue = Promise.resolve({});
 let stateSaveErrorWasShown = false;
 let activeSignalTimerInterval;
 let activeSignalNoticeInterval;
+let activeSignalNoticeRevealTimer;
 let activeSignalTimerState = loadActiveSignalTimerState();
 
 
@@ -952,16 +953,35 @@ function openActiveSignalNotice() {
 
   updateActiveSignalNoticeTime();
 
+  window.clearTimeout(
+    activeSignalNoticeRevealTimer
+  );
+
   activeSignalNotice.hidden = false;
+  activeSignalNotice.classList.remove(
+    "is-open"
+  );
 
   document.body.classList.add(
     "active-signal-notice-open"
   );
 
+  /*
+   * Спочатку показуємо backdrop.
+   * Картка з'являється трохи пізніше,
+   * коли blur уже встиг відмалюватися.
+   */
   window.requestAnimationFrame(() => {
     activeSignalNotice.classList.add(
-      "is-open"
+      "is-backdrop-ready"
     );
+
+    activeSignalNoticeRevealTimer =
+      window.setTimeout(() => {
+        activeSignalNotice.classList.add(
+          "is-open"
+        );
+      }, 90);
   });
 
   stopActiveSignalNoticeInterval();
@@ -980,18 +1000,29 @@ function closeActiveSignalNotice() {
 
   stopActiveSignalNoticeInterval();
 
+  window.clearTimeout(
+    activeSignalNoticeRevealTimer
+  );
+
   activeSignalNotice.classList.remove(
     "is-open"
   );
 
-  document.body.classList.remove(
-    "active-signal-notice-open"
-  );
+  window.setTimeout(() => {
+    activeSignalNotice.classList.remove(
+      "is-backdrop-ready"
+    );
+
+    document.body.classList.remove(
+      "active-signal-notice-open"
+    );
+  }, 70);
 
   window.setTimeout(() => {
     activeSignalNotice.hidden = true;
-  }, 180);
+  }, 210);
 }
+
 
 function parseSignalDurationToMilliseconds(duration) {
   const match = String(duration || "")
@@ -2494,6 +2525,10 @@ window.addEventListener(
     stopScanning();
     stopActiveSignalTimerInterval();
     stopActiveSignalNoticeInterval();
+
+    window.clearTimeout(
+      activeSignalNoticeRevealTimer
+    );
   }
 );
 
