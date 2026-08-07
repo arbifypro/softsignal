@@ -4488,8 +4488,9 @@ body.active-signal-notice-open
 }
 
 /* =========================================================
-   ARBIFY PULSE — ONBOARDING GLASS 2.0
-   Тільки onboarding. Інший інтерфейс не змінюється.
+   ARBIFY PULSE — ONBOARDING FOCUS V3
+   Один backdrop + м'який focus. Без 4 dimmer-блоків.
+   Усі стилі нижче ізольовані тільки для onboarding.
    ========================================================= */
 
 .pulse-onboarding[hidden] {
@@ -4503,8 +4504,11 @@ body.active-signal-notice-open
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
-  transition:
-    opacity 220ms ease;
+  --focus-x: 50%;
+  --focus-y: 62%;
+  --focus-rx: 120px;
+  --focus-ry: 70px;
+  transition: opacity 230ms ease;
 }
 
 .pulse-onboarding.is-open {
@@ -4512,169 +4516,116 @@ body.active-signal-notice-open
   pointer-events: auto;
 }
 
-/* =========================================================
-   SOFT FOCUS SPOTLIGHT
-   Затемнення не має чіткої межі біля активного елемента.
-   ========================================================= */
-
-.pulse-onboarding-dimmer {
+.pulse-onboarding-backdrop {
   position: absolute;
+  inset: 0;
   z-index: 1;
   background:
-    rgba(2, 3, 8, 0.51);
-  backdrop-filter:
-    blur(12px)
-    saturate(0.80);
-  -webkit-backdrop-filter:
-    blur(12px)
-    saturate(0.80);
-  transition:
-    left 270ms cubic-bezier(0.2, 0.78, 0.2, 1),
-    top 270ms cubic-bezier(0.2, 0.78, 0.2, 1),
-    width 270ms cubic-bezier(0.2, 0.78, 0.2, 1),
-    height 270ms cubic-bezier(0.2, 0.78, 0.2, 1);
+    radial-gradient(
+      ellipse
+        var(--focus-rx)
+        var(--focus-ry)
+        at
+        var(--focus-x)
+        var(--focus-y),
+      rgba(2, 3, 8, 0.03) 0%,
+      rgba(2, 3, 8, 0.08) 40%,
+      rgba(2, 3, 8, 0.28) 64%,
+      rgba(2, 3, 8, 0.55) 84%,
+      rgba(2, 3, 8, 0.68) 100%
+    );
+  opacity: 1;
+  pointer-events: none;
+  transition: opacity 180ms ease;
 }
 
-/*
- * Кожен із чотирьох dimmer-блоків плавно зникає
- * в напрямку активної області. Завдяки цьому немає
- * прямокутного "вирізу".
- */
-.pulse-onboarding-dimmer-top {
-  -webkit-mask-image:
-    linear-gradient(
-      to bottom,
-      #000 0%,
-      #000 calc(100% - 30px),
-      rgba(0, 0, 0, 0.72) calc(100% - 19px),
-      transparent 100%
-    );
-  mask-image:
-    linear-gradient(
-      to bottom,
-      #000 0%,
-      #000 calc(100% - 30px),
-      rgba(0, 0, 0, 0.72) calc(100% - 19px),
-      transparent 100%
-    );
+.pulse-onboarding.is-no-focus
+.pulse-onboarding-backdrop {
+  background:
+    radial-gradient(
+      circle at 50% 47%,
+      rgba(110, 52, 160, 0.055),
+      transparent 25%
+    ),
+    rgba(2, 3, 8, 0.67);
 }
 
-.pulse-onboarding-dimmer-bottom {
-  -webkit-mask-image:
-    linear-gradient(
-      to bottom,
-      transparent 0%,
-      rgba(0, 0, 0, 0.72) 19px,
-      #000 30px,
-      #000 100%
-    );
-  mask-image:
-    linear-gradient(
-      to bottom,
-      transparent 0%,
-      rgba(0, 0, 0, 0.72) 19px,
-      #000 30px,
-      #000 100%
-    );
+.pulse-onboarding.is-changing
+.pulse-onboarding-backdrop {
+  opacity: 0.79;
 }
 
-.pulse-onboarding-dimmer-left {
-  -webkit-mask-image:
-    linear-gradient(
-      to right,
-      #000 0%,
-      #000 calc(100% - 30px),
-      rgba(0, 0, 0, 0.72) calc(100% - 19px),
-      transparent 100%
-    );
-  mask-image:
-    linear-gradient(
-      to right,
-      #000 0%,
-      #000 calc(100% - 30px),
-      rgba(0, 0, 0, 0.72) calc(100% - 19px),
-      transparent 100%
-    );
-}
-
-.pulse-onboarding-dimmer-right {
-  -webkit-mask-image:
-    linear-gradient(
-      to right,
-      transparent 0%,
-      rgba(0, 0, 0, 0.72) 19px,
-      #000 30px,
-      #000 100%
-    );
-  mask-image:
-    linear-gradient(
-      to right,
-      transparent 0%,
-      rgba(0, 0, 0, 0.72) 19px,
-      #000 30px,
-      #000 100%
-    );
-}
-
-/*
- * Spotlight більше НЕ малює рамку.
- * Це лише невидимий контейнер з м'яким halo.
- */
 .pulse-onboarding-spotlight {
   position: absolute;
   z-index: 2;
   border: 0;
-  border-radius: 20px;
-  background: transparent;
+  border-radius: 22px;
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(205, 157, 242, 0.05),
+      rgba(162, 91, 216, 0.018) 52%,
+      transparent 76%
+    );
   box-shadow:
-    0 0 22px rgba(196, 139, 243, 0.075),
-    0 0 48px rgba(155, 76, 222, 0.065);
+    0 0 26px rgba(200, 145, 241, 0.08),
+    0 0 58px rgba(145, 72, 201, 0.06);
+  opacity: 0;
   pointer-events: none;
+  transform: scale(0.97);
   transition:
-    left 270ms cubic-bezier(0.2, 0.78, 0.2, 1),
-    top 270ms cubic-bezier(0.2, 0.78, 0.2, 1),
-    width 270ms cubic-bezier(0.2, 0.78, 0.2, 1),
-    height 270ms cubic-bezier(0.2, 0.78, 0.2, 1);
+    left 330ms cubic-bezier(0.18, 0.78, 0.2, 1),
+    top 330ms cubic-bezier(0.18, 0.78, 0.2, 1),
+    width 330ms cubic-bezier(0.18, 0.78, 0.2, 1),
+    height 330ms cubic-bezier(0.18, 0.78, 0.2, 1),
+    opacity 180ms ease,
+    transform 240ms ease;
+}
+
+.pulse-onboarding.is-focus-visible
+.pulse-onboarding-spotlight {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.pulse-onboarding.is-no-focus
+.pulse-onboarding-spotlight {
+  opacity: 0 !important;
 }
 
 .pulse-onboarding-spotlight::before {
   position: absolute;
-  inset: -16px;
-  border-radius: 30px;
+  inset: -15px;
+  border-radius: 32px;
   background:
     radial-gradient(
       ellipse at center,
-      rgba(211, 166, 247, 0.065) 0%,
-      rgba(173, 102, 229, 0.035) 42%,
+      rgba(213, 170, 247, 0.075),
+      rgba(174, 103, 225, 0.025) 48%,
       transparent 74%
     );
-  filter: blur(9px);
+  filter: blur(10px);
   content: "";
   pointer-events: none;
-}
-
-.pulse-onboarding-spotlight::after {
-  position: absolute;
-  inset: -22px;
-  border: 0;
-  border-radius: 36px;
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(191, 128, 238, 0.055),
-      transparent 68%
-    );
-  content: "";
-  opacity: 0.55;
-  filter: blur(12px);
   animation:
-    pulseOnboardingSoftFocus
-    2.8s
+    pulseOnboardingHalo
+    2.6s
     ease-in-out
     infinite;
 }
 
-/* Основна glass-картка */
+.pulse-onboarding-spotlight::after {
+  position: absolute;
+  inset: -5px;
+  border:
+    1px solid
+    rgba(228, 202, 248, 0.05);
+  border-radius: 26px;
+  content: "";
+  opacity: 0.55;
+  pointer-events: none;
+}
+
 .pulse-onboarding-card {
   position: absolute;
   z-index: 4;
@@ -4715,19 +4666,18 @@ body.active-signal-notice-open
     inset 0 1px 0 rgba(255, 255, 255, 0.12),
     inset 0 -1px 0 rgba(255, 255, 255, 0.025);
   opacity: 0;
-  filter: blur(5px);
+  filter: blur(7px);
   transform:
-    translateY(8px)
-    scale(0.985);
+    translateY(10px)
+    scale(0.976);
   transition:
-    left 250ms cubic-bezier(0.2, 0.78, 0.2, 1),
-    top 250ms cubic-bezier(0.2, 0.78, 0.2, 1),
-    opacity 190ms ease,
-    filter 220ms ease,
-    transform 230ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    left 330ms cubic-bezier(0.18, 0.78, 0.2, 1),
+    top 330ms cubic-bezier(0.18, 0.78, 0.2, 1),
+    opacity 210ms ease,
+    filter 240ms ease,
+    transform 260ms cubic-bezier(0.18, 0.8, 0.2, 1);
 }
 
-/* Ледь помітний відблиск скла зверху */
 .pulse-onboarding-card::before {
   position: absolute;
   top: 0;
@@ -4747,16 +4697,21 @@ body.active-signal-notice-open
 
 .pulse-onboarding-card::after {
   position: absolute;
-  top: -74px;
-  right: -52px;
-  width: 150px;
-  height: 120px;
+  top: -78px;
+  right: -54px;
+  width: 160px;
+  height: 125px;
   border-radius: 50%;
   background:
-    rgba(195, 136, 255, 0.055);
-  filter: blur(28px);
+    rgba(195, 136, 255, 0.065);
+  filter: blur(30px);
   content: "";
   pointer-events: none;
+  animation:
+    pulseOnboardingGlassBreath
+    4.2s
+    ease-in-out
+    infinite;
 }
 
 .pulse-onboarding-card.is-step-visible {
@@ -4765,6 +4720,15 @@ body.active-signal-notice-open
   transform:
     translateY(0)
     scale(1);
+}
+
+.pulse-onboarding.is-changing
+.pulse-onboarding-card {
+  opacity: 0;
+  filter: blur(8px);
+  transform:
+    translateY(-5px)
+    scale(0.988);
 }
 
 .pulse-onboarding-card-top {
@@ -4797,6 +4761,11 @@ body.active-signal-notice-open
     0 0 8px
     rgba(182, 106, 241, 0.35);
   content: "";
+  animation:
+    pulseOnboardingDot
+    1.7s
+    ease-in-out
+    infinite;
 }
 
 .pulse-onboarding-skip {
@@ -4810,7 +4779,8 @@ body.active-signal-notice-open
   cursor: pointer;
   transition:
     color 150ms ease,
-    opacity 150ms ease;
+    opacity 150ms ease,
+    transform 150ms ease;
 }
 
 .pulse-onboarding-skip:hover {
@@ -4826,9 +4796,6 @@ body.active-signal-notice-open
   font-weight: 640;
   letter-spacing: -0.03em;
   line-height: 1.16;
-  text-shadow:
-    0 1px 16px
-    rgba(255, 255, 255, 0.035);
 }
 
 .pulse-onboarding-copy {
@@ -4844,7 +4811,6 @@ body.active-signal-notice-open
   display: none !important;
 }
 
-/* Скляний приклад SUBID */
 .pulse-onboarding-example {
   position: relative;
   z-index: 1;
@@ -4866,10 +4832,6 @@ body.active-signal-notice-open
   box-shadow:
     inset 0 1px 0
     rgba(255, 255, 255, 0.04);
-  backdrop-filter:
-    blur(10px);
-  -webkit-backdrop-filter:
-    blur(10px);
 }
 
 .pulse-onboarding-example > span {
@@ -4911,6 +4873,11 @@ body.active-signal-notice-open
   box-shadow:
     0 0 10px
     rgba(174, 95, 231, 0.06);
+  animation:
+    pulseOnboardingSubIdGlow
+    2.1s
+    ease-in-out
+    infinite;
 }
 
 .pulse-onboarding-example small {
@@ -4920,7 +4887,6 @@ body.active-signal-notice-open
   font-size: 7px;
 }
 
-/* 01 / 04 — тонкий software-progress */
 .pulse-onboarding-progress {
   position: relative;
   z-index: 1;
@@ -4937,12 +4903,13 @@ body.active-signal-notice-open
   position: relative;
   width: 100%;
   height: 2px;
+  overflow: visible;
   border-radius: 999px;
   background:
     rgba(255, 255, 255, 0.075);
   transition:
-    background 180ms ease,
-    box-shadow 180ms ease;
+    background 200ms ease,
+    box-shadow 200ms ease;
 }
 
 .pulse-onboarding-progress > span::before {
@@ -4957,34 +4924,25 @@ body.active-signal-notice-open
   line-height: 1;
 }
 
-.pulse-onboarding-progress
-> span:nth-child(1)::before {
+.pulse-onboarding-progress > span:nth-child(1)::before {
   content: "01";
 }
-
-.pulse-onboarding-progress
-> span:nth-child(2)::before {
+.pulse-onboarding-progress > span:nth-child(2)::before {
   content: "02";
 }
-
-.pulse-onboarding-progress
-> span:nth-child(3)::before {
+.pulse-onboarding-progress > span:nth-child(3)::before {
   content: "03";
 }
-
-.pulse-onboarding-progress
-> span:nth-child(4)::before {
+.pulse-onboarding-progress > span:nth-child(4)::before {
   content: "04";
 }
 
-.pulse-onboarding-progress
-> span.is-complete {
+.pulse-onboarding-progress > span.is-complete {
   background:
     rgba(177, 108, 226, 0.32);
 }
 
-.pulse-onboarding-progress
-> span.is-active {
+.pulse-onboarding-progress > span.is-active {
   background:
     linear-gradient(
       90deg,
@@ -4994,15 +4952,18 @@ body.active-signal-notice-open
   box-shadow:
     0 0 9px
     rgba(182, 102, 235, 0.18);
+  animation:
+    pulseOnboardingActiveProgress
+    1.9s
+    ease-in-out
+    infinite;
 }
 
-.pulse-onboarding-progress
-> span.is-active::before {
+.pulse-onboarding-progress > span.is-active::before {
   color:
     rgba(229, 196, 251, 0.84);
 }
 
-/* Скляні кнопки */
 .pulse-onboarding-actions {
   position: relative;
   z-index: 1;
@@ -5026,10 +4987,8 @@ body.active-signal-notice-open
   font-weight: 720;
   letter-spacing: 0.075em;
   cursor: pointer;
-  backdrop-filter:
-    blur(12px);
-  -webkit-backdrop-filter:
-    blur(12px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   transition:
     transform 150ms ease,
     color 150ms ease,
@@ -5045,9 +5004,6 @@ body.active-signal-notice-open
   color:
     rgba(215, 210, 220, 0.56);
   background:
-    rgba(255, 255, 255, 0.025);
-  box-shadow:
-    inset 0 1px 0
     rgba(255, 255, 255, 0.025);
 }
 
@@ -5065,36 +5021,71 @@ body.active-signal-notice-open
       rgba(98, 47, 143, 0.16)
     );
   box-shadow:
-    0 8px 18px
-    rgba(0, 0, 0, 0.12),
-    inset 0 1px 0
-    rgba(255, 255, 255, 0.09),
-    0 0 18px
-    rgba(154, 77, 211, 0.055);
+    0 8px 18px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    0 0 18px rgba(154, 77, 211, 0.055);
 }
 
 .pulse-onboarding-next:hover {
   border-color:
     rgba(230, 196, 255, 0.24);
-  background:
-    linear-gradient(
-      145deg,
-      rgba(178, 98, 232, 0.31),
-      rgba(110, 51, 156, 0.19)
-    );
-}
-
-.pulse-onboarding-back:hover {
-  color:
-    rgba(239, 235, 243, 0.76);
-  border-color:
-    rgba(255, 255, 255, 0.11);
 }
 
 .pulse-onboarding-back:active,
 .pulse-onboarding-next:active,
 .pulse-onboarding-skip:active {
   transform: scale(0.975);
+}
+
+/* Крок 2: легкий живий акцент слотів. */
+body.pulse-onboarding-is-step-game
+.slot-grid {
+  animation:
+    pulseOnboardingGameFocus
+    2.2s
+    ease-in-out
+    infinite;
+}
+
+/* Крок 3: світлова хвиля через профіль ризику. */
+body.pulse-onboarding-is-step-risk
+.risk-profile-options {
+  position: relative;
+  overflow: hidden;
+}
+
+body.pulse-onboarding-is-step-risk
+.risk-profile-options::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -38%;
+  width: 32%;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(221, 174, 255, 0.10),
+      transparent
+    );
+  content: "";
+  pointer-events: none;
+  transform: skewX(-14deg);
+  animation:
+    pulseOnboardingRiskSweep
+    2.35s
+    ease-in-out
+    infinite;
+}
+
+/* Крок 4: м'яке дихання кнопки запуску. */
+body.pulse-onboarding-is-step-launch
+.signal-button {
+  animation:
+    pulseOnboardingLaunchGlow
+    2.1s
+    ease-in-out
+    infinite;
 }
 
 body.pulse-onboarding-open
@@ -5106,16 +5097,106 @@ body.pulse-onboarding-open
   pointer-events: none;
 }
 
-@keyframes pulseOnboardingSoftFocus {
+@keyframes pulseOnboardingHalo {
   0%,
   100% {
-    opacity: 0.34;
+    opacity: 0.38;
     transform: scale(0.985);
   }
-
   50% {
-    opacity: 0.68;
-    transform: scale(1.015);
+    opacity: 0.78;
+    transform: scale(1.025);
+  }
+}
+
+@keyframes pulseOnboardingGlassBreath {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    opacity: 1;
+    transform: translate3d(-7px, 8px, 0);
+  }
+}
+
+@keyframes pulseOnboardingDot {
+  0%,
+  100% {
+    opacity: 0.65;
+    transform: scale(0.82);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+}
+
+@keyframes pulseOnboardingSubIdGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 9px rgba(174, 95, 231, 0.045);
+  }
+  50% {
+    box-shadow:
+      0 0 16px rgba(193, 119, 247, 0.16);
+  }
+}
+
+@keyframes pulseOnboardingActiveProgress {
+  0%,
+  100% {
+    filter: brightness(0.95);
+  }
+  50% {
+    filter: brightness(1.25);
+  }
+}
+
+@keyframes pulseOnboardingGameFocus {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.07);
+  }
+}
+
+@keyframes pulseOnboardingRiskSweep {
+  0%,
+  18% {
+    left: -38%;
+    opacity: 0;
+  }
+  32% {
+    opacity: 1;
+  }
+  74% {
+    opacity: 0.8;
+  }
+  100% {
+    left: 112%;
+    opacity: 0;
+  }
+}
+
+@keyframes pulseOnboardingLaunchGlow {
+  0%,
+  100% {
+    filter: brightness(1);
+    box-shadow:
+      0 7px 20px rgba(112, 26, 200, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  }
+  50% {
+    filter: brightness(1.12);
+    box-shadow:
+      0 9px 25px rgba(152, 54, 232, 0.38),
+      0 0 20px rgba(185, 91, 255, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.26);
   }
 }
 
@@ -5157,5 +5238,14 @@ body.pulse-onboarding-open
   .pulse-onboarding-back,
   .pulse-onboarding-next {
     min-height: 32px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-onboarding *,
+  body.pulse-onboarding-is-step-game .slot-grid,
+  body.pulse-onboarding-is-step-risk .risk-profile-options::after,
+  body.pulse-onboarding-is-step-launch .signal-button {
+    animation: none !important;
   }
 }
