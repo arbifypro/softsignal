@@ -1090,9 +1090,17 @@ function stopActiveSignalTimerInterval() {
 }
 
 function setActiveSignalTimerButtons(isRunning) {
-  resultActionButton.hidden = isRunning;
-  resultActionButton.disabled = isRunning;
+  /*
+   * "ПОЧАТИ СИГНАЛ" лишається видимою та клікабельною.
+   * Якщо таймер уже активний, клік відкриє повідомлення,
+   * але не перезапустить відлік.
+   */
+  resultActionButton.hidden = false;
+  resultActionButton.disabled = false;
 
+  /*
+   * Створення нового сигналу блокуємо до завершення поточного.
+   */
   resultNewButton.hidden = isRunning;
   resultNewButton.disabled = isRunning;
 }
@@ -2315,10 +2323,7 @@ resultActionButton.addEventListener(
         Date.now()
     ) {
       beginActiveSignalTimerLoop();
-
-      showToast(
-        "Сигнал уже активний"
-      );
+      openActiveSignalNotice();
 
       return;
     }
