@@ -3514,3 +3514,158 @@ body.all-slots-open .bottom-nav {
   right: 7px;
   left: auto;
 }
+
+/* =========================================================
+   КАТЕГОРІЇ СЛОТІВ — ІЗОЛЬОВАНІ СТИЛІ
+   ========================================================= */
+
+.all-slots-categories {
+  position: relative;
+  width: 100%;
+  margin: -4px 0 15px;
+  padding: 1px 0 3px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+}
+
+.all-slots-categories::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.all-slots-category {
+  position: relative;
+  min-height: 34px;
+  padding: 0 12px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 11px;
+  color: #888693;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0.018)
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  scroll-snap-align: start;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.all-slots-category:active {
+  transform: scale(0.97);
+}
+
+.all-slots-category.is-active {
+  border-color: rgba(181, 91, 255, 0.30);
+  color: #d9b8f7;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(147, 68, 219, 0.14),
+      rgba(103, 43, 160, 0.08)
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.045),
+    0 5px 16px rgba(78, 25, 126, 0.10);
+}
+
+.all-slots-category.is-active::after {
+  position: absolute;
+  right: 11px;
+  bottom: 4px;
+  left: 11px;
+  height: 1px;
+  border-radius: 999px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(199, 121, 255, 0.72),
+      transparent
+    );
+  content: "";
+  opacity: 0.72;
+}
+
+.all-slots-category-favorites {
+  padding-right: 9px;
+}
+
+.all-slots-category-favorites svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px;
+  max-width: 14px;
+  display: block;
+}
+
+.all-slots-category-favorites strong {
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  color: #a6a2ae;
+  background: rgba(255, 255, 255, 0.055);
+  font-size: 8px;
+  font-weight: 780;
+  line-height: 1;
+}
+
+.all-slots-category-favorites.is-active {
+  border-color: rgba(255, 102, 151, 0.27);
+  color: #f2a0bc;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(105, 32, 58, 0.18),
+      rgba(64, 17, 36, 0.10)
+    );
+}
+
+.all-slots-category-favorites.is-active svg {
+  fill: currentColor;
+}
+
+.all-slots-category-favorites.is-active strong {
+  color: #ffd0df;
+  background: rgba(255, 91, 145, 0.12);
+}
+
+@media (hover: hover) {
+  .all-slots-category:hover {
+    border-color: rgba(185, 92, 255, 0.18);
+    color: #bcb8c5;
+  }
+
+  .all-slots-category.is-active:hover {
+    color: #e2c9f8;
+  }
+}
