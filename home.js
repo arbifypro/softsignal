@@ -115,6 +115,19 @@ const activeSignalTimerHint = document.querySelector(
   "#activeSignalTimerHint"
 );
 
+const activeSignalNotice = document.querySelector(
+  "#activeSignalNotice"
+);
+const activeSignalNoticeBackdrop = document.querySelector(
+  "#activeSignalNoticeBackdrop"
+);
+const activeSignalNoticeButton = document.querySelector(
+  "#activeSignalNoticeButton"
+);
+const activeSignalNoticeTime = document.querySelector(
+  "#activeSignalNoticeTime"
+);
+
 const signalProfileTemplates = {
   balanced: {
     bets: [10, 20, 25, 30],
@@ -888,8 +901,97 @@ let homeInitializationPromise = null;
 let stateSaveQueue = Promise.resolve({});
 let stateSaveErrorWasShown = false;
 let activeSignalTimerInterval;
+let activeSignalNoticeInterval;
 let activeSignalTimerState = loadActiveSignalTimerState();
 
+
+
+function stopActiveSignalNoticeInterval() {
+  window.clearInterval(
+    activeSignalNoticeInterval
+  );
+
+  activeSignalNoticeInterval = undefined;
+}
+
+function updateActiveSignalNoticeTime() {
+  if (
+    !activeSignalNoticeTime ||
+    !activeSignalTimerState
+  ) {
+    return;
+  }
+
+  const remainingMs = Math.max(
+    0,
+    activeSignalTimerState.endAt -
+      Date.now()
+  );
+
+  activeSignalNoticeTime.textContent =
+    formatActiveSignalRemaining(
+      remainingMs
+    );
+
+  if (remainingMs <= 0) {
+    closeActiveSignalNotice();
+  }
+}
+
+function openActiveSignalNotice() {
+  activeSignalTimerState =
+    loadActiveSignalTimerState();
+
+  if (
+    !activeSignalTimerState ||
+    activeSignalTimerState.endAt <=
+      Date.now()
+  ) {
+    return;
+  }
+
+  updateActiveSignalNoticeTime();
+
+  activeSignalNotice.hidden = false;
+
+  document.body.classList.add(
+    "active-signal-notice-open"
+  );
+
+  window.requestAnimationFrame(() => {
+    activeSignalNotice.classList.add(
+      "is-open"
+    );
+  });
+
+  stopActiveSignalNoticeInterval();
+
+  activeSignalNoticeInterval =
+    window.setInterval(
+      updateActiveSignalNoticeTime,
+      250
+    );
+}
+
+function closeActiveSignalNotice() {
+  if (!activeSignalNotice) {
+    return;
+  }
+
+  stopActiveSignalNoticeInterval();
+
+  activeSignalNotice.classList.remove(
+    "is-open"
+  );
+
+  document.body.classList.remove(
+    "active-signal-notice-open"
+  );
+
+  window.setTimeout(() => {
+    activeSignalNotice.hidden = true;
+  }, 180);
+}
 
 function parseSignalDurationToMilliseconds(duration) {
   const match = String(duration || "")
@@ -989,7 +1091,10 @@ function stopActiveSignalTimerInterval() {
 
 function setActiveSignalTimerButtons(isRunning) {
   resultActionButton.hidden = isRunning;
+  resultActionButton.disabled = isRunning;
+
   resultNewButton.hidden = isRunning;
+  resultNewButton.disabled = isRunning;
 }
 
 function renderActiveSignalTimer() {
@@ -1094,6 +1199,25 @@ function beginActiveSignalTimerLoop() {
 }
 
 function startActiveSignalTimer(signal) {
+  activeSignalTimerState =
+    loadActiveSignalTimerState();
+
+  if (
+    activeSignalTimerState &&
+    activeSignalTimerState.endAt >
+      Date.now()
+  ) {
+    activeSignal = {
+      ...activeSignalTimerState.signal,
+    };
+
+    beginActiveSignalTimerLoop();
+
+    openActiveSignalNotice();
+
+    return;
+  }
+
   const durationMs =
     parseSignalDurationToMilliseconds(
       signal?.duration
@@ -1829,7 +1953,10 @@ function prepareScan(slot) {
   }
 
   resultActionButton.hidden = false;
+  resultActionButton.disabled = false;
+
   resultNewButton.hidden = false;
+  resultNewButton.disabled = false;
 
   signalOverlayTitle.textContent =
     "НОВИЙ СИГНАЛ";
@@ -1910,7 +2037,10 @@ function fillResult(signal) {
   }
 
   resultActionButton.hidden = false;
+  resultActionButton.disabled = false;
+
   resultNewButton.hidden = false;
+  resultNewButton.disabled = false;
 
   resultSlotImage.src =
     signal.slotImage;
@@ -2176,10 +2306,37 @@ resultActionButton.addEventListener(
       return;
     }
 
+    activeSignalTimerState =
+      loadActiveSignalTimerState();
+
+    if (
+      activeSignalTimerState &&
+      activeSignalTimerState.endAt >
+        Date.now()
+    ) {
+      beginActiveSignalTimerLoop();
+
+      showToast(
+        "Сигнал уже активний"
+      );
+
+      return;
+    }
+
     startActiveSignalTimer(
       activeSignal
     );
   }
+);
+
+activeSignalNoticeButton?.addEventListener(
+  "click",
+  closeActiveSignalNotice
+);
+
+activeSignalNoticeBackdrop?.addEventListener(
+  "click",
+  closeActiveSignalNotice
 );
 
 notificationButton.addEventListener(
@@ -2278,6 +2435,15 @@ document.addEventListener(
   (event) => {
     if (
       event.key === "Escape" &&
+      activeSignalNotice &&
+      !activeSignalNotice.hidden
+    ) {
+      closeActiveSignalNotice();
+      return;
+    }
+
+    if (
+      event.key === "Escape" &&
       !allSlotsOverlay.hidden
     ) {
       closeAllSlotsOverlay();
@@ -2322,6 +2488,7 @@ window.addEventListener(
 
     stopScanning();
     stopActiveSignalTimerInterval();
+    stopActiveSignalNoticeInterval();
   }
 );
 
