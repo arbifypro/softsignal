@@ -174,7 +174,7 @@
       }
     </style>
 
-    <link rel="stylesheet" href="home.css?v=20260806-2315" />
+    <link rel="stylesheet" href="home.css?v=20260807-2245" />
     <link rel="stylesheet" href="notifications.css" />
 
     <link
@@ -625,12 +625,59 @@
               </label>
             </div>
 
-
-            <div class="catalog-favorites-row">
+            <div
+              class="all-slots-categories"
+              id="allSlotsCategories"
+              role="tablist"
+              aria-label="Категорії слотів"
+            >
               <button
-                class="catalog-favorites-button"
+                class="all-slots-category is-active"
+                type="button"
+                data-category="all"
+                role="tab"
+                aria-selected="true"
+              >
+                Усі
+              </button>
+
+              <button
+                class="all-slots-category"
+                type="button"
+                data-category="popular"
+                role="tab"
+                aria-selected="false"
+              >
+                Популярні
+              </button>
+
+              <button
+                class="all-slots-category"
+                type="button"
+                data-category="new"
+                role="tab"
+                aria-selected="false"
+              >
+                Нові
+              </button>
+
+              <button
+                class="all-slots-category"
+                type="button"
+                data-category="megaways"
+                role="tab"
+                aria-selected="false"
+              >
+                Megaways
+              </button>
+
+              <button
+                class="all-slots-category all-slots-category-favorites"
                 id="allSlotsFavoritesButton"
                 type="button"
+                data-category="favorites"
+                role="tab"
+                aria-selected="false"
                 aria-pressed="false"
               >
                 <svg
@@ -646,12 +693,11 @@
                 </svg>
 
                 <span>Обране</span>
-
                 <strong id="favoriteSlotsCount">0</strong>
               </button>
             </div>
 
-            <div
+<div
               class="all-slots-grid"
               id="allSlotsGrid"
             ></div>
@@ -1241,6 +1287,6 @@
     </main>
 
     <script src="notifications.js?v=20260803-1"></script>
-    <script src="home.js?v=20260806-2019"></script>
+    <script src="home.js?v=20260807-2245"></script>
   </body>
 </html>
