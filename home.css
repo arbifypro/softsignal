@@ -5810,3 +5810,309 @@ body.pulse-welcome-open
     min-height: 43px;
   }
 }
+/* =========================================================
+   ARBIFY PULSE — ОСТАННІЙ СИГНАЛ НА ГОЛОВНІЙ
+   Floating card: не займає місця в .content і нічого не зсуває.
+   ========================================================= */
+
+.last-signal-float[hidden] {
+  display: none !important;
+}
+
+.last-signal-float {
+  position: absolute;
+  right: 18px;
+  bottom:
+    calc(
+      86px +
+      env(safe-area-inset-bottom)
+    );
+  left: 18px;
+  z-index: 8;
+  height: 56px;
+  padding:
+    7px
+    10px
+    7px
+    8px;
+  display: grid;
+  grid-template-columns:
+    42px
+    minmax(0, 1fr)
+    28px;
+  align-items: center;
+  gap: 9px;
+  overflow: hidden;
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.095);
+  border-radius: 15px;
+  background:
+    radial-gradient(
+      circle at 9% 50%,
+      rgba(151, 66, 221, 0.13),
+      transparent 31%
+    ),
+    linear-gradient(
+      120deg,
+      rgba(24, 23, 34, 0.93),
+      rgba(8, 9, 15, 0.95)
+    );
+  box-shadow:
+    0 15px 34px
+    rgba(0, 0, 0, 0.34),
+    inset 0 1px 0
+    rgba(255, 255, 255, 0.055);
+  backdrop-filter:
+    blur(20px)
+    saturate(1.12);
+  -webkit-backdrop-filter:
+    blur(20px)
+    saturate(1.12);
+  opacity: 0;
+  pointer-events: none;
+  transform:
+    translateY(8px)
+    scale(0.988);
+  transition:
+    opacity 220ms ease,
+    transform 250ms
+    cubic-bezier(0.18, 0.8, 0.2, 1);
+}
+
+.last-signal-float::before {
+  position: absolute;
+  top: 0;
+  right: 14px;
+  left: 14px;
+  height: 1px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(205, 149, 245, 0.20),
+      transparent
+    );
+  content: "";
+  pointer-events: none;
+}
+
+.last-signal-float.is-visible {
+  opacity: 1;
+  transform:
+    translateY(0)
+    scale(1);
+}
+
+.last-signal-thumb {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  overflow: hidden;
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.10);
+  border-radius: 11px;
+  background: #0b0c13;
+  box-shadow:
+    0 5px 13px
+    rgba(0, 0, 0, 0.24);
+}
+
+.last-signal-thumb img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.last-signal-thumb::after {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      180deg,
+      transparent 52%,
+      rgba(0, 0, 0, 0.25)
+    );
+  content: "";
+  pointer-events: none;
+}
+
+.last-signal-live-dot {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  z-index: 2;
+  width: 6px;
+  height: 6px;
+  border:
+    1.5px solid
+    rgba(10, 11, 17, 0.95);
+  border-radius: 50%;
+  background: #38dc8e;
+  box-sizing: content-box;
+  box-shadow:
+    0 0 7px
+    rgba(56, 220, 142, 0.66);
+}
+
+.last-signal-copy {
+  min-width: 0;
+}
+
+.last-signal-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.last-signal-topline > span {
+  overflow: hidden;
+  color:
+    rgba(177, 125, 218, 0.76);
+  font-size: 6px;
+  font-weight: 820;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.last-signal-topline small {
+  flex: 0 0 auto;
+  color:
+    rgba(167, 163, 175, 0.38);
+  font-size: 6px;
+  font-weight: 650;
+}
+
+.last-signal-copy > strong {
+  display: block;
+  overflow: hidden;
+  margin-top: 3px;
+  color:
+    rgba(248, 245, 250, 0.95);
+  font-size: 10px;
+  font-weight: 680;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.last-signal-meta {
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow: hidden;
+  color:
+    rgba(185, 181, 192, 0.55);
+  font-size: 6.5px;
+  white-space: nowrap;
+}
+
+.last-signal-meta i {
+  width: 2px;
+  height: 2px;
+  flex: 0 0 2px;
+  border-radius: 50%;
+  background:
+    rgba(180, 174, 188, 0.34);
+}
+
+.last-signal-risk {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.last-signal-risk[data-level="низький"] {
+  color:
+    rgba(91, 221, 158, 0.76);
+}
+
+.last-signal-risk[data-level="середній"] {
+  color:
+    rgba(232, 193, 105, 0.78);
+}
+
+.last-signal-risk[data-level="високий"] {
+  color:
+    rgba(239, 111, 130, 0.78);
+}
+
+.last-signal-status {
+  width: 27px;
+  height: 27px;
+  display: grid;
+  place-items: center;
+  border:
+    1px solid
+    rgba(57, 222, 143, 0.14);
+  border-radius: 50%;
+  color:
+    rgba(83, 227, 156, 0.78);
+  background:
+    rgba(45, 199, 124, 0.055);
+  box-shadow:
+    inset 0 0 10px
+    rgba(45, 199, 124, 0.03);
+}
+
+.last-signal-status svg {
+  width: 13px;
+  height: 13px;
+}
+
+/*
+ * На нижчих екранах картка стає ще компактнішою.
+ * Позиціонування абсолютне, тому layout все одно не змінюється.
+ */
+@media (max-height: 760px) and (max-width: 559px) {
+  .last-signal-float {
+    right: 14px;
+    bottom:
+      calc(
+        82px +
+        env(safe-area-inset-bottom)
+      );
+    left: 14px;
+    height: 49px;
+    padding:
+      6px
+      9px
+      6px
+      7px;
+    grid-template-columns:
+      36px
+      minmax(0, 1fr)
+      24px;
+    gap: 8px;
+    border-radius: 13px;
+  }
+
+  .last-signal-thumb {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+  }
+
+  .last-signal-status {
+    width: 24px;
+    height: 24px;
+  }
+
+  .last-signal-copy > strong {
+    font-size: 9px;
+  }
+
+  .last-signal-meta {
+    font-size: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .last-signal-float {
+    transition: none;
+  }
+}
