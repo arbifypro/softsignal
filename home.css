@@ -4488,364 +4488,465 @@ body.active-signal-notice-open
 }
 
 /* =========================================================
-   ARBIFY PULSE — ONBOARDING FOCUS V3
-   Один backdrop + м'який focus. Без 4 dimmer-блоків.
-   Усі стилі нижче ізольовані тільки для onboarding.
+   ARBIFY PULSE — WELCOME TUTORIAL
+   Окремий quick-start екран. Інші блоки не змінюються.
    ========================================================= */
 
-.pulse-onboarding[hidden] {
+.pulse-welcome[hidden] {
   display: none !important;
 }
 
-.pulse-onboarding {
+.pulse-welcome {
   position: absolute;
   inset: 0;
   z-index: 82;
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
-  --focus-x: 50%;
-  --focus-y: 62%;
-  --focus-rx: 120px;
-  --focus-ry: 70px;
-  transition: opacity 230ms ease;
+  color: #f8f7ff;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(5, 6, 12, 0.985),
+      rgba(2, 3, 8, 0.995)
+    );
+  transition:
+    opacity 250ms ease;
 }
 
-.pulse-onboarding.is-open {
+.pulse-welcome.is-open {
   opacity: 1;
   pointer-events: auto;
 }
 
-.pulse-onboarding-backdrop {
+.pulse-welcome-backdrop {
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 0;
   background:
     radial-gradient(
-      ellipse
-        var(--focus-rx)
-        var(--focus-ry)
-        at
-        var(--focus-x)
-        var(--focus-y),
-      rgba(2, 3, 8, 0.03) 0%,
-      rgba(2, 3, 8, 0.08) 40%,
-      rgba(2, 3, 8, 0.28) 64%,
-      rgba(2, 3, 8, 0.55) 84%,
-      rgba(2, 3, 8, 0.68) 100%
-    );
-  opacity: 1;
-  pointer-events: none;
-  transition: opacity 180ms ease;
-}
-
-.pulse-onboarding.is-no-focus
-.pulse-onboarding-backdrop {
-  background:
-    radial-gradient(
-      circle at 50% 47%,
-      rgba(110, 52, 160, 0.055),
-      transparent 25%
+      circle at 50% 10%,
+      rgba(145, 62, 226, 0.14),
+      transparent 31%
     ),
-    rgba(2, 3, 8, 0.67);
-}
-
-.pulse-onboarding.is-changing
-.pulse-onboarding-backdrop {
-  opacity: 0.79;
-}
-
-.pulse-onboarding-spotlight {
-  position: absolute;
-  z-index: 2;
-  border: 0;
-  border-radius: 22px;
-  background:
     radial-gradient(
-      ellipse at center,
-      rgba(205, 157, 242, 0.05),
-      rgba(162, 91, 216, 0.018) 52%,
-      transparent 76%
+      circle at 12% 72%,
+      rgba(78, 31, 137, 0.08),
+      transparent 30%
     );
-  box-shadow:
-    0 0 26px rgba(200, 145, 241, 0.08),
-    0 0 58px rgba(145, 72, 201, 0.06);
-  opacity: 0;
-  pointer-events: none;
-  transform: scale(0.97);
-  transition:
-    left 330ms cubic-bezier(0.18, 0.78, 0.2, 1),
-    top 330ms cubic-bezier(0.18, 0.78, 0.2, 1),
-    width 330ms cubic-bezier(0.18, 0.78, 0.2, 1),
-    height 330ms cubic-bezier(0.18, 0.78, 0.2, 1),
-    opacity 180ms ease,
-    transform 240ms ease;
-}
-
-.pulse-onboarding.is-focus-visible
-.pulse-onboarding-spotlight {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.pulse-onboarding.is-no-focus
-.pulse-onboarding-spotlight {
-  opacity: 0 !important;
-}
-
-.pulse-onboarding-spotlight::before {
-  position: absolute;
-  inset: -15px;
-  border-radius: 32px;
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(213, 170, 247, 0.075),
-      rgba(174, 103, 225, 0.025) 48%,
-      transparent 74%
-    );
-  filter: blur(10px);
-  content: "";
-  pointer-events: none;
-  animation:
-    pulseOnboardingHalo
-    2.6s
-    ease-in-out
-    infinite;
-}
-
-.pulse-onboarding-spotlight::after {
-  position: absolute;
-  inset: -5px;
-  border:
-    1px solid
-    rgba(228, 202, 248, 0.05);
-  border-radius: 26px;
-  content: "";
-  opacity: 0.55;
   pointer-events: none;
 }
 
-.pulse-onboarding-card {
+.pulse-welcome-backdrop::after {
   position: absolute;
-  z-index: 4;
-  width:
-    min(
-      calc(100% - 32px),
-      326px
-    );
-  padding:
-    17px
-    17px
-    15px;
-  overflow: hidden;
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.115);
-  border-radius: 20px;
-  background:
-    radial-gradient(
-      circle at 94% -5%,
-      rgba(194, 134, 255, 0.105),
-      transparent 38%
-    ),
+  inset: 0;
+  background-image:
     linear-gradient(
-      145deg,
-      rgba(37, 36, 49, 0.52),
-      rgba(12, 13, 20, 0.46)
-    );
-  backdrop-filter:
-    blur(24px)
-    saturate(1.22);
-  -webkit-backdrop-filter:
-    blur(24px)
-    saturate(1.22);
-  box-shadow:
-    0 28px 68px rgba(0, 0, 0, 0.34),
-    0 8px 22px rgba(0, 0, 0, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.025);
-  opacity: 0;
-  filter: blur(7px);
-  transform:
-    translateY(10px)
-    scale(0.976);
-  transition:
-    left 330ms cubic-bezier(0.18, 0.78, 0.2, 1),
-    top 330ms cubic-bezier(0.18, 0.78, 0.2, 1),
-    opacity 210ms ease,
-    filter 240ms ease,
-    transform 260ms cubic-bezier(0.18, 0.8, 0.2, 1);
-}
-
-.pulse-onboarding-card::before {
-  position: absolute;
-  top: 0;
-  right: 14px;
-  left: 14px;
-  height: 1px;
-  background:
+      rgba(255, 255, 255, 0.014) 1px,
+      transparent 1px
+    ),
     linear-gradient(
       90deg,
-      transparent,
-      rgba(255, 255, 255, 0.30) 38%,
-      rgba(196, 137, 247, 0.22) 62%,
-      transparent
+      rgba(255, 255, 255, 0.014) 1px,
+      transparent 1px
+    );
+  background-size: 31px 31px;
+  opacity: 0.28;
+  mask-image:
+    linear-gradient(
+      to bottom,
+      #000,
+      transparent 82%
+    );
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom,
+      #000,
+      transparent 82%
     );
   content: "";
 }
 
-.pulse-onboarding-card::after {
+.pulse-welcome-orb {
   position: absolute;
-  top: -78px;
-  right: -54px;
-  width: 160px;
-  height: 125px;
+  z-index: 0;
   border-radius: 50%;
-  background:
-    rgba(195, 136, 255, 0.065);
-  filter: blur(30px);
-  content: "";
+  filter: blur(55px);
   pointer-events: none;
+}
+
+.pulse-welcome-orb-one {
+  top: 8%;
+  right: -78px;
+  width: 180px;
+  height: 180px;
+  background:
+    rgba(173, 83, 239, 0.085);
   animation:
-    pulseOnboardingGlassBreath
-    4.2s
+    pulseWelcomeOrbOne
+    7s
     ease-in-out
     infinite;
 }
 
-.pulse-onboarding-card.is-step-visible {
-  opacity: 1;
-  filter: blur(0);
-  transform:
-    translateY(0)
-    scale(1);
+.pulse-welcome-orb-two {
+  bottom: 10%;
+  left: -82px;
+  width: 170px;
+  height: 170px;
+  background:
+    rgba(91, 50, 163, 0.07);
+  animation:
+    pulseWelcomeOrbTwo
+    8s
+    ease-in-out
+    infinite;
 }
 
-.pulse-onboarding.is-changing
-.pulse-onboarding-card {
-  opacity: 0;
-  filter: blur(8px);
-  transform:
-    translateY(-5px)
-    scale(0.988);
-}
-
-.pulse-onboarding-card-top {
+.pulse-welcome-shell {
   position: relative;
-  z-index: 1;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  padding:
+    max(14px, env(safe-area-inset-top))
+    18px
+    max(17px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+}
+
+.pulse-welcome-header {
+  min-height: 48px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 16px;
+  flex: 0 0 auto;
 }
 
-.pulse-onboarding-step {
-  display: inline-flex;
+.pulse-welcome-brand {
+  display: flex;
   align-items: center;
-  gap: 6px;
-  color: rgba(218, 190, 240, 0.75);
-  font-size: 7px;
-  font-weight: 760;
-  letter-spacing: 0.16em;
+  gap: 10px;
 }
 
-.pulse-onboarding-step::before {
-  width: 5px;
-  height: 5px;
-  flex: 0 0 5px;
+.pulse-welcome-brand-mark {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border:
+    1px solid
+    rgba(244, 196, 78, 0.17);
   border-radius: 50%;
+  color: #e9c866;
   background:
-    rgba(190, 125, 242, 0.88);
+    rgba(244, 196, 78, 0.035);
   box-shadow:
-    0 0 8px
-    rgba(182, 106, 241, 0.35);
-  content: "";
-  animation:
-    pulseOnboardingDot
-    1.7s
-    ease-in-out
-    infinite;
+    inset 0 0 13px
+    rgba(244, 196, 78, 0.035);
 }
 
-.pulse-onboarding-skip {
-  position: relative;
-  z-index: 1;
-  padding: 5px 0 5px 10px;
+.pulse-welcome-brand-mark svg {
+  width: 20px;
+  height: 16px;
+}
+
+.pulse-welcome-brand > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pulse-welcome-brand > div > span {
+  color: #f4df99;
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  line-height: 1;
+}
+
+.pulse-welcome-brand small {
+  color:
+    rgba(203, 182, 127, 0.44);
+  font-size: 6px;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+}
+
+.pulse-welcome-skip {
+  padding: 8px 0 8px 12px;
   border: 0;
-  color: rgba(203, 199, 211, 0.43);
+  color:
+    rgba(215, 211, 220, 0.42);
   background: none;
   font-size: 8px;
   cursor: pointer;
   transition:
     color 150ms ease,
-    opacity 150ms ease,
     transform 150ms ease;
 }
 
-.pulse-onboarding-skip:hover {
-  color: rgba(239, 235, 244, 0.72);
+.pulse-welcome-intro {
+  margin-top:
+    clamp(
+      14px,
+      2.6vh,
+      24px
+    );
+  flex: 0 0 auto;
+  text-align: center;
 }
 
-.pulse-onboarding-card h2 {
-  position: relative;
-  z-index: 1;
-  margin: 14px 0 0;
-  color: rgba(250, 248, 252, 0.96);
-  font-size: 18px;
-  font-weight: 640;
-  letter-spacing: -0.03em;
-  line-height: 1.16;
+.pulse-welcome-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #a775d2;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.19em;
 }
 
-.pulse-onboarding-copy {
-  position: relative;
-  z-index: 1;
+.pulse-welcome-kicker::before {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #a95af0;
+  box-shadow:
+    0 0 8px
+    rgba(174, 84, 241, 0.55);
+  content: "";
+  animation:
+    pulseWelcomeDot
+    1.8s
+    ease-in-out
+    infinite;
+}
+
+.pulse-welcome-intro h2 {
   margin: 8px 0 0;
-  color: rgba(212, 207, 218, 0.58);
+  color: #faf8fc;
+  font-size:
+    clamp(
+      20px,
+      5.4vw,
+      24px
+    );
+  font-weight: 690;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+}
+
+.pulse-welcome-intro p {
+  width: min(100%, 290px);
+  margin: 8px auto 0;
+  color:
+    rgba(194, 190, 203, 0.52);
   font-size: 9px;
-  line-height: 1.55;
+  line-height: 1.5;
 }
 
-.pulse-onboarding-example[hidden] {
-  display: none !important;
+.pulse-welcome-steps {
+  margin-top:
+    clamp(
+      15px,
+      2.5vh,
+      23px
+    );
+  display: grid;
+  gap:
+    clamp(
+      8px,
+      1.25vh,
+      11px
+    );
+  flex: 1 1 auto;
+  min-height: 0;
+  align-content: center;
 }
 
-.pulse-onboarding-example {
+.pulse-welcome-step {
   position: relative;
-  z-index: 1;
-  margin-top: 13px;
-  padding:
-    10px
-    11px
-    9px;
+  min-height: 118px;
+  padding: 13px 13px 12px;
+  display: grid;
+  grid-template-columns:
+    34px
+    minmax(0, 1fr);
+  gap: 11px;
+  overflow: hidden;
   border:
     1px solid
     rgba(255, 255, 255, 0.075);
-  border-radius: 12px;
+  border-radius: 17px;
   background:
+    radial-gradient(
+      circle at 96% -10%,
+      rgba(184, 107, 237, 0.075),
+      transparent 34%
+    ),
     linear-gradient(
       145deg,
-      rgba(255, 255, 255, 0.055),
-      rgba(255, 255, 255, 0.018)
+      rgba(28, 28, 39, 0.48),
+      rgba(10, 11, 18, 0.42)
     );
   box-shadow:
+    0 14px 35px
+    rgba(0, 0, 0, 0.16),
     inset 0 1px 0
-    rgba(255, 255, 255, 0.04);
+    rgba(255, 255, 255, 0.055);
+  backdrop-filter:
+    blur(18px)
+    saturate(1.12);
+  -webkit-backdrop-filter:
+    blur(18px)
+    saturate(1.12);
+  opacity: 0;
+  transform:
+    translateY(12px)
+    scale(0.988);
 }
 
-.pulse-onboarding-example > span {
+.pulse-welcome.is-open
+.pulse-welcome-step:nth-child(1) {
+  animation:
+    pulseWelcomeStepIn
+    420ms
+    110ms
+    cubic-bezier(0.18, 0.8, 0.2, 1)
+    forwards;
+}
+
+.pulse-welcome.is-open
+.pulse-welcome-step:nth-child(2) {
+  animation:
+    pulseWelcomeStepIn
+    420ms
+    190ms
+    cubic-bezier(0.18, 0.8, 0.2, 1)
+    forwards;
+}
+
+.pulse-welcome.is-open
+.pulse-welcome-step:nth-child(3) {
+  animation:
+    pulseWelcomeStepIn
+    420ms
+    270ms
+    cubic-bezier(0.18, 0.8, 0.2, 1)
+    forwards;
+}
+
+.pulse-welcome-step::before {
+  position: absolute;
+  top: 0;
+  right: 13px;
+  left: 56px;
+  height: 1px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(211, 165, 246, 0.18),
+      transparent
+    );
+  content: "";
+}
+
+.pulse-welcome-step-number {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  align-self: start;
+  border:
+    1px solid
+    rgba(192, 124, 241, 0.14);
+  border-radius: 11px;
+  color:
+    rgba(215, 173, 247, 0.72);
+  background:
+    rgba(152, 70, 214, 0.075);
+  font-size: 8px;
+  font-weight: 780;
+  letter-spacing: 0.08em;
+}
+
+.pulse-welcome-step-body {
+  min-width: 0;
+}
+
+.pulse-welcome-step-title {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pulse-welcome-step-title > div {
+  min-width: 0;
+}
+
+.pulse-welcome-step-title
+> div > span {
   display: block;
-  color: rgba(184, 179, 191, 0.42);
+  color:
+    rgba(161, 119, 194, 0.67);
   font-size: 6px;
-  font-weight: 760;
-  letter-spacing: 0.14em;
+  font-weight: 800;
+  letter-spacing: 0.15em;
 }
 
-.pulse-onboarding-example code {
+.pulse-welcome-step-title strong {
   display: block;
-  margin-top: 6px;
-  color: rgba(221, 216, 226, 0.62);
+  margin-top: 4px;
+  color:
+    rgba(248, 245, 250, 0.93);
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: -0.018em;
+}
+
+.pulse-welcome-step-status {
+  flex: 0 0 auto;
+  color:
+    rgba(181, 176, 188, 0.30);
+  font-size: 6px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.pulse-welcome-step-body > p {
+  margin: 6px 0 0;
+  color:
+    rgba(191, 187, 198, 0.51);
+  font-size: 8px;
+  line-height: 1.43;
+}
+
+.pulse-welcome-step-body > p strong {
+  color:
+    rgba(230, 198, 251, 0.88);
+}
+
+.pulse-welcome-subid-demo {
+  height: 28px;
+  margin-top: 9px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.055);
+  border-radius: 8px;
+  background:
+    rgba(255, 255, 255, 0.022);
   font-family:
     ui-monospace,
     SFMono-Regular,
@@ -4853,399 +4954,619 @@ body.active-signal-notice-open
     Monaco,
     Consolas,
     monospace;
-  font-size: 10px;
-  white-space: nowrap;
+  font-size: 7px;
 }
 
-.pulse-onboarding-example code strong {
-  display: inline-block;
-  padding:
-    2px
-    5px;
-  border:
-    1px solid
-    rgba(196, 131, 246, 0.12);
+.pulse-welcome-link-muted {
+  color:
+    rgba(188, 184, 195, 0.38);
+}
+
+.pulse-welcome-subid-value {
+  position: relative;
+  margin-left: 1px;
+  padding: 3px 5px;
   border-radius: 5px;
-  color: #ddb5fa;
+  color: #deb8fa;
   background:
-    rgba(171, 93, 229, 0.10);
-  font-weight: 700;
+    rgba(176, 91, 233, 0.10);
   box-shadow:
-    0 0 10px
-    rgba(174, 95, 231, 0.06);
+    0 0 13px
+    rgba(176, 91, 233, 0.08);
   animation:
-    pulseOnboardingSubIdGlow
+    pulseWelcomeSubId
     2.1s
     ease-in-out
     infinite;
 }
 
-.pulse-onboarding-example small {
-  display: block;
-  margin-top: 6px;
-  color: rgba(183, 178, 190, 0.38);
-  font-size: 7px;
+.pulse-welcome-copy-chip {
+  margin-left: auto;
+  color:
+    rgba(165, 122, 198, 0.55);
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 5.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
 }
 
-.pulse-onboarding-progress {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  margin-top: 15px;
-  padding-top: 12px;
-  display: grid;
-  grid-template-columns:
-    repeat(4, 1fr);
+.pulse-welcome-config-demo {
+  margin-top: 8px;
+}
+
+.pulse-welcome-mini-slots {
+  display: flex;
   gap: 5px;
 }
 
-.pulse-onboarding-progress > span {
+.pulse-welcome-mini-slots > span {
   position: relative;
-  width: 100%;
-  height: 2px;
-  overflow: visible;
-  border-radius: 999px;
-  background:
-    rgba(255, 255, 255, 0.075);
-  transition:
-    background 200ms ease,
-    box-shadow 200ms ease;
-}
-
-.pulse-onboarding-progress > span::before {
-  position: absolute;
-  top: -12px;
-  left: 0;
-  color:
-    rgba(199, 194, 205, 0.30);
-  font-size: 6px;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  line-height: 1;
-}
-
-.pulse-onboarding-progress > span:nth-child(1)::before {
-  content: "01";
-}
-.pulse-onboarding-progress > span:nth-child(2)::before {
-  content: "02";
-}
-.pulse-onboarding-progress > span:nth-child(3)::before {
-  content: "03";
-}
-.pulse-onboarding-progress > span:nth-child(4)::before {
-  content: "04";
-}
-
-.pulse-onboarding-progress > span.is-complete {
-  background:
-    rgba(177, 108, 226, 0.32);
-}
-
-.pulse-onboarding-progress > span.is-active {
-  background:
-    linear-gradient(
-      90deg,
-      rgba(164, 82, 219, 0.72),
-      rgba(218, 158, 255, 0.88)
-    );
-  box-shadow:
-    0 0 9px
-    rgba(182, 102, 235, 0.18);
-  animation:
-    pulseOnboardingActiveProgress
-    1.9s
-    ease-in-out
-    infinite;
-}
-
-.pulse-onboarding-progress > span.is-active::before {
-  color:
-    rgba(229, 196, 251, 0.84);
-}
-
-.pulse-onboarding-actions {
-  position: relative;
-  z-index: 1;
-  margin-top: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.pulse-onboarding-back[hidden] {
-  display: none !important;
-}
-
-.pulse-onboarding-back,
-.pulse-onboarding-next {
-  min-height: 35px;
-  padding: 0 13px;
-  border-radius: 10px;
-  font-size: 8px;
-  font-weight: 720;
-  letter-spacing: 0.075em;
-  cursor: pointer;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  transition:
-    transform 150ms ease,
-    color 150ms ease,
-    border-color 150ms ease,
-    background 150ms ease,
-    box-shadow 150ms ease;
-}
-
-.pulse-onboarding-back {
+  width: 31px;
+  height: 24px;
   border:
     1px solid
-    rgba(255, 255, 255, 0.075);
-  color:
-    rgba(215, 210, 220, 0.56);
-  background:
-    rgba(255, 255, 255, 0.025);
-}
-
-.pulse-onboarding-next {
-  min-width: 94px;
-  border:
-    1px solid
-    rgba(225, 188, 255, 0.14);
-  color:
-    rgba(249, 245, 252, 0.92);
+    rgba(255, 255, 255, 0.055);
+  border-radius: 7px;
   background:
     linear-gradient(
       145deg,
-      rgba(166, 91, 220, 0.24),
-      rgba(98, 47, 143, 0.16)
+      rgba(97, 74, 122, 0.18),
+      rgba(19, 19, 28, 0.45)
     );
-  box-shadow:
-    0 8px 18px rgba(0, 0, 0, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.09),
-    0 0 18px rgba(154, 77, 211, 0.055);
 }
 
-.pulse-onboarding-next:hover {
+.pulse-welcome-mini-slots
+> span:nth-child(2) {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(155, 74, 222, 0.20),
+      rgba(41, 22, 61, 0.5)
+    );
+}
+
+.pulse-welcome-mini-slots
+> .is-demo-selected {
   border-color:
-    rgba(230, 196, 255, 0.24);
-}
-
-.pulse-onboarding-back:active,
-.pulse-onboarding-next:active,
-.pulse-onboarding-skip:active {
-  transform: scale(0.975);
-}
-
-/* Крок 2: легкий живий акцент слотів. */
-body.pulse-onboarding-is-step-game
-.slot-grid {
+    rgba(211, 157, 250, 0.34);
+  box-shadow:
+    0 0 12px
+    rgba(174, 81, 232, 0.11);
   animation:
-    pulseOnboardingGameFocus
-    2.2s
+    pulseWelcomeSlot
+    2.4s
     ease-in-out
     infinite;
 }
 
-/* Крок 3: світлова хвиля через профіль ризику. */
-body.pulse-onboarding-is-step-risk
-.risk-profile-options {
-  position: relative;
-  overflow: hidden;
+.pulse-welcome-mini-slots
+> .is-demo-selected::after {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #c77cf5;
+  box-shadow:
+    0 0 6px
+    rgba(199, 124, 245, 0.75);
+  content: "";
 }
 
-body.pulse-onboarding-is-step-risk
-.risk-profile-options::after {
+.pulse-welcome-mini-risk {
+  width: 174px;
+  height: 23px;
+  margin-top: 6px;
+  padding: 2px;
+  display: grid;
+  grid-template-columns:
+    repeat(3, 1fr);
+  gap: 2px;
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.045);
+  border-radius: 7px;
+  background:
+    rgba(255, 255, 255, 0.018);
+}
+
+.pulse-welcome-mini-risk span {
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+  color:
+    rgba(185, 180, 192, 0.35);
+  font-size: 5.5px;
+}
+
+.pulse-welcome-mini-risk
+.is-demo-risk {
+  color:
+    rgba(238, 223, 248, 0.82);
+  background:
+    rgba(152, 72, 211, 0.13);
+  box-shadow:
+    inset 0 0 0 1px
+    rgba(196, 128, 241, 0.08);
+  animation:
+    pulseWelcomeRisk
+    2.4s
+    ease-in-out
+    infinite;
+}
+
+.pulse-welcome-launch-demo {
+  height: 29px;
+  margin-top: 9px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.pulse-welcome-demo-button {
+  position: relative;
+  width: 95px;
+  height: 29px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  overflow: hidden;
+  border:
+    1px solid
+    rgba(203, 135, 248, 0.14);
+  border-radius: 8px;
+  color:
+    rgba(250, 246, 252, 0.91);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(151, 62, 222, 0.70),
+      rgba(95, 28, 151, 0.75)
+    );
+  box-shadow:
+    0 5px 14px
+    rgba(103, 29, 164, 0.18);
+  font-size: 6px;
+  font-weight: 820;
+  letter-spacing: 0.055em;
+}
+
+.pulse-welcome-demo-button svg {
+  width: 10px;
+  height: 10px;
+}
+
+.pulse-welcome-demo-button i {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: -38%;
-  width: 32%;
+  top: -20%;
+  left: -45%;
+  width: 28%;
+  height: 140%;
   background:
     linear-gradient(
       90deg,
       transparent,
-      rgba(221, 174, 255, 0.10),
+      rgba(255, 255, 255, 0.24),
+      transparent
+    );
+  transform: skewX(-18deg);
+  animation:
+    pulseWelcomeLaunchSweep
+    2.6s
+    ease-in-out
+    infinite;
+}
+
+.pulse-welcome-ready {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color:
+    rgba(94, 220, 156, 0.58);
+  font-size: 5.5px;
+  font-weight: 760;
+  letter-spacing: 0.07em;
+  opacity: 0;
+  animation:
+    pulseWelcomeReady
+    2.6s
+    ease-in-out
+    infinite;
+}
+
+.pulse-welcome-ready b {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #38d98a;
+  box-shadow:
+    0 0 7px
+    rgba(56, 217, 138, 0.58);
+}
+
+.pulse-welcome-footer {
+  padding-top:
+    clamp(
+      12px,
+      2vh,
+      18px
+    );
+  flex: 0 0 auto;
+}
+
+.pulse-welcome-footer p {
+  margin: 0 0 9px;
+  color:
+    rgba(174, 170, 182, 0.38);
+  font-size: 7px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.pulse-welcome-start {
+  position: relative;
+  width: 100%;
+  min-height: 46px;
+  padding: 0 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  overflow: hidden;
+  border:
+    1px solid
+    rgba(212, 160, 250, 0.17);
+  border-radius: 13px;
+  color: #fbf8fd;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(137, 54, 207, 0.93),
+      rgba(86, 25, 142, 0.97)
+    );
+  box-shadow:
+    0 11px 27px
+    rgba(87, 27, 140, 0.24),
+    inset 0 1px 0
+    rgba(255, 255, 255, 0.13);
+  font-size: 8px;
+  font-weight: 820;
+  letter-spacing: 0.075em;
+  cursor: pointer;
+  transition:
+    transform 150ms ease,
+    filter 150ms ease;
+}
+
+.pulse-welcome-start::before {
+  position: absolute;
+  top: -30%;
+  left: -32%;
+  width: 23%;
+  height: 160%;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.14),
       transparent
     );
   content: "";
-  pointer-events: none;
-  transform: skewX(-14deg);
+  transform: skewX(-18deg);
   animation:
-    pulseOnboardingRiskSweep
-    2.35s
+    pulseWelcomeMainSweep
+    3.5s
+    1s
     ease-in-out
     infinite;
 }
 
-/* Крок 4: м'яке дихання кнопки запуску. */
-body.pulse-onboarding-is-step-launch
-.signal-button {
-  animation:
-    pulseOnboardingLaunchGlow
-    2.1s
-    ease-in-out
-    infinite;
+.pulse-welcome-start span,
+.pulse-welcome-start svg {
+  position: relative;
+  z-index: 1;
 }
 
-body.pulse-onboarding-open
-.bottom-nav,
-body.pulse-onboarding-open
+.pulse-welcome-start svg {
+  width: 14px;
+  height: 14px;
+}
+
+.pulse-welcome-start:active,
+.pulse-welcome-skip:active {
+  transform: scale(0.975);
+}
+
+body.pulse-welcome-open
+.topbar,
+body.pulse-welcome-open
 .content,
-body.pulse-onboarding-open
-.topbar {
+body.pulse-welcome-open
+.bottom-nav {
   pointer-events: none;
 }
 
-@keyframes pulseOnboardingHalo {
-  0%,
-  100% {
-    opacity: 0.38;
-    transform: scale(0.985);
+@keyframes pulseWelcomeStepIn {
+  from {
+    opacity: 0;
+    transform:
+      translateY(12px)
+      scale(0.988);
   }
-  50% {
-    opacity: 0.78;
-    transform: scale(1.025);
-  }
-}
 
-@keyframes pulseOnboardingGlassBreath {
-  0%,
-  100% {
-    opacity: 0.72;
-    transform: translate3d(0, 0, 0);
-  }
-  50% {
+  to {
     opacity: 1;
-    transform: translate3d(-7px, 8px, 0);
+    transform:
+      translateY(0)
+      scale(1);
   }
 }
 
-@keyframes pulseOnboardingDot {
+@keyframes pulseWelcomeDot {
   0%,
   100% {
-    opacity: 0.65;
-    transform: scale(0.82);
+    opacity: 0.55;
+    transform: scale(0.8);
   }
+
   50% {
     opacity: 1;
     transform: scale(1.18);
   }
 }
 
-@keyframes pulseOnboardingSubIdGlow {
+@keyframes pulseWelcomeSubId {
   0%,
   100% {
+    color: #d8aaf6;
     box-shadow:
-      0 0 9px rgba(174, 95, 231, 0.045);
+      0 0 10px
+      rgba(176, 91, 233, 0.05);
   }
+
   50% {
+    color: #efd6ff;
     box-shadow:
-      0 0 16px rgba(193, 119, 247, 0.16);
+      0 0 17px
+      rgba(188, 106, 242, 0.18);
   }
 }
 
-@keyframes pulseOnboardingActiveProgress {
+@keyframes pulseWelcomeSlot {
   0%,
   100% {
-    filter: brightness(0.95);
+    transform: translateY(0);
   }
+
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes pulseWelcomeRisk {
+  0%,
+  100% {
+    filter: brightness(0.96);
+  }
+
   50% {
     filter: brightness(1.25);
   }
 }
 
-@keyframes pulseOnboardingGameFocus {
-  0%,
-  100% {
-    filter: brightness(1);
-  }
-  50% {
-    filter: brightness(1.07);
-  }
-}
-
-@keyframes pulseOnboardingRiskSweep {
+@keyframes pulseWelcomeLaunchSweep {
   0%,
   18% {
-    left: -38%;
+    left: -45%;
     opacity: 0;
   }
-  32% {
+
+  30% {
     opacity: 1;
   }
-  74% {
-    opacity: 0.8;
+
+  64% {
+    left: 125%;
+    opacity: 0.85;
   }
+
   100% {
-    left: 112%;
+    left: 125%;
     opacity: 0;
   }
 }
 
-@keyframes pulseOnboardingLaunchGlow {
+@keyframes pulseWelcomeReady {
+  0%,
+  46% {
+    opacity: 0;
+    transform: translateX(-3px);
+  }
+
+  60%,
+  82% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(2px);
+  }
+}
+
+@keyframes pulseWelcomeMainSweep {
+  0%,
+  65% {
+    left: -32%;
+    opacity: 0;
+  }
+
+  73% {
+    opacity: 1;
+  }
+
+  91% {
+    left: 120%;
+    opacity: 0.7;
+  }
+
+  100% {
+    left: 120%;
+    opacity: 0;
+  }
+}
+
+@keyframes pulseWelcomeOrbOne {
   0%,
   100% {
-    filter: brightness(1);
-    box-shadow:
-      0 7px 20px rgba(112, 26, 200, 0.28),
-      inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    transform:
+      translate3d(0, 0, 0)
+      scale(1);
   }
+
   50% {
-    filter: brightness(1.12);
-    box-shadow:
-      0 9px 25px rgba(152, 54, 232, 0.38),
-      0 0 20px rgba(185, 91, 255, 0.15),
-      inset 0 1px 0 rgba(255, 255, 255, 0.26);
+    transform:
+      translate3d(-16px, 18px, 0)
+      scale(1.08);
+  }
+}
+
+@keyframes pulseWelcomeOrbTwo {
+  0%,
+  100% {
+    transform:
+      translate3d(0, 0, 0)
+      scale(1);
+  }
+
+  50% {
+    transform:
+      translate3d(20px, -14px, 0)
+      scale(1.06);
   }
 }
 
 @media (max-height: 760px) and (max-width: 559px) {
-  .pulse-onboarding-card {
-    padding:
-      14px
-      14px
-      13px;
-    border-radius: 18px;
+  .pulse-welcome-shell {
+    padding-top:
+      max(
+        8px,
+        env(safe-area-inset-top)
+      );
+    padding-bottom:
+      max(
+        10px,
+        env(safe-area-inset-bottom)
+      );
   }
 
-  .pulse-onboarding-card h2 {
-    margin-top: 10px;
-    font-size: 16px;
+  .pulse-welcome-header {
+    min-height: 42px;
   }
 
-  .pulse-onboarding-copy {
+  .pulse-welcome-brand-mark {
+    width: 31px;
+    height: 31px;
+  }
+
+  .pulse-welcome-intro {
+    margin-top: 8px;
+  }
+
+  .pulse-welcome-intro h2 {
+    margin-top: 6px;
+    font-size: 19px;
+  }
+
+  .pulse-welcome-intro p {
     margin-top: 6px;
     font-size: 8px;
-    line-height: 1.46;
   }
 
-  .pulse-onboarding-example {
-    margin-top: 9px;
+  .pulse-welcome-steps {
+    margin-top: 10px;
+    gap: 7px;
+  }
+
+  .pulse-welcome-step {
+    min-height: 104px;
     padding:
-      8px
+      10px
+      11px
       9px;
+    grid-template-columns:
+      30px
+      minmax(0, 1fr);
+    gap: 9px;
+    border-radius: 15px;
   }
 
-  .pulse-onboarding-progress {
-    margin-top: 11px;
+  .pulse-welcome-step-number {
+    width: 30px;
+    height: 30px;
   }
 
-  .pulse-onboarding-actions {
-    margin-top: 11px;
+  .pulse-welcome-step-title strong {
+    font-size: 12px;
   }
 
-  .pulse-onboarding-back,
-  .pulse-onboarding-next {
-    min-height: 32px;
+  .pulse-welcome-step-body > p {
+    margin-top: 5px;
+    font-size: 7px;
+  }
+
+  .pulse-welcome-subid-demo,
+  .pulse-welcome-config-demo,
+  .pulse-welcome-launch-demo {
+    margin-top: 6px;
+  }
+
+  .pulse-welcome-footer {
+    padding-top: 8px;
+  }
+
+  .pulse-welcome-footer p {
+    margin-bottom: 7px;
+    font-size: 6.5px;
+  }
+
+  .pulse-welcome-start {
+    min-height: 41px;
+  }
+}
+
+@media (max-height: 670px) and (max-width: 559px) {
+  .pulse-welcome-intro p,
+  .pulse-welcome-footer p {
+    display: none;
+  }
+
+  .pulse-welcome-step {
+    min-height: 93px;
+  }
+
+  .pulse-welcome-step-body > p {
+    line-height: 1.3;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pulse-onboarding *,
-  body.pulse-onboarding-is-step-game .slot-grid,
-  body.pulse-onboarding-is-step-risk .risk-profile-options::after,
-  body.pulse-onboarding-is-step-launch .signal-button {
+  .pulse-welcome *,
+  .pulse-welcome *::before,
+  .pulse-welcome *::after {
     animation: none !important;
+  }
+
+  .pulse-welcome-step {
+    opacity: 1;
+    transform: none;
   }
 }
