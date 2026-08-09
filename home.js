@@ -960,10 +960,7 @@ function markPulseOnboardingSeen() {
 }
 
 function openPulseOnboarding() {
-  if (
-    !pulseOnboarding ||
-    hasSeenPulseOnboarding()
-  ) {
+  if (!pulseOnboarding) {
     return;
   }
 
@@ -1030,10 +1027,7 @@ function closePulseOnboarding(
 }
 
 function schedulePulseOnboarding() {
-  if (
-    hasSeenPulseOnboarding() ||
-    hasActiveSignalTimer()
-  ) {
+  if (hasActiveSignalTimer()) {
     return;
   }
 
