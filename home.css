@@ -5811,108 +5811,248 @@ body.pulse-welcome-open
   }
 }
 /* =========================================================
-   ARBIFY PULSE — ОСТАННІЙ СИГНАЛ НА ГОЛОВНІЙ
-   Floating card: не займає місця в .content і нічого не зсуває.
+   ARBIFY PULSE — ОСТАННІЙ СИГНАЛ / CHIP + POPOVER
+   Абсолютно всередині .signal-card — layout не зсувається.
    ========================================================= */
 
-.last-signal-float[hidden] {
+.last-signal-chip[hidden],
+.last-signal-popover[hidden] {
   display: none !important;
 }
 
-.last-signal-float {
+.last-signal-chip {
   position: absolute;
-  right: 18px;
-  bottom:
-    calc(
-      86px +
-      env(safe-area-inset-bottom)
-    );
-  left: 18px;
-  z-index: 8;
-  height: 56px;
-  padding:
-    7px
-    10px
-    7px
-    8px;
-  display: grid;
-  grid-template-columns:
-    42px
-    minmax(0, 1fr)
-    28px;
+  top: 11px;
+  right: 11px;
+  z-index: 5;
+  height: 24px;
+  padding: 0 8px 0 7px;
+  display: inline-flex;
   align-items: center;
-  gap: 9px;
+  justify-content: center;
+  gap: 5px;
   overflow: hidden;
   border:
     1px solid
-    rgba(255, 255, 255, 0.095);
-  border-radius: 15px;
+    rgba(198, 135, 241, 0.14);
+  border-radius: 999px;
+  color:
+    rgba(219, 191, 240, 0.72);
   background:
-    radial-gradient(
-      circle at 9% 50%,
-      rgba(151, 66, 221, 0.13),
-      transparent 31%
-    ),
     linear-gradient(
-      120deg,
-      rgba(24, 23, 34, 0.93),
-      rgba(8, 9, 15, 0.95)
+      145deg,
+      rgba(76, 42, 101, 0.32),
+      rgba(21, 19, 29, 0.50)
     );
   box-shadow:
-    0 15px 34px
-    rgba(0, 0, 0, 0.34),
     inset 0 1px 0
-    rgba(255, 255, 255, 0.055);
+    rgba(255, 255, 255, 0.055),
+    0 5px 14px
+    rgba(0, 0, 0, 0.12);
   backdrop-filter:
-    blur(20px)
-    saturate(1.12);
+    blur(13px);
   -webkit-backdrop-filter:
-    blur(20px)
-    saturate(1.12);
+    blur(13px);
+  font-size: 6.5px;
+  font-weight: 760;
+  letter-spacing: 0.055em;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.last-signal-chip svg {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 auto;
+}
+
+.last-signal-chip i {
+  width: 4px;
+  height: 4px;
+  flex: 0 0 4px;
+  border-radius: 50%;
+  background: #46dd96;
+  box-shadow:
+    0 0 7px
+    rgba(70, 221, 150, 0.56);
+  animation:
+    lastSignalChipDot
+    1.9s
+    ease-in-out
+    infinite;
+}
+
+.last-signal-chip:hover,
+.last-signal-chip[aria-expanded="true"] {
+  color:
+    rgba(239, 222, 249, 0.92);
+  border-color:
+    rgba(208, 149, 246, 0.25);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(97, 50, 128, 0.41),
+      rgba(25, 21, 35, 0.58)
+    );
+}
+
+.last-signal-chip:active {
+  transform: scale(0.96);
+}
+
+.last-signal-chip.is-fresh {
+  animation:
+    lastSignalChipFresh
+    780ms
+    cubic-bezier(0.18, 0.8, 0.2, 1)
+    2;
+}
+
+.last-signal-popover {
+  position: absolute;
+  right: 8px;
+  bottom: calc(100% + 9px);
+  z-index: 7;
+  width: min(272px, calc(100% - 16px));
+  height: 57px;
+  padding:
+    7px
+    9px
+    7px
+    7px;
+  display: grid;
+  grid-template-columns:
+    40px
+    minmax(0, 1fr)
+    25px;
+  align-items: center;
+  gap: 8px;
+  overflow: visible;
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.11);
+  border-radius: 14px;
+  background:
+    radial-gradient(
+      circle at 9% 48%,
+      rgba(151, 66, 221, 0.14),
+      transparent 32%
+    ),
+    linear-gradient(
+      125deg,
+      rgba(27, 25, 37, 0.96),
+      rgba(8, 9, 15, 0.975)
+    );
+  box-shadow:
+    0 18px 42px
+    rgba(0, 0, 0, 0.38),
+    inset 0 1px 0
+    rgba(255, 255, 255, 0.07);
+  backdrop-filter:
+    blur(22px)
+    saturate(1.15);
+  -webkit-backdrop-filter:
+    blur(22px)
+    saturate(1.15);
   opacity: 0;
+  filter: blur(6px);
   pointer-events: none;
   transform:
     translateY(8px)
-    scale(0.988);
+    scale(0.975);
+  transform-origin: 86% 100%;
   transition:
-    opacity 220ms ease,
-    transform 250ms
+    opacity 180ms ease,
+    filter 210ms ease,
+    transform 220ms
     cubic-bezier(0.18, 0.8, 0.2, 1);
 }
 
-.last-signal-float::before {
-  position: absolute;
-  top: 0;
-  right: 14px;
-  left: 14px;
-  height: 1px;
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(205, 149, 245, 0.20),
-      transparent
-    );
-  content: "";
-  pointer-events: none;
-}
-
-.last-signal-float.is-visible {
+.last-signal-popover.is-visible {
   opacity: 1;
+  filter: blur(0);
+  pointer-events: auto;
   transform:
     translateY(0)
     scale(1);
 }
 
+.last-signal-popover::before {
+  position: absolute;
+  top: 0;
+  right: 12px;
+  left: 12px;
+  height: 1px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(217, 163, 249, 0.22),
+      transparent
+    );
+  content: "";
+  animation:
+    lastSignalPopoverEdge
+    4s
+    ease-in-out
+    infinite;
+}
+
+.last-signal-popover::after {
+  position: absolute;
+  top: -30%;
+  left: -25%;
+  width: 16%;
+  height: 160%;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.08),
+      transparent
+    );
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transform: skewX(-18deg);
+  animation:
+    lastSignalPopoverSweep
+    5.4s
+    1.2s
+    ease-in-out
+    infinite;
+}
+
+.last-signal-popover-arrow {
+  position: absolute;
+  right: 29px;
+  bottom: -5px;
+  width: 10px;
+  height: 10px;
+  border-right:
+    1px solid
+    rgba(255, 255, 255, 0.10);
+  border-bottom:
+    1px solid
+    rgba(255, 255, 255, 0.10);
+  background:
+    rgba(12, 12, 19, 0.97);
+  transform: rotate(45deg);
+}
+
 .last-signal-thumb {
   position: relative;
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   overflow: hidden;
   border:
     1px solid
     rgba(255, 255, 255, 0.10);
-  border-radius: 11px;
+  border-radius: 10px;
   background: #0b0c13;
   box-shadow:
     0 5px 13px
@@ -5933,7 +6073,7 @@ body.pulse-welcome-open
     linear-gradient(
       180deg,
       transparent 52%,
-      rgba(0, 0, 0, 0.25)
+      rgba(0, 0, 0, 0.24)
     );
   content: "";
   pointer-events: none;
@@ -5941,11 +6081,11 @@ body.pulse-welcome-open
 
 .last-signal-live-dot {
   position: absolute;
-  right: 4px;
-  bottom: 4px;
+  right: 3px;
+  bottom: 3px;
   z-index: 2;
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border:
     1.5px solid
     rgba(10, 11, 17, 0.95);
@@ -5954,7 +6094,12 @@ body.pulse-welcome-open
   box-sizing: content-box;
   box-shadow:
     0 0 7px
-    rgba(56, 220, 142, 0.66);
+    rgba(56, 220, 142, 0.62);
+  animation:
+    lastSignalChipDot
+    1.9s
+    ease-in-out
+    infinite;
 }
 
 .last-signal-copy {
@@ -5971,7 +6116,7 @@ body.pulse-welcome-open
 .last-signal-topline > span {
   overflow: hidden;
   color:
-    rgba(177, 125, 218, 0.76);
+    rgba(181, 130, 220, 0.82);
   font-size: 6px;
   font-weight: 820;
   letter-spacing: 0.14em;
@@ -5982,9 +6127,8 @@ body.pulse-welcome-open
 .last-signal-topline small {
   flex: 0 0 auto;
   color:
-    rgba(167, 163, 175, 0.38);
+    rgba(185, 180, 192, 0.42);
   font-size: 6px;
-  font-weight: 650;
 }
 
 .last-signal-copy > strong {
@@ -5992,10 +6136,9 @@ body.pulse-welcome-open
   overflow: hidden;
   margin-top: 3px;
   color:
-    rgba(248, 245, 250, 0.95);
+    rgba(249, 246, 251, 0.96);
   font-size: 10px;
-  font-weight: 680;
-  letter-spacing: -0.01em;
+  font-weight: 690;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -6007,8 +6150,8 @@ body.pulse-welcome-open
   gap: 5px;
   overflow: hidden;
   color:
-    rgba(185, 181, 192, 0.55);
-  font-size: 6.5px;
+    rgba(194, 189, 201, 0.59);
+  font-size: 6px;
   white-space: nowrap;
 }
 
@@ -6018,259 +6161,47 @@ body.pulse-welcome-open
   flex: 0 0 2px;
   border-radius: 50%;
   background:
-    rgba(180, 174, 188, 0.34);
-}
-
-.last-signal-risk {
-  overflow: hidden;
-  text-overflow: ellipsis;
+    rgba(187, 180, 193, 0.34);
 }
 
 .last-signal-risk[data-level="низький"] {
   color:
-    rgba(91, 221, 158, 0.76);
+    rgba(91, 221, 158, 0.82);
 }
 
 .last-signal-risk[data-level="середній"] {
   color:
-    rgba(232, 193, 105, 0.78);
+    rgba(232, 193, 105, 0.84);
 }
 
 .last-signal-risk[data-level="високий"] {
   color:
-    rgba(239, 111, 130, 0.78);
+    rgba(239, 111, 130, 0.86);
 }
 
 .last-signal-status {
-  width: 27px;
-  height: 27px;
+  width: 24px;
+  height: 24px;
   display: grid;
   place-items: center;
   border:
     1px solid
-    rgba(57, 222, 143, 0.14);
+    rgba(57, 222, 143, 0.16);
   border-radius: 50%;
   color:
-    rgba(83, 227, 156, 0.78);
+    rgba(83, 227, 156, 0.84);
   background:
-    rgba(45, 199, 124, 0.055);
-  box-shadow:
-    inset 0 0 10px
-    rgba(45, 199, 124, 0.03);
-}
-
-.last-signal-status svg {
-  width: 13px;
-  height: 13px;
-}
-
-/*
- * На нижчих екранах картка стає ще компактнішою.
- * Позиціонування абсолютне, тому layout все одно не змінюється.
- */
-@media (max-height: 760px) and (max-width: 559px) {
-  .last-signal-float {
-    right: 14px;
-    bottom:
-      calc(
-        82px +
-        env(safe-area-inset-bottom)
-      );
-    left: 14px;
-    height: 49px;
-    padding:
-      6px
-      9px
-      6px
-      7px;
-    grid-template-columns:
-      36px
-      minmax(0, 1fr)
-      24px;
-    gap: 8px;
-    border-radius: 13px;
-  }
-
-  .last-signal-thumb {
-    width: 36px;
-    height: 36px;
-    border-radius: 9px;
-  }
-
-  .last-signal-status {
-    width: 24px;
-    height: 24px;
-  }
-
-  .last-signal-copy > strong {
-    font-size: 9px;
-  }
-
-  .last-signal-meta {
-    font-size: 6px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .last-signal-float {
-    transition: none;
-  }
-}
-
-/* ARBIFY LAST SIGNAL — COMPACT ANIMATED V2 */
-/* Тільки floating-плашка останнього сигналу. Інший layout не змінюється. */
-
-.last-signal-float {
-  right: 16px;
-  left: auto;
-  bottom:
-    calc(
-      84px +
-      env(safe-area-inset-bottom)
-    );
-  width: min(300px, calc(100% - 32px));
-  height: 46px;
-  padding:
-    5px
-    8px
-    5px
-    6px;
-  grid-template-columns:
-    34px
-    minmax(0, 1fr)
-    24px;
-  gap: 7px;
-  border-radius: 13px;
-  border-color: rgba(255, 255, 255, 0.10);
-  background:
-    radial-gradient(
-      circle at 12% 50%,
-      rgba(151, 66, 221, 0.12),
-      transparent 32%
-    ),
-    linear-gradient(
-      120deg,
-      rgba(22, 21, 31, 0.95),
-      rgba(8, 9, 15, 0.97)
-    );
-  box-shadow:
-    0 12px 28px rgba(0, 0, 0, 0.30),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  opacity: 0;
-  filter: blur(7px);
-  transform:
-    translateY(10px)
-    scale(0.97);
-  transition:
-    opacity 220ms ease,
-    filter 260ms ease,
-    transform 280ms cubic-bezier(0.18, 0.8, 0.2, 1);
-}
-
-.last-signal-float.is-visible {
-  opacity: 1;
-  filter: blur(0);
-  transform:
-    translateY(0)
-    scale(1);
-}
-
-.last-signal-float::before {
-  right: 10px;
-  left: 10px;
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(218, 169, 251, 0.18),
-      transparent
-    );
-  animation:
-    lastSignalEdgeGlow
-    4.8s
-    ease-in-out
-    infinite;
-}
-
-.last-signal-float::after {
-  position: absolute;
-  top: -35%;
-  left: -28%;
-  width: 18%;
-  height: 170%;
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.09),
-      transparent
-    );
-  content: "";
-  opacity: 0;
-  pointer-events: none;
-  transform: skewX(-18deg);
-  animation:
-    lastSignalSweep
-    5.6s
-    1.2s
-    ease-in-out
-    infinite;
-}
-
-.last-signal-thumb {
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
-}
-
-.last-signal-live-dot {
-  right: 3px;
-  bottom: 3px;
-  width: 5px;
-  height: 5px;
-  box-shadow:
-    0 0 6px rgba(56, 220, 142, 0.58);
-  animation:
-    lastSignalLivePulse
-    1.9s
-    ease-in-out
-    infinite;
-}
-
-.last-signal-copy > strong {
-  margin-top: 2px;
-  font-size: 9px;
-}
-
-.last-signal-topline > span {
-  font-size: 5.5px;
-}
-
-.last-signal-topline small {
-  font-size: 5.5px;
-}
-
-.last-signal-meta {
-  margin-top: 2px;
-  gap: 4px;
-  font-size: 5.8px;
-}
-
-.last-signal-status {
-  width: 23px;
-  height: 23px;
-  border-color: rgba(57, 222, 143, 0.16);
-  background: rgba(45, 199, 124, 0.06);
+    rgba(45, 199, 124, 0.06);
   opacity: 0;
   transform: scale(0.72);
 }
 
-.last-signal-float.is-visible
+.last-signal-popover.is-visible
 .last-signal-status {
   animation:
     lastSignalStatusIn
-    340ms
-    160ms
+    320ms
+    110ms
     cubic-bezier(0.18, 0.8, 0.2, 1)
     forwards;
 }
@@ -6278,6 +6209,45 @@ body.pulse-welcome-open
 .last-signal-status svg {
   width: 12px;
   height: 12px;
+}
+
+@keyframes lastSignalChipDot {
+  0%,
+  100% {
+    opacity: 0.68;
+    transform: scale(0.86);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+}
+
+@keyframes lastSignalChipFresh {
+  0% {
+    box-shadow:
+      inset 0 1px 0
+      rgba(255, 255, 255, 0.055),
+      0 0 0
+      rgba(185, 92, 255, 0);
+  }
+
+  50% {
+    box-shadow:
+      inset 0 1px 0
+      rgba(255, 255, 255, 0.08),
+      0 0 18px
+      rgba(185, 92, 255, 0.18);
+  }
+
+  100% {
+    box-shadow:
+      inset 0 1px 0
+      rgba(255, 255, 255, 0.055),
+      0 0 0
+      rgba(185, 92, 255, 0);
+  }
 }
 
 @keyframes lastSignalStatusIn {
@@ -6292,20 +6262,7 @@ body.pulse-welcome-open
   }
 }
 
-@keyframes lastSignalLivePulse {
-  0%,
-  100% {
-    opacity: 0.72;
-    transform: scale(0.88);
-  }
-
-  50% {
-    opacity: 1;
-    transform: scale(1.18);
-  }
-}
-
-@keyframes lastSignalEdgeGlow {
+@keyframes lastSignalPopoverEdge {
   0%,
   100% {
     opacity: 0.42;
@@ -6316,56 +6273,63 @@ body.pulse-welcome-open
   }
 }
 
-@keyframes lastSignalSweep {
+@keyframes lastSignalPopoverSweep {
   0%,
-  70% {
-    left: -28%;
+  72% {
+    left: -25%;
     opacity: 0;
   }
 
-  77% {
-    opacity: 0.8;
+  79% {
+    opacity: 0.75;
   }
 
   92% {
-    left: 116%;
-    opacity: 0.35;
+    left: 118%;
+    opacity: 0.32;
   }
 
   100% {
-    left: 116%;
+    left: 118%;
     opacity: 0;
   }
 }
 
 @media (max-height: 760px) and (max-width: 559px) {
-  .last-signal-float {
-    right: 12px;
-    left: auto;
-    bottom:
-      calc(
-        80px +
-        env(safe-area-inset-bottom)
-      );
-    width: min(278px, calc(100% - 24px));
-    height: 42px;
+  .last-signal-chip {
+    top: 9px;
+    right: 9px;
+    height: 22px;
     padding:
-      4px
+      0
       7px
-      4px
-      5px;
+      0
+      6px;
+    font-size: 6px;
+  }
+
+  .last-signal-popover {
+    right: 5px;
+    bottom: calc(100% + 7px);
+    width: min(252px, calc(100% - 10px));
+    height: 52px;
+    padding:
+      6px
+      8px
+      6px
+      6px;
     grid-template-columns:
-      31px
+      36px
       minmax(0, 1fr)
       22px;
-    gap: 6px;
-    border-radius: 12px;
+    gap: 7px;
+    border-radius: 13px;
   }
 
   .last-signal-thumb {
-    width: 31px;
-    height: 31px;
-    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
   }
 
   .last-signal-status {
@@ -6374,7 +6338,7 @@ body.pulse-welcome-open
   }
 
   .last-signal-copy > strong {
-    font-size: 8.5px;
+    font-size: 9px;
   }
 
   .last-signal-meta {
@@ -6383,17 +6347,19 @@ body.pulse-welcome-open
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .last-signal-float,
-  .last-signal-float::before,
-  .last-signal-float::after,
+  .last-signal-chip,
+  .last-signal-chip i,
+  .last-signal-popover,
+  .last-signal-popover::before,
+  .last-signal-popover::after,
   .last-signal-live-dot,
   .last-signal-status {
     animation: none !important;
     transition: none !important;
   }
 
-  .last-signal-float.is-visible,
-  .last-signal-float.is-visible
+  .last-signal-popover.is-visible,
+  .last-signal-popover.is-visible
   .last-signal-status {
     opacity: 1;
     filter: none;
