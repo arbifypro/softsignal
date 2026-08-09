@@ -138,54 +138,16 @@ const riskProfileOptions = document.querySelectorAll(
   ".risk-profile-option"
 );
 
-const pulseApp = document.querySelector(".pulse-app");
-
 const pulseOnboarding = document.querySelector(
   "#pulseOnboarding"
-);
-
-const pulseOnboardingSpotlight = document.querySelector(
-  "#pulseOnboardingSpotlight"
-);
-
-const pulseOnboardingCard = document.querySelector(
-  "#pulseOnboardingCard"
-);
-
-const pulseOnboardingStep = document.querySelector(
-  "#pulseOnboardingStep"
-);
-
-const pulseOnboardingTitle = document.querySelector(
-  "#pulseOnboardingTitle"
-);
-
-const pulseOnboardingCopy = document.querySelector(
-  "#pulseOnboardingCopy"
-);
-
-const pulseOnboardingExample = document.querySelector(
-  "#pulseOnboardingExample"
 );
 
 const pulseOnboardingSkip = document.querySelector(
   "#pulseOnboardingSkip"
 );
 
-const pulseOnboardingBack = document.querySelector(
-  "#pulseOnboardingBack"
-);
-
 const pulseOnboardingNext = document.querySelector(
   "#pulseOnboardingNext"
-);
-
-const pulseOnboardingDots = document.querySelectorAll(
-  ".pulse-onboarding-progress > span"
-);
-
-const pulseOnboardingBackdrop = document.querySelector(
-  "#pulseOnboardingBackdrop"
 );
 
 const signalProfileTemplates = {
@@ -965,77 +927,14 @@ let activeSignalNoticeInterval;
 let activeSignalNoticeRevealTimer;
 let activeSignalTimerState = loadActiveSignalTimerState();
 let selectedRiskProfile = loadRiskProfile();
-let pulseOnboardingIndex = 0;
 let pulseOnboardingTimer;
-let pulseOnboardingResizeFrame;
-let pulseOnboardingTransitionTimer;
+let pulseOnboardingCloseTimer;
 
 updateRiskProfileInterface();
 
 
 
 
-
-const pulseOnboardingSteps = [
-  {
-    kicker: "КРОК 1 · SUBID",
-    title: "Підтвердьте свій SUBID",
-    copy:
-      "Під час першого запуску система попросить SUBID. " +
-      "Вставте значення, яке знаходиться після знака «=» " +
-      "у вашому реєстраційному посиланні.",
-    target: null,
-    example: true,
-    focus: false,
-    className: "is-step-subid",
-  },
-  {
-    kicker: "КРОК 2 · ГРА",
-    title: "Оберіть потрібний слот",
-    copy:
-      "Натисніть на гру, для якої хочете сформувати сигнал. " +
-      "Обраний слот буде підсвічено.",
-    target: ".slot-grid",
-    example: false,
-    focus: true,
-    paddingX: 10,
-    paddingY: 8,
-    className: "is-step-game",
-  },
-  {
-    kicker: "КРОК 3 · РИЗИК",
-    title: "Налаштуйте профіль ризику",
-    copy:
-      "Оберіть низький, середній або високий рівень. " +
-      "Система використає саме цей профіль у новому сигналі.",
-    target: "#riskProfile",
-    example: false,
-    focus: true,
-    paddingX: 9,
-    paddingY: 8,
-    className: "is-step-risk",
-  },
-  {
-    kicker: "КРОК 4 · ЗАПУСК",
-    title: "Запустіть аналіз",
-    copy:
-      "Коли гра та профіль ризику обрані, натисніть «Запустити». " +
-      "Якщо SUBID ще не підтверджено — система спочатку попросить його.",
-    target: "#signalButton",
-    example: false,
-    focus: true,
-    paddingX: 12,
-    paddingY: 10,
-    className: "is-step-launch",
-  },
-];
-
-const PULSE_ONBOARDING_STEP_CLASSES = [
-  "is-step-subid",
-  "is-step-game",
-  "is-step-risk",
-  "is-step-launch",
-];
 
 function hasSeenPulseOnboarding() {
   try {
@@ -1056,431 +955,8 @@ function markPulseOnboardingSeen() {
       "true"
     );
   } catch {
-    /* Навчання просто може показатися знову. */
+    /* Tutorial може показатися знову. */
   }
-}
-
-function setPulseOnboardingStepClass(step) {
-  PULSE_ONBOARDING_STEP_CLASSES.forEach(
-    (className) => {
-      pulseOnboarding.classList.remove(
-        className
-      );
-
-      document.body.classList.remove(
-        `pulse-onboarding-${className}`
-      );
-    }
-  );
-
-  if (!step?.className) {
-    return;
-  }
-
-  pulseOnboarding.classList.add(
-    step.className
-  );
-
-  document.body.classList.add(
-    `pulse-onboarding-${step.className}`
-  );
-}
-
-function clearPulseOnboardingStepClasses() {
-  PULSE_ONBOARDING_STEP_CLASSES.forEach(
-    (className) => {
-      pulseOnboarding?.classList.remove(
-        className
-      );
-
-      document.body.classList.remove(
-        `pulse-onboarding-${className}`
-      );
-    }
-  );
-}
-
-function setPulseOnboardingFocus(
-  appRect,
-  targetRect,
-  step
-) {
-  if (
-    !pulseOnboardingBackdrop ||
-    !pulseOnboardingSpotlight
-  ) {
-    return null;
-  }
-
-  if (
-    !step.focus ||
-    !targetRect
-  ) {
-    pulseOnboarding.classList.add(
-      "is-no-focus"
-    );
-
-    pulseOnboardingBackdrop.style.removeProperty(
-      "--focus-x"
-    );
-    pulseOnboardingBackdrop.style.removeProperty(
-      "--focus-y"
-    );
-    pulseOnboardingBackdrop.style.removeProperty(
-      "--focus-rx"
-    );
-    pulseOnboardingBackdrop.style.removeProperty(
-      "--focus-ry"
-    );
-
-    pulseOnboardingSpotlight.style.opacity = "0";
-
-    return null;
-  }
-
-  pulseOnboarding.classList.remove(
-    "is-no-focus"
-  );
-
-  const paddingX =
-    Number(step.paddingX) || 9;
-
-  const paddingY =
-    Number(step.paddingY) || 8;
-
-  const left = Math.max(
-    10,
-    targetRect.left -
-      appRect.left -
-      paddingX
-  );
-
-  const top = Math.max(
-    10,
-    targetRect.top -
-      appRect.top -
-      paddingY
-  );
-
-  const right = Math.min(
-    appRect.width - 10,
-    targetRect.right -
-      appRect.left +
-      paddingX
-  );
-
-  const bottom = Math.min(
-    appRect.height - 10,
-    targetRect.bottom -
-      appRect.top +
-      paddingY
-  );
-
-  const width = Math.max(
-    1,
-    right - left
-  );
-
-  const height = Math.max(
-    1,
-    bottom - top
-  );
-
-  const centerX =
-    left + width / 2;
-
-  const centerY =
-    top + height / 2;
-
-  const radiusX = Math.max(
-    58,
-    width / 2 + 24
-  );
-
-  const radiusY = Math.max(
-    42,
-    height / 2 + 22
-  );
-
-  pulseOnboardingBackdrop.style.setProperty(
-    "--focus-x",
-    `${centerX}px`
-  );
-
-  pulseOnboardingBackdrop.style.setProperty(
-    "--focus-y",
-    `${centerY}px`
-  );
-
-  pulseOnboardingBackdrop.style.setProperty(
-    "--focus-rx",
-    `${radiusX}px`
-  );
-
-  pulseOnboardingBackdrop.style.setProperty(
-    "--focus-ry",
-    `${radiusY}px`
-  );
-
-  pulseOnboardingSpotlight.style.left =
-    `${left}px`;
-
-  pulseOnboardingSpotlight.style.top =
-    `${top}px`;
-
-  pulseOnboardingSpotlight.style.width =
-    `${width}px`;
-
-  pulseOnboardingSpotlight.style.height =
-    `${height}px`;
-
-  return {
-    left,
-    top,
-    right,
-    bottom,
-    width,
-    height,
-    centerX,
-    centerY,
-  };
-}
-
-function positionPulseOnboarding() {
-  if (
-    !pulseOnboarding ||
-    pulseOnboarding.hidden ||
-    !pulseApp
-  ) {
-    return;
-  }
-
-  const step =
-    pulseOnboardingSteps[
-      pulseOnboardingIndex
-    ];
-
-  const appRect =
-    pulseApp.getBoundingClientRect();
-
-  const target =
-    step.target
-      ? document.querySelector(
-          step.target
-        )
-      : null;
-
-  const targetRect =
-    target?.getBoundingClientRect() ||
-    null;
-
-  const focus =
-    setPulseOnboardingFocus(
-      appRect,
-      targetRect,
-      step
-    );
-
-  window.requestAnimationFrame(() => {
-    const cardRect =
-      pulseOnboardingCard
-        .getBoundingClientRect();
-
-    const cardWidth =
-      cardRect.width;
-
-    const cardHeight =
-      cardRect.height;
-
-    let cardLeft =
-      (appRect.width - cardWidth) / 2;
-
-    cardLeft = Math.max(
-      16,
-      Math.min(
-        cardLeft,
-        appRect.width -
-          cardWidth -
-          16
-      )
-    );
-
-    let cardTop;
-
-    if (!focus) {
-      cardTop =
-        appRect.height / 2 -
-        cardHeight / 2 -
-        16;
-    } else {
-      const minimumGap = 20;
-
-      const roomBelow =
-        appRect.height -
-        focus.bottom;
-
-      const roomAbove =
-        focus.top;
-
-      if (
-        roomBelow >=
-        cardHeight +
-          minimumGap +
-          18
-      ) {
-        cardTop =
-          focus.bottom +
-          minimumGap;
-      } else if (
-        roomAbove >=
-        cardHeight +
-          minimumGap +
-          18
-      ) {
-        cardTop =
-          focus.top -
-          cardHeight -
-          minimumGap;
-      } else {
-        const focusIsLower =
-          focus.centerY >
-          appRect.height / 2;
-
-        cardTop = focusIsLower
-          ? 18
-          : appRect.height -
-            cardHeight -
-            18;
-      }
-    }
-
-    cardTop = Math.max(
-      16,
-      Math.min(
-        cardTop,
-        appRect.height -
-          cardHeight -
-          16
-      )
-    );
-
-    pulseOnboardingCard.style.left =
-      `${cardLeft}px`;
-
-    pulseOnboardingCard.style.top =
-      `${cardTop}px`;
-  });
-}
-
-function applyPulseOnboardingStep() {
-  if (!pulseOnboarding) {
-    return;
-  }
-
-  const step =
-    pulseOnboardingSteps[
-      pulseOnboardingIndex
-    ];
-
-  setPulseOnboardingStepClass(step);
-
-  pulseOnboardingStep.textContent =
-    step.kicker;
-
-  pulseOnboardingTitle.textContent =
-    step.title;
-
-  pulseOnboardingCopy.textContent =
-    step.copy;
-
-  pulseOnboardingExample.hidden =
-    !step.example;
-
-  pulseOnboardingBack.hidden =
-    pulseOnboardingIndex === 0;
-
-  pulseOnboardingNext.textContent =
-    pulseOnboardingIndex ===
-    pulseOnboardingSteps.length - 1
-      ? "РОЗПОЧАТИ"
-      : "ДАЛІ";
-
-  pulseOnboardingDots.forEach(
-    (dot, index) => {
-      dot.classList.toggle(
-        "is-active",
-        index ===
-          pulseOnboardingIndex
-      );
-
-      dot.classList.toggle(
-        "is-complete",
-        index <
-          pulseOnboardingIndex
-      );
-    }
-  );
-
-  positionPulseOnboarding();
-
-  window.requestAnimationFrame(() => {
-    pulseOnboardingCard.classList.add(
-      "is-step-visible"
-    );
-
-    pulseOnboarding.classList.add(
-      "is-focus-visible"
-    );
-  });
-}
-
-function renderPulseOnboardingStep(
-  animated = true
-) {
-  if (!pulseOnboarding) {
-    return;
-  }
-
-  window.clearTimeout(
-    pulseOnboardingTransitionTimer
-  );
-
-  if (!animated) {
-    pulseOnboardingCard.classList.remove(
-      "is-step-visible"
-    );
-
-    pulseOnboarding.classList.remove(
-      "is-focus-visible",
-      "is-changing"
-    );
-
-    applyPulseOnboardingStep();
-    return;
-  }
-
-  pulseOnboarding.classList.add(
-    "is-changing"
-  );
-
-  pulseOnboardingCard.classList.remove(
-    "is-step-visible"
-  );
-
-  pulseOnboarding.classList.remove(
-    "is-focus-visible"
-  );
-
-  pulseOnboardingTransitionTimer =
-    window.setTimeout(() => {
-      applyPulseOnboardingStep();
-
-      window.requestAnimationFrame(() => {
-        pulseOnboarding.classList.remove(
-          "is-changing"
-        );
-      });
-    }, 145);
 }
 
 function openPulseOnboarding() {
@@ -1503,18 +979,15 @@ function openPulseOnboarding() {
     return;
   }
 
-  pulseOnboardingIndex = 0;
+  window.clearTimeout(
+    pulseOnboardingCloseTimer
+  );
+
   pulseOnboarding.hidden = false;
 
   document.body.classList.add(
-    "pulse-onboarding-open"
+    "pulse-welcome-open"
   );
-
-  pulseOnboarding.classList.add(
-    "is-no-focus"
-  );
-
-  renderPulseOnboardingStep(false);
 
   window.requestAnimationFrame(() => {
     pulseOnboarding.classList.add(
@@ -1539,28 +1012,21 @@ function closePulseOnboarding(
   );
 
   window.clearTimeout(
-    pulseOnboardingTransitionTimer
-  );
-
-  window.cancelAnimationFrame(
-    pulseOnboardingResizeFrame
+    pulseOnboardingCloseTimer
   );
 
   pulseOnboarding.classList.remove(
-    "is-open",
-    "is-focus-visible",
-    "is-changing"
+    "is-open"
   );
-
-  clearPulseOnboardingStepClasses();
 
   document.body.classList.remove(
-    "pulse-onboarding-open"
+    "pulse-welcome-open"
   );
 
-  window.setTimeout(() => {
-    pulseOnboarding.hidden = true;
-  }, 240);
+  pulseOnboardingCloseTimer =
+    window.setTimeout(() => {
+      pulseOnboarding.hidden = true;
+    }, 260);
 }
 
 function schedulePulseOnboarding() {
@@ -1578,47 +1044,7 @@ function schedulePulseOnboarding() {
   pulseOnboardingTimer =
     window.setTimeout(
       openPulseOnboarding,
-      650
-    );
-}
-
-function goToNextPulseOnboardingStep() {
-  if (
-    pulseOnboardingIndex >=
-    pulseOnboardingSteps.length - 1
-  ) {
-    closePulseOnboarding(true);
-    return;
-  }
-
-  pulseOnboardingIndex += 1;
-  renderPulseOnboardingStep(true);
-}
-
-function goToPreviousPulseOnboardingStep() {
-  if (pulseOnboardingIndex <= 0) {
-    return;
-  }
-
-  pulseOnboardingIndex -= 1;
-  renderPulseOnboardingStep(true);
-}
-
-function syncPulseOnboardingPosition() {
-  if (
-    !pulseOnboarding ||
-    pulseOnboarding.hidden
-  ) {
-    return;
-  }
-
-  window.cancelAnimationFrame(
-    pulseOnboardingResizeFrame
-  );
-
-  pulseOnboardingResizeFrame =
-    window.requestAnimationFrame(
-      positionPulseOnboarding
+      520
     );
 }
 
@@ -3202,12 +2628,9 @@ activeSignalNoticeBackdrop?.addEventListener(
 
 pulseOnboardingNext?.addEventListener(
   "click",
-  goToNextPulseOnboardingStep
-);
-
-pulseOnboardingBack?.addEventListener(
-  "click",
-  goToPreviousPulseOnboardingStep
+  () => {
+    closePulseOnboarding(true);
+  }
 );
 
 pulseOnboardingSkip?.addEventListener(
@@ -3215,16 +2638,6 @@ pulseOnboardingSkip?.addEventListener(
   () => {
     closePulseOnboarding(true);
   }
-);
-
-window.addEventListener(
-  "resize",
-  syncPulseOnboardingPosition
-);
-
-window.visualViewport?.addEventListener(
-  "resize",
-  syncPulseOnboardingPosition
 );
 
 notificationButton.addEventListener(
@@ -3396,11 +2809,7 @@ window.addEventListener(
     );
 
     window.clearTimeout(
-      pulseOnboardingTransitionTimer
-    );
-
-    window.cancelAnimationFrame(
-      pulseOnboardingResizeFrame
+      pulseOnboardingCloseTimer
     );
   }
 );
