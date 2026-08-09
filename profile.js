@@ -103,6 +103,22 @@ const profileTaskCount = document.querySelector(
   "#profileTaskCount"
 );
 
+const signalHistoryList = document.querySelector(
+  "#signalHistoryList"
+);
+
+const signalHistoryEmpty = document.querySelector(
+  "#signalHistoryEmpty"
+);
+
+const signalHistoryCount = document.querySelector(
+  "#signalHistoryCount"
+);
+
+const signalHistoryMore = document.querySelector(
+  "#signalHistoryMore"
+);
+
 const profileNotificationsButton =
   document.querySelector(
     "#profileNotificationsButton"
@@ -136,6 +152,7 @@ let profileDatabaseUser = null;
 let profileDatabaseState = {};
 let profileSaveQueue = Promise.resolve({});
 let profileInitializationPromise = null;
+let signalHistoryExpanded = false;
 
 /*
  * =========================================================
@@ -707,6 +724,374 @@ function isTelegramSupportConfigured() {
   );
 }
 
+
+const SIGNAL_HISTORY_LIMIT = 20;
+const SIGNAL_HISTORY_COLLAPSED_COUNT = 5;
+
+function readSignalHistory() {
+  if (
+    profileDatabaseReady &&
+    Array.isArray(
+      profileDatabaseState.signalHistory
+    )
+  ) {
+    return profileDatabaseState
+      .signalHistory
+      .filter((signal) => {
+        return (
+          signal &&
+          typeof signal === "object" &&
+          signal.slotName
+        );
+      })
+      .slice(0, SIGNAL_HISTORY_LIMIT);
+  }
+
+  const lastSignal = readJsonStorage(
+    sessionStorage,
+    LAST_SIGNAL_STORAGE_KEY,
+    null
+  );
+
+  return (
+    lastSignal &&
+    typeof lastSignal === "object" &&
+    lastSignal.slotName
+  )
+    ? [lastSignal]
+    : [];
+}
+
+function formatSignalHistoryDate(createdAt) {
+  const timestamp = Number(createdAt);
+
+  if (!Number.isFinite(timestamp)) {
+    return "Нещодавно";
+  }
+
+  const date = new Date(timestamp);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Нещодавно";
+  }
+
+  const now = new Date();
+
+  const startOfToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
+
+  const startOfSignalDay = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  );
+
+  const dayDifference = Math.round(
+    (
+      startOfToday.getTime() -
+      startOfSignalDay.getTime()
+    ) / 86400000
+  );
+
+  const time = date.toLocaleTimeString(
+    "uk-UA",
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+    }
+  );
+
+  if (dayDifference === 0) {
+    return `Сьогодні · ${time}`;
+  }
+
+  if (dayDifference === 1) {
+    return `Вчора · ${time}`;
+  }
+
+  const dayMonth = date.toLocaleDateString(
+    "uk-UA",
+    {
+      day: "2-digit",
+      month: "short",
+    }
+  );
+
+  return `${dayMonth} · ${time}`;
+}
+
+function normalizeSignalRisk(value) {
+  const risk = String(value || "")
+    .trim()
+    .toUpperCase();
+
+  return [
+    "НИЗЬКИЙ",
+    "СЕРЕДНІЙ",
+    "ВИСОКИЙ",
+  ].includes(risk)
+    ? risk
+    : "—";
+}
+
+function createSignalHistoryItem(
+  signal,
+  index
+) {
+  const item = document.createElement(
+    "article"
+  );
+
+  item.className = "signal-history-item";
+  item.style.setProperty(
+    "--history-index",
+    String(Math.min(index, 6))
+  );
+
+  const media = document.createElement(
+    "span"
+  );
+
+  media.className = "signal-history-media";
+
+  const image = document.createElement("img");
+  image.alt = signal.slotName || "";
+  image.loading = "lazy";
+  image.decoding = "async";
+
+  if (signal.slotImage) {
+    image.src = signal.slotImage;
+  } else {
+    image.hidden = true;
+  }
+
+  image.addEventListener(
+    "error",
+    () => {
+      image.hidden = true;
+      media.classList.add(
+        "has-image-error"
+      );
+    },
+    {
+      once: true,
+    }
+  );
+
+  const pulse = document.createElement(
+    "span"
+  );
+
+  pulse.className =
+    "signal-history-media-pulse";
+  pulse.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+
+  media.append(image, pulse);
+
+  const copy = document.createElement(
+    "div"
+  );
+
+  copy.className = "signal-history-copy";
+
+  const top = document.createElement(
+    "div"
+  );
+
+  top.className = "signal-history-item-top";
+
+  const name = document.createElement(
+    "strong"
+  );
+
+  name.textContent =
+    signal.slotName || "Слот";
+
+  const date = document.createElement(
+    "time"
+  );
+
+  date.textContent =
+    formatSignalHistoryDate(
+      signal.createdAt
+    );
+
+  if (
+    Number.isFinite(
+      Number(signal.createdAt)
+    )
+  ) {
+    date.dateTime = new Date(
+      Number(signal.createdAt)
+    ).toISOString();
+  }
+
+  top.append(name, date);
+
+  const meta = document.createElement(
+    "div"
+  );
+
+  meta.className = "signal-history-meta";
+
+  const bet = document.createElement(
+    "span"
+  );
+  bet.textContent = signal.bet || "—";
+
+  const dividerOne =
+    document.createElement("i");
+
+  const spins = document.createElement(
+    "span"
+  );
+
+  const spinsValue =
+    Number(signal.spins);
+
+  spins.textContent =
+    Number.isFinite(spinsValue)
+      ? `${spinsValue} обертів`
+      : "—";
+
+  const dividerTwo =
+    document.createElement("i");
+
+  const risk = document.createElement(
+    "span"
+  );
+
+  risk.className =
+    "signal-history-risk";
+
+  const riskValue =
+    normalizeSignalRisk(signal.risk);
+
+  risk.textContent = riskValue;
+  risk.dataset.risk =
+    riskValue.toLowerCase();
+
+  meta.append(
+    bet,
+    dividerOne,
+    spins,
+    dividerTwo,
+    risk
+  );
+
+  copy.append(top, meta);
+
+  const number = document.createElement(
+    "span"
+  );
+
+  number.className =
+    "signal-history-number";
+
+  number.textContent = String(
+    index + 1
+  ).padStart(2, "0");
+
+  item.append(media, copy, number);
+
+  return item;
+}
+
+function renderSignalHistory() {
+  if (
+    !signalHistoryList ||
+    !signalHistoryEmpty ||
+    !signalHistoryCount ||
+    !signalHistoryMore
+  ) {
+    return;
+  }
+
+  const history = readSignalHistory();
+
+  signalHistoryCount.textContent =
+    String(history.length);
+
+  signalHistoryEmpty.hidden =
+    history.length > 0;
+
+  signalHistoryList.hidden =
+    history.length === 0;
+
+  if (history.length === 0) {
+    signalHistoryList.replaceChildren();
+    signalHistoryMore.hidden = true;
+    return;
+  }
+
+  const visibleHistory =
+    signalHistoryExpanded
+      ? history
+      : history.slice(
+          0,
+          SIGNAL_HISTORY_COLLAPSED_COUNT
+        );
+
+  const fragment =
+    document.createDocumentFragment();
+
+  visibleHistory.forEach(
+    (signal, index) => {
+      fragment.appendChild(
+        createSignalHistoryItem(
+          signal,
+          index
+        )
+      );
+    }
+  );
+
+  signalHistoryList.replaceChildren(
+    fragment
+  );
+
+  const hasMore =
+    history.length >
+    SIGNAL_HISTORY_COLLAPSED_COUNT;
+
+  signalHistoryMore.hidden = !hasMore;
+
+  if (hasMore) {
+    signalHistoryMore.classList.toggle(
+      "is-expanded",
+      signalHistoryExpanded
+    );
+
+    const label =
+      signalHistoryMore.querySelector(
+        "span"
+      );
+
+    if (label) {
+      label.textContent =
+        signalHistoryExpanded
+          ? "Згорнути"
+          : `Показати ще ${
+              history.length -
+              SIGNAL_HISTORY_COLLAPSED_COUNT
+            }`;
+    }
+  }
+}
+
+function toggleSignalHistory() {
+  signalHistoryExpanded =
+    !signalHistoryExpanded;
+
+  renderSignalHistory();
+}
+
 /*
  * =========================================================
  * ВІДОБРАЖЕННЯ ПРОФІЛЮ
@@ -811,6 +1196,8 @@ function renderProfile() {
 
   profileTaskCount.textContent =
     formatNumber(completedTasks);
+
+  renderSignalHistory();
 }
 
 function finishProfileLoading() {
@@ -1306,6 +1693,11 @@ function initializeProfile() {
       renderNotificationStatus();
       finishProfileLoading();
       preventPageZoom();
+
+      signalHistoryMore?.addEventListener(
+        "click",
+        toggleSignalHistory
+      );
 
       profileNotificationsButton.addEventListener(
         "click",
