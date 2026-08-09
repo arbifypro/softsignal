@@ -154,6 +154,9 @@ const lastSignalChip = document.querySelector(
   "#lastSignalChip"
 );
 
+const lastSignalChipLabel =
+  lastSignalChip?.querySelector("span");
+
 const lastSignalFloat = document.querySelector(
   "#lastSignalFloat"
 );
@@ -1725,21 +1728,44 @@ function animateFreshLastSignal() {
   );
 
   lastSignalChip.classList.remove(
-    "is-fresh"
+    "is-fresh",
+    "is-updated"
   );
+
+  if (lastSignalChipLabel) {
+    lastSignalChipLabel.textContent =
+      "Оновлено";
+  }
 
   void lastSignalChip.offsetWidth;
 
   lastSignalChip.classList.add(
-    "is-fresh"
+    "is-fresh",
+    "is-updated"
   );
 
   lastSignalFreshTimer =
     window.setTimeout(() => {
       lastSignalChip.classList.remove(
-        "is-fresh"
+        "is-fresh",
+        "is-updated"
       );
-    }, 2100);
+
+      if (lastSignalChipLabel) {
+        lastSignalChipLabel.classList.add(
+          "is-switching"
+        );
+
+        window.setTimeout(() => {
+          lastSignalChipLabel.textContent =
+            "Останній";
+
+          lastSignalChipLabel.classList.remove(
+            "is-switching"
+          );
+        }, 140);
+      }
+    }, 1700);
 }
 
 function renderLastSignalSummary(
@@ -1818,6 +1844,14 @@ function renderLastSignalSummary(
   }
 
   lastSignalChip.hidden = false;
+
+  if (
+    !animateFresh &&
+    lastSignalChipLabel
+  ) {
+    lastSignalChipLabel.textContent =
+      "Останній";
+  }
 
   if (animateFresh) {
     animateFreshLastSignal();
