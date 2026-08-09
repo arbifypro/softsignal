@@ -846,6 +846,11 @@ function createSignalHistoryItem(
   );
 
   item.className = "signal-history-item";
+
+  if (index === 0) {
+    item.classList.add("is-latest");
+  }
+
   item.style.setProperty(
     "--history-index",
     String(Math.min(index, 6))
@@ -987,18 +992,41 @@ function createSignalHistoryItem(
 
   copy.append(top, meta);
 
-  const number = document.createElement(
+  const side = document.createElement(
     "span"
   );
 
-  number.className =
-    "signal-history-number";
+  side.className = "signal-history-side";
 
-  number.textContent = String(
-    index + 1
-  ).padStart(2, "0");
+  if (index === 0) {
+    side.classList.add("is-latest");
 
-  item.append(media, copy, number);
+    side.innerHTML = `
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="m8 12 2.6 2.6L16.5 8.7"></path>
+      </svg>
+    `;
+
+    side.setAttribute(
+      "aria-label",
+      "Останній сигнал"
+    );
+  } else {
+    side.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+  }
+
+  item.append(media, copy, side);
 
   return item;
 }
