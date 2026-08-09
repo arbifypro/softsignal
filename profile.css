@@ -2670,3 +2670,56 @@ body.has-exclusive-theme .profile-eyebrow > span {
     font-size: 5.8px;
   }
 }
+
+/* ARBIFY SIGNAL HISTORY — LATEST BADGE POSITION FIX */
+/* Тільки перший (найновіший) запис: badge переносимо до назви,
+   дата лишається справа і більше ні з чим не перетинається. */
+
+.signal-history-item.is-latest::before {
+  top: 13px;
+  right: auto;
+  left: 145px;
+  min-height: 15px;
+  padding: 0 6px;
+  font-size: 5.2px;
+  letter-spacing: 0.10em;
+}
+
+/* Дата першого сигналу вирівнюється так само чисто, як в інших,
+   але має запас справа під зелену галочку. */
+.signal-history-item.is-latest
+.signal-history-item-top {
+  padding-right: 0;
+  margin-right: 0;
+}
+
+.signal-history-item.is-latest
+.signal-history-item-top time {
+  margin-left: auto;
+  margin-right: 2px;
+  padding-left: 62px;
+}
+
+/* Назва не заходить під badge на вузьких екранах. */
+.signal-history-item.is-latest
+.signal-history-item-top strong {
+  max-width: 42%;
+}
+
+@media (max-width: 360px) {
+  .signal-history-item.is-latest::before {
+    left: 132px;
+    padding: 0 5px;
+    font-size: 4.8px;
+  }
+
+  .signal-history-item.is-latest
+  .signal-history-item-top time {
+    padding-left: 53px;
+  }
+
+  .signal-history-item.is-latest
+  .signal-history-item-top strong {
+    max-width: 40%;
+  }
+}
