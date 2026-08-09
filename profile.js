@@ -760,11 +760,12 @@ function openProfileGuide() {
     profileGuideCloseTimer
   );
 
-  profileGuide.hidden = false;
-
   document.body.classList.add(
-    "profile-guide-open"
+    "profile-guide-open",
+    "profile-guide-preparing"
   );
+
+  profileGuide.hidden = false;
 
   profileGuideButton?.setAttribute(
     "aria-expanded",
@@ -772,9 +773,15 @@ function openProfileGuide() {
   );
 
   window.requestAnimationFrame(() => {
-    profileGuide.classList.add(
-      "is-open"
-    );
+    window.requestAnimationFrame(() => {
+      profileGuide.classList.add(
+        "is-open"
+      );
+
+      document.body.classList.remove(
+        "profile-guide-preparing"
+      );
+    });
   });
 }
 
@@ -797,7 +804,8 @@ function closeProfileGuide() {
   );
 
   document.body.classList.remove(
-    "profile-guide-open"
+    "profile-guide-open",
+    "profile-guide-preparing"
   );
 
   profileGuideCloseTimer =
@@ -1829,12 +1837,12 @@ function initializeProfile() {
         toggleSignalHistory
       );
 
-      profileNotificationsButton.addEventListener(
+      profileNotificationsButton?.addEventListener(
         "click",
         configureNotifications
       );
 
-      profileLanguageButton.addEventListener(
+      profileLanguageButton?.addEventListener(
         "click",
         openLanguageSettings
       );
