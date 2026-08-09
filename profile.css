@@ -2625,3 +2625,48 @@ body.has-exclusive-theme .profile-eyebrow > span {
     animation: none !important;
   }
 }
+
+/* ARBIFY SIGNAL HISTORY — DATE ALIGNMENT TUNE */
+/* Тільки позиція/читабельність дати та часу в історії. */
+
+.signal-history-item-top {
+  gap: 10px;
+}
+
+.signal-history-item-top time {
+  margin-left: auto;
+  color: rgba(156, 151, 165, 0.72);
+  font-size: 6.2px;
+  font-weight: 650;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* У звичайних записах дата максимально наближена до правого краю картки. */
+.signal-history-item:not(.is-latest)
+.signal-history-item-top {
+  margin-right: -22px;
+}
+
+/* У найновішого залишаємо місце під badge «ОСТАННІЙ» та зелену галочку. */
+.signal-history-item.is-latest
+.signal-history-item-top {
+  padding-right: 0;
+  margin-right: 0;
+}
+
+.signal-history-item.is-latest
+.signal-history-item-top time {
+  margin-right: 0;
+}
+
+@media (max-width: 360px) {
+  .signal-history-item:not(.is-latest)
+  .signal-history-item-top {
+    margin-right: -19px;
+  }
+
+  .signal-history-item-top time {
+    font-size: 5.8px;
+  }
+}
