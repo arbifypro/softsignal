@@ -3879,40 +3879,41 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
   }
 }
 
-
-
-/* ARBIFY PROFILE — SUBID CHECK MATCH TASK ICON */
-/* SUBID verification icon now matches the green task icon style. */
+/* ARBIFY PROFILE — SUBID CHECK EXACT TASK MATCH V4 */
+/* 1:1 visual language with .profile-stat-icon.is-task */
 
 .profile-subid-value-row {
-  gap: 8px;
+  gap: 9px;
   align-items: center;
 }
 
 .profile-subid-verified {
-  width: 28px;
-  height: 28px;
-  min-width: 28px;
-  min-height: 28px;
-  padding: 0;
   display: grid;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
   place-items: center;
-  flex: 0 0 28px;
+  flex: 0 0 32px;
+  margin: 0;
   border: 1px solid rgba(44, 236, 134, 0.23);
-  border-radius: 9px;
+  border-radius: 11px;
   color: var(--green);
   background: rgba(23, 112, 70, 0.12);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.025),
-    0 0 14px rgba(44, 236, 134, 0.035);
+  box-shadow: none;
+  font-size: 0;
+  line-height: 0;
+  letter-spacing: 0;
 }
 
 .profile-subid-verified svg {
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
   padding: 0;
   border: 0;
   border-radius: 0;
+  color: currentColor;
   background: none;
   filter: none;
   stroke-width: 1.8;
@@ -3924,16 +3925,16 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
 
 @media (max-width: 360px) {
   .profile-subid-verified {
-    width: 26px;
-    height: 26px;
-    min-width: 26px;
-    min-height: 26px;
-    flex-basis: 26px;
-    border-radius: 8px;
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    min-height: 30px;
+    flex-basis: 30px;
+    border-radius: 10px;
   }
 
   .profile-subid-verified svg {
-    width: 15px;
-    height: 15px;
+    width: 16px;
+    height: 16px;
   }
 }
