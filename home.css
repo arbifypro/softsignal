@@ -6366,3 +6366,65 @@ body.pulse-welcome-open
     transform: none;
   }
 }
+
+/* ARBIFY LAST SIGNAL POPOVER — INSIDE CARD FIX */
+/* Popover відкривається всередині signal-card, тому overflow:hidden його не обрізає. */
+
+.last-signal-popover {
+  top: 40px;
+  right: 8px;
+  bottom: auto;
+  width: min(258px, calc(100% - 16px));
+  height: 62px;
+  transform-origin: 92% 0%;
+  transform:
+    translateY(-6px)
+    scale(0.975);
+}
+
+.last-signal-popover.is-visible {
+  transform:
+    translateY(0)
+    scale(1);
+}
+
+.last-signal-popover-arrow {
+  top: -5px;
+  right: 29px;
+  bottom: auto;
+  border-right: 0;
+  border-bottom: 0;
+  border-top:
+    1px solid
+    rgba(255, 255, 255, 0.10);
+  border-left:
+    1px solid
+    rgba(255, 255, 255, 0.10);
+  background:
+    rgba(21, 18, 29, 0.97);
+}
+
+/* Трохи сильніше відділяємо popover від контенту картки. */
+.last-signal-popover {
+  box-shadow:
+    0 16px 34px rgba(0, 0, 0, 0.42),
+    0 0 24px rgba(129, 48, 190, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.075);
+}
+
+/* Поки popover відкритий, сам chip лишається активним і зрозумілим. */
+.last-signal-chip[aria-expanded="true"] {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 15px rgba(174, 78, 232, 0.10);
+}
+
+@media (max-height: 760px) and (max-width: 559px) {
+  .last-signal-popover {
+    top: 36px;
+    right: 6px;
+    bottom: auto;
+    width: min(238px, calc(100% - 12px));
+    height: 56px;
+  }
+}
