@@ -3878,3 +3878,62 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
     flex-basis: 18px;
   }
 }
+
+
+
+/* ARBIFY PROFILE — SUBID CHECK MATCH TASK ICON */
+/* SUBID verification icon now matches the green task icon style. */
+
+.profile-subid-value-row {
+  gap: 8px;
+  align-items: center;
+}
+
+.profile-subid-verified {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  flex: 0 0 28px;
+  border: 1px solid rgba(44, 236, 134, 0.23);
+  border-radius: 9px;
+  color: var(--green);
+  background: rgba(23, 112, 70, 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 0 14px rgba(44, 236, 134, 0.035);
+}
+
+.profile-subid-verified svg {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  filter: none;
+  stroke-width: 1.8;
+}
+
+.profile-subid-cell.is-verified::after {
+  display: none !important;
+}
+
+@media (max-width: 360px) {
+  .profile-subid-verified {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    min-height: 26px;
+    flex-basis: 26px;
+    border-radius: 8px;
+  }
+
+  .profile-subid-verified svg {
+    width: 15px;
+    height: 15px;
+  }
+}
