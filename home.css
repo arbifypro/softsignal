@@ -6428,3 +6428,170 @@ body.pulse-welcome-open
     height: 56px;
   }
 }
+
+/* ARBIFY LAST SIGNAL — MICRO ANIMATIONS V3 */
+/* Ізольовані ефекти тільки для chip/popover «Останній сигнал». */
+
+/* Текст chip плавно змінюється Оновлено → Останній */
+.last-signal-chip > span {
+  display: inline-block;
+  min-width: 39px;
+  text-align: center;
+  transition:
+    opacity 140ms ease,
+    transform 170ms ease,
+    color 170ms ease;
+}
+
+.last-signal-chip > span.is-switching {
+  opacity: 0;
+  transform: translateY(-3px);
+}
+
+.last-signal-chip.is-updated {
+  color:
+    rgba(126, 238, 178, 0.92);
+  border-color:
+    rgba(65, 218, 144, 0.22);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(38, 106, 75, 0.26),
+      rgba(17, 27, 24, 0.48)
+    );
+}
+
+.last-signal-chip.is-updated i {
+  background: #5cf0a7;
+  box-shadow:
+    0 0 9px
+    rgba(92, 240, 167, 0.72);
+}
+
+/* Каскадна native-поява деталей popover */
+.last-signal-popover .last-signal-thumb,
+.last-signal-popover .last-signal-copy > strong,
+.last-signal-popover .last-signal-meta {
+  opacity: 0;
+  will-change:
+    opacity,
+    transform;
+}
+
+.last-signal-popover .last-signal-thumb {
+  transform:
+    translateY(5px)
+    scale(0.94);
+}
+
+.last-signal-popover .last-signal-copy > strong {
+  transform: translateY(4px);
+}
+
+.last-signal-popover .last-signal-meta {
+  transform: translateY(3px);
+}
+
+.last-signal-popover.is-visible
+.last-signal-thumb {
+  animation:
+    lastSignalDetailIn
+    280ms
+    35ms
+    cubic-bezier(0.18, 0.8, 0.2, 1)
+    forwards;
+}
+
+.last-signal-popover.is-visible
+.last-signal-copy > strong {
+  animation:
+    lastSignalTextIn
+    260ms
+    95ms
+    cubic-bezier(0.18, 0.8, 0.2, 1)
+    forwards;
+}
+
+.last-signal-popover.is-visible
+.last-signal-meta {
+  animation:
+    lastSignalTextIn
+    250ms
+    165ms
+    cubic-bezier(0.18, 0.8, 0.2, 1)
+    forwards;
+}
+
+/* Дуже повільний живий zoom картинки — без миготіння */
+.last-signal-popover.is-visible
+.last-signal-thumb img {
+  animation:
+    lastSignalImageBreath
+    5.8s
+    250ms
+    ease-in-out
+    infinite
+    alternate;
+}
+
+/* Верхній label/time лишається стабільним, щоб popover не здавався порожнім */
+.last-signal-topline {
+  transition:
+    opacity 180ms ease;
+}
+
+@keyframes lastSignalDetailIn {
+  from {
+    opacity: 0;
+    transform:
+      translateY(5px)
+      scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+@keyframes lastSignalTextIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lastSignalImageBreath {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .last-signal-chip > span,
+  .last-signal-popover .last-signal-thumb,
+  .last-signal-popover .last-signal-copy > strong,
+  .last-signal-popover .last-signal-meta,
+  .last-signal-popover.is-visible .last-signal-thumb img {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .last-signal-popover .last-signal-thumb,
+  .last-signal-popover .last-signal-copy > strong,
+  .last-signal-popover .last-signal-meta {
+    opacity: 1;
+    transform: none;
+  }
+}
