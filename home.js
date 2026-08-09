@@ -150,6 +150,34 @@ const pulseOnboardingNext = document.querySelector(
   "#pulseOnboardingNext"
 );
 
+const lastSignalFloat = document.querySelector(
+  "#lastSignalFloat"
+);
+
+const lastSignalImage = document.querySelector(
+  "#lastSignalImage"
+);
+
+const lastSignalName = document.querySelector(
+  "#lastSignalName"
+);
+
+const lastSignalBet = document.querySelector(
+  "#lastSignalBet"
+);
+
+const lastSignalSpins = document.querySelector(
+  "#lastSignalSpins"
+);
+
+const lastSignalRisk = document.querySelector(
+  "#lastSignalRisk"
+);
+
+const lastSignalTime = document.querySelector(
+  "#lastSignalTime"
+);
+
 const signalProfileTemplates = {
   balanced: {
     bets: [10, 20, 25, 30],
@@ -1582,6 +1610,101 @@ function showToast(message) {
   }, 2400);
 }
 
+function formatLastSignalTime(createdAt) {
+  const timestamp = Number(createdAt);
+
+  if (!Number.isFinite(timestamp)) {
+    return "";
+  }
+
+  const date = new Date(timestamp);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return date.toLocaleTimeString(
+    "uk-UA",
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+    }
+  );
+}
+
+function renderLastSignalSummary(signal) {
+  if (
+    !lastSignalFloat ||
+    !signal ||
+    typeof signal !== "object" ||
+    !signal.slotName
+  ) {
+    if (lastSignalFloat) {
+      lastSignalFloat.hidden = true;
+      lastSignalFloat.classList.remove(
+        "is-visible"
+      );
+    }
+
+    return;
+  }
+
+  if (lastSignalImage) {
+    lastSignalImage.src =
+      signal.slotImage || "";
+
+    lastSignalImage.alt =
+      signal.slotName || "";
+  }
+
+  if (lastSignalName) {
+    lastSignalName.textContent =
+      signal.slotName || "";
+  }
+
+  if (lastSignalBet) {
+    lastSignalBet.textContent =
+      signal.bet || "—";
+  }
+
+  if (lastSignalSpins) {
+    const spins = Number(signal.spins);
+
+    lastSignalSpins.textContent =
+      Number.isFinite(spins)
+        ? `${spins} обертів`
+        : "—";
+  }
+
+  if (lastSignalRisk) {
+    const risk =
+      String(signal.risk || "")
+        .trim()
+        .toUpperCase();
+
+    lastSignalRisk.textContent =
+      risk || "—";
+
+    lastSignalRisk.dataset.level =
+      risk.toLowerCase();
+  }
+
+  if (lastSignalTime) {
+    lastSignalTime.textContent =
+      formatLastSignalTime(
+        signal.createdAt
+      );
+  }
+
+  lastSignalFloat.hidden = false;
+
+  window.requestAnimationFrame(() => {
+    lastSignalFloat.classList.add(
+      "is-visible"
+    );
+  });
+}
+
 function getArbifyApi() {
   if (!window.ARBIFY_API) {
     throw new Error(
@@ -1731,6 +1854,10 @@ function applyDatabaseState(state) {
   );
 
   if (homeState.lastSignal) {
+    renderLastSignalSummary(
+      homeState.lastSignal
+    );
+
     try {
       sessionStorage.setItem(
         "arbifyLastSignal",
@@ -1743,6 +1870,8 @@ function applyDatabaseState(state) {
        * Останній сигнал уже є у базі.
        */
     }
+  } else {
+    renderLastSignalSummary(null);
   }
 }
 
@@ -2179,6 +2308,8 @@ function createSignal(slot) {
 }
 
 function saveSignal(signal) {
+  renderLastSignalSummary(signal);
+
   try {
     sessionStorage.setItem(
       "arbifyLastSignal",
