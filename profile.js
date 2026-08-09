@@ -1361,6 +1361,10 @@ function finishProfileLoading() {
 }
 
 function renderNotificationStatus() {
+  if (!profileNotificationStatus) {
+    return;
+  }
+
   if (!("Notification" in window)) {
     profileNotificationStatus.textContent =
       "Внутрішні активні";
@@ -1397,6 +1401,10 @@ function renderNotificationStatus() {
  */
 
 async function configureNotifications() {
+  if (!profileNotificationStatus) {
+    return;
+  }
+
   if (!("Notification" in window)) {
     showToast(
       "Внутрішні сповіщення Pulse вже працюють"
