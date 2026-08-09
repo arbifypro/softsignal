@@ -91,6 +91,30 @@ const profileSubId = document.querySelector(
   "#profileSubId"
 );
 
+const profileSubIdVerified = document.querySelector(
+  "#profileSubIdVerified"
+);
+
+const profileGuideButton = document.querySelector(
+  "#profileGuideButton"
+);
+
+const profileGuide = document.querySelector(
+  "#profileGuide"
+);
+
+const profileGuideBackdrop = document.querySelector(
+  "#profileGuideBackdrop"
+);
+
+const profileGuideClose = document.querySelector(
+  "#profileGuideClose"
+);
+
+const profileGuideDone = document.querySelector(
+  "#profileGuideDone"
+);
+
 const profilePulseBalance = document.querySelector(
   "#profilePulseBalance"
 );
@@ -153,6 +177,7 @@ let profileDatabaseState = {};
 let profileSaveQueue = Promise.resolve({});
 let profileInitializationPromise = null;
 let signalHistoryExpanded = false;
+let profileGuideCloseTimer;
 
 /*
  * =========================================================
@@ -725,6 +750,68 @@ function isTelegramSupportConfigured() {
 }
 
 
+
+function openProfileGuide() {
+  if (!profileGuide) {
+    return;
+  }
+
+  window.clearTimeout(
+    profileGuideCloseTimer
+  );
+
+  profileGuide.hidden = false;
+
+  document.body.classList.add(
+    "profile-guide-open"
+  );
+
+  profileGuideButton?.setAttribute(
+    "aria-expanded",
+    "true"
+  );
+
+  window.requestAnimationFrame(() => {
+    profileGuide.classList.add(
+      "is-open"
+    );
+  });
+}
+
+function closeProfileGuide() {
+  if (!profileGuide) {
+    return;
+  }
+
+  window.clearTimeout(
+    profileGuideCloseTimer
+  );
+
+  profileGuide.classList.remove(
+    "is-open"
+  );
+
+  profileGuideButton?.setAttribute(
+    "aria-expanded",
+    "false"
+  );
+
+  document.body.classList.remove(
+    "profile-guide-open"
+  );
+
+  profileGuideCloseTimer =
+    window.setTimeout(() => {
+      if (
+        !profileGuide.classList.contains(
+          "is-open"
+        )
+      ) {
+        profileGuide.hidden = true;
+      }
+    }, 240);
+}
+
 const SIGNAL_HISTORY_LIMIT = 20;
 const SIGNAL_HISTORY_COLLAPSED_COUNT = 5;
 
@@ -1215,6 +1302,21 @@ function renderProfile() {
 
   profileSubId.textContent =
     maskSubId(verifiedSubId);
+
+  const hasVerifiedSubId =
+    Boolean(
+      String(verifiedSubId || "").trim()
+    );
+
+  profileSubIdVerified.hidden =
+    !hasVerifiedSubId;
+
+  profileSubId.closest(
+    ".profile-subid-cell"
+  )?.classList.toggle(
+    "is-verified",
+    hasVerifiedSubId
+  );
 
   profilePulseBalance.textContent =
     formatNumber(balance);
@@ -1737,6 +1839,26 @@ function initializeProfile() {
         openLanguageSettings
       );
 
+      profileGuideButton?.addEventListener(
+        "click",
+        openProfileGuide
+      );
+
+      profileGuideClose?.addEventListener(
+        "click",
+        closeProfileGuide
+      );
+
+      profileGuideDone?.addEventListener(
+        "click",
+        closeProfileGuide
+      );
+
+      profileGuideBackdrop?.addEventListener(
+        "click",
+        closeProfileGuide
+      );
+
       profileSupportButton.addEventListener(
         "click",
         openTelegramSupport
@@ -1755,6 +1877,19 @@ function initializeProfile() {
       window.visualViewport?.addEventListener(
         "resize",
         setAppHeight
+      );
+
+      document.addEventListener(
+        "keydown",
+        (event) => {
+          if (
+            event.key === "Escape" &&
+            profileGuide &&
+            !profileGuide.hidden
+          ) {
+            closeProfileGuide();
+          }
+        }
       );
 
       window.addEventListener(
@@ -1820,6 +1955,10 @@ function initializeProfile() {
 
           window.clearTimeout(
             logoutConfirmTimer
+          );
+
+          window.clearTimeout(
+            profileGuideCloseTimer
           );
         }
       );
