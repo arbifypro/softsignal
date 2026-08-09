@@ -150,6 +150,10 @@ const pulseOnboardingNext = document.querySelector(
   "#pulseOnboardingNext"
 );
 
+const lastSignalChip = document.querySelector(
+  "#lastSignalChip"
+);
+
 const lastSignalFloat = document.querySelector(
   "#lastSignalFloat"
 );
@@ -957,6 +961,8 @@ let activeSignalTimerState = loadActiveSignalTimerState();
 let selectedRiskProfile = loadRiskProfile();
 let pulseOnboardingTimer;
 let pulseOnboardingCloseTimer;
+let lastSignalPopoverTimer;
+let lastSignalFreshTimer;
 
 updateRiskProfileInterface();
 
@@ -1632,13 +1638,128 @@ function formatLastSignalTime(createdAt) {
   );
 }
 
-function renderLastSignalSummary(signal) {
+function closeLastSignalPopover() {
+  window.clearTimeout(
+    lastSignalPopoverTimer
+  );
+
+  if (!lastSignalFloat) {
+    return;
+  }
+
+  lastSignalFloat.classList.remove(
+    "is-visible"
+  );
+
+  lastSignalChip?.setAttribute(
+    "aria-expanded",
+    "false"
+  );
+
+  window.setTimeout(() => {
+    if (
+      !lastSignalFloat.classList.contains(
+        "is-visible"
+      )
+    ) {
+      lastSignalFloat.hidden = true;
+    }
+  }, 190);
+}
+
+function openLastSignalPopover() {
   if (
+    !lastSignalFloat ||
+    !lastSignalChip ||
+    lastSignalChip.hidden
+  ) {
+    return;
+  }
+
+  window.clearTimeout(
+    lastSignalPopoverTimer
+  );
+
+  lastSignalFloat.hidden = false;
+
+  lastSignalChip.setAttribute(
+    "aria-expanded",
+    "true"
+  );
+
+  window.requestAnimationFrame(() => {
+    lastSignalFloat.classList.add(
+      "is-visible"
+    );
+  });
+
+  lastSignalPopoverTimer =
+    window.setTimeout(
+      closeLastSignalPopover,
+      4200
+    );
+}
+
+function toggleLastSignalPopover() {
+  if (
+    lastSignalFloat &&
+    !lastSignalFloat.hidden &&
+    lastSignalFloat.classList.contains(
+      "is-visible"
+    )
+  ) {
+    closeLastSignalPopover();
+    return;
+  }
+
+  openLastSignalPopover();
+}
+
+function animateFreshLastSignal() {
+  if (!lastSignalChip) {
+    return;
+  }
+
+  window.clearTimeout(
+    lastSignalFreshTimer
+  );
+
+  lastSignalChip.classList.remove(
+    "is-fresh"
+  );
+
+  void lastSignalChip.offsetWidth;
+
+  lastSignalChip.classList.add(
+    "is-fresh"
+  );
+
+  lastSignalFreshTimer =
+    window.setTimeout(() => {
+      lastSignalChip.classList.remove(
+        "is-fresh"
+      );
+    }, 2100);
+}
+
+function renderLastSignalSummary(
+  signal,
+  options = {}
+) {
+  const animateFresh =
+    options.animateFresh === true;
+
+  if (
+    !lastSignalChip ||
     !lastSignalFloat ||
     !signal ||
     typeof signal !== "object" ||
     !signal.slotName
   ) {
+    if (lastSignalChip) {
+      lastSignalChip.hidden = true;
+    }
+
     if (lastSignalFloat) {
       lastSignalFloat.hidden = true;
       lastSignalFloat.classList.remove(
@@ -1696,13 +1817,11 @@ function renderLastSignalSummary(signal) {
       );
   }
 
-  lastSignalFloat.hidden = false;
+  lastSignalChip.hidden = false;
 
-  window.requestAnimationFrame(() => {
-    lastSignalFloat.classList.add(
-      "is-visible"
-    );
-  });
+  if (animateFresh) {
+    animateFreshLastSignal();
+  }
 }
 
 function getArbifyApi() {
@@ -2308,7 +2427,10 @@ function createSignal(slot) {
 }
 
 function saveSignal(signal) {
-  renderLastSignalSummary(signal);
+  renderLastSignalSummary(
+    signal,
+    { animateFresh: true }
+  );
 
   try {
     sessionStorage.setItem(
@@ -2765,6 +2887,28 @@ pulseOnboardingSkip?.addEventListener(
   }
 );
 
+lastSignalChip?.addEventListener(
+  "click",
+  (event) => {
+    event.stopPropagation();
+    toggleLastSignalPopover();
+  }
+);
+
+lastSignalFloat?.addEventListener(
+  "click",
+  (event) => {
+    event.stopPropagation();
+  }
+);
+
+document.addEventListener(
+  "click",
+  () => {
+    closeLastSignalPopover();
+  }
+);
+
 notificationButton.addEventListener(
   "click",
   () => {
@@ -2935,6 +3079,14 @@ window.addEventListener(
 
     window.clearTimeout(
       pulseOnboardingCloseTimer
+    );
+
+    window.clearTimeout(
+      lastSignalPopoverTimer
+    );
+
+    window.clearTimeout(
+      lastSignalFreshTimer
     );
   }
 );
