@@ -192,7 +192,7 @@
       }
     </style>
 
-    <link rel="stylesheet" href="home.css?v=20260809-last-signal-1" />
+    <link rel="stylesheet" href="home.css?v=20260809-last-signal-chip-1" />
     <link rel="stylesheet" href="notifications.css" />
 
     <link
@@ -472,6 +472,90 @@
           >
             <div class="signal-card-glow"></div>
 
+            <button
+              class="last-signal-chip"
+              id="lastSignalChip"
+              type="button"
+              aria-expanded="false"
+              aria-controls="lastSignalFloat"
+              hidden
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M4 12a8 8 0 1 0 2.3-5.7"></path>
+                <path d="M4 5v5h5"></path>
+              </svg>
+
+              <span>Останній</span>
+
+              <i aria-hidden="true"></i>
+            </button>
+
+            <section
+              class="last-signal-popover"
+              id="lastSignalFloat"
+              aria-label="Останній сигнал"
+              hidden
+            >
+              <div class="last-signal-popover-arrow"></div>
+
+              <div class="last-signal-thumb">
+                <img
+                  id="lastSignalImage"
+                  src=""
+                  alt=""
+                />
+
+                <span
+                  class="last-signal-live-dot"
+                  aria-hidden="true"
+                ></span>
+              </div>
+
+              <div class="last-signal-copy">
+                <div class="last-signal-topline">
+                  <span>ОСТАННІЙ СИГНАЛ</span>
+                  <small id="lastSignalTime"></small>
+                </div>
+
+                <strong id="lastSignalName"></strong>
+
+                <div class="last-signal-meta">
+                  <span id="lastSignalBet"></span>
+                  <i></i>
+                  <span id="lastSignalSpins"></span>
+                  <i></i>
+                  <span
+                    class="last-signal-risk"
+                    id="lastSignalRisk"
+                  ></span>
+                </div>
+              </div>
+
+              <div
+                class="last-signal-status"
+                aria-hidden="true"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m8 12 2.6 2.6L16.5 8.7"></path>
+                </svg>
+              </div>
+            </section>
+
             <div
               class="radar"
               aria-hidden="true"
@@ -593,64 +677,6 @@
             </p>
           </div>
         </div>
-
-        <!-- Останній створений сигнал — floating, не впливає на layout -->
-        <section
-          class="last-signal-float"
-          id="lastSignalFloat"
-          aria-label="Останній сигнал"
-          hidden
-        >
-          <div class="last-signal-thumb">
-            <img
-              id="lastSignalImage"
-              src=""
-              alt=""
-            />
-
-            <span
-              class="last-signal-live-dot"
-              aria-hidden="true"
-            ></span>
-          </div>
-
-          <div class="last-signal-copy">
-            <div class="last-signal-topline">
-              <span>ОСТАННІЙ СИГНАЛ</span>
-              <small id="lastSignalTime"></small>
-            </div>
-
-            <strong id="lastSignalName"></strong>
-
-            <div class="last-signal-meta">
-              <span id="lastSignalBet"></span>
-              <i></i>
-              <span id="lastSignalSpins"></span>
-              <i></i>
-              <span
-                class="last-signal-risk"
-                id="lastSignalRisk"
-              ></span>
-            </div>
-          </div>
-
-          <div
-            class="last-signal-status"
-            aria-hidden="true"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="m8 12 2.6 2.6L16.5 8.7"></path>
-            </svg>
-          </div>
-        </section>
-
 
         <!-- Welcome Tutorial ARBIFY PULSE -->
         <section
@@ -1749,6 +1775,6 @@
     </main>
 
     <script src="notifications.js?v=20260803-1"></script>
-    <script src="home.js?v=20260809-last-signal-1"></script>
+    <script src="home.js?v=20260809-last-signal-chip-1"></script>
   </body>
 </html>
