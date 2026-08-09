@@ -192,7 +192,7 @@
       }
     </style>
 
-    <link rel="stylesheet" href="home.css?v=20260809-welcome-tutorial-1" />
+    <link rel="stylesheet" href="home.css?v=20260809-last-signal-1" />
     <link rel="stylesheet" href="notifications.css" />
 
     <link
@@ -594,6 +594,62 @@
           </div>
         </div>
 
+        <!-- Останній створений сигнал — floating, не впливає на layout -->
+        <section
+          class="last-signal-float"
+          id="lastSignalFloat"
+          aria-label="Останній сигнал"
+          hidden
+        >
+          <div class="last-signal-thumb">
+            <img
+              id="lastSignalImage"
+              src=""
+              alt=""
+            />
+
+            <span
+              class="last-signal-live-dot"
+              aria-hidden="true"
+            ></span>
+          </div>
+
+          <div class="last-signal-copy">
+            <div class="last-signal-topline">
+              <span>ОСТАННІЙ СИГНАЛ</span>
+              <small id="lastSignalTime"></small>
+            </div>
+
+            <strong id="lastSignalName"></strong>
+
+            <div class="last-signal-meta">
+              <span id="lastSignalBet"></span>
+              <i></i>
+              <span id="lastSignalSpins"></span>
+              <i></i>
+              <span
+                class="last-signal-risk"
+                id="lastSignalRisk"
+              ></span>
+            </div>
+          </div>
+
+          <div
+            class="last-signal-status"
+            aria-hidden="true"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m8 12 2.6 2.6L16.5 8.7"></path>
+            </svg>
+          </div>
+        </section>
 
 
         <!-- Welcome Tutorial ARBIFY PULSE -->
@@ -1693,6 +1749,6 @@
     </main>
 
     <script src="notifications.js?v=20260803-1"></script>
-    <script src="home.js?v=20260809-welcome-tutorial-1"></script>
+    <script src="home.js?v=20260809-last-signal-1"></script>
   </body>
 </html>
