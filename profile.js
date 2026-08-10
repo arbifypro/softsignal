@@ -806,37 +806,28 @@ function isTelegramSupportConfigured() {
 
 
 function openProfileGuide() {
-  if (!profileGuide) {
+  /*
+   * Відкриваємо не копію інструкції у профілі,
+   * а оригінальний onboarding з home.html.
+   * Одноразовий flag живе тільки до переходу.
+   */
+  try {
+    sessionStorage.setItem(
+      "arbifyOpenOnboardingFromProfile",
+      "true"
+    );
+  } catch {
+    /*
+     * Fallback нижче через query-параметр,
+     * якщо sessionStorage недоступний.
+     */
+    window.location.href =
+      "home.html?onboarding=1";
+
     return;
   }
 
-  window.clearTimeout(
-    profileGuideCloseTimer
-  );
-
-  document.body.classList.add(
-    "profile-guide-open",
-    "profile-guide-preparing"
-  );
-
-  profileGuide.hidden = false;
-
-  profileGuideButton?.setAttribute(
-    "aria-expanded",
-    "true"
-  );
-
-  window.requestAnimationFrame(() => {
-    window.requestAnimationFrame(() => {
-      profileGuide.classList.add(
-        "is-open"
-      );
-
-      document.body.classList.remove(
-        "profile-guide-preparing"
-      );
-    });
-  });
+  window.location.href = "home.html";
 }
 
 function closeProfileGuide() {
