@@ -56,6 +56,8 @@ const TELEGRAM_SUPPORT_USERNAME = "YOUR_USERNAME";
 
 const TOAST_DURATION = 2600;
 const LOGOUT_CONFIRM_DURATION = 3600;
+const SUBID_VERIFY_DELAY = 1200;
+const SUBID_SUCCESS_DELAY = 850;
 
 /*
  * =========================================================
@@ -93,6 +95,55 @@ const profileSubId = document.querySelector(
 
 const profileSubIdVerified = document.querySelector(
   "#profileSubIdVerified"
+);
+
+
+const subIdModal = document.querySelector(
+  "#subIdModal"
+);
+
+const subIdModalBackdrop = document.querySelector(
+  ".subid-modal-backdrop"
+);
+
+const subIdDialog = document.querySelector(
+  ".subid-dialog"
+);
+
+const subIdCloseButton = document.querySelector(
+  "#subIdCloseButton"
+);
+
+const subIdFormView = document.querySelector(
+  "#subIdFormView"
+);
+
+const subIdSuccessView = document.querySelector(
+  "#subIdSuccessView"
+);
+
+const subIdForm = document.querySelector(
+  "#subIdForm"
+);
+
+const subIdField = document.querySelector(
+  "#subIdField"
+);
+
+const subIdInput = document.querySelector(
+  "#subIdInput"
+);
+
+const subIdMessage = document.querySelector(
+  "#subIdMessage"
+);
+
+const subIdVerifyButton = document.querySelector(
+  "#subIdVerifyButton"
+);
+
+const subIdVerifyText = document.querySelector(
+  "#subIdVerifyText"
 );
 
 const profileGuideButton = document.querySelector(
@@ -178,6 +229,9 @@ let profileSaveQueue = Promise.resolve({});
 let profileInitializationPromise = null;
 let signalHistoryExpanded = false;
 let profileGuideCloseTimer;
+let subIdVerifyTimer;
+let subIdSuccessTimer;
+let subIdCloseTimer;
 
 /*
  * =========================================================
@@ -820,6 +874,286 @@ function closeProfileGuide() {
     }, 240);
 }
 
+
+function normalizeProfileSubId(value) {
+  return String(value || "")
+    .trim()
+    .replace(/\s+/g, "")
+    .slice(0, 64);
+}
+
+function hasProfileVerifiedSubId() {
+  const verifiedSubId =
+    profileDatabaseReady
+      ? profileDatabaseState.subid
+      : sessionStorage.getItem(
+          SUBID_STORAGE_KEY
+        );
+
+  return Boolean(
+    normalizeProfileSubId(
+      verifiedSubId
+    )
+  );
+}
+
+function resetProfileSubIdModal() {
+  if (
+    !subIdDialog ||
+    !subIdField ||
+    !subIdFormView ||
+    !subIdSuccessView ||
+    !subIdMessage ||
+    !subIdVerifyButton ||
+    !subIdVerifyText
+  ) {
+    return;
+  }
+
+  subIdDialog.classList.remove(
+    "is-checking",
+    "is-success"
+  );
+
+  subIdField.classList.remove(
+    "has-error",
+    "is-checking"
+  );
+
+  subIdFormView.hidden = false;
+  subIdSuccessView.hidden = true;
+  subIdMessage.innerHTML = "&nbsp;";
+  subIdVerifyButton.disabled = false;
+  subIdVerifyText.textContent =
+    "ПЕРЕВІРИТИ SUBID";
+}
+
+function openProfileSubIdModal() {
+  if (
+    !subIdModal ||
+    !subIdInput ||
+    hasProfileVerifiedSubId()
+  ) {
+    return;
+  }
+
+  window.clearTimeout(toastTimer);
+  window.clearTimeout(subIdCloseTimer);
+
+  toast?.classList.remove("is-visible");
+  resetProfileSubIdModal();
+
+  subIdInput.value = "";
+  subIdModal.hidden = false;
+
+  document.body.classList.add(
+    "subid-modal-open"
+  );
+
+  window.requestAnimationFrame(() => {
+    subIdModal.classList.add(
+      "is-open"
+    );
+  });
+}
+
+function closeProfileSubIdModal(
+  afterClose
+) {
+  if (!subIdModal) {
+    return;
+  }
+
+  window.clearTimeout(subIdVerifyTimer);
+  window.clearTimeout(subIdSuccessTimer);
+  window.clearTimeout(subIdCloseTimer);
+
+  subIdInput?.blur();
+
+  subIdModal.classList.remove(
+    "is-open"
+  );
+
+  document.body.classList.remove(
+    "subid-modal-open"
+  );
+
+  subIdCloseTimer =
+    window.setTimeout(() => {
+      subIdModal.hidden = true;
+      resetProfileSubIdModal();
+
+      if (
+        typeof afterClose ===
+        "function"
+      ) {
+        afterClose();
+      }
+    }, 220);
+}
+
+function showProfileSubIdError(
+  message
+) {
+  if (
+    !subIdDialog ||
+    !subIdField ||
+    !subIdMessage ||
+    !subIdVerifyButton ||
+    !subIdVerifyText
+  ) {
+    return;
+  }
+
+  subIdDialog.classList.remove(
+    "is-checking"
+  );
+
+  subIdField.classList.remove(
+    "is-checking"
+  );
+
+  void subIdField.offsetWidth;
+
+  subIdField.classList.add(
+    "has-error"
+  );
+
+  subIdMessage.textContent =
+    message;
+
+  subIdVerifyButton.disabled = false;
+
+  subIdVerifyText.textContent =
+    "ПЕРЕВІРИТИ SUBID";
+
+  subIdInput?.focus();
+}
+
+function startProfileSubIdVerification(
+  subId
+) {
+  if (
+    !subIdDialog ||
+    !subIdField ||
+    !subIdMessage ||
+    !subIdVerifyButton ||
+    !subIdVerifyText
+  ) {
+    return;
+  }
+
+  subIdInput?.blur();
+  subIdMessage.innerHTML = "&nbsp;";
+
+  subIdField.classList.remove(
+    "has-error"
+  );
+
+  subIdField.classList.add(
+    "is-checking"
+  );
+
+  subIdDialog.classList.add(
+    "is-checking"
+  );
+
+  subIdVerifyButton.disabled = true;
+
+  subIdVerifyText.textContent =
+    "ПЕРЕВІРЯЄМО...";
+
+  /*
+   * Зберігаємо SUBID тим самим способом,
+   * яким профіль уже синхронізує свій state.
+   * Поки серверної Keitaro-перевірки немає,
+   * будь-який непорожній SUBID приймається.
+   */
+  subIdVerifyTimer =
+    window.setTimeout(
+      async () => {
+        try {
+          if (profileDatabaseReady) {
+            await saveProfileState(
+              {
+                subid: subId,
+              },
+              {
+                required: true,
+              }
+            );
+          } else {
+            profileDatabaseState = {
+              ...profileDatabaseState,
+              subid: subId,
+            };
+          }
+
+          try {
+            sessionStorage.setItem(
+              SUBID_STORAGE_KEY,
+              subId
+            );
+          } catch {
+            /*
+             * У Telegram основна копія
+             * вже збережена у PostgreSQL.
+             */
+          }
+
+          subIdDialog.classList.remove(
+            "is-checking"
+          );
+
+          subIdDialog.classList.add(
+            "is-success"
+          );
+
+          subIdField.classList.remove(
+            "is-checking"
+          );
+
+          subIdFormView.hidden = true;
+          subIdSuccessView.hidden = false;
+
+          renderProfile();
+
+          subIdSuccessTimer =
+            window.setTimeout(() => {
+              closeProfileSubIdModal(
+                () => {
+                  renderProfile();
+                  showToast(
+                    "SUBID успішно підтверджено"
+                  );
+                }
+              );
+            }, SUBID_SUCCESS_DELAY);
+        } catch (error) {
+          console.error(
+            "Profile SUBID save error:",
+            error.message
+          );
+
+          showProfileSubIdError(
+            "Не вдалося зберегти SUBID. Спробуйте ще раз"
+          );
+        }
+      },
+      SUBID_VERIFY_DELAY
+    );
+}
+
+function activateProfileSubId() {
+  if (
+    hasProfileVerifiedSubId()
+  ) {
+    return;
+  }
+
+  openProfileSubIdModal();
+}
+
 const SIGNAL_HISTORY_LIMIT = 20;
 const SIGNAL_HISTORY_COLLAPSED_COUNT = 5;
 
@@ -1325,6 +1659,41 @@ function renderProfile() {
     "is-verified",
     hasVerifiedSubId
   );
+
+
+  profileSubId.classList.toggle(
+    "is-subid-action",
+    !hasVerifiedSubId
+  );
+
+  if (hasVerifiedSubId) {
+    profileSubId.removeAttribute(
+      "role"
+    );
+
+    profileSubId.removeAttribute(
+      "tabindex"
+    );
+
+    profileSubId.removeAttribute(
+      "aria-label"
+    );
+  } else {
+    profileSubId.setAttribute(
+      "role",
+      "button"
+    );
+
+    profileSubId.setAttribute(
+      "tabindex",
+      "0"
+    );
+
+    profileSubId.setAttribute(
+      "aria-label",
+      "Підтвердити SUBID"
+    );
+  }
 
   profilePulseBalance.textContent =
     formatNumber(balance);
@@ -1855,6 +2224,90 @@ function initializeProfile() {
         openLanguageSettings
       );
 
+      profileSubId?.addEventListener(
+        "click",
+        activateProfileSubId
+      );
+
+      profileSubId?.addEventListener(
+        "keydown",
+        (event) => {
+          if (
+            event.key === "Enter" ||
+            event.key === " "
+          ) {
+            if (
+              !hasProfileVerifiedSubId()
+            ) {
+              event.preventDefault();
+              activateProfileSubId();
+            }
+          }
+        }
+      );
+
+      subIdForm?.addEventListener(
+        "submit",
+        (event) => {
+          event.preventDefault();
+
+          if (
+            subIdVerifyButton?.disabled
+          ) {
+            return;
+          }
+
+          const subId =
+            normalizeProfileSubId(
+              subIdInput?.value
+            );
+
+          if (subIdInput) {
+            subIdInput.value = subId;
+          }
+
+          if (!subId) {
+            showProfileSubIdError(
+              "Введіть свій SUBID для перевірки"
+            );
+
+            return;
+          }
+
+          startProfileSubIdVerification(
+            subId
+          );
+        }
+      );
+
+      subIdInput?.addEventListener(
+        "input",
+        () => {
+          subIdField?.classList.remove(
+            "has-error"
+          );
+
+          if (subIdMessage) {
+            subIdMessage.innerHTML =
+              "&nbsp;";
+          }
+        }
+      );
+
+      subIdCloseButton?.addEventListener(
+        "click",
+        () => {
+          closeProfileSubIdModal();
+        }
+      );
+
+      subIdModalBackdrop?.addEventListener(
+        "click",
+        () => {
+          closeProfileSubIdModal();
+        }
+      );
+
       profileGuideButton?.addEventListener(
         "click",
         openProfileGuide
@@ -1898,6 +2351,15 @@ function initializeProfile() {
       document.addEventListener(
         "keydown",
         (event) => {
+          if (
+            event.key === "Escape" &&
+            subIdModal &&
+            !subIdModal.hidden
+          ) {
+            closeProfileSubIdModal();
+            return;
+          }
+
           if (
             event.key === "Escape" &&
             profileGuide &&
@@ -1975,6 +2437,19 @@ function initializeProfile() {
 
           window.clearTimeout(
             profileGuideCloseTimer
+          );
+
+
+          window.clearTimeout(
+            subIdVerifyTimer
+          );
+
+          window.clearTimeout(
+            subIdSuccessTimer
+          );
+
+          window.clearTimeout(
+            subIdCloseTimer
           );
         }
       );
