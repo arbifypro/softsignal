@@ -1931,14 +1931,18 @@ function closeVerificationOverlay() {
 }
 
 function readFavoriteSlotsCount() {
+  let databaseFavorites = [];
+
   if (
     Array.isArray(
       rewardsDatabaseState.favorites
     )
   ) {
-    return rewardsDatabaseState
-      .favorites.length;
+    databaseFavorites =
+      rewardsDatabaseState.favorites;
   }
+
+  let localFavorites = [];
 
   try {
     const storedValue =
@@ -1949,20 +1953,85 @@ function readFavoriteSlotsCount() {
         FAVORITE_SLOTS_KEY
       );
 
-    if (!storedValue) {
-      return 0;
+    if (storedValue) {
+      const parsedValue =
+        JSON.parse(storedValue);
+
+      if (Array.isArray(parsedValue)) {
+        localFavorites = parsedValue;
+      }
     }
-
-    const parsedValue =
-      JSON.parse(storedValue);
-
-    return Array.isArray(parsedValue)
-      ? parsedValue.length
-      : 0;
   } catch {
-    return 0;
+    /*
+     * Якщо локальне сховище недоступне,
+     * продовжуємо з даними сервера.
+     */
   }
+
+  /*
+   * Об'єднуємо обидва джерела.
+   * Це прибирає короткий розрив між натисканням сердечка
+   * на Home та завершенням синхронізації з PostgreSQL.
+   */
+  return new Set([
+    ...databaseFavorites,
+    ...localFavorites,
+  ]).size;
 }
+
+
+function synchronizeFavoriteSlotsTask() {
+  const favoriteCount =
+    readFavoriteSlotsCount();
+
+  const maximum =
+    Math.max(
+      1,
+      Number(
+        rewardsState.progress
+          .favoriteSlotsMaximum
+      ) || 3
+    );
+
+  rewardsState.progress.favoriteSlots =
+    Math.min(
+      favoriteCount,
+      maximum
+    );
+
+  const record =
+    getTaskRecord(
+      "favorite-slots"
+    );
+
+  if (
+    record.status !== "completed"
+  ) {
+    if (favoriteCount >= maximum) {
+      record.status = "claimable";
+
+      if (!record.verifiedAt) {
+        record.verifiedAt = Date.now();
+      }
+    } else if (
+      record.status === "claimable"
+    ) {
+      /*
+       * Якщо до отримання нагороди користувач
+       * прибрав слот з обраного — повертаємо прогрес.
+       */
+      record.status = "available";
+      delete record.verifiedAt;
+    }
+  }
+
+  saveRewardsState();
+  renderTask("favorite-slots");
+  renderTaskProgress();
+
+  return favoriteCount;
+}
+
 
 function readCreatedSignalCount() {
   const databaseSignalCount =
@@ -3152,35 +3221,7 @@ function synchronizeExistingActivity() {
       Date.now();
   }
 
-  const favoriteCount =
-    readFavoriteSlotsCount();
-
-  rewardsState.progress
-    .favoriteSlots =
-    Math.min(
-      favoriteCount,
-      rewardsState.progress
-        .favoriteSlotsMaximum
-    );
-
-  const favoriteRecord =
-    getTaskRecord(
-      "favorite-slots"
-    );
-
-  if (
-    favoriteCount >=
-      rewardsState.progress
-        .favoriteSlotsMaximum &&
-    favoriteRecord.status !==
-      "completed"
-  ) {
-    favoriteRecord.status =
-      "claimable";
-
-    favoriteRecord.verifiedAt =
-      Date.now();
-  }
+  synchronizeFavoriteSlotsTask();
 
   const createdSignalCount =
     readCreatedSignalCount();
@@ -3351,6 +3392,33 @@ document.addEventListener(
     }
   }
 );
+
+
+window.addEventListener(
+  "pageshow",
+  () => {
+    if (!rewardsPageReady) {
+      return;
+    }
+
+    synchronizeFavoriteSlotsTask();
+  }
+);
+
+window.addEventListener(
+  "storage",
+  (event) => {
+    if (
+      event.key !==
+      FAVORITE_SLOTS_KEY
+    ) {
+      return;
+    }
+
+    synchronizeFavoriteSlotsTask();
+  }
+);
+
 
 function initializeRewardsPage() {
   if (
