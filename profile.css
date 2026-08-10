@@ -4568,3 +4568,71 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
     animation: none !important;
   }
 }
+
+/* ARBIFY PROFILE — VERIFIED TYPOGRAPHY EXACT MATCH */
+/* "Підтверджено" копіює типографіку "Не підтверджено". */
+.profile-subid-verified {
+  font-family: inherit !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  line-height: inherit !important;
+  letter-spacing: inherit !important;
+  text-transform: none !important;
+  color: rgba(76, 226, 146, 0.88);
+  white-space: nowrap;
+}
+
+.profile-subid-verified::after {
+  content: "Підтверджено";
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+}
+
+@keyframes profileSubIdVerifiedPulse {
+  0%,
+  100% {
+    opacity: 0.68;
+    color: rgba(76, 226, 146, 0.76);
+  }
+
+  50% {
+    opacity: 1;
+    color: rgba(76, 226, 146, 0.98);
+  }
+}
+
+/* ARBIFY PROFILE — VERIFIED EXACT BASELINE FINAL */
+/* "Підтверджено" = той самий шрифт, розмір і нижня лінія, що "Не підтверджено". */
+.profile-subid-value-row {
+  align-items: baseline !important;
+}
+
+.profile-subid-verified {
+  align-self: baseline !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  transform: none !important;
+  vertical-align: baseline !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  line-height: inherit !important;
+  letter-spacing: inherit !important;
+  text-transform: none !important;
+}
+
+.profile-subid-verified::after {
+  display: inline !important;
+  position: static !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+  vertical-align: baseline !important;
+  font: inherit !important;
+  line-height: inherit !important;
+  letter-spacing: inherit !important;
+  content: "Підтверджено";
+}
