@@ -52,7 +52,7 @@ const PULSE_LEVELS = Object.freeze([
 /*
  * Вкажи username менеджера БЕЗ символу @.
  */
-const TELEGRAM_SUPPORT_USERNAME = "YOUR_USERNAME";
+const TELEGRAM_SUPPORT_USERNAME = "arbifypulse";
 
 const TOAST_DURATION = 2600;
 const LOGOUT_CONFIRM_DURATION = 3600;
