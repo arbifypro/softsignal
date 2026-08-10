@@ -4743,3 +4743,14 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
     animation: none !important;
   }
 }
+
+/* ARBIFY PROFILE — HIDE VERIFIED STATUS UNTIL SUBID IS VERIFIED */
+/* Якщо SUBID не підтверджений — показуємо тільки "Не підтверджено". */
+.profile-subid-cell:not(.is-verified) .profile-subid-verified {
+  display: none !important;
+}
+
+/* Якщо SUBID підтверджений — показуємо зелений "Підтверджено". */
+.profile-subid-cell.is-verified .profile-subid-verified {
+  display: inline-block !important;
+}
