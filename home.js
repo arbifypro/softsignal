@@ -647,6 +647,19 @@ function toggleFavoriteSlot(slotName) {
   saveFavoriteSlots();
   updateFavoriteInterface();
 
+  /*
+   * Синхронізуємо обране з профілем/сервером.
+   * Завдання «Додати 3 слоти в обране» на сторінці Bonus
+   * читає саме цей список у Telegram Mini App.
+   */
+  if (homeReady) {
+    void persistStatePatch({
+      favorites: [
+        ...favoriteSlotNames,
+      ],
+    });
+  }
+
   showToast(
     isRemoving
       ? `${slotName} видалено з обраного`
@@ -2059,6 +2072,27 @@ function applyDatabaseState(state) {
     homeState.selectedSlot
   );
 
+  if (
+    Array.isArray(
+      homeState.favorites
+    )
+  ) {
+    favoriteSlotNames =
+      new Set(
+        homeState.favorites.filter(
+          (slotName) => {
+            return slotCatalog.some(
+              (slot) =>
+                slot.name === slotName
+            );
+          }
+        )
+      );
+
+    saveFavoriteSlots();
+    updateFavoriteInterface();
+  }
+
   if (homeState.lastSignal) {
     renderLastSignalSummary(
       homeState.lastSignal
@@ -2160,6 +2194,18 @@ async function migrateLegacyState() {
     patch.selectedSlot =
       selectedSlot.name;
   }
+
+  if (
+    !Array.isArray(
+      homeState.favorites
+    ) &&
+    favoriteSlotNames.size > 0
+  ) {
+    patch.favorites = [
+      ...favoriteSlotNames,
+    ];
+  }
+
 
   if (
     !homeState.taskProgress
