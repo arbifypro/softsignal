@@ -4363,3 +4363,91 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
     animation: none !important;
   }
 }
+
+/* ARBIFY PROFILE — SUBID VERIFIED INLINE FRAME FINAL */
+.profile-subid-value-row {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.profile-subid-value-row > strong {
+  display: block;
+  flex: 0 0 auto;
+  line-height: 1;
+}
+
+.profile-subid-verified {
+  width: auto;
+  height: 20px;
+  min-width: 0;
+  min-height: 20px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  flex: 0 0 auto;
+  transform: translateY(1px);
+  border: 1px solid rgba(52, 226, 139, 0.24);
+  border-radius: 7px;
+  color: rgba(73, 232, 151, 0.90);
+  background:
+    linear-gradient(180deg, rgba(29, 117, 73, 0.10), rgba(13, 53, 36, 0.07));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 0 10px rgba(49, 224, 137, 0.045);
+  font-size: 5.4px;
+  font-weight: 820;
+  line-height: 1;
+  letter-spacing: 0.10em;
+  white-space: nowrap;
+  text-shadow: 0 0 6px rgba(57, 225, 142, 0.10);
+  animation: profileVerifiedInlinePulse 2.5s ease-in-out infinite;
+}
+
+.profile-subid-verified svg {
+  display: none !important;
+}
+
+.profile-subid-verified::after {
+  content: "ПІДТВЕРДЖЕНО";
+}
+
+.profile-subid-cell.is-verified::after {
+  display: none !important;
+}
+
+@keyframes profileVerifiedInlinePulse {
+  0%, 100% {
+    border-color: rgba(52, 226, 139, 0.18);
+    color: rgba(73, 232, 151, 0.76);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.02),
+      0 0 7px rgba(49,224,137,.025);
+  }
+  50% {
+    border-color: rgba(52, 226, 139, 0.34);
+    color: rgba(82, 242, 160, 0.98);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.035),
+      0 0 13px rgba(49,224,137,.09);
+  }
+}
+
+@media (max-width: 360px) {
+  .profile-subid-value-row { gap: 8px; }
+  .profile-subid-verified {
+    height: 19px;
+    min-height: 19px;
+    padding: 0 7px;
+    font-size: 5px;
+    border-radius: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-subid-verified { animation: none !important; }
+}
