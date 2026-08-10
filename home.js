@@ -9,6 +9,7 @@ const FAVORITE_SLOTS_STORAGE_KEY = "arbifyFavoriteSlots";
 const ACTIVE_SIGNAL_TIMER_STORAGE_KEY = "arbifyActiveSignalTimer";
 const RISK_PROFILE_STORAGE_KEY = "arbifyRiskProfile";
 const ONBOARDING_STORAGE_KEY = "arbifyOnboardingSeen";
+const PROFILE_ONBOARDING_REQUEST_KEY = "arbifyOpenOnboardingFromProfile";
 
 const slotGrid = document.querySelector(".slot-grid");
 const signalButton = document.querySelector("#signalButton");
@@ -971,6 +972,58 @@ updateRiskProfileInterface();
 
 
 
+
+
+function consumeProfileOnboardingRequest() {
+  let requested = false;
+
+  try {
+    requested =
+      sessionStorage.getItem(
+        PROFILE_ONBOARDING_REQUEST_KEY
+      ) === "true";
+
+    if (requested) {
+      sessionStorage.removeItem(
+        PROFILE_ONBOARDING_REQUEST_KEY
+      );
+    }
+  } catch {
+    /*
+     * Якщо sessionStorage недоступний,
+     * перевіряємо fallback query-параметр.
+     */
+  }
+
+  try {
+    const url = new URL(
+      window.location.href
+    );
+
+    if (
+      url.searchParams.get(
+        "onboarding"
+      ) === "1"
+    ) {
+      requested = true;
+      url.searchParams.delete(
+        "onboarding"
+      );
+
+      window.history.replaceState(
+        window.history.state,
+        "",
+        url.pathname +
+          url.search +
+          url.hash
+      );
+    }
+  } catch {
+    /* URL fallback не критичний. */
+  }
+
+  return requested;
+}
 
 
 function hasSeenPulseOnboarding() {
@@ -2187,7 +2240,27 @@ async function initializeHomeState() {
   document.documentElement.dataset
     .arbifyPageReady = "true";
 
-  schedulePulseOnboarding();
+  const onboardingRequestedFromProfile =
+    consumeProfileOnboardingRequest();
+
+  if (onboardingRequestedFromProfile) {
+    /*
+     * Відкриваємо той самий #pulseOnboarding,
+     * який використовується при першому запуску.
+     * Маленька затримка дає Home завершити перший paint.
+     */
+    window.clearTimeout(
+      pulseOnboardingTimer
+    );
+
+    pulseOnboardingTimer =
+      window.setTimeout(
+        openPulseOnboarding,
+        80
+      );
+  } else {
+    schedulePulseOnboarding();
+  }
 
   return true;
 }
