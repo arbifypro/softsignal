@@ -2485,3 +2485,74 @@ body {
     isolation: isolate;
   }
 }
+
+/* =========================================================
+   BONUSES — EXACT HOME HEADER ALIGNMENT
+   Вирівнювання верхньої панелі 1-в-1 з Home.
+   Інші блоки сторінки не змінюються.
+   ========================================================= */
+
+/* Базова геометрія Home. */
+.rewards-app .topbar {
+  height: 82px !important;
+  min-height: 82px !important;
+  flex: 0 0 82px !important;
+  padding:
+    max(10px, env(safe-area-inset-top))
+    20px
+    0 !important;
+  align-items: center !important;
+  background: #06070d !important;
+  background-color: #06070d !important;
+}
+
+/* Логотип 1-в-1 з Home. */
+.rewards-app .mini-brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.rewards-app .brand-mark {
+  width: 40px !important;
+  height: 40px !important;
+  flex: 0 0 40px !important;
+}
+
+.rewards-app .crown {
+  width: 25px !important;
+  height: 20px !important;
+}
+
+.rewards-app .brand-name {
+  margin: 0 !important;
+  font-size: 16px !important;
+  letter-spacing: 0.2em !important;
+  line-height: 1 !important;
+}
+
+.rewards-app .brand-pulse {
+  margin: 5px 0 0 !important;
+  font-size: 8px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.25em !important;
+  line-height: 1 !important;
+}
+
+/*
+ * На Home при висоті <= 760px topbar = 72px.
+ * Це правило навмисно стоїть в самому кінці,
+ * щоб перекрити старе mobile !important правило Bonus.
+ */
+@media (max-height: 760px) and (max-width: 559px) {
+  .rewards-app .topbar {
+    height: 72px !important;
+    min-height: 72px !important;
+    flex: 0 0 72px !important;
+    flex-basis: 72px !important;
+  }
+
+  .rewards-app .content {
+    padding-top: 4px !important;
+  }
+}
