@@ -6595,3 +6595,110 @@ body.pulse-welcome-open
     transform: none;
   }
 }
+
+/* =========================================================
+   WELCOME TUTORIAL — EXACT HOME TOPBAR / BRAND ALIGNMENT
+   Тільки верх tutorial. Решта Home і tutorial без змін.
+   ========================================================= */
+
+/*
+ * Home .topbar:
+ * height: 82px;
+ * padding: max(10px, safe-area-top) 20px 0;
+ * brand mark: 40x40;
+ * brand name: 16px;
+ * pulse label: 8px.
+ *
+ * Tutorial дублює ці значення, щоб при закритті onboarding
+ * логотип не зміщувався ані по X, ані по Y.
+ */
+.pulse-welcome-shell {
+  padding-top: 0 !important;
+}
+
+.pulse-welcome-header {
+  width: calc(100% + 32px) !important;
+  height: 82px !important;
+  min-height: 82px !important;
+  margin-left: -16px !important;
+  margin-right: -16px !important;
+  padding:
+    max(10px, env(safe-area-inset-top))
+    20px
+    0 !important;
+  box-sizing: border-box !important;
+  align-items: center !important;
+}
+
+.pulse-welcome-brand {
+  gap: 10px !important;
+}
+
+.pulse-welcome-brand-mark {
+  width: 40px !important;
+  height: 40px !important;
+  flex: 0 0 40px !important;
+  border: 1px solid rgba(244, 196, 78, 0.2) !important;
+  border-radius: 50% !important;
+  color: var(--gold) !important;
+  background:
+    radial-gradient(
+      circle,
+      rgba(244, 196, 78, 0.1),
+      transparent 65%
+    ),
+    #08090f !important;
+  box-shadow:
+    inset 0 0 16px
+    rgba(244, 196, 78, 0.05) !important;
+}
+
+.pulse-welcome-brand-mark svg {
+  width: 25px !important;
+  height: 20px !important;
+  filter:
+    drop-shadow(
+      0 0 6px
+      rgba(244, 196, 78, 0.35)
+    ) !important;
+}
+
+.pulse-welcome-brand > div {
+  gap: 0 !important;
+}
+
+.pulse-welcome-brand > div > span {
+  margin: 0 !important;
+  color: #fff1bc !important;
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif !important;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.2em !important;
+  line-height: 1 !important;
+}
+
+.pulse-welcome-brand small {
+  margin-top: 5px !important;
+  color: var(--gold) !important;
+  font-size: 8px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.25em !important;
+  line-height: 1 !important;
+}
+
+/* Не дозволяємо старому compact-media rule зменшувати логотип tutorial. */
+@media (max-height: 760px) and (max-width: 559px) {
+  .pulse-welcome-header {
+    height: 72px !important;
+    min-height: 72px !important;
+  }
+
+  .pulse-welcome-brand-mark {
+    width: 40px !important;
+    height: 40px !important;
+    flex-basis: 40px !important;
+  }
+}
