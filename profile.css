@@ -4268,3 +4268,98 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
     animation: none !important;
   }
 }
+
+/* ARBIFY PROFILE — SUBID VERIFIED SIDE TEXT FINAL */
+/* SUBID + simple green pulsing verified text on the same row. */
+
+.profile-subid-value-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+.profile-subid-value-row > strong {
+  display: block;
+  flex: 0 0 auto;
+  line-height: 1;
+}
+
+.profile-subid-verified {
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0;
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 0;
+  color: rgba(57, 225, 142, 0.86);
+  background: transparent;
+  box-shadow: none;
+  font-size: 5.8px;
+  font-weight: 820;
+  line-height: 1;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow:
+    0 0 7px rgba(57, 225, 142, 0.12);
+  animation:
+    profileVerifiedTextPulse
+    2.4s
+    ease-in-out
+    infinite;
+}
+
+/* Hide every icon/check/dot. */
+.profile-subid-verified svg {
+  display: none !important;
+}
+
+.profile-subid-verified::after {
+  content: "ПІДТВЕРДЖЕНО";
+}
+
+.profile-subid-cell.is-verified::after {
+  display: none !important;
+}
+
+@keyframes profileVerifiedTextPulse {
+  0%,
+  100% {
+    opacity: 0.68;
+    color: rgba(57, 225, 142, 0.74);
+    text-shadow:
+      0 0 5px rgba(57, 225, 142, 0.08);
+  }
+
+  50% {
+    opacity: 1;
+    color: rgba(70, 237, 154, 0.96);
+    text-shadow:
+      0 0 9px rgba(57, 225, 142, 0.22);
+  }
+}
+
+@media (max-width: 360px) {
+  .profile-subid-value-row {
+    gap: 9px;
+  }
+
+  .profile-subid-verified {
+    font-size: 5.2px;
+    letter-spacing: 0.09em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-subid-verified {
+    animation: none !important;
+  }
+}
