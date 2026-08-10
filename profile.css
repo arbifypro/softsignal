@@ -4444,26 +4444,10 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
     min-height: 19px;
     padding: 0 7px;
     font-size: 5px;
-    border-radius: 6px;
+    border-radius: 4px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .profile-subid-verified { animation: none !important; }
-}
-
-/* ARBIFY PROFILE — VERIFIED FRAME VERTICAL ALIGN FIX */
-/* Підтягуємо саме рамку/статус вище, текст лишається по центру всередині. */
-.profile-subid-verified {
-  align-self: center;
-  transform: translateY(-2px);
-  padding-top: 0;
-  padding-bottom: 0;
-  line-height: 1;
-}
-
-.profile-subid-verified::after {
-  display: block;
-  line-height: 1;
-  transform: translateY(0);
 }
