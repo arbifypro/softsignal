@@ -4754,3 +4754,965 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
 .profile-subid-cell.is-verified .profile-subid-verified {
   display: inline-block !important;
 }
+
+/* SUBID modal — accessibility helper copied from home */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* =========================================================
+   PROFILE — SUBID MODAL REUSED FROM HOME
+   ========================================================= */
+
+.subid-modal[hidden],
+.subid-form-view[hidden],
+.subid-success-view[hidden] {
+  display: none !important;
+}
+
+.subid-modal {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  width: 100%;
+  height: 100%;
+  padding: max(18px, env(safe-area-inset-top)) 17px
+    max(18px, env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  isolation: isolate;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+
+.subid-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(
+      circle at 50% 42%,
+      rgba(127, 38, 224, 0.12),
+      transparent 40%
+    ),
+    rgba(1, 2, 7, 0.74);
+  backdrop-filter: blur(4px) saturate(0.78) brightness(0.62);
+  -webkit-backdrop-filter: blur(4px) saturate(0.78) brightness(0.62);
+  opacity: 0;
+  transition: opacity 340ms ease;
+}
+
+.subid-modal.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.subid-modal.is-open .subid-modal-backdrop {
+  opacity: 1;
+}
+
+body.subid-modal-open .topbar,
+body.subid-modal-open .content,
+body.subid-modal-open .bottom-nav {
+  filter: blur(1px) saturate(0.76) brightness(0.66);
+  pointer-events: none;
+  transform: scale(0.99);
+  transform-origin: center;
+  transition:
+    filter 330ms ease,
+    transform 420ms cubic-bezier(0.16, 0.84, 0.26, 1);
+}
+
+.subid-dialog {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 356px);
+  min-height: 420px;
+  padding: 27px 22px 21px;
+  overflow: hidden;
+  border: 1px solid rgba(182, 87, 255, 0.3);
+  border-radius: 25px;
+  color: #f8f5fc;
+  background:
+    radial-gradient(
+      circle at 50% -6%,
+      rgba(166, 66, 255, 0.22),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 102% 102%,
+      rgba(244, 196, 78, 0.055),
+      transparent 34%
+    ),
+    linear-gradient(
+      156deg,
+      rgba(18, 14, 30, 0.99),
+      rgba(7, 8, 15, 0.995) 61%,
+      rgba(10, 7, 17, 0.995)
+    );
+  box-shadow:
+    0 34px 90px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(139, 49, 231, 0.07),
+    0 0 48px rgba(122, 30, 216, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.055);
+  opacity: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translate3d(0, 28px, 0) scale(0.94);
+  transition:
+    opacity 210ms ease,
+    transform 230ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.subid-dialog::before {
+  position: absolute;
+  top: -68px;
+  left: 50%;
+  z-index: 0;
+  width: 245px;
+  height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(155, 59, 255, 0.18),
+    rgba(155, 59, 255, 0.055) 48%,
+    transparent 74%
+  );
+  content: "";
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.subid-dialog::after {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(191, 111, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(191, 111, 255, 0.02) 1px, transparent 1px);
+  background-size: 30px 30px;
+  content: "";
+  opacity: 0.55;
+  pointer-events: none;
+  mask-image: radial-gradient(circle at 50% 32%, #000, transparent 76%);
+  -webkit-mask-image: radial-gradient(circle at 50% 32%, #000, transparent 76%);
+}
+
+.subid-modal.is-open .subid-dialog {
+  animation: subIdModalEntrance 540ms
+    cubic-bezier(0.16, 0.84, 0.26, 1.06) both;
+}
+
+.subid-close-button,
+.subid-icon,
+.subid-form-view,
+.subid-success-view {
+  position: relative;
+  z-index: 2;
+}
+
+.subid-close-button {
+  position: absolute;
+  top: 13px;
+  right: 13px;
+  width: 35px;
+  height: 35px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  color: #918e9d;
+  background: rgba(8, 9, 16, 0.72);
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.subid-close-button:hover {
+  border-color: rgba(189, 91, 255, 0.4);
+  color: #f5f1f8;
+  background: rgba(28, 17, 42, 0.92);
+}
+
+.subid-close-button:active {
+  transform: scale(0.92);
+}
+
+.subid-close-button svg {
+  width: 17px;
+  height: 17px;
+}
+
+.subid-close-button:focus-visible,
+.subid-verify-button:focus-visible {
+  outline: 2px solid rgba(244, 196, 78, 0.88);
+  outline-offset: 3px;
+}
+
+.subid-icon {
+  width: 61px;
+  height: 61px;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(192, 101, 255, 0.34);
+  border-radius: 20px;
+  color: #d69bff;
+  background:
+    radial-gradient(
+      circle,
+      rgba(172, 73, 255, 0.2),
+      rgba(78, 23, 130, 0.07) 68%
+    ),
+    rgba(13, 10, 23, 0.92);
+  box-shadow:
+    0 0 0 8px rgba(154, 59, 243, 0.03),
+    0 13px 30px rgba(0, 0, 0, 0.27),
+    0 0 28px rgba(148, 50, 239, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.055);
+  animation: subIdIconFloat 3.5s 650ms ease-in-out infinite;
+}
+
+.subid-icon::before {
+  position: absolute;
+  inset: -8px;
+  border: 1px solid rgba(190, 91, 255, 0.15);
+  border-radius: 27px;
+  content: "";
+  pointer-events: none;
+  animation: subIdIconRing 2.4s 700ms ease-out infinite;
+}
+
+.subid-icon svg {
+  width: 32px;
+  height: 32px;
+  filter: drop-shadow(0 0 8px rgba(190, 97, 255, 0.38));
+}
+
+.subid-form-view {
+  text-align: center;
+  animation: subIdContentEntrance 440ms 150ms ease-out both;
+}
+
+.subid-kicker {
+  margin: 21px 0 0;
+  color: #bc76ed;
+  font-size: 8px;
+  font-weight: 820;
+  letter-spacing: 0.2em;
+}
+
+.subid-form-view h2 {
+  margin: 7px 0 0;
+  color: #fbf9ff;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 25px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+}
+
+.subid-description {
+  max-width: 286px;
+  margin: 9px auto 0;
+  color: #8c8999;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.subid-form {
+  margin-top: 18px;
+}
+
+.subid-field {
+  position: relative;
+  width: 100%;
+  height: 55px;
+  padding: 0 15px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  color: #bd72ed;
+  background: linear-gradient(
+    180deg,
+    rgba(15, 16, 27, 0.97),
+    rgba(7, 8, 15, 0.99)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 11px 25px rgba(0, 0, 0, 0.19);
+  cursor: text;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.subid-field > svg {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+}
+
+.subid-field input {
+  min-width: 0;
+  height: 100%;
+  flex: 1 1 auto;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  color: #f8f5fb;
+  background: transparent;
+  caret-color: #c65fff;
+  font-size: 16px;
+  font-weight: 540;
+  letter-spacing: 0.02em;
+}
+
+.subid-field input::placeholder {
+  color: #686675;
+  opacity: 1;
+}
+
+.subid-field:focus-within {
+  border-color: rgba(191, 89, 255, 0.76);
+  background: linear-gradient(
+    180deg,
+    rgba(21, 16, 34, 0.99),
+    rgba(9, 8, 18, 0.995)
+  );
+  box-shadow:
+    0 0 0 3px rgba(153, 55, 244, 0.09),
+    0 0 25px rgba(138, 40, 232, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.subid-field.has-error {
+  border-color: rgba(255, 76, 111, 0.72);
+  color: #ff6884;
+  box-shadow:
+    0 0 0 3px rgba(255, 56, 94, 0.075),
+    0 0 22px rgba(255, 49, 88, 0.075);
+  animation: subIdFieldShake 330ms ease;
+}
+
+.subid-field.is-checking {
+  border-color: rgba(190, 92, 255, 0.62);
+  box-shadow:
+    0 0 0 3px rgba(154, 55, 245, 0.085),
+    0 0 28px rgba(153, 52, 244, 0.13);
+}
+
+.subid-message {
+  min-height: 19px;
+  margin: 0;
+  padding: 4px 3px 0;
+  color: #ff6b86;
+  font-size: 8px;
+  line-height: 1.35;
+  text-align: left;
+}
+
+.subid-verify-button {
+  position: relative;
+  width: 100%;
+  height: 51px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid rgba(217, 157, 255, 0.27);
+  border-radius: 13px;
+  color: #fff;
+  background: linear-gradient(180deg, #ad4df5, #741bd1);
+  box-shadow:
+    0 14px 30px rgba(108, 20, 197, 0.28),
+    0 0 22px rgba(154, 48, 239, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
+  cursor: pointer;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  transition:
+    transform 160ms ease,
+    filter 160ms ease,
+    box-shadow 180ms ease;
+}
+
+.subid-verify-button::before {
+  position: absolute;
+  top: -45%;
+  left: -42%;
+  width: 30%;
+  height: 190%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.24),
+    transparent
+  );
+  content: "";
+  pointer-events: none;
+  transform: rotate(17deg);
+  animation: subIdButtonGlint 4.8s ease-in-out infinite;
+}
+
+.subid-verify-button:hover {
+  filter: brightness(1.09);
+}
+
+.subid-verify-button:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+.subid-verify-button:disabled {
+  cursor: wait;
+  opacity: 0.88;
+}
+
+.subid-button-loader {
+  width: 16px;
+  height: 16px;
+  display: none;
+  border: 2px solid rgba(255, 255, 255, 0.24);
+  border-top-color: #fff;
+  border-radius: 50%;
+}
+
+.subid-dialog.is-checking .subid-button-loader {
+  display: block;
+  animation: subIdLoaderSpin 0.75s linear infinite;
+}
+
+.subid-hint {
+  margin: 12px 0 0;
+  color: #5e5c6a;
+  font-size: 7px;
+  line-height: 1.4;
+}
+
+.subid-success-view {
+  min-height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  animation: subIdSuccessEntrance 360ms ease-out both;
+}
+
+.subid-dialog.is-success .subid-icon {
+  display: none;
+}
+
+.subid-success-check {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(53, 241, 142, 0.4);
+  border-radius: 50%;
+  color: #35f18e;
+  background: radial-gradient(
+    circle,
+    rgba(32, 220, 122, 0.16),
+    rgba(8, 55, 32, 0.075)
+  );
+  box-shadow:
+    0 0 0 11px rgba(42, 229, 133, 0.032),
+    0 0 36px rgba(37, 231, 130, 0.19);
+}
+
+.subid-success-check::after {
+  position: absolute;
+  inset: -12px;
+  border: 1px solid rgba(54, 239, 143, 0.13);
+  border-radius: 50%;
+  content: "";
+  animation: subIdSuccessRing 1.7s ease-out infinite;
+}
+
+.subid-success-check svg {
+  width: 36px;
+  height: 36px;
+}
+
+.subid-success-view > p {
+  margin: 25px 0 0;
+  color: #3cec92;
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: 0.18em;
+}
+
+.subid-success-view > h2 {
+  margin: 9px 0 0;
+  color: #fafdfb;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 26px;
+  font-weight: 500;
+}
+
+.subid-success-view > span {
+  margin-top: 9px;
+  color: #817f8c;
+  font-size: 9px;
+}
+
+.subid-dialog.is-success {
+  border-color: rgba(45, 230, 135, 0.25);
+  background:
+    radial-gradient(
+      circle at 50% 18%,
+      rgba(28, 216, 117, 0.1),
+      transparent 38%
+    ),
+    linear-gradient(
+      156deg,
+      rgba(10, 20, 18, 0.99),
+      rgba(5, 9, 12, 0.995)
+    );
+}
+
+/* =========================================================
+   SUBID — ПАНЕЛЬ НАД КЛАВІАТУРОЮ
+   ========================================================= */
+
+.subid-modal:focus-within {
+  position: fixed;
+  top: var(--subid-visual-top, 0px);
+  right: auto;
+  bottom: auto;
+  left: 50%;
+  width: min(100%, 430px);
+  height: var(--subid-visual-height, 100dvh);
+  padding: 8px 10px;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+  transform: translateX(-50%);
+}
+
+.subid-modal:focus-within .subid-modal-backdrop {
+  position: absolute;
+  inset: 0;
+}
+
+.subid-modal.is-open:focus-within .subid-dialog,
+.subid-modal.is-open .subid-dialog:focus-within {
+  width: 100%;
+  min-height: 0;
+  max-height: calc(var(--subid-visual-height, 100dvh) - 16px);
+  margin: 0;
+  padding: 18px 16px 14px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-color: rgba(184, 83, 255, 0.34);
+  border-radius: 23px;
+  background:
+    radial-gradient(
+      circle at 88% -10%,
+      rgba(165, 66, 255, 0.18),
+      transparent 36%
+    ),
+    linear-gradient(
+      155deg,
+      rgba(17, 13, 28, 0.995),
+      rgba(7, 8, 15, 0.998)
+    );
+  box-shadow:
+    0 -18px 54px rgba(0, 0, 0, 0.44),
+    0 18px 50px rgba(0, 0, 0, 0.52),
+    0 0 32px rgba(129, 34, 222, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.055);
+  opacity: 1;
+  animation: subIdKeyboardSheetEntrance 300ms
+    cubic-bezier(0.16, 0.84, 0.26, 1) both;
+  transform: translate3d(0, 0, 0) scale(1);
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.subid-modal:focus-within .subid-dialog::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.subid-modal:focus-within .subid-dialog::before {
+  top: 8px;
+  left: 50%;
+  width: 38px;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(183, 88, 255, 0.25),
+    rgba(214, 151, 255, 0.72),
+    rgba(183, 88, 255, 0.25)
+  );
+  opacity: 1;
+  transform: translateX(-50%);
+}
+
+.subid-modal:focus-within .subid-dialog::after {
+  opacity: 0.28;
+}
+
+.subid-modal:focus-within .subid-icon,
+.subid-modal:focus-within .subid-description,
+.subid-modal:focus-within .subid-hint {
+  display: none;
+}
+
+.subid-modal:focus-within .subid-close-button {
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+}
+
+.subid-modal:focus-within .subid-form-view {
+  text-align: left;
+  animation: none;
+}
+
+.subid-modal:focus-within .subid-kicker {
+  margin: 5px 38px 0 0;
+  font-size: 7px;
+  letter-spacing: 0.18em;
+}
+
+.subid-modal:focus-within .subid-form-view h2 {
+  margin: 5px 42px 0 0;
+  font-size: 22px;
+  line-height: 1.08;
+}
+
+.subid-modal:focus-within .subid-form {
+  margin-top: 14px;
+}
+
+.subid-modal:focus-within .subid-field {
+  height: 52px;
+  border-radius: 13px;
+}
+
+.subid-modal:focus-within .subid-message {
+  min-height: 16px;
+  padding-top: 2px;
+}
+
+.subid-modal:focus-within .subid-verify-button {
+  height: 48px;
+  border-radius: 12px;
+}
+
+/* =========================================================
+   SUBID — АНІМАЦІЇ
+   ========================================================= */
+
+@keyframes subIdModalEntrance {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0) scale(0.94);
+  }
+
+  72% {
+    opacity: 1;
+    transform: translate3d(0, -3px, 0) scale(1.008);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes subIdContentEntrance {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes subIdKeyboardSheetEntrance {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes subIdIconFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -3px, 0);
+  }
+}
+
+@keyframes subIdIconRing {
+  0% {
+    opacity: 0.55;
+    transform: scale(0.84);
+  }
+
+  78%,
+  100% {
+    opacity: 0;
+    transform: scale(1.3);
+  }
+}
+
+@keyframes subIdFieldShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px);
+  }
+
+  50% {
+    transform: translateX(5px);
+  }
+
+  75% {
+    transform: translateX(-3px);
+  }
+}
+
+@keyframes subIdLoaderSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes subIdButtonGlint {
+  0%,
+  62% {
+    left: -42%;
+    opacity: 0;
+  }
+
+  68% {
+    opacity: 0.62;
+  }
+
+  82%,
+  100% {
+    left: 118%;
+    opacity: 0;
+  }
+}
+
+@keyframes subIdSuccessEntrance {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes subIdSuccessRing {
+  0% {
+    opacity: 0.68;
+    transform: scale(0.75);
+  }
+
+  80%,
+  100% {
+    opacity: 0;
+    transform: scale(1.45);
+  }
+}
+
+@media (max-height: 700px) and (max-width: 559px) {
+  .subid-dialog {
+    min-height: 0;
+    max-height: calc(100% - 16px);
+    padding: 20px 18px 16px;
+    overflow-y: auto;
+    border-radius: 21px;
+  }
+
+  .subid-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 17px;
+  }
+
+  .subid-icon svg {
+    width: 27px;
+    height: 27px;
+  }
+
+  .subid-kicker {
+    margin-top: 15px;
+  }
+
+  .subid-form-view h2 {
+    font-size: 22px;
+  }
+
+  .subid-description {
+    margin-top: 6px;
+    font-size: 9px;
+  }
+
+  .subid-form {
+    margin-top: 12px;
+  }
+
+  .subid-field {
+    height: 51px;
+  }
+
+  .subid-verify-button {
+    height: 48px;
+  }
+
+  .subid-hint {
+    margin-top: 8px;
+  }
+}
+
+@media (min-width: 560px) {
+  .subid-modal {
+    border-radius: 23px;
+  }
+}
+
+/* Блокуємо головну сторінку, поки відкрите вікно SUBID */
+html:has(body.subid-modal-open),
+body.subid-modal-open {
+  width: 100%;
+  height: 100%;
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+}
+
+body.subid-modal-open {
+  position: fixed !important;
+  inset: 0 !important;
+}
+
+body.subid-modal-open .page-shell,
+body.subid-modal-open .pulse-app,
+body.subid-modal-open .content {
+  height: 100% !important;
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+}
+
+body.subid-modal-open .topbar,
+body.subid-modal-open .content,
+body.subid-modal-open .bottom-nav {
+  touch-action: none;
+}
+
+body.subid-modal-open .subid-modal {
+  overscroll-behavior: none;
+}
+
+body.subid-modal-open .subid-modal-backdrop {
+  touch-action: none;
+}
+
+/* iPhone Safari — прибираємо щілину над клавіатурою */
+.subid-modal:focus-within {
+  overflow: visible !important;
+}
+
+.subid-modal:focus-within::after {
+  position: absolute;
+  right: -2px;
+  bottom: -120px;
+  left: -2px;
+  z-index: 1;
+  height: 134px;
+  background: linear-gradient(
+    180deg,
+    rgba(2, 3, 7, 0.94),
+    #020307 38%
+  );
+  content: "";
+  pointer-events: none;
+  transform: translateZ(0);
+  backdrop-filter: blur(8px) saturate(0.75);
+  -webkit-backdrop-filter: blur(8px) saturate(0.75);
+}
+
+.subid-modal:focus-within .subid-dialog {
+  position: relative;
+  z-index: 2;
+}
+
+
+/* Profile SUBID action — active only while SUBID is not verified. */
+.profile-subid-cell:not(.is-verified) #profileSubId.is-subid-action {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    opacity 150ms ease,
+    filter 150ms ease,
+    transform 150ms ease;
+}
+
+.profile-subid-cell:not(.is-verified) #profileSubId.is-subid-action:active {
+  opacity: 0.78;
+  transform: scale(0.98);
+}
+
+.profile-subid-cell:not(.is-verified) #profileSubId.is-subid-action:focus-visible {
+  outline: 1px solid rgba(255, 85, 117, 0.45);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.profile-subid-cell.is-verified #profileSubId {
+  cursor: default;
+}
