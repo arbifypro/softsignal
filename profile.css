@@ -4009,3 +4009,42 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
     height: 17px;
   }
 }
+
+
+/* ARBIFY PROFILE — SUBID VERIFIED PULSE FINAL */
+.profile-subid-value-row{gap:9px;align-items:center}
+.profile-subid-verified{
+  width:auto;height:22px;min-width:0;min-height:22px;
+  padding:0 9px 0 8px;display:inline-flex;align-items:center;
+  justify-content:center;gap:6px;flex:0 0 auto;
+  border:1px solid rgba(48,226,137,.18);border-radius:999px;
+  color:rgba(91,232,158,.92);
+  background:linear-gradient(145deg,rgba(25,112,69,.12),rgba(9,39,27,.08));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 0 13px rgba(45,226,137,.035);
+  font-size:5.6px;font-weight:820;line-height:1;letter-spacing:.105em;
+  white-space:nowrap;animation:profileVerifiedBreath 2.8s ease-in-out infinite
+}
+.profile-subid-verified svg{
+  width:6px;height:6px;padding:0;border:0;border-radius:50%;
+  color:transparent;stroke:transparent;background:#32e58c;
+  box-shadow:0 0 0 3px rgba(50,229,140,.07),0 0 8px rgba(50,229,140,.60);
+  filter:none;animation:profileVerifiedDot 1.9s ease-in-out infinite
+}
+.profile-subid-verified::after{content:"ПІДТВЕРДЖЕНО"}
+.profile-subid-cell.is-verified::after{display:none!important}
+@keyframes profileVerifiedBreath{
+  0%,100%{border-color:rgba(48,226,137,.15);box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 0 10px rgba(45,226,137,.025)}
+  50%{border-color:rgba(48,226,137,.25);box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 0 17px rgba(45,226,137,.07)}
+}
+@keyframes profileVerifiedDot{
+  0%,100%{opacity:.68;transform:scale(.82);box-shadow:0 0 0 2px rgba(50,229,140,.05),0 0 5px rgba(50,229,140,.36)}
+  50%{opacity:1;transform:scale(1);box-shadow:0 0 0 4px rgba(50,229,140,.08),0 0 10px rgba(50,229,140,.68)}
+}
+@media(max-width:360px){
+  .profile-subid-value-row{gap:7px}
+  .profile-subid-verified{width:auto;height:21px;min-width:0;min-height:21px;padding:0 7px;flex-basis:auto;border-radius:999px;font-size:5.1px}
+  .profile-subid-verified svg{width:5px;height:5px}
+}
+@media(prefers-reduced-motion:reduce){
+  .profile-subid-verified,.profile-subid-verified svg{animation:none!important}
+}
