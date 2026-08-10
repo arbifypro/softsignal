@@ -4636,3 +4636,110 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
   letter-spacing: inherit !important;
   content: "Підтверджено";
 }
+
+/* ARBIFY PROFILE — VERIFIED TYPOGRAPHY TRUE 1:1 FINAL */
+/* Exact typography copy from .access-details strong */
+.profile-subid-value-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: baseline !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+}
+
+.profile-subid-verified {
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: inline-block !important;
+  flex: 0 0 auto !important;
+
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+
+  font-family:
+    Inter,
+    ui-sans-serif,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif !important;
+
+  font-size: 10px !important;
+  font-weight: 720 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+
+  color: rgba(76, 226, 146, 0.90) !important;
+  transform: none !important;
+  vertical-align: baseline !important;
+
+  animation:
+    profileSubIdVerifiedTruePulse
+    2.4s
+    ease-in-out
+    infinite !important;
+}
+
+.profile-subid-verified svg {
+  display: none !important;
+}
+
+.profile-subid-verified::after {
+  display: inline !important;
+  position: static !important;
+  content: "Підтверджено" !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+
+  font-family:
+    Inter,
+    ui-sans-serif,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif !important;
+
+  font-size: 10px !important;
+  font-weight: 720 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+  vertical-align: baseline !important;
+}
+
+/* Keep the verified row from clipping the status text. */
+.profile-subid-cell,
+.profile-subid-value-row {
+  overflow: visible !important;
+}
+
+@keyframes profileSubIdVerifiedTruePulse {
+  0%,
+  100% {
+    opacity: 0.64;
+    color: rgba(76, 226, 146, 0.76);
+  }
+
+  50% {
+    opacity: 1;
+    color: rgba(76, 226, 146, 0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-subid-verified {
+    animation: none !important;
+  }
+}
