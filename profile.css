@@ -4478,3 +4478,93 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
     box-shadow: none;
   }
 }
+
+/* ARBIFY PROFILE — SUBID STATUS MATCHED TYPOGRAPHY */
+/* Обидва статуси мають однаковий шрифт/розмір.
+   Різниця тільки в кольорі та pulse. */
+
+/* Базовий SUBID-текст уже має правильну типографіку з access-details strong.
+   Для "Не підтверджено" додаємо тільки червоний pulse. */
+.profile-subid-cell:not(.is-verified) #profileSubId {
+  color: rgba(232, 101, 124, 0.88);
+  font-size: 10px;
+  font-weight: 720;
+  line-height: 1;
+  letter-spacing: 0;
+  animation:
+    profileSubIdUnverifiedPulse
+    2.4s
+    ease-in-out
+    infinite;
+}
+
+/* "Підтверджено" — 1-в-1 така сама типографіка. */
+.profile-subid-verified {
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 0 0 auto;
+  border: 0 !important;
+  border-radius: 0;
+  color: rgba(76, 226, 146, 0.88);
+  background: transparent !important;
+  box-shadow: none !important;
+  font-size: 10px;
+  font-weight: 720;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+  text-shadow: none !important;
+  animation:
+    profileSubIdVerifiedPulse
+    2.4s
+    ease-in-out
+    infinite;
+}
+
+.profile-subid-verified svg {
+  display: none !important;
+}
+
+.profile-subid-verified::after {
+  content: "Підтверджено";
+}
+
+@keyframes profileSubIdVerifiedPulse {
+  0%,
+  100% {
+    opacity: 0.62;
+    color: rgba(76, 226, 146, 0.74);
+  }
+
+  50% {
+    opacity: 1;
+    color: rgba(76, 226, 146, 0.98);
+  }
+}
+
+@keyframes profileSubIdUnverifiedPulse {
+  0%,
+  100% {
+    opacity: 0.62;
+    color: rgba(232, 101, 124, 0.72);
+  }
+
+  50% {
+    opacity: 1;
+    color: rgba(244, 105, 130, 0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-subid-verified,
+  .profile-subid-cell:not(.is-verified) #profileSubId {
+    animation: none !important;
+  }
+}
