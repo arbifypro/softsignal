@@ -4451,3 +4451,30 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
 @media (prefers-reduced-motion: reduce) {
   .profile-subid-verified { animation: none !important; }
 }
+
+/* ARBIFY PROFILE — VERIFIED CLEAN TUNE */
+/* Тільки прибрана рамка та зайва яскравість. */
+.profile-subid-verified {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* Пульсація лишається, але тільки дуже м'яка по прозорості тексту. */
+@keyframes profileVerifiedInlinePulse {
+  0%,
+  100% {
+    opacity: 0.72;
+    color: rgba(73, 232, 151, 0.82);
+    border-color: transparent;
+    box-shadow: none;
+  }
+
+  50% {
+    opacity: 1;
+    color: rgba(73, 232, 151, 0.92);
+    border-color: transparent;
+    box-shadow: none;
+  }
+}
