@@ -4048,3 +4048,112 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
 @media(prefers-reduced-motion:reduce){
   .profile-subid-verified,.profile-subid-verified svg{animation:none!important}
 }
+
+/* ARBIFY PROFILE — SUBID VERIFIED CLEAN FINAL */
+/* Minimal premium status: no pill, no box, just live dot + text. */
+
+.profile-subid-value-row {
+  gap: 10px;
+  align-items: center;
+}
+
+.profile-subid-verified {
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 0;
+  color: rgba(77, 226, 148, 0.82);
+  background: transparent;
+  box-shadow: none;
+  font-size: 5.8px;
+  font-weight: 820;
+  line-height: 1;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  animation: none;
+}
+
+/* Existing SVG becomes only the status dot. */
+.profile-subid-verified svg {
+  width: 6px;
+  height: 6px;
+  min-width: 6px;
+  min-height: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: transparent;
+  stroke: transparent;
+  background: #31e68b;
+  box-shadow:
+    0 0 0 2px rgba(49, 230, 139, 0.06),
+    0 0 8px rgba(49, 230, 139, 0.56);
+  filter: none;
+  transform: translateY(0);
+  animation:
+    profileVerifiedCleanPulse
+    2s
+    ease-in-out
+    infinite;
+}
+
+.profile-subid-verified::after {
+  content: "ПІДТВЕРДЖЕНО";
+  transform: translateY(0.3px);
+}
+
+.profile-subid-cell.is-verified::after {
+  display: none !important;
+}
+
+@keyframes profileVerifiedCleanPulse {
+  0%,
+  100% {
+    opacity: 0.62;
+    transform: scale(0.82);
+    box-shadow:
+      0 0 0 2px rgba(49, 230, 139, 0.04),
+      0 0 5px rgba(49, 230, 139, 0.34);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow:
+      0 0 0 4px rgba(49, 230, 139, 0.07),
+      0 0 10px rgba(49, 230, 139, 0.62);
+  }
+}
+
+@media (max-width: 360px) {
+  .profile-subid-value-row {
+    gap: 8px;
+  }
+
+  .profile-subid-verified {
+    font-size: 5.3px;
+    gap: 5px;
+  }
+
+  .profile-subid-verified svg {
+    width: 5px;
+    height: 5px;
+    min-width: 5px;
+    min-height: 5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-subid-verified svg {
+    animation: none !important;
+  }
+}
