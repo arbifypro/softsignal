@@ -675,6 +675,67 @@ window.addEventListener(
   }
 );
 
+
+function playSlotIntro() {
+  const heroVisual =
+    document.querySelector(".hero-visual");
+
+  const heroArt =
+    document.querySelector(".hero-art");
+
+  if (!heroVisual || !heroArt) {
+    return;
+  }
+
+  const reduceMotion =
+    window.matchMedia?.(
+      "(prefers-reduced-motion: reduce)"
+    )?.matches;
+
+  if (reduceMotion) {
+    heroVisual.classList.add(
+      "slot-intro-finished"
+    );
+    return;
+  }
+
+  const start = () => {
+    heroVisual.classList.remove(
+      "slot-intro-finished"
+    );
+
+    heroVisual.classList.add(
+      "slot-intro-running"
+    );
+
+    window.setTimeout(() => {
+      heroVisual.classList.remove(
+        "slot-intro-running"
+      );
+
+      heroVisual.classList.add(
+        "slot-intro-finished"
+      );
+    }, 1450);
+  };
+
+  if (heroArt.complete) {
+    window.requestAnimationFrame(start);
+    return;
+  }
+
+  heroArt.addEventListener(
+    "load",
+    () => {
+      window.requestAnimationFrame(start);
+    },
+    {
+      once: true,
+    }
+  );
+}
+
+playSlotIntro();
 preventPageZoom();
 configureSupport();
 addResponsibleNotice();
