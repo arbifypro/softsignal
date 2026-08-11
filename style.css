@@ -1469,3 +1469,106 @@ body::-webkit-scrollbar,
     animation: none !important;
   }
 }
+
+/* ===== INDEX — ARBIFY PULSE PNG LOGO ===== */
+/*
+   Новий PNG-логотип на сторінці введення ключа.
+   Старі .brand-emblem/.brand-copy залишаються нешкідливими,
+   але в HTML їх більше немає.
+*/
+.brand {
+  padding-top: 37px;
+  padding-bottom: 4px;
+}
+
+.index-brand-logo {
+  display: block;
+  width: 118px;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+  opacity: 1;
+  animation: indexLogoSoftBreath 5.8s ease-in-out infinite;
+  will-change: filter, opacity;
+}
+
+@keyframes indexLogoSoftBreath {
+  0%,
+  100% {
+    opacity: 0.98;
+    filter:
+      brightness(1)
+      saturate(1.03)
+      drop-shadow(0 0 3px rgba(190, 75, 255, 0.13))
+      drop-shadow(0 0 8px rgba(112, 58, 255, 0.06));
+  }
+
+  50% {
+    opacity: 1;
+    filter:
+      brightness(1.08)
+      saturate(1.08)
+      drop-shadow(0 0 6px rgba(202, 84, 255, 0.22))
+      drop-shadow(0 0 12px rgba(112, 58, 255, 0.10));
+  }
+}
+
+@media (max-width: 540px) {
+  .index-brand-logo {
+    width: 118px;
+  }
+}
+
+@media (max-height: 720px) {
+  .brand {
+    padding-top: 18px;
+  }
+
+  .index-brand-logo {
+    width: 104px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .index-brand-logo {
+    animation: none !important;
+  }
+}
+
+
+/* ===== INDEX — CASINO SIGNALS TAG ===== */
+.index-brand-tag {
+  margin: 7px 0 0;
+  font-size: 8px;
+  font-weight: 750;
+  line-height: 1;
+  letter-spacing: 0.24em;
+  text-indent: 0.24em;
+  text-transform: uppercase;
+
+  color: #d86bff;
+  background:
+    linear-gradient(
+      90deg,
+      #8f4cff 0%,
+      #d86bff 42%,
+      #f0b6ff 58%,
+      #9f5cff 100%
+    );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  text-shadow:
+    0 0 5px rgba(207, 91, 255, 0.26),
+    0 0 12px rgba(117, 63, 255, 0.10);
+}
+
+@media (max-height: 720px) {
+  .index-brand-tag {
+    margin-top: 6px;
+    font-size: 7px;
+  }
+}
