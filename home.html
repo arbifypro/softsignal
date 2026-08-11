@@ -67,7 +67,9 @@
       href="manifest.json"
     />
 
-    <link
+    
+    <link rel="preload" href="assets/arbify-pulse-logo.png" as="image" fetchpriority="high" />
+<link
       rel="preload"
       href="assets/mythic-thunder.webp"
       as="image"
@@ -223,6 +225,12 @@
               src="assets/arbify-pulse-logo.png"
               alt="ARBIFY PULSE"
               draggable="false"
+            
+              loading="eager"
+            
+              fetchpriority="high"
+            
+              decoding="sync"
             />
           </div>
 
