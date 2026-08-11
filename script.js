@@ -247,8 +247,6 @@ function startVerification() {
 
   accessButton.disabled = true;
 
-  triggerHaptic("light");
-
   accessButton.innerHTML = `
     <span class="button-loader"></span>
     <span>ПЕРЕВІРЯЄМО КЛЮЧ</span>
@@ -267,8 +265,6 @@ function finishVerification() {
   app.classList.add(
     "is-success"
   );
-
-  playPremiumSuccessFeedback();
 
   accessPanel.hidden = true;
   successPanel.hidden = false;
@@ -680,199 +676,37 @@ window.addEventListener(
 );
 
 
-
-function getTelegramWebApp() {
-  return (
-    window.ARBIFY_TELEGRAM?.webApp ||
-    window.Telegram?.WebApp ||
-    null
-  );
-}
-
-function triggerHaptic(type = "light") {
-  const telegram =
-    getTelegramWebApp();
-
-  try {
-    if (
-      type === "success" &&
-      telegram?.HapticFeedback
-        ?.notificationOccurred
-    ) {
-      telegram.HapticFeedback
-        .notificationOccurred(
-          "success"
-        );
-
-      return;
-    }
-
-    telegram?.HapticFeedback
-      ?.impactOccurred?.(type);
-  } catch {
-    /*
-     * Haptic — лише додатковий ефект.
-     */
-  }
-}
-
-function ensurePremiumHeroElements() {
+function playSlotIntro() {
   const heroVisual =
-    document.querySelector(
-      ".hero-visual"
-    );
-
-  if (!heroVisual) {
-    return null;
-  }
-
-  if (
-    !heroVisual.querySelector(
-      ".hero-shine"
-    )
-  ) {
-    const shine =
-      document.createElement("div");
-
-    shine.className =
-      "hero-shine";
-
-    shine.setAttribute(
-      "aria-hidden",
-      "true"
-    );
-
-    heroVisual.appendChild(shine);
-  }
-
-  if (
-    !heroVisual.querySelector(
-      ".pulse-system-ready"
-    )
-  ) {
-    const status =
-      document.createElement("div");
-
-    status.className =
-      "pulse-system-ready";
-
-    status.textContent =
-      "PULSE SYSTEM READY";
-
-    status.setAttribute(
-      "aria-hidden",
-      "true"
-    );
-
-    heroVisual.appendChild(status);
-  }
-
-  return heroVisual;
-}
-
-function ensureBrandSecurityStatus() {
-  const brandCopy =
-    document.querySelector(
-      ".brand-copy"
-    );
-
-  if (
-    !brandCopy ||
-    brandCopy.querySelector(
-      ".brand-security"
-    )
-  ) {
-    return;
-  }
-
-  const secure =
-    document.createElement("div");
-
-  secure.className =
-    "brand-security";
-
-  secure.textContent =
-    "SECURE ACCESS · ENCRYPTED SESSION";
-
-  secure.setAttribute(
-    "aria-hidden",
-    "true"
-  );
-
-  brandCopy.appendChild(secure);
-}
-
-function playPremiumIntro() {
-  const heroVisual =
-    ensurePremiumHeroElements();
+    document.querySelector(".hero-visual");
 
   const heroArt =
-    document.querySelector(
-      ".hero-art"
-    );
-
-  ensureBrandSecurityStatus();
+    document.querySelector(".hero-art");
 
   if (!heroVisual || !heroArt) {
     return;
   }
 
   const reduceMotion =
-    Boolean(
-      window.matchMedia?.(
-        "(prefers-reduced-motion: reduce)"
-      )?.matches
-    );
-
-  document.body.classList.add(
-    "premium-boot"
-  );
+    window.matchMedia?.(
+      "(prefers-reduced-motion: reduce)"
+    )?.matches;
 
   if (reduceMotion) {
-    document.body.classList.add(
-      "is-brand-emblem-in",
-      "is-brand-name-in",
-      "is-brand-pulse-in",
-      "is-access-in",
-      "premium-intro-complete"
-    );
-
     heroVisual.classList.add(
       "slot-intro-finished"
     );
-
     return;
   }
 
-  const startSequence = () => {
-    const readyStatus =
-      heroVisual.querySelector(
-        ".pulse-system-ready"
-      );
+  const start = () => {
+    heroVisual.classList.remove(
+      "slot-intro-finished"
+    );
 
-    window.setTimeout(() => {
-      document.body.classList.add(
-        "is-brand-emblem-in"
-      );
-    }, 90);
-
-    window.setTimeout(() => {
-      document.body.classList.add(
-        "is-brand-name-in"
-      );
-    }, 260);
-
-    window.setTimeout(() => {
-      document.body.classList.add(
-        "is-brand-pulse-in"
-      );
-    }, 430);
-
-    window.setTimeout(() => {
-      heroVisual.classList.add(
-        "slot-intro-running"
-      );
-    }, 570);
+    heroVisual.classList.add(
+      "slot-intro-running"
+    );
 
     window.setTimeout(() => {
       heroVisual.classList.remove(
@@ -880,72 +714,20 @@ function playPremiumIntro() {
       );
 
       heroVisual.classList.add(
-        "slot-lock"
+        "slot-intro-finished"
       );
-
-      triggerHaptic("light");
-    }, 2110);
-
-    window.setTimeout(() => {
-      heroVisual.classList.remove(
-        "slot-lock"
-      );
-
-      heroVisual.classList.add(
-        "slot-shine"
-      );
-
-      triggerHaptic("medium");
-    }, 2350);
-
-    window.setTimeout(() => {
-      readyStatus?.classList.add(
-        "is-visible"
-      );
-    }, 2470);
-
-    window.setTimeout(() => {
-      document.body.classList.add(
-        "is-access-in"
-      );
-    }, 2660);
-
-    window.setTimeout(() => {
-      heroVisual.classList.remove(
-        "slot-shine"
-      );
-
-      heroVisual.classList.add(
-        "slot-intro-finished",
-        "parallax-ready"
-      );
-
-      document.body.classList.add(
-        "premium-intro-complete"
-      );
-    }, 3040);
-
-    window.setTimeout(() => {
-      readyStatus?.classList.remove(
-        "is-visible"
-      );
-    }, 3300);
+    }, 1450);
   };
 
   if (heroArt.complete) {
-    window.requestAnimationFrame(
-      startSequence
-    );
-
+    window.requestAnimationFrame(start);
     return;
   }
 
   heroArt.addEventListener(
     "load",
     () => {
-      window.requestAnimationFrame(
-        startSequence
-      );
+      window.requestAnimationFrame(start);
     },
     {
       once: true,
@@ -953,177 +735,7 @@ function playPremiumIntro() {
   );
 }
 
-function configurePremiumKeyField() {
-  const syncKeyState = () => {
-    const length =
-      normalizeKey(
-        accessKey.value
-      ).length;
-
-    keyField.classList.toggle(
-      "is-six-ready",
-      length === 6
-    );
-  };
-
-  accessKey.addEventListener(
-    "input",
-    syncKeyState
-  );
-
-  accessKey.addEventListener(
-    "focus",
-    () => {
-      triggerHaptic("light");
-      syncKeyState();
-    }
-  );
-
-  accessKey.addEventListener(
-    "blur",
-    syncKeyState
-  );
-
-  syncKeyState();
-}
-
-function configurePremiumParallax() {
-  const heroVisual =
-    document.querySelector(
-      ".hero-visual"
-    );
-
-  if (!heroVisual) {
-    return;
-  }
-
-  const reduceMotion =
-    Boolean(
-      window.matchMedia?.(
-        "(prefers-reduced-motion: reduce)"
-      )?.matches
-    );
-
-  if (reduceMotion) {
-    return;
-  }
-
-  const applyParallax = (
-    x,
-    y
-  ) => {
-    if (
-      !heroVisual.classList.contains(
-        "parallax-ready"
-      )
-    ) {
-      return;
-    }
-
-    const px =
-      Math.max(
-        -4,
-        Math.min(4, x)
-      );
-
-    const py =
-      Math.max(
-        -3,
-        Math.min(3, y)
-      );
-
-    heroVisual.style.setProperty(
-      "--hero-parallax-x",
-      `${px}px`
-    );
-
-    heroVisual.style.setProperty(
-      "--hero-parallax-y",
-      `${py}px`
-    );
-  };
-
-  window.addEventListener(
-    "pointermove",
-    (event) => {
-      if (
-        event.pointerType ===
-        "touch"
-      ) {
-        return;
-      }
-
-      const x =
-        (
-          event.clientX /
-          window.innerWidth -
-          .5
-        ) * 8;
-
-      const y =
-        (
-          event.clientY /
-          window.innerHeight -
-          .5
-        ) * 6;
-
-      applyParallax(x, y);
-    },
-    {
-      passive: true,
-    }
-  );
-
-  window.addEventListener(
-    "deviceorientation",
-    (event) => {
-      const gamma =
-        Number(event.gamma);
-
-      const beta =
-        Number(event.beta);
-
-      if (
-        !Number.isFinite(gamma) ||
-        !Number.isFinite(beta)
-      ) {
-        return;
-      }
-
-      applyParallax(
-        gamma / 8,
-        (beta - 45) / 18
-      );
-    },
-    {
-      passive: true,
-    }
-  );
-}
-
-function playPremiumSuccessFeedback() {
-  app.classList.remove(
-    "premium-success-flash"
-  );
-
-  void app.offsetWidth;
-
-  app.classList.add(
-    "premium-success-flash"
-  );
-
-  triggerHaptic("success");
-
-  window.setTimeout(() => {
-    app.classList.remove(
-      "premium-success-flash"
-    );
-  }, 650);
-}
-
-playPremiumIntro();
-configurePremiumKeyField();
-configurePremiumParallax();
+playSlotIntro();
 preventPageZoom();
 configureSupport();
 addResponsibleNotice();
