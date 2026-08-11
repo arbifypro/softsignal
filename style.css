@@ -1008,3 +1008,139 @@ body::-webkit-scrollbar,
     font-size: 16px;
   }
 }
+
+
+/* =========================================================
+   ARBIFY PULSE — SLOT INTRO
+   Одноразова кінематографічна анімація барабана при вході.
+   Після завершення повертається стандартний hero-float.
+   ========================================================= */
+
+.hero-visual.slot-intro-running .hero-art {
+  animation: slot-reel-intro 1450ms cubic-bezier(.16,.84,.24,1) both !important;
+  will-change: transform, filter, opacity;
+}
+
+.hero-visual.slot-intro-running .slot-aura {
+  animation: slot-aura-intro 1450ms ease-out both;
+}
+
+.hero-visual.slot-intro-running .light-streak-one {
+  animation: slot-streak-left 1450ms ease-out both;
+}
+
+.hero-visual.slot-intro-running .light-streak-two {
+  animation: slot-streak-right 1450ms ease-out both;
+}
+
+.hero-visual.slot-intro-finished .hero-art {
+  animation: hero-float 6.8s ease-in-out infinite;
+}
+
+@keyframes slot-reel-intro {
+  0% {
+    opacity: 0.25;
+    transform: translate(-50%, calc(-50% - 34px)) scale(.94);
+    filter: saturate(.75) contrast(1.08) blur(8px) brightness(.72);
+  }
+
+  18% {
+    opacity: .72;
+    transform: translate(-50%, calc(-50% + 23px)) scale(.975);
+    filter: saturate(1.15) contrast(1.1) blur(6px) brightness(.9);
+  }
+
+  38% {
+    opacity: .9;
+    transform: translate(-50%, calc(-50% - 17px)) scale(1.015);
+    filter: saturate(1.3) contrast(1.12) blur(4px) brightness(1.02);
+  }
+
+  58% {
+    opacity: 1;
+    transform: translate(-50%, calc(-50% + 10px)) scale(1.025);
+    filter: saturate(1.35) contrast(1.12) blur(2px) brightness(1.08);
+  }
+
+  76% {
+    transform: translate(-50%, calc(-50% - 5px)) scale(1.018);
+    filter: saturate(1.25) contrast(1.09) blur(.8px) brightness(1.12);
+  }
+
+  88% {
+    transform: translate(-50%, calc(-50% + 2px)) scale(1.012);
+    filter: saturate(1.18) contrast(1.07) blur(0) brightness(1.16)
+      drop-shadow(0 0 18px rgba(163, 43, 255, .22));
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    filter: saturate(1.07) contrast(1.05) blur(0) brightness(1)
+      drop-shadow(0 0 0 rgba(163, 43, 255, 0));
+  }
+}
+
+@keyframes slot-aura-intro {
+  0% {
+    opacity: .12;
+    transform: translate(-50%, -50%) scale(.72);
+  }
+
+  55% {
+    opacity: .78;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+
+  82% {
+    opacity: .9;
+    transform: translate(-50%, -50%) scale(1.16);
+  }
+
+  100% {
+    opacity: .56;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes slot-streak-left {
+  0%, 25% {
+    opacity: 0;
+    transform: translateX(-28px) rotate(-8deg);
+  }
+
+  68% {
+    opacity: .95;
+    transform: translateX(5px) rotate(-8deg);
+  }
+
+  100% {
+    opacity: .65;
+    transform: translateX(0) rotate(-8deg);
+  }
+}
+
+@keyframes slot-streak-right {
+  0%, 25% {
+    opacity: 0;
+    transform: translateX(28px) rotate(8deg);
+  }
+
+  68% {
+    opacity: .95;
+    transform: translateX(-5px) rotate(8deg);
+  }
+
+  100% {
+    opacity: .65;
+    transform: translateX(0) rotate(8deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-visual.slot-intro-running .hero-art,
+  .hero-visual.slot-intro-running .slot-aura,
+  .hero-visual.slot-intro-running .light-streak {
+    animation: none !important;
+  }
+}
