@@ -3,7 +3,7 @@
 /*
  * Вкажи username менеджера БЕЗ символу @.
  */
-const TELEGRAM_USERNAME = "olegv240";
+const TELEGRAM_USERNAME = "arbifypulse";
 const HOME_PAGE = "home.html";
 
 const app = document.querySelector(
