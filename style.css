@@ -1259,3 +1259,36 @@ body::-webkit-scrollbar,
       0 0 10px rgba(168, 92, 255, 0.65);
   }
 }
+
+
+/* =========================================================
+   SUPPORT POPOVER — COMPACT MOBILE FIX
+   Зменшуємо тільки вікно "Отримати ключ доступу".
+   ========================================================= */
+.support-popover {
+  width: calc(100% - 28px) !important;
+  max-width: 250px !important;
+  margin-right: auto !important;
+  margin-bottom: 9px !important;
+  margin-left: auto !important;
+  padding: 8px 10px !important;
+  border-radius: 8px !important;
+  font-size: 8.5px !important;
+  line-height: 1.4 !important;
+}
+
+@media (max-width: 540px) {
+  .support-popover {
+    width: min(250px, calc(100vw - 56px)) !important;
+    max-width: calc(100vw - 56px) !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .support-popover {
+    width: min(230px, calc(100vw - 48px)) !important;
+    max-width: calc(100vw - 48px) !important;
+    padding: 7px 9px !important;
+    font-size: 8px !important;
+  }
+}
