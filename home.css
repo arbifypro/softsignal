@@ -7308,5 +7308,5 @@ body.pulse-welcome-open
 /* ===== FINAL PNG LOGO POSITION TUNING ===== */
 /* Розмір 86px не змінюємо: лише трохи вправо та вниз. */
 .image-brand {
-  transform: translate(3px, 0px);
+  transform: translate(3px, -1px);
 }
