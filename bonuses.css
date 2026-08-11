@@ -2596,3 +2596,88 @@ body {
   font-size: 7px !important;
   line-height: normal !important;
 }
+
+/* ===== MATCH HOME HEADER GEOMETRY ===== */
+.topbar {
+  height: 82px;
+  min-height: 82px;
+  flex: 0 0 82px;
+  align-items: center;
+  padding:
+    max(10px, env(safe-area-inset-top))
+    20px
+    0;
+  border-bottom: 0;
+  background: #06070d;
+  box-shadow: none;
+}
+
+/* ===== ARBIFY PULSE — SHARED HEADER LOGO (MATCH HOME) ===== */
+/* Геометрія логотипа 1:1 як на Home/Signals. */
+.image-brand {
+  position: relative;
+  width: 86px;
+  height: 54px;
+  min-width: 86px;
+  flex: 0 0 86px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0;
+  overflow: visible;
+  transform: translate(3px, -3px);
+}
+
+.arbify-logo-image {
+  width: 86px;
+  height: auto;
+  max-width: none;
+  display: block;
+  object-fit: contain;
+  object-position: left center;
+  user-select: none;
+  -webkit-user-drag: none;
+  transform-origin: left center;
+  opacity: 1;
+  animation: arbifyLogoSoftBreath 5.8s ease-in-out infinite;
+  will-change: filter, opacity;
+}
+
+@keyframes arbifyLogoSoftBreath {
+  0%,
+  100% {
+    opacity: 0.98;
+    filter:
+      brightness(1)
+      saturate(1.03)
+      drop-shadow(0 0 3px rgba(190, 75, 255, 0.13))
+      drop-shadow(0 0 8px rgba(112, 58, 255, 0.06));
+  }
+
+  50% {
+    opacity: 1;
+    filter:
+      brightness(1.08)
+      saturate(1.08)
+      drop-shadow(0 0 6px rgba(202, 84, 255, 0.22))
+      drop-shadow(0 0 12px rgba(112, 58, 255, 0.10));
+  }
+}
+
+@media (max-width: 370px) {
+  .image-brand {
+    width: 80px;
+    min-width: 80px;
+    flex-basis: 80px;
+  }
+
+  .arbify-logo-image {
+    width: 80px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arbify-logo-image {
+    animation: none !important;
+  }
+}
