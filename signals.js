@@ -1,7 +1,7 @@
 "use strict";
 
 const ACCESS_STORAGE_KEY = "arbifyAccess";
-const FEED_STORAGE_KEY = "arbifyDemoLiveFeedV1";
+const FEED_STORAGE_KEY = "arbifyDemoLiveFeedV2";
 const COUNTERS_STORAGE_KEY = "arbifyDemoLiveCountersV1";
 
 const INITIAL_SIGNAL_COUNT = 24;
@@ -36,24 +36,34 @@ const slots = [
   },
 ];
 
-const userPrefixes = [
-  "AX",
-  "KP",
-  "PL",
-  "NX",
-  "VR",
-  "SK",
-  "TM",
-  "RL",
-  "QZ",
-  "DV",
-  "MR",
-  "LK",
-  "PX",
-  "TR",
-  "SV",
-  "ZK",
+/*
+ * Demo identity pool for the LIVE feed.
+ * These are synthetic Italian-style names used only in DEMO LIVE.
+ */
+const italianFirstNames = [
+  "Marco", "Luca", "Matteo", "Alessandro", "Andrea", "Davide",
+  "Francesco", "Federico", "Simone", "Stefano", "Giuseppe", "Antonio",
+  "Riccardo", "Gabriele", "Lorenzo", "Nicola", "Michele", "Daniele",
+  "Emanuele", "Salvatore", "Fabio", "Paolo", "Roberto", "Claudio",
+  "Giulia", "Sofia", "Martina", "Chiara", "Francesca", "Elena",
+  "Alice", "Aurora", "Giorgia", "Beatrice", "Valentina", "Federica",
+  "Sara", "Alessia", "Camilla", "Noemi", "Ilaria", "Veronica",
+  "Anna", "Laura", "Silvia", "Greta", "Arianna", "Marta"
 ];
+
+const italianLastNames = [
+  "Rossi", "Russo", "Ferrari", "Esposito", "Bianchi", "Romano",
+  "Colombo", "Ricci", "Marino", "Greco", "Bruno", "Gallo",
+  "Conti", "De Luca", "Mancini", "Costa", "Giordano", "Rizzo",
+  "Lombardi", "Moretti", "Barbieri", "Fontana", "Santoro", "Mariani",
+  "Rinaldi", "Caruso", "Ferrara", "Galli", "Martini", "Leone",
+  "Longo", "Gentile", "Martinelli", "Vitale", "Serra", "Coppola",
+  "De Santis", "D'Angelo", "Fiore", "Grasso", "Pellegrini", "Messina",
+  "Bernardi", "Palmieri", "Villa", "Bianco", "Neri", "Ferri"
+];
+
+const usedDemoUserNames = new Set();
+const usedDemoSubIds = new Set();
 
 const signalFeed =
   document.querySelector("#signalFeed");
@@ -158,26 +168,32 @@ function randomItem(items) {
   ];
 }
 
-function createToken(length = 4) {
+function createDemoSubId(length = 8) {
   const alphabet =
-    "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    "abcdefghijklmnopqrstuvwxyz0123456789";
 
-  let token = "";
+  let value = "";
 
-  for (
-    let index = 0;
-    index < length;
-    index += 1
-  ) {
-    token += alphabet[
-      randomNumber(
-        0,
-        alphabet.length - 1
-      )
-    ];
-  }
+  do {
+    value = "";
 
-  return token;
+    for (
+      let index = 0;
+      index < length;
+      index += 1
+    ) {
+      value += alphabet[
+        randomNumber(
+          0,
+          alphabet.length - 1
+        )
+      ];
+    }
+  } while (usedDemoSubIds.has(value));
+
+  usedDemoSubIds.add(value);
+
+  return value;
 }
 
 function createIdentifier() {
@@ -292,19 +308,35 @@ function getSignalProgress(
 }
 
 function createUser() {
-  const prefix =
-    randomItem(userPrefixes);
+  let firstName = "";
+  let lastName = "";
+  let fullName = "";
 
-  const suffix =
-    randomNumber(100, 999);
+  do {
+    firstName =
+      randomItem(italianFirstNames);
 
-  const shortCode =
-    `${prefix}${String(suffix).slice(-2)}`;
+    lastName =
+      randomItem(italianLastNames);
+
+    fullName =
+      `${firstName} ${lastName}`;
+  } while (
+    usedDemoUserNames.has(fullName) &&
+    usedDemoUserNames.size <
+      italianFirstNames.length *
+      italianLastNames.length
+  );
+
+  usedDemoUserNames.add(fullName);
+
+  const avatar =
+    `${firstName.charAt(0)}${lastName.charAt(0)}`
+      .toUpperCase();
 
   return {
-    name:
-      `USER • ${prefix}${suffix}`,
-    avatar: shortCode,
+    name: fullName,
+    avatar,
   };
 }
 
@@ -344,7 +376,7 @@ function createSignal(options = {}) {
   return {
     id: createIdentifier(),
     signalCode:
-      `PLS-${createToken(5)}`,
+      createDemoSubId(8),
     userName: user.name,
     avatar: user.avatar,
     slotName: slot.name,
@@ -1224,6 +1256,24 @@ function prepareSignals() {
 
   signals =
     loadStoredSignals();
+
+  usedDemoUserNames.clear();
+  usedDemoSubIds.clear();
+
+  signals.forEach((signal) => {
+    if (signal?.userName) {
+      usedDemoUserNames.add(
+        String(signal.userName)
+      );
+    }
+
+    if (signal?.signalCode) {
+      usedDemoSubIds.add(
+        String(signal.signalCode)
+          .toLowerCase()
+      );
+    }
+  });
 
   if (signals.length < 10) {
     signals =
