@@ -1,5 +1,5 @@
 /* =========================================================
-   ARBIFY PULSE — БОНУСИ ТА ЗАВДАННЯ
+   ARBIFY PULSE — BONUS E ATTIVITÀ
    ========================================================= */
 
 :root {
@@ -132,7 +132,7 @@ svg {
   display: none !important;
 }
 
-/* Основна оболонка */
+/* Struttura principale */
 
 .page-shell {
   position: relative;
@@ -233,7 +233,7 @@ svg {
   height: 0;
 }
 
-/* Шапка */
+/* Barra superiore */
 
 .topbar {
   position: relative;
@@ -350,7 +350,7 @@ svg {
   box-shadow: none;
 }
 
-/* Заголовок */
+/* Intestazione */
 
 .rewards-heading {
   margin-top: 4px;
@@ -396,7 +396,7 @@ svg {
   line-height: 1.55;
 }
 
-/* Картка балансу */
+/* Scheda del saldo */
 
 .balance-card {
   position: relative;
@@ -646,7 +646,7 @@ svg {
   animation: ring-rotation 12s linear infinite reverse;
 }
 
-/* Завдання */
+/* Attività */
 
 .tasks-section {
   margin-top: 34px;
@@ -1141,7 +1141,7 @@ svg {
   content: "✓";
 }
 
-/* Тижнева ціль */
+/* Obiettivo settimanale */
 
 .weekly-card {
   position: relative;
@@ -1314,7 +1314,7 @@ svg {
     0 0 13px rgba(189, 70, 255, 0.45);
 }
 
-/* Відповідальна гра */
+/* Gioco responsabile */
 
 .responsible-line {
   display: flex;
@@ -1342,7 +1342,7 @@ svg {
   line-height: 1.4;
 }
 
-/* Нижнє меню */
+/* Menu inferiore */
 
 .bottom-nav {
   position: absolute;
@@ -1435,7 +1435,7 @@ svg {
   content: "";
 }
 
-/* Модальні вікна */
+/* Finestre modali */
 
 .verification-overlay,
 .guide-overlay {
@@ -1658,7 +1658,7 @@ svg {
   letter-spacing: 0.12em;
 }
 
-/* Вікно відповідальної гри */
+/* Finestra del gioco responsabile */
 
 .guide-dialog {
   max-height: calc(100dvh - 40px);
@@ -1835,7 +1835,7 @@ a:focus-visible {
   outline-offset: 3px;
 }
 
-/* Анімації */
+/* Animazioni */
 
 @keyframes page-entrance {
   from {
