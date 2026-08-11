@@ -1748,3 +1748,27 @@ body::-webkit-scrollbar,
     animation: none !important;
   }
 }
+
+
+/* ===== SUCCESS EYEBROW — MATCH CASINO SIGNALS ===== */
+/* "ДОСТУП ПІДТВЕРДЖЕНО" у тому самому purple-neon стилі, що CASINO SIGNALS */
+.success-panel .eyebrow {
+  color: #d86bff !important;
+  background:
+    linear-gradient(
+      90deg,
+      #8f4cff 0%,
+      #d86bff 42%,
+      #f0b6ff 58%,
+      #9f5cff 100%
+    );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  text-shadow:
+    0 0 5px rgba(207, 91, 255, 0.26),
+    0 0 12px rgba(117, 63, 255, 0.10);
+
+  letter-spacing: 0.24em;
+}
