@@ -188,26 +188,46 @@ const lastSignalTime = document.querySelector(
 
 const signalProfileTemplates = {
   balanced: {
-    bets: [10, 20, 25, 30],
+    bets: [0.2, 0.3, 0.4, 0.5],
     spins: [8, 10, 12, 15],
     risks: ["НИЗЬКИЙ", "СЕРЕДНІЙ"],
     durations: ["02:30", "03:00", "03:30"],
   },
 
   dynamic: {
-    bets: [10, 15, 20, 25],
+    bets: [0.5, 0.75, 1, 1.5],
     spins: [10, 12, 15, 18],
     risks: ["СЕРЕДНІЙ", "ВИСОКИЙ"],
     durations: ["02:45", "03:00", "04:00"],
   },
 
   focused: {
-    bets: [15, 20, 30, 40],
+    bets: [2, 3, 5, 10],
     spins: [7, 9, 11, 14],
     risks: ["НИЗЬКИЙ", "СЕРЕДНІЙ"],
     durations: ["02:00", "02:30", "03:00"],
   },
 };
+
+/*
+ * Італійська EUR-версія:
+ * депозит €10 не обмежує мінімальну ставку.
+ * Ставка залежить від вибраного рівня ризику.
+ */
+const ITALY_BETS_BY_RISK = {
+  "НИЗЬКИЙ": [0.2, 0.3, 0.4, 0.5],
+  "СЕРЕДНІЙ": [0.5, 0.75, 1, 1.5],
+  "ВИСОКИЙ": [2, 3, 5, 10],
+};
+
+function formatEuroBet(value) {
+  return new Intl.NumberFormat("it-IT", {
+    style: "currency",
+    currency: "EUR",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
 
 /*
  * Популярні реальні слоти.
@@ -2568,10 +2588,14 @@ function createSignal(slot) {
     signalProfiles[slot.name] ||
     signalProfiles["Gates of Olympus"];
 
+  const riskBets =
+    ITALY_BETS_BY_RISK[selectedRiskProfile] ||
+    ITALY_BETS_BY_RISK["СЕРЕДНІЙ"];
+
   return {
     slotName: slot.name,
     slotImage: slot.image,
-    bet: `₴${randomItem(profile.bets)}`,
+    bet: formatEuroBet(randomItem(riskBets)),
     spins: randomItem(profile.spins),
     risk: selectedRiskProfile,
     duration: randomItem(profile.durations),
