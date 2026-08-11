@@ -6702,3 +6702,43 @@ body.pulse-welcome-open
     flex-basis: 40px !important;
   }
 }
+
+/* =========================================================
+   RESPONSIBLE LINE — EXACT PROFILE MATCH
+   Тільки блок 18+ / відповідальної гри.
+   ========================================================= */
+.responsible-line {
+  display: flex !important;
+  min-height: 43px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  margin-top: 15px !important;
+  margin-right: 0 !important;
+  margin-bottom: 0 !important;
+  margin-left: 0 !important;
+  padding-bottom: 4px !important;
+  color: #484650 !important;
+}
+
+.responsible-line > span,
+.responsible-line span {
+  display: grid !important;
+  width: 27px !important;
+  height: 27px !important;
+  min-width: 27px !important;
+  min-height: 27px !important;
+  place-items: center !important;
+  flex: 0 0 auto !important;
+  border: 1px solid rgba(255, 255, 255, 0.065) !important;
+  border-radius: 50% !important;
+  font-size: 7px !important;
+  font-weight: 400 !important;
+  line-height: normal !important;
+}
+
+.responsible-line p {
+  margin: 0 !important;
+  font-size: 7px !important;
+  line-height: normal !important;
+}
