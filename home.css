@@ -7486,3 +7486,46 @@ body.pulse-welcome-open
     animation: none !important;
   }
 }
+
+
+
+/* ===== ONBOARDING LOGO — EXACT HOME POSITION ===== */
+/*
+   Повністю повторюємо контейнер логотипа з Home.
+   Це прибирає мікро-скачок при закритті підказок.
+*/
+.pulse-welcome-brand {
+  position: relative !important;
+  width: 86px !important;
+  height: 54px !important;
+  min-width: 86px !important;
+  flex: 0 0 86px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 0 !important;
+  overflow: visible !important;
+  transform: translate(3px, -3px) !important;
+}
+
+.pulse-welcome-logo {
+  width: 86px !important;
+  height: auto !important;
+  max-width: none !important;
+  display: block !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+  transform-origin: left center !important;
+}
+
+@media (max-width: 370px) {
+  .pulse-welcome-brand {
+    width: 80px !important;
+    min-width: 80px !important;
+    flex-basis: 80px !important;
+  }
+
+  .pulse-welcome-logo {
+    width: 80px !important;
+  }
+}
