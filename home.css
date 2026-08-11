@@ -6742,3 +6742,17 @@ body.pulse-welcome-open
   font-size: 7px !important;
   line-height: normal !important;
 }
+
+/* =========================================================
+   HOME — ENABLE VERTICAL CONTENT SCROLL
+   Змінено тільки прокрутку центрального контенту.
+   Верхня шапка та нижнє меню залишаються на місці.
+   ========================================================= */
+.content {
+  min-height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
+}
