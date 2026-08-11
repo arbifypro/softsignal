@@ -2282,3 +2282,9 @@ body.page-ready {
     animation: none !important;
   }
 }
+
+/* ===== MATCH HOME LOGO POSITION ===== */
+/* Точно таке саме фінальне зміщення логотипа, як на Home */
+.image-brand {
+  transform: translate(3px, -3px);
+}
