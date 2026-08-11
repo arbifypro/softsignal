@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="uk">
+<html lang="it">
   <head>
     <meta charset="UTF-8" />
 
@@ -10,7 +10,7 @@
 
     <meta
       name="description"
-      content="Сигнали спільноти ARBIFY PULSE у реальному часі."
+      content="Segnali della community ARBIFY PULSE in tempo reale."
     />
 
     <meta name="theme-color" content="#020307" />
@@ -32,7 +32,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="apple-mobile-web-app-title" content="ARBIFY PULSE" />
 
-    <title>LIVE-сигнали — ARBIFY PULSE</title>
+    <title>Segnali LIVE — ARBIFY PULSE</title>
 
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="manifest.json" />
@@ -100,7 +100,7 @@
 
       <section
         class="pulse-app signals-app"
-        aria-label="LIVE-сигнали ARBIFY PULSE"
+        aria-label="Segnali LIVE ARBIFY PULSE"
       >
         <div class="app-noise" aria-hidden="true"></div>
 
@@ -108,7 +108,7 @@
           <a
             class="mini-brand"
             href="home.html"
-            aria-label="ARBIFY PULSE — головна"
+            aria-label="ARBIFY PULSE — Home"
           >
             <span class="brand-mark">
               <svg
@@ -147,7 +147,7 @@
             class="icon-button notification-button"
             id="notificationButton"
             type="button"
-            aria-label="Сповіщення"
+            aria-label="Notifiche"
             aria-controls="pulseNotificationCenter"
             aria-expanded="false"
           >
@@ -177,7 +177,7 @@
             <span
               class="notification-badge"
               data-notification-badge
-              aria-label="Нові сповіщення"
+              aria-label="Nuove notifiche"
               hidden
             >
               0
@@ -194,7 +194,7 @@
                   PULSE LIVE
                 </p>
 
-                <h1 id="livePageTitle">Сигнали спільноти</h1>
+                <h1 id="livePageTitle">Segnali della community</h1>
               </div>
 
               <div class="connection-pill" id="connectionPill">
@@ -204,7 +204,7 @@
             </div>
 
             <p class="live-description">
-              Нова активність з’являється автоматично в режимі реального часу
+              Le nuove attività vengono visualizzate automaticamente in tempo reale
             </p>
 
             <div class="next-signal">
@@ -215,45 +215,45 @@
               </div>
 
               <div>
-                <span>НАСТУПНЕ ОНОВЛЕННЯ</span>
-                <strong id="nextSignalTimer">через 6 секунд</strong>
+                <span>PROSSIMO AGGIORNAMENTO</span>
+                <strong id="nextSignalTimer">tra 6 secondi</strong>
               </div>
             </div>
           </section>
 
-          <section class="live-stats" aria-label="Статистика сигналів">
+          <section class="live-stats" aria-label="Statistiche dei segnali">
             <div class="stat-item">
-              <span>АКТИВНІ</span>
+              <span>ATTIVI</span>
               <strong id="activeSignalsCount">—</strong>
 
               <small class="stat-live">
                 <span aria-hidden="true"></span>
-                зараз
+                ora
               </small>
             </div>
 
             <div class="stat-divider" aria-hidden="true"></div>
 
             <div class="stat-item">
-              <span>ВИГРАШНІ</span>
+              <span>VINCENTI</span>
               <strong class="stat-win" id="wonSignalsCount">—</strong>
-              <small>сьогодні</small>
+              <small>oggi</small>
             </div>
 
             <div class="stat-divider" aria-hidden="true"></div>
 
             <div class="stat-item">
-              <span>ВСЬОГО</span>
+              <span>TOTALE</span>
               <strong id="totalSignalsCount">—</strong>
-              <small>за 24 години</small>
+              <small>nelle ultime 24 ore</small>
             </div>
           </section>
 
           <section class="feed-section" aria-labelledby="feedTitle">
             <div class="feed-heading">
               <div>
-                <p class="section-kicker">АКТИВНІСТЬ КОРИСТУВАЧІВ</p>
-                <h2 id="feedTitle">LIVE-стрічка</h2>
+                <p class="section-kicker">ATTIVITÀ DEGLI UTENTI</p>
+                <h2 id="feedTitle">Feed LIVE</h2>
               </div>
 
               <span class="demo-mode-badge" id="feedModeBadge">
@@ -261,14 +261,14 @@
               </span>
             </div>
 
-            <div class="filter-scroller" aria-label="Фільтри сигналів">
+            <div class="filter-scroller" aria-label="Filtri dei segnali">
               <button
                 class="filter-button is-active"
                 type="button"
                 data-filter="all"
                 aria-pressed="true"
               >
-                Усі
+                Tutti
                 <span id="allFilterCount">0</span>
               </button>
 
@@ -278,7 +278,7 @@
                 data-filter="active"
                 aria-pressed="false"
               >
-                Активні
+                Attivi
                 <span id="activeFilterCount">0</span>
               </button>
 
@@ -288,7 +288,7 @@
                 data-filter="won"
                 aria-pressed="false"
               >
-                Виграшні
+                Vincenti
                 <span id="wonFilterCount">0</span>
               </button>
 
@@ -298,7 +298,7 @@
                 data-filter="lost"
                 aria-pressed="false"
               >
-                Не зайшли
+                Non riusciti
                 <span id="lostFilterCount">0</span>
               </button>
             </div>
@@ -313,8 +313,8 @@
               <span class="new-signal-wave" aria-hidden="true"></span>
 
               <div>
-                <strong>Новий LIVE-сигнал</strong>
-                <span id="newSignalBannerText">Додано до стрічки</span>
+                <strong>Nuovo segnale LIVE</strong>
+                <span id="newSignalBannerText">Aggiunto al feed</span>
               </div>
             </div>
 
@@ -362,18 +362,18 @@
                 </svg>
               </span>
 
-              <strong>Сигналів поки немає</strong>
-              <p>Нові сигнали автоматично з’являться у цій стрічці</p>
+              <strong>Nessun segnale al momento</strong>
+              <p>I nuovi segnali appariranno automaticamente in questo feed</p>
             </div>
           </section>
 
           <div class="responsible-line">
             <span>18+</span>
-            <p>Грай відповідально. Результат гри залежить від випадковості.</p>
+            <p>Gioca responsabilmente. L’esito del gioco dipende dal caso.</p>
           </div>
         </div>
 
-        <nav class="bottom-nav" aria-label="Головне меню">
+        <nav class="bottom-nav" aria-label="Menu principale">
           <a class="nav-item" href="home.html" data-section="Головна">
             <span class="nav-icon">
               <svg
@@ -393,7 +393,7 @@
               </svg>
             </span>
 
-            <span>Головна</span>
+            <span>Home</span>
           </a>
 
           <a
@@ -420,7 +420,7 @@
               </svg>
             </span>
 
-            <span>Сигнали</span>
+            <span>Segnali</span>
           </a>
 
           <a
@@ -448,7 +448,7 @@
               </svg>
             </span>
 
-            <span>Бонуси</span>
+            <span>Bonus</span>
           </a>
 
           <a class="nav-item" href="profile.html" data-section="Профіль">
@@ -470,7 +470,7 @@
               </svg>
             </span>
 
-            <span>Профіль</span>
+            <span>Profilo</span>
           </a>
         </nav>
 
@@ -499,7 +499,7 @@
 
               <span>
                 <span class="user-online-dot" aria-hidden="true"></span>
-                PULSE USER
+                UTENTE PULSE
               </span>
             </span>
           </div>
@@ -516,37 +516,37 @@
           />
 
           <div class="signal-game-copy">
-            <span>СИГНАЛ ДЛЯ СЛОТА</span>
+            <span>SEGNALE PER LA SLOT</span>
             <strong data-slot-name></strong>
             <small data-signal-id></small>
           </div>
 
           <span class="signal-status" data-status-label>
             <span aria-hidden="true"></span>
-            АКТИВНИЙ
+            ATTIVO
           </span>
         </div>
 
         <div class="signal-metrics">
           <div>
-            <span>СТАВКА</span>
+            <span>PUNTATA</span>
             <strong data-bet></strong>
           </div>
 
           <div>
-            <span>ОБЕРТАННЯ</span>
+            <span>GIRI</span>
             <strong data-spins></strong>
           </div>
 
           <div>
-            <span>РЕЗУЛЬТАТ</span>
-            <strong data-result>ОЧІКУЄМО</strong>
+            <span>RISULTATO</span>
+            <strong data-result>IN ATTESA</strong>
           </div>
         </div>
 
         <div class="signal-progress" data-progress-wrap>
           <div class="signal-progress-copy">
-            <span data-progress-label>Сигнал виконується</span>
+            <span data-progress-label>Segnale in corso</span>
             <strong data-progress-percent>0%</strong>
           </div>
 
