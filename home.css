@@ -7389,59 +7389,40 @@ body.pulse-welcome-open
 }
 
 /* Постійна помітна пульсація неону */
-@keyframes arbifyLogoStrongPulse {
-  0%,
-  100% {
-    opacity: 0.92;
-    filter:
-      brightness(0.98)
-      saturate(1.02)
-      drop-shadow(0 0 4px rgba(195, 66, 255, 0.22))
-      drop-shadow(0 0 10px rgba(104, 54, 255, 0.10));
-  }
 
-  45% {
-    opacity: 1;
-    filter:
-      brightness(1.28)
-      saturate(1.22)
-      contrast(1.05)
-      drop-shadow(0 0 10px rgba(227, 89, 255, 0.58))
-      drop-shadow(0 0 24px rgba(119, 56, 255, 0.27));
-  }
+/* Раз на кілька секунд короткий дорогий neon-flash */
 
-  58% {
-    opacity: 1;
-    filter:
-      brightness(1.16)
-      saturate(1.15)
-      drop-shadow(0 0 8px rgba(218, 83, 255, 0.45))
-      drop-shadow(0 0 19px rgba(119, 56, 255, 0.20));
+@media (prefers-reduced-motion: reduce) {
+  .arbify-logo-image {
+    animation: none !important;
   }
 }
 
-/* Раз на кілька секунд короткий дорогий neon-flash */
-@keyframes arbifyLogoFlash {
+/* ===== ARBIFY PULSE — SOFT LOGO BREATH ===== */
+.arbify-logo-image {
+  opacity: 1;
+  animation: arbifyLogoSoftBreath 5.8s ease-in-out infinite;
+  will-change: filter, opacity;
+}
+
+@keyframes arbifyLogoSoftBreath {
   0%,
-  72%,
   100% {
+    opacity: 0.98;
+    filter:
+      brightness(1)
+      saturate(1.03)
+      drop-shadow(0 0 3px rgba(190, 75, 255, 0.13))
+      drop-shadow(0 0 8px rgba(112, 58, 255, 0.06));
+  }
+
+  50% {
     opacity: 1;
-  }
-
-  76% {
-    opacity: 0.88;
-  }
-
-  78% {
-    opacity: 1;
-  }
-
-  80% {
-    opacity: 0.94;
-  }
-
-  82% {
-    opacity: 1;
+    filter:
+      brightness(1.08)
+      saturate(1.08)
+      drop-shadow(0 0 6px rgba(202, 84, 255, 0.22))
+      drop-shadow(0 0 12px rgba(112, 58, 255, 0.10));
   }
 }
 
