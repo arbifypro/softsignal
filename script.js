@@ -678,11 +678,12 @@ window.addEventListener(
 
 function playSlotIntro() {
   const heroVisual =
-    document.querySelector(
-      ".hero-slot-machine"
-    );
+    document.querySelector(".hero-visual");
 
-  if (!heroVisual) {
+  const heroArt =
+    document.querySelector(".hero-art");
+
+  if (!heroVisual || !heroArt) {
     return;
   }
 
@@ -695,31 +696,43 @@ function playSlotIntro() {
     heroVisual.classList.add(
       "slot-intro-finished"
     );
-
     return;
   }
 
-  window.requestAnimationFrame(() => {
-    window.requestAnimationFrame(() => {
-      heroVisual.classList.remove(
-        "slot-intro-finished"
-      );
+  const start = () => {
+    heroVisual.classList.remove(
+      "slot-intro-finished"
+    );
 
-      heroVisual.classList.add(
+    heroVisual.classList.add(
+      "slot-intro-running"
+    );
+
+    window.setTimeout(() => {
+      heroVisual.classList.remove(
         "slot-intro-running"
       );
 
-      window.setTimeout(() => {
-        heroVisual.classList.remove(
-          "slot-intro-running"
-        );
+      heroVisual.classList.add(
+        "slot-intro-finished"
+      );
+    }, 1450);
+  };
 
-        heroVisual.classList.add(
-          "slot-intro-finished"
-        );
-      }, 1540);
-    });
-  });
+  if (heroArt.complete) {
+    window.requestAnimationFrame(start);
+    return;
+  }
+
+  heroArt.addEventListener(
+    "load",
+    () => {
+      window.requestAnimationFrame(start);
+    },
+    {
+      once: true,
+    }
+  );
 }
 
 playSlotIntro();
