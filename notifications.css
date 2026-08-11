@@ -986,3 +986,48 @@ body.pulse-notifications-open
     bottom: 32px;
   }
 }
+
+/* ===== NOTIFICATION BADGE — ARBIFY PURPLE NEON ===== */
+/* Фіолетово-рожевий індикатор під стиль ARBIFY PULSE. */
+[data-notification-badge] {
+  background:
+    linear-gradient(
+      145deg,
+      #d86bff 0%,
+      #a83cff 48%,
+      #7d35ff 100%
+    ) !important;
+
+  box-shadow:
+    0 0 0 1px rgba(205, 102, 255, 0.22),
+    0 0 7px rgba(190, 72, 255, 0.48),
+    0 0 15px rgba(132, 53, 255, 0.24) !important;
+
+  animation:
+    pulseNotificationBadgeIn 260ms ease-out both,
+    pulseNotificationPurpleGlow 3.2s ease-in-out 320ms infinite !important;
+}
+
+/* Пульсує тільки світіння — сам кружечок не рухається і не масштабується. */
+@keyframes pulseNotificationPurpleGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(205, 102, 255, 0.20),
+      0 0 6px rgba(190, 72, 255, 0.38),
+      0 0 12px rgba(132, 53, 255, 0.18);
+  }
+
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(220, 135, 255, 0.28),
+      0 0 9px rgba(203, 89, 255, 0.60),
+      0 0 18px rgba(132, 53, 255, 0.30);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-notification-badge] {
+    animation: none !important;
+  }
+}
