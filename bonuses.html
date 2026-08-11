@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="uk">
+<html lang="it">
   <head>
     <meta charset="UTF-8" />
 
@@ -10,7 +10,7 @@
 
     <meta
       name="description"
-      content="Завдання, нагороди та бонуси ARBIFY PULSE."
+      content="Attività, premi e bonus ARBIFY PULSE."
     />
 
     <meta name="theme-color" content="#020307" />
@@ -49,7 +49,7 @@
       content="ARBIFY PULSE"
     />
 
-    <title>Бонуси — ARBIFY PULSE</title>
+    <title>Bonus — ARBIFY PULSE</title>
 
     <link
       rel="icon"
@@ -101,9 +101,9 @@
       }
 
       /*
-       * Акуратні індикатори завантаження динамічних даних.
-       * Вони автоматично зникають, щойно bonuses.js
-       * підставляє справжні значення з бази даних.
+       * Indicatori discreti di caricamento dei dati dinamici.
+       * Scompaiono automaticamente non appena bonuses.js
+       * inserisce i valori effettivi dal database.
        */
       #pulseBalance:empty,
       #levelBadge:empty,
@@ -183,7 +183,7 @@
       href="notifications.css?v=20260802-1"
     />
 
-    <!-- Telegram SDK та API завантажуються до логіки сторінки. -->
+    <!-- Telegram SDK e API vengono caricati prima della logica della pagina. -->
     <script src="https://telegram.org/js/telegram-web-app.js?63"></script>
     <script src="telegram.js?v=20260803-2"></script>
   </head>
@@ -202,7 +202,7 @@
 
       <section
         class="pulse-app rewards-app"
-        aria-label="Бонуси та завдання ARBIFY PULSE"
+        aria-label="Bonus e attività ARBIFY PULSE"
       >
         <div
           class="app-noise"
@@ -213,7 +213,7 @@
           <a
             class="mini-brand"
             href="home.html"
-            aria-label="ARBIFY PULSE — головна"
+            aria-label="ARBIFY PULSE — Home"
           >
             <span class="brand-mark">
               <svg
@@ -269,7 +269,7 @@
             class="icon-button notification-button"
             id="notificationButton"
             type="button"
-            aria-label="Сповіщення"
+            aria-label="Notifiche"
             aria-controls="notificationCenter"
             aria-expanded="false"
           >
@@ -299,7 +299,7 @@
             <span
               class="notification-badge"
               id="notificationBadge"
-              aria-label="Нові сповіщення"
+              aria-label="Nuove notifiche"
               hidden
             >
               0
@@ -317,7 +317,7 @@
               PULSE REWARDS
             </p>
 
-            <h1 id="rewardsPageTitle">Бонуси</h1>
+            <h1 id="rewardsPageTitle">Bonus</h1>
 
             <p>
               Виконуй завдання, накопичуй PULSE та відкривай нові
@@ -327,7 +327,7 @@
 
           <section
             class="balance-card"
-            aria-label="Баланс PULSE"
+            aria-label="Saldo PULSE"
           >
             <div
               class="balance-glow"
@@ -337,7 +337,7 @@
             <div class="balance-main">
               <div class="balance-copy">
                 <span class="balance-label">
-                  ТВІЙ БАЛАНС
+                  IL TUO SALDO
                 </span>
 
                 <div class="balance-value">
@@ -369,7 +369,7 @@
                 <div
                   class="level-progress"
                   role="progressbar"
-                  aria-label="Прогрес рівня"
+                  aria-label="Progresso del livello"
                   aria-valuemin="0"
                   aria-valuemax="100"
                   aria-valuenow="0"
@@ -395,7 +395,7 @@
                     ></path>
                   </svg>
 
-                  <span>4 ДНІ ПОСПІЛЬ</span>
+                  <span>4 GIORNI DI FILA</span>
                 </div>
               </div>
 
@@ -446,11 +446,11 @@
             <div class="tasks-heading">
               <div>
                 <p class="section-kicker">
-                  ЦЕНТР НАГОРОД
+                  CENTRO PREMI
                 </p>
 
                 <h2 id="tasksTitle">
-                  Твої завдання
+                  Le tue attività
                 </h2>
               </div>
 
@@ -474,7 +474,7 @@
                 </svg>
 
                 <span>
-                  ОНОВЛЕННЯ
+                  AGGIORNAMENTO
 
                   <strong id="taskRefreshTimer">
                     06:42:18
@@ -486,7 +486,7 @@
             <div
               class="task-filters"
               role="tablist"
-              aria-label="Категорії завдань"
+              aria-label="Categorie delle attività"
             >
               <button
                 class="task-filter is-active"
@@ -495,7 +495,7 @@
                 data-filter="all"
                 aria-selected="true"
               >
-                Усі
+                Tutte
 
                 <span id="allTasksCount">10</span>
               </button>
@@ -507,7 +507,7 @@
                 data-filter="starter"
                 aria-selected="false"
               >
-                Стартові
+                Iniziali
               </button>
 
               <button
@@ -517,7 +517,7 @@
                 data-filter="daily"
                 aria-selected="false"
               >
-                Щоденні
+                Giornaliere
               </button>
 
               <button
@@ -527,7 +527,7 @@
                 data-filter="achievement"
                 aria-selected="false"
               >
-                Досягнення
+                Traguardi
               </button>
             </div>
 
@@ -560,7 +560,7 @@
                   </span>
 
                   <h3>
-                    Запустити нашого бота
+                    Avviare il nostro bot
                   </h3>
 
                   <strong class="task-reward">
@@ -578,7 +578,7 @@
                   type="button"
                   data-task-action="open"
                 >
-                  ВИКОНАТИ
+                  ESEGUI
                 </button>
               </article>
 
@@ -611,7 +611,7 @@
                   </span>
 
                   <h3>
-                    Підписатися на канал
+                    Iscriviti al canale
                   </h3>
 
                   <strong class="task-reward">
@@ -629,7 +629,7 @@
                   type="button"
                   data-task-action="open"
                 >
-                  ВИКОНАТИ
+                  ESEGUI
                 </button>
               </article>
 
@@ -664,11 +664,11 @@
 
                 <div class="task-copy">
                   <span class="task-type">
-                    ПРОФІЛЬ
+                    PROFILO
                   </span>
 
                   <h3>
-                    Заповнити свій профіль
+                    Completa il tuo profilo
                   </h3>
 
                   <strong class="task-reward">
@@ -686,7 +686,7 @@
                   type="button"
                   data-task-action="check"
                 >
-                  ПЕРЕВІРИТИ
+                  VERIFICA
                 </button>
               </article>
 
@@ -719,11 +719,11 @@
 
                 <div class="task-copy">
                   <span class="task-type">
-                    ЗАСТОСУНОК
+                    APP
                   </span>
 
                   <h3>
-                    Увімкнути сповіщення
+                    Attiva le notifiche
                   </h3>
 
                   <strong class="task-reward">
@@ -741,7 +741,7 @@
                   type="button"
                   data-task-action="enable"
                 >
-                  УВІМКНУТИ
+                  ATTIVA
                 </button>
               </article>
 
@@ -775,11 +775,11 @@
 
                 <div class="task-copy">
                   <span class="task-type">
-                    ВЕРИФІКАЦІЯ
+                    VERIFICA
                   </span>
 
                   <h3>
-                    Підтвердити свій SUBID
+                    Verifica il tuo SUBID
                   </h3>
 
                   <strong class="task-reward">
@@ -797,7 +797,7 @@
                   type="button"
                   data-task-action="check"
                 >
-                  ПЕРЕВІРИТИ
+                  VERIFICA
                 </button>
               </article>
 
@@ -826,11 +826,11 @@
 
                 <div class="task-copy">
                   <span class="task-type">
-                    ОБРАНЕ
+                    PREFERITI
                   </span>
 
                   <h3>
-                    Додати 3 слоти в обране
+                    Aggiungi 3 slot ai preferiti
                   </h3>
 
                   <div class="task-progress-copy">
@@ -857,7 +857,7 @@
                   data-task-action="navigate"
                   data-target-page="home.html"
                 >
-                  ПЕРЕЙТИ
+                  VAI
                 </button>
               </article>
 
@@ -886,11 +886,11 @@
 
                 <div class="task-copy">
                   <span class="task-type">
-                    ЩОДЕННЕ
+                    GIORNALIERA
                   </span>
 
                   <h3>
-                    Отримати перший сигнал
+                    Ottieni il primo segnale
                   </h3>
 
                   <strong class="task-reward">
@@ -909,7 +909,7 @@
                   data-task-action="navigate"
                   data-target-page="home.html"
                 >
-                  ПЕРЕЙТИ
+                  VAI
                 </button>
               </article>
 
@@ -945,11 +945,11 @@
 
                 <div class="task-copy">
                   <span class="task-type">
-                    ЩОДЕННЕ
+                    GIORNALIERA
                   </span>
 
                   <h3>
-                    Переглянути LIVE-сигнали
+                    Visualizza i segnali LIVE
                   </h3>
 
                   <strong class="task-reward">
@@ -968,7 +968,7 @@
                   data-task-action="navigate"
                   data-target-page="signals.html"
                 >
-                  ПЕРЕЙТИ
+                  VAI
                 </button>
               </article>
 
@@ -1000,11 +1000,11 @@
 
                 <div class="task-copy">
                   <span class="task-type">
-                    БЕЗПЕКА
+                    SICUREZZA
                   </span>
 
                   <h3>
-                    Прочитати правила відповідальної гри
+                    Leggi le regole del gioco responsabile
                   </h3>
 
                   <strong class="task-reward">
@@ -1022,7 +1022,7 @@
                   type="button"
                   data-task-action="guide"
                 >
-                  ПРОЧИТАТИ
+                  LEGGI
                 </button>
               </article>
 
@@ -1056,11 +1056,11 @@
 
                 <div class="task-copy">
                   <span class="task-type">
-                    ДОСЯГНЕННЯ
+                    TRAGUARDO
                   </span>
 
                   <h3>
-                    Отримати 10 сигналів
+                    Ottieni 10 segnali
                   </h3>
 
                   <div class="task-progress-copy">
@@ -1086,7 +1086,7 @@
                   type="button"
                   data-task-action="check"
                 >
-                  ПЕРЕВІРИТИ
+                  VERIFICA
                 </button>
               </article>
             </div>
@@ -1132,10 +1132,10 @@
             <div class="weekly-content">
               <div class="weekly-heading">
                 <div>
-                  <span>ТИЖНЕВА ЦІЛЬ</span>
+                  <span>OBIETTIVO SETTIMANALE</span>
 
                   <h2 id="weeklyGoalTitle">
-                    Виконай 7 завдань
+                    Completa 7 attività
                   </h2>
                 </div>
 
@@ -1143,7 +1143,7 @@
               </div>
 
               <div class="weekly-progress-copy">
-                <span>Прогрес цього тижня</span>
+                <span>Progresso di questa settimana</span>
 
                 <strong id="weeklyProgressText">
                   4 / 7
@@ -1154,7 +1154,7 @@
                 class="weekly-nodes"
                 id="weeklyNodes"
                 role="progressbar"
-                aria-label="Тижневий прогрес"
+                aria-label="Progresso settimanale"
                 aria-valuemin="0"
                 aria-valuemax="7"
                 aria-valuenow="4"
@@ -1182,7 +1182,7 @@
 
         <nav
           class="bottom-nav"
-          aria-label="Головне меню"
+          aria-label="Menu principale"
         >
           <a
             class="nav-item"
@@ -1207,7 +1207,7 @@
               </svg>
             </span>
 
-            <span>Головна</span>
+            <span>Home</span>
           </a>
 
           <a
@@ -1233,7 +1233,7 @@
               </svg>
             </span>
 
-            <span>Сигнали</span>
+            <span>Segnali</span>
           </a>
 
           <a
@@ -1262,7 +1262,7 @@
               </svg>
             </span>
 
-            <span>Бонуси</span>
+            <span>Bonus</span>
           </a>
 
           <a
@@ -1292,7 +1292,7 @@
               </svg>
             </span>
 
-            <span>Профіль</span>
+            <span>Profilo</span>
           </a>
         </nav>
 
@@ -1335,7 +1335,7 @@
                 class="notification-panel-close"
                 id="notificationPanelClose"
                 type="button"
-                aria-label="Закрити сповіщення"
+                aria-label="Chiudi notifiche"
               >
                 <svg
                   aria-hidden="true"
@@ -1352,7 +1352,7 @@
 
             <div class="notification-panel-summary">
               <span id="notificationSummary">
-                Нових повідомлень немає
+                Nessuna nuova notifica
               </span>
 
               <button
@@ -1360,7 +1360,7 @@
                 type="button"
                 hidden
               >
-                Очистити
+                Cancella
               </button>
             </div>
 
@@ -1396,7 +1396,7 @@
                 </svg>
               </div>
 
-              <strong>Поки що тихо</strong>
+              <strong>Per ora è tutto tranquillo</strong>
 
               <p>
                 Тут з’являтимуться виконані завдання, отримані
@@ -1428,7 +1428,7 @@
               class="verification-close"
               id="verificationClose"
               type="button"
-              aria-label="Закрити"
+              aria-label="Chiudi"
             >
               <svg
                 aria-hidden="true"
@@ -1469,7 +1469,7 @@
             </p>
 
             <h2 id="verificationTitle">
-              Перевіряємо завдання
+              Verifica dell’attività
             </h2>
 
             <p id="verificationDescription">
@@ -1483,7 +1483,7 @@
               type="button"
               hidden
             >
-              ЗАБРАТИ НАГОРОДУ
+              RITIRA IL PREMIO
             </button>
           </section>
         </div>
@@ -1510,7 +1510,7 @@
               class="guide-close"
               id="guideClose"
               type="button"
-              aria-label="Закрити"
+              aria-label="Chiudi"
             >
               <svg
                 aria-hidden="true"
@@ -1532,11 +1532,11 @@
             </div>
 
             <p class="guide-eyebrow">
-              ВІДПОВІДАЛЬНА ГРА
+              GIOCO RESPONSABILE
             </p>
 
             <h2 id="guideTitle">
-              Контролюй свою гру
+              Mantieni il controllo del gioco
             </h2>
 
             <div class="guide-content">
@@ -1566,7 +1566,7 @@
               id="guideConfirm"
               type="button"
             >
-              Я ПРОЧИТАВ
+              HO LETTO
             </button>
           </section>
         </div>
@@ -1604,7 +1604,7 @@
               +100 PULSE
             </strong>
 
-            <span>Нагороду зараховано</span>
+            <span>Premio accreditato</span>
           </div>
         </div>
       </section>
