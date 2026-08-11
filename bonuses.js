@@ -10,8 +10,8 @@ const REWARD_TOAST_DURATION = 2800;
 const WEEKLY_REWARD = 300;
 
 /*
- * Навіть якщо база відповідає миттєво, індикатор завантаження
- * залишається видимим достатньо довго, щоб перехід виглядав плавно.
+ * Anche se il database risponde immediatamente, l’indicatore di caricamento
+ * rimane visibile abbastanza a lungo da rendere fluida la transizione.
  */
 const MIN_BALANCE_LOADING_DURATION = 800;
 const BALANCE_REVEAL_DURATION = 380;
@@ -32,7 +32,7 @@ const PULSE_LEVELS = Object.freeze([
     maximum: 250,
     name: "STARTER",
     unlockKey: "base-access",
-    unlockTitle: "Базовий доступ",
+    unlockTitle: "Accesso base",
   },
   {
     level: 2,
@@ -40,7 +40,7 @@ const PULSE_LEVELS = Object.freeze([
     maximum: 600,
     name: "ACTIVE",
     unlockKey: "profile-frame",
-    unlockTitle: "Нова рамка профілю",
+    unlockTitle: "Nuova cornice del profilo",
   },
   {
     level: 3,
@@ -48,7 +48,7 @@ const PULSE_LEVELS = Object.freeze([
     maximum: 1200,
     name: "PREMIUM",
     unlockKey: "premium-badge",
-    unlockTitle: "Значок Premium",
+    unlockTitle: "Badge Premium",
   },
   {
     level: 4,
@@ -56,7 +56,7 @@ const PULSE_LEVELS = Object.freeze([
     maximum: null,
     name: "ELITE",
     unlockKey: "exclusive-theme",
-    unlockTitle: "Ексклюзивна тема",
+    unlockTitle: "Tema esclusivo",
   },
 ]);
 
@@ -196,7 +196,7 @@ const rewardToastValue =
   );
 
 /*
- * Індикатор завантаження балансу.
+ * Indicatore di caricamento del saldo.
  */
 function setBalanceLoadingState(
   isLoading
@@ -340,7 +340,7 @@ function showBalanceLoadingError() {
   pulseBalance.textContent = "—";
 
   levelBadge.textContent =
-    "НЕ ЗАВАНТАЖЕНО";
+    "NON CARICATO";
 
   levelProgressValue.textContent = "—";
 
@@ -362,7 +362,7 @@ taskCards.forEach((card) => {
       card
         .querySelector("h3")
         ?.textContent.trim() ||
-      "Завдання",
+      "Attività",
 
     message:
       card.querySelector(
@@ -382,7 +382,7 @@ taskCards.forEach((card) => {
 
     originalText:
       button?.textContent.trim() ||
-      "ПЕРЕВІРИТИ",
+      "VERIFICA",
 
     originalClasses:
       button?.className ||
@@ -506,7 +506,7 @@ function loadRewardsState() {
     };
   } catch (error) {
     console.warn(
-      "Не вдалося завантажити прогрес:",
+      "Impossibile caricare i progressi:",
       error
     );
 
@@ -704,9 +704,9 @@ function createRewardsStateFromDatabase(
 
 function createRewardsDatabasePatch() {
   /*
-   * Баланс, рівні, статуси завдань і нагороди
-   * більше ніколи не надсилаються із клієнта.
-   * Єдиним джерелом цих даних є сервер.
+   * Saldo, livelli, stati delle attività e premi
+   * non vengono più inviati dal client.
+   * Il server è l’unica fonte di questi dati.
    */
   return {};
 }
@@ -730,7 +730,7 @@ function saveRewardsState() {
     );
   } catch (error) {
     console.warn(
-      "Не вдалося зберегти прогрес:",
+      "Impossibile salvare i progressi:",
       error
     );
   }
@@ -760,8 +760,8 @@ function setCompatibilityStorage(
     );
   } catch {
     /*
-     * PostgreSQL залишається
-     * основним сховищем.
+     * PostgreSQL rimane
+     * l’archivio principale.
      */
   }
 }
@@ -854,8 +854,8 @@ function saveLocalRewardsSnapshot() {
     );
   } catch {
     /*
-     * PostgreSQL залишається
-     * основним сховищем.
+     * PostgreSQL rimane
+     * l’archivio principale.
      */
   }
 }
@@ -1019,7 +1019,7 @@ function getTaskRecord(taskId) {
 
 function formatNumber(value) {
   return new Intl.NumberFormat(
-    "uk-UA"
+    "it-IT"
   ).format(value);
 }
 
@@ -1092,8 +1092,8 @@ function publishPulseLevelState(
     );
   } catch {
     /*
-     * Сторінка працюватиме і без
-     * локального сховища.
+     * La pagina funzionerà anche senza
+     * archiviazione locale.
      */
   }
 }
@@ -1106,14 +1106,14 @@ function addPulseLevelNotification(
   ) => {
     notificationsApi.add({
       type: "reward",
-      category: "НОВИЙ РІВЕНЬ",
+      category: "NUOVO LIVELLO",
 
       title:
-        `Відкрито рівень ` +
+        `Livello sbloccato: ` +
         `${levelData.level}`,
 
       message:
-        `Нова можливість: ` +
+        `Nuova funzionalità: ` +
         `${levelData.unlockTitle}.`,
     });
   };
@@ -1243,7 +1243,7 @@ function renderBalance(
     );
 
   levelBadge.textContent =
-    `РІВЕНЬ ${levelData.level}`;
+    `LIVELLO ${levelData.level}`;
 
   const isMaximumLevel =
     levelData.maximum === null;
@@ -1294,7 +1294,7 @@ function renderBalance(
 
   levelProgressTrack.setAttribute(
     "aria-label",
-    `Рівень ${levelData.level}: ` +
+    `Livello ${levelData.level}: ` +
       levelData.name
   );
 
@@ -1489,7 +1489,7 @@ function renderTask(taskId) {
     setButtonAppearance(
       button,
       "task-action task-action-completed",
-      "ВИКОНАНО",
+      "COMPLETATO",
       "completed"
     );
 
@@ -1497,7 +1497,7 @@ function renderTask(taskId) {
 
     setTaskMessage(
       taskId,
-      "Нагороду вже зараховано",
+      "Il premio è già stato accreditato",
       "is-success"
     );
 
@@ -1510,13 +1510,13 @@ function renderTask(taskId) {
     setButtonAppearance(
       button,
       "task-action task-action-claim",
-      "ЗАБРАТИ",
+      "RITIRA",
       "claim"
     );
 
     setTaskMessage(
       taskId,
-      "Завдання підтверджено",
+      "Attività verificata",
       "is-success"
     );
 
@@ -1530,7 +1530,7 @@ function renderTask(taskId) {
     setButtonAppearance(
       button,
       "task-action task-action-outline",
-      "ПЕРЕВІРИТИ",
+      "VERIFICA",
       "check"
     );
 
@@ -1801,11 +1801,11 @@ function openVerificationOverlay(
   resetVerificationIcon();
 
   verificationTitle.textContent =
-    "Перевіряємо завдання";
+    "Verifica dell’attività";
 
   verificationDescription.textContent =
-    `Система перевіряє: «${meta.title}». ` +
-    "Це займе декілька секунд.";
+    `Il sistema sta verificando: «${meta.title}». ` +
+    "Ci vorranno alcuni secondi.";
 
   verificationActionButton.hidden =
     true;
@@ -1843,14 +1843,14 @@ function showVerificationSuccess(
   );
 
   verificationTitle.textContent =
-    "Завдання виконано";
+    "Attività completata";
 
   verificationDescription.textContent =
-    "Ми підтвердили виконання завдання. " +
-    `Тобі доступна нагорода +${meta.reward} PULSE.`;
+    "Abbiamo verificato il completamento dell’attività. " +
+    `Puoi ritirare il premio di +${meta.reward} PULSE.`;
 
   verificationActionButton.textContent =
-    `ЗАБРАТИ +${meta.reward} PULSE`;
+    `RITIRA +${meta.reward} PULSE`;
 
   verificationActionButton.hidden =
     false;
@@ -1878,13 +1878,13 @@ function showVerificationFailure(
   }
 
   verificationTitle.textContent =
-    "Завдання не виконано";
+    "Attività non completata";
 
   verificationDescription.textContent =
     message;
 
   verificationActionButton.textContent =
-    "ЗРОЗУМІЛО";
+    "HO CAPITO";
 
   verificationActionButton.hidden =
     false;
@@ -1963,15 +1963,15 @@ function readFavoriteSlotsCount() {
     }
   } catch {
     /*
-     * Якщо локальне сховище недоступне,
-     * продовжуємо з даними сервера.
+     * Se l’archiviazione locale non è disponibile,
+     * continuiamo con i dati del server.
      */
   }
 
   /*
-   * Об'єднуємо обидва джерела.
-   * Це прибирає короткий розрив між натисканням сердечка
-   * на Home та завершенням синхронізації з PostgreSQL.
+   * Uniamo entrambe le fonti.
+   * Questo elimina il breve intervallo tra il clic sul cuore
+   * nella Home e il completamento della sincronizzazione con PostgreSQL.
    */
   return new Set([
     ...databaseFavorites,
@@ -2017,8 +2017,8 @@ function synchronizeFavoriteSlotsTask() {
       record.status === "claimable"
     ) {
       /*
-       * Якщо до отримання нагороди користувач
-       * прибрав слот з обраного — повертаємо прогрес.
+       * Se prima di ritirare il premio l’utente
+       * rimuove uno slot dai preferiti, ripristiniamo lo stato di avanzamento.
        */
       record.status = "available";
       delete record.verifiedAt;
@@ -2111,7 +2111,7 @@ function getTaskVerificationResult(
       valid: false,
 
       message:
-        "Перевірку запуску Telegram-бота підключимо через Telegram Mini App. До цього моменту PULSE не нараховуються.",
+        "La verifica dell’avvio del bot Telegram verrà collegata tramite Telegram Mini App. Fino ad allora, i PULSE non verranno accreditati.",
     };
   }
 
@@ -2123,7 +2123,7 @@ function getTaskVerificationResult(
       valid: false,
 
       message:
-        "Підписку на Telegram-канал має підтвердити наш сервер. Зараз це завдання не нараховує PULSE.",
+        "L’iscrizione al canale Telegram deve essere verificata dal nostro server. Al momento questa attività non assegna PULSE.",
     };
   }
 
@@ -2135,7 +2135,7 @@ function getTaskVerificationResult(
       valid: false,
 
       message:
-        "Сторінку профілю ще не підключено. Завдання стане доступним після її створення.",
+        "La pagina del profilo non è ancora collegata. L’attività sarà disponibile dopo la sua creazione.",
     };
   }
 
@@ -2151,7 +2151,7 @@ function getTaskVerificationResult(
       message:
         notificationsEnabled
           ? ""
-          : "Спочатку дозволь сповіщення для застосунку.",
+          : "Prima consenti le notifiche per l’app.",
     };
   }
 
@@ -2169,7 +2169,7 @@ function getTaskVerificationResult(
         Boolean(verifiedSubId),
 
       message:
-        "Спочатку введи та підтвердь SUBID на головній сторінці.",
+        "Prima inserisci e verifica il SUBID nella Home.",
     };
   }
 
@@ -2194,8 +2194,8 @@ function getTaskVerificationResult(
           .favoriteSlotsMaximum,
 
       message:
-        `Зараз в обраному ${favoriteCount} із ` +
-        `${rewardsState.progress.favoriteSlotsMaximum} слотів.`,
+        `Al momento hai ${favoriteCount} su ` +
+        `${rewardsState.progress.favoriteSlotsMaximum} slot nei preferiti.`,
     };
   }
 
@@ -2216,7 +2216,7 @@ function getTaskVerificationResult(
       valid: hasSignal,
 
       message:
-        "Спочатку створи свій перший сигнал на головній сторінці.",
+        "Prima crea il tuo primo segnale nella Home.",
     };
   }
 
@@ -2234,7 +2234,7 @@ function getTaskVerificationResult(
       valid: viewedLive,
 
       message:
-        "Спочатку відкрий сторінку LIVE-сигналів.",
+        "Prima apri la pagina dei segnali LIVE.",
     };
   }
 
@@ -2259,8 +2259,8 @@ function getTaskVerificationResult(
           .signalMasterMaximum,
 
       message:
-        `Створено ${signalCount} із ` +
-        `${rewardsState.progress.signalMasterMaximum} сигналів.`,
+        `Creati ${signalCount} su ` +
+        `${rewardsState.progress.signalMasterMaximum} segnali.`,
     };
   }
 
@@ -2268,7 +2268,7 @@ function getTaskVerificationResult(
     valid: false,
 
     message:
-      "Для цього завдання ще не налаштована перевірка.",
+      "La verifica per questa attività non è ancora configurata.",
   };
 }
 
@@ -2289,7 +2289,7 @@ async function verifyTask(taskId) {
   meta.button.disabled = true;
 
   meta.button.textContent =
-    "ПЕРЕВІРКА...";
+    "VERIFICA...";
 
   openVerificationOverlay(taskId);
 
@@ -2384,7 +2384,7 @@ async function verifyTask(taskId) {
 
     const message =
       error?.message ||
-      "Завдання ще не виконано";
+      "L’attività non è ancora stata completata";
 
     setTaskMessage(
       taskId,
@@ -2421,7 +2421,7 @@ async function claimTaskReward(taskId) {
   if (api.isTelegramMiniApp()) {
     meta.button.disabled = true;
     meta.button.textContent =
-      "ЗАРАХУВАННЯ...";
+      "ACCREDITO...";
 
     try {
       const weeklyRewardWasClaimed =
@@ -2468,7 +2468,7 @@ async function claimTaskReward(taskId) {
       window.setTimeout(() => {
         if (weeklyRewardReceived > 0) {
           showToast(
-            `Тижневу ціль виконано: +${weeklyRewardReceived} PULSE`
+            `Obiettivo settimanale completato: +${weeklyRewardReceived} PULSE`
           );
 
           return;
@@ -2476,11 +2476,11 @@ async function claimTaskReward(taskId) {
 
         if (result.newlyClaimed) {
           showToast(
-            `Нагороду +${receivedReward} PULSE зараховано`
+            `Premio +${receivedReward} PULSE accreditato`
           );
         } else {
           showToast(
-            "Цю нагороду вже було зараховано"
+            "Questo premio è già stato accreditato"
           );
         }
       }, 300);
@@ -2493,11 +2493,11 @@ async function claimTaskReward(taskId) {
           (notificationsApi) => {
             notificationsApi.addReward({
               title:
-                "Нагороду зараховано",
+                "Premio accreditato",
               reward:
                 receivedReward,
               message:
-                `За виконання завдання «${meta.title}».`,
+                `Per aver completato l’attività «${meta.title}».`,
             });
 
             if (
@@ -2506,11 +2506,11 @@ async function claimTaskReward(taskId) {
             ) {
               notificationsApi.addReward({
                 title:
-                  "Тижневу ціль виконано",
+                  "Obiettivo settimanale completato",
                 reward:
                   weeklyRewardReceived,
                 message:
-                  "Виконано 7 завдань. Бонус уже додано до балансу.",
+                  "Hai completato 7 attività. Il bonus è già stato aggiunto al saldo.",
               });
             }
           }
@@ -2521,7 +2521,7 @@ async function claimTaskReward(taskId) {
 
       const message =
         error?.message ||
-        "Не вдалося зарахувати нагороду";
+        "Impossibile accreditare il premio";
 
       setTaskMessage(
         taskId,
@@ -2591,14 +2591,14 @@ async function claimTaskReward(taskId) {
   window.setTimeout(() => {
     if (weeklyGoalCompleted) {
       showToast(
-        `Тижневу ціль виконано: +${WEEKLY_REWARD} PULSE`
+        `Obiettivo settimanale completato: +${WEEKLY_REWARD} PULSE`
       );
 
       return;
     }
 
     showToast(
-      `Нагороду +${meta.reward} PULSE зараховано`
+      `Premio +${meta.reward} PULSE accreditato`
     );
   }, 300);
 
@@ -2616,7 +2616,7 @@ async function claimTaskReward(taskId) {
     levelToastTimer =
       window.setTimeout(() => {
         showToast(
-          `Новий рівень ${newestUnlockedLevel.level}: ` +
+          `Nuovo livello ${newestUnlockedLevel.level}: ` +
             newestUnlockedLevel
               .unlockTitle
         );
@@ -2742,14 +2742,14 @@ function openTelegramTask(taskId) {
     openTelegramLink(url);
 
     showToast(
-      "Після виконання повернися та натисни «Перевірити»"
+      "Dopo aver completato l’attività, torna qui e premi «Verifica»"
     );
 
     return;
   }
 
   showToast(
-    "Telegram-посилання і перевірку підключимо на фінальному етапі"
+    "Il link Telegram e la verifica verranno collegati nella fase finale"
   );
 }
 
@@ -2764,12 +2764,12 @@ async function enableNotificationsTask() {
   if (!("Notification" in window)) {
     setTaskMessage(
       taskId,
-      "Цей браузер не підтримує перевірку сповіщень",
+      "Questo browser non supporta la verifica delle notifiche",
       "is-error"
     );
 
     showToast(
-      "Не вдалося активувати сповіщення"
+      "Impossibile attivare le notifiche"
     );
 
     return;
@@ -2799,7 +2799,7 @@ async function enableNotificationsTask() {
       }
 
       showToast(
-        "Сповіщення вже дозволені"
+        "Le notifiche sono già consentite"
       );
 
       return;
@@ -2811,12 +2811,12 @@ async function enableNotificationsTask() {
     ) {
       setTaskMessage(
         taskId,
-        "Дозволь сповіщення у налаштуваннях браузера",
+        "Consenti le notifiche nelle impostazioni del browser",
         "is-error"
       );
 
       showToast(
-        "Доступ до сповіщень заблоковано"
+        "L’accesso alle notifiche è bloccato"
       );
 
       return;
@@ -2846,7 +2846,7 @@ async function enableNotificationsTask() {
       }
 
       showToast(
-        "Сповіщення успішно увімкнено"
+        "Notifiche attivate correttamente"
       );
 
       return;
@@ -2854,18 +2854,18 @@ async function enableNotificationsTask() {
 
     setTaskMessage(
       taskId,
-      "Потрібно дозволити сповіщення",
+      "È necessario consentire le notifiche",
       "is-error"
     );
   } catch (error) {
     setTaskMessage(
       taskId,
-      "Перевірка сповіщень буде доступна у Telegram Mini App",
+      "La verifica delle notifiche sarà disponibile nella Telegram Mini App",
       "is-error"
     );
 
     showToast(
-      "Сповіщення поки не підтверджено"
+      "Le notifiche non sono ancora state verificate"
     );
   }
 }
@@ -2912,7 +2912,7 @@ async function navigateToTaskPage(
   }
 
   showToast(
-    "Після виконання повернися та натисни «Перевірити»"
+    "Dopo aver completato l’attività, torna qui e premi «Verifica»"
   );
 
   window.setTimeout(() => {
@@ -2984,7 +2984,7 @@ async function confirmResponsibleGuide() {
     } catch (error) {
       showToast(
         error?.message ||
-          "Не вдалося зберегти виконання"
+          "Impossibile salvare il completamento"
       );
 
       return;
@@ -3004,7 +3004,7 @@ async function confirmResponsibleGuide() {
 
   window.setTimeout(() => {
     showToast(
-      "Правила прочитано — забери нагороду"
+      "Regole lette — ritira il premio"
     );
   }, 280);
 }
@@ -3133,8 +3133,8 @@ function updateTaskCountdown() {
 
 function synchronizeExistingActivity() {
   /*
-   * У Telegram усі статуси вже прийшли із сервера.
-   * Не дозволяємо локальному сховищу підмінити їх.
+   * In Telegram tutti gli stati sono già arrivati dal server.
+   * Non permettiamo all’archiviazione locale di sovrascriverli.
    */
   if (
     getArbifyApi()
@@ -3280,7 +3280,7 @@ taskList.addEventListener(
   (event) => {
     if (!rewardsPageReady) {
       showToast(
-        "Завантажуємо твій прогрес..."
+        "Caricamento dei tuoi progressi..."
       );
 
       return;
@@ -3368,7 +3368,7 @@ notificationButton.addEventListener(
     }
 
     showToast(
-      "Нових сповіщень поки немає"
+      "Non ci sono ancora nuove notifiche"
     );
   }
 );
@@ -3496,7 +3496,7 @@ function initializeRewardsPage() {
         showBalanceLoadingError();
 
         showToast(
-          "Не вдалося завантажити прогрес. Спробуй відкрити застосунок ще раз"
+          "Impossibile caricare i progressi. Prova a riaprire l’app"
         );
       }
     })();
@@ -3619,8 +3619,8 @@ function pulseSaveTaskNoticeIds() {
     );
   } catch {
     /*
-     * PostgreSQL залишається
-     * основним сховищем.
+     * PostgreSQL rimane
+     * l’archivio principale.
      */
   }
 
@@ -3789,7 +3789,7 @@ getTaskVerificationResult =
         message:
           profileCompleted
             ? ""
-            : "Спочатку відкрий сторінку профілю через нижнє меню.",
+            : "Prima apri la pagina Profilo dal menu in basso.",
       };
     }
 
