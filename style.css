@@ -1292,3 +1292,119 @@ body::-webkit-scrollbar,
     font-size: 8px !important;
   }
 }
+
+
+/* =========================================================
+   SUCCESS ICON — PREMIUM CHECK ANIMATION
+   Анімуємо тільки зелену галочку після підтвердження ключа.
+   ========================================================= */
+
+.success-icon {
+  position: relative;
+  animation:
+    successIconReveal 520ms
+    cubic-bezier(.16,.84,.28,1.08)
+    both,
+    successIconGlow 2.8s
+    ease-in-out
+    620ms
+    infinite;
+}
+
+.success-icon::after {
+  position: absolute;
+  inset: -10px;
+  border:
+    1px solid
+    rgba(66, 255, 154, 0.28);
+  border-radius: 50%;
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  animation:
+    successIconRing
+    720ms
+    ease-out
+    160ms
+    both;
+}
+
+.success-icon svg path {
+  stroke-dasharray: 28;
+  stroke-dashoffset: 28;
+  animation:
+    successCheckDraw
+    460ms
+    cubic-bezier(.2,.8,.2,1)
+    220ms
+    forwards;
+}
+
+@keyframes successIconReveal {
+  0% {
+    opacity: 0;
+    transform: scale(.72);
+  }
+
+  62% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes successCheckDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes successIconRing {
+  0% {
+    opacity: 0;
+    transform: scale(.72);
+  }
+
+  35% {
+    opacity: .62;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.48);
+  }
+}
+
+@keyframes successIconGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 26px
+      rgba(66, 255, 154, 0.1);
+  }
+
+  50% {
+    box-shadow:
+      0 0 32px
+      rgba(66, 255, 154, 0.18),
+      0 0 14px
+      rgba(66, 255, 154, 0.08)
+      inset;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .success-icon,
+  .success-icon::after,
+  .success-icon svg path {
+    animation: none !important;
+  }
+
+  .success-icon svg path {
+    stroke-dashoffset: 0;
+  }
+}
