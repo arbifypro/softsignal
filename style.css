@@ -1144,3 +1144,75 @@ body::-webkit-scrollbar,
     animation: none !important;
   }
 }
+
+/* =========================================================
+   HERO 777 — SIZE + BACKGROUND BLEND FIX
+   Змінено тільки вигляд картинки слотів.
+   ========================================================= */
+
+/* Трішки зменшуємо сам 777. */
+.hero-art {
+  width: 143% !important;
+  height: 118% !important;
+}
+
+/*
+ * Прибираємо видимий прямокутник між hero та success-блоком.
+ * Hero-віньєтка плавно зводить краї картинки в колір сторінки.
+ */
+.hero-vignette {
+  inset: -8px !important;
+  background:
+    linear-gradient(
+      180deg,
+      #030509 0%,
+      rgba(3, 5, 9, 0.92) 7%,
+      transparent 21%,
+      transparent 68%,
+      rgba(3, 5, 9, 0.58) 82%,
+      #030509 100%
+    ),
+    linear-gradient(
+      90deg,
+      #030509 0%,
+      rgba(3, 5, 9, 0.88) 5%,
+      transparent 17%,
+      transparent 83%,
+      rgba(3, 5, 9, 0.88) 95%,
+      #030509 100%
+    ) !important;
+}
+
+/*
+ * Нижню частину hero додатково розчиняємо у фоні.
+ * Сам слот не рухаємо — маскуємо тільки край картинки.
+ */
+.hero-visual::after {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  left: -2px;
+  z-index: 4;
+  height: 72px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(3, 5, 9, 0),
+      rgba(3, 5, 9, 0.5) 48%,
+      #030509 100%
+    );
+  content: "";
+  pointer-events: none;
+}
+
+/* На низьких екранах теж залишаємо невелике зменшення. */
+@media (max-height: 720px) {
+  .hero-art {
+    width: 140% !important;
+    height: 116% !important;
+  }
+
+  .hero-visual::after {
+    height: 60px;
+  }
+}
