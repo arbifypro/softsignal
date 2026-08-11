@@ -7204,10 +7204,10 @@ body.pulse-welcome-open
 */
 .image-brand {
   position: relative;
-  width: 136px;
+  width: 108px;
   height: 54px;
-  min-width: 136px;
-  flex: 0 0 136px;
+  min-width: 108px;
+  flex: 0 0 108px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -7217,7 +7217,7 @@ body.pulse-welcome-open
 }
 
 .arbify-logo-image {
-  width: 136px;
+  width: 108px;
   height: auto;
   max-width: none;
   display: block;
@@ -7288,13 +7288,13 @@ body.pulse-welcome-open
    не рухаючи topbar і кнопку сповіщень. */
 @media (max-width: 370px) {
   .image-brand {
-    width: 124px;
-    min-width: 124px;
-    flex-basis: 124px;
+    width: 100px;
+    min-width: 100px;
+    flex-basis: 100px;
   }
 
   .arbify-logo-image {
-    width: 124px;
+    width: 100px;
   }
 }
 
