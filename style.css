@@ -1009,138 +1009,784 @@ body::-webkit-scrollbar,
   }
 }
 
-
 /* =========================================================
-   ARBIFY PULSE — SLOT INTRO
-   Одноразова кінематографічна анімація барабана при вході.
-   Після завершення повертається стандартний hero-float.
+   ARBIFY PULSE — PREMIUM CINEMATIC INTRO
+   Ізольований пакет ефектів для сторінки входу.
+   Макет та розміри основних блоків не змінюються.
    ========================================================= */
 
+/* Початковий стан: елементи з'являються шарами. */
+body.premium-boot .brand-emblem,
+body.premium-boot .brand-name,
+body.premium-boot .brand-subline,
+body.premium-boot .brand-tag,
+body.premium-boot .access-panel,
+body.premium-boot footer {
+  opacity: 0;
+}
+
+body.premium-boot .brand-emblem {
+  transform: translateY(-7px) scale(.88);
+}
+
+body.premium-boot .brand-name {
+  transform: translateY(6px);
+}
+
+body.premium-boot .brand-subline,
+body.premium-boot .brand-tag {
+  transform: translateY(5px);
+}
+
+body.premium-boot .access-panel {
+  transform: translateY(12px) scale(.985);
+}
+
+body.premium-boot footer {
+  transform: translateY(7px);
+}
+
+body.premium-boot.is-brand-emblem-in .brand-emblem {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition:
+    opacity 420ms ease,
+    transform 520ms cubic-bezier(.16,.84,.28,1.08);
+}
+
+body.premium-boot.is-brand-name-in .brand-name {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 420ms ease,
+    transform 500ms cubic-bezier(.16,.84,.28,1);
+}
+
+body.premium-boot.is-brand-pulse-in .brand-subline,
+body.premium-boot.is-brand-pulse-in .brand-tag {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 430ms ease,
+    transform 500ms cubic-bezier(.16,.84,.28,1);
+}
+
+body.premium-boot.is-access-in .access-panel,
+body.premium-boot.is-access-in footer {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition:
+    opacity 520ms ease,
+    transform 620ms cubic-bezier(.16,.84,.22,1);
+}
+
+/* HERO: кінематографічний запуск "777". */
+.hero-visual {
+  perspective: 900px;
+}
+
+.hero-visual::before {
+  position: absolute;
+  inset: 12% 11% 11%;
+  z-index: 1;
+  border: 1px solid rgba(170, 70, 255, .045);
+  border-radius: 22px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0 32%,
+      rgba(244, 198, 79, .025) 32.2% 32.6%,
+      transparent 32.8% 66%,
+      rgba(244, 198, 79, .025) 66.2% 66.6%,
+      transparent 66.8% 100%
+    );
+  opacity: .6;
+  content: "";
+  pointer-events: none;
+}
+
 .hero-visual.slot-intro-running .hero-art {
-  animation: slot-reel-intro 1450ms cubic-bezier(.16,.84,.24,1) both !important;
+  animation:
+    premium-slot-reel
+    1540ms
+    cubic-bezier(.16,.82,.24,1)
+    both !important;
   will-change: transform, filter, opacity;
 }
 
 .hero-visual.slot-intro-running .slot-aura {
-  animation: slot-aura-intro 1450ms ease-out both;
+  animation:
+    premium-slot-aura
+    1540ms
+    ease-out
+    both;
 }
 
 .hero-visual.slot-intro-running .light-streak-one {
-  animation: slot-streak-left 1450ms ease-out both;
+  animation:
+    premium-streak-left
+    1540ms
+    ease-out
+    both;
 }
 
 .hero-visual.slot-intro-running .light-streak-two {
-  animation: slot-streak-right 1450ms ease-out both;
+  animation:
+    premium-streak-right
+    1540ms
+    ease-out
+    both;
+}
+
+.hero-visual.slot-lock .hero-art {
+  animation:
+    premium-slot-lock
+    300ms
+    cubic-bezier(.18,.9,.3,1.12)
+    both !important;
+}
+
+.hero-visual.slot-lock .slot-aura {
+  animation:
+    premium-lock-aura
+    520ms
+    ease-out
+    both;
 }
 
 .hero-visual.slot-intro-finished .hero-art {
-  animation: hero-float 6.8s ease-in-out infinite;
+  animation:
+    hero-float
+    6.8s
+    ease-in-out
+    infinite;
 }
 
-@keyframes slot-reel-intro {
+/* Одноразовий металевий блік після фіксації 777. */
+.hero-shine {
+  position: absolute;
+  top: 16%;
+  bottom: 14%;
+  left: -38%;
+  z-index: 4;
+  width: 24%;
+  border-radius: 50%;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 245, 200, .05) 20%,
+      rgba(255, 226, 125, .42) 50%,
+      rgba(255, 255, 255, .12) 68%,
+      transparent
+    );
+  opacity: 0;
+  filter: blur(2px);
+  pointer-events: none;
+  transform: skewX(-13deg);
+}
+
+.hero-visual.slot-shine .hero-shine {
+  animation:
+    premium-hero-shine
+    670ms
+    cubic-bezier(.19,.72,.25,1)
+    both;
+}
+
+/* Короткий системний статус після зупинки. */
+.pulse-system-ready {
+  position: absolute;
+  bottom: 7px;
+  left: 50%;
+  z-index: 6;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 22px;
+  padding: 0 9px;
+  border: 1px solid rgba(59, 241, 139, .13);
+  border-radius: 999px;
+  color: #8be9b4;
+  background: rgba(3, 13, 9, .62);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, .22),
+    inset 0 1px 0 rgba(255, 255, 255, .025);
+  font-size: 7px;
+  font-weight: 760;
+  letter-spacing: .16em;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 6px);
+  white-space: nowrap;
+}
+
+.pulse-system-ready::before {
+  width: 5px;
+  height: 5px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #37ec87;
+  box-shadow: 0 0 9px rgba(55, 236, 135, .78);
+  content: "";
+}
+
+.pulse-system-ready.is-visible {
+  animation:
+    premium-ready-status
+    820ms
+    ease
+    both;
+}
+
+/* Маленький secure-status під брендом. */
+.brand-security {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 15px;
+  margin-top: 7px;
+  color: #45424c;
+  font-family:
+    var(--font-geist-mono),
+    monospace;
+  font-size: 5.5px;
+  font-weight: 650;
+  letter-spacing: .13em;
+  opacity: 0;
+  transform: translateY(3px);
+}
+
+.brand-security::before {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #5a9a76;
+  box-shadow: 0 0 7px rgba(52, 226, 127, .23);
+  content: "";
+}
+
+body.premium-boot.is-brand-pulse-in .brand-security {
+  opacity: .8;
+  transform: translateY(0);
+  transition:
+    opacity 520ms ease 160ms,
+    transform 520ms ease 160ms;
+}
+
+/* Поле ключа: енергетична рамка без зміни геометрії. */
+.key-field {
+  isolation: isolate;
+}
+
+.key-field::before {
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  padding: 1px;
+  border-radius: 10px;
+  background:
+    conic-gradient(
+      from 180deg,
+      transparent 0 18%,
+      rgba(147, 48, 255, 0) 28%,
+      rgba(169, 72, 255, .75) 42%,
+      rgba(244, 198, 79, .35) 50%,
+      rgba(168, 69, 255, .72) 58%,
+      transparent 72% 100%
+    );
+  opacity: 0;
+  content: "";
+  pointer-events: none;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.key-field:focus-within::before {
+  opacity: .58;
+  animation:
+    premium-field-border
+    3.8s
+    linear
+    infinite;
+}
+
+.key-field.is-six-ready {
+  border-color: rgba(244, 198, 79, .42);
+  box-shadow:
+    0 0 0 3px rgba(244, 198, 79, .045),
+    0 14px 28px rgba(0, 0, 0, .23),
+    0 0 22px rgba(244, 198, 79, .05);
+}
+
+.key-field.is-six-ready .field-icon {
+  color: #ffe18a;
+  filter:
+    drop-shadow(0 0 7px rgba(244, 198, 79, .3));
+}
+
+.key-field.has-value:not(.is-six-ready) .field-icon {
+  color: #bd6cff;
+  filter:
+    drop-shadow(0 0 6px rgba(162, 69, 255, .2));
+}
+
+.field-icon {
+  transition:
+    color 220ms ease,
+    filter 220ms ease;
+}
+
+/* Кнопка: глибина натискання та verification scanning line. */
+.access-button {
+  transform-style: preserve-3d;
+}
+
+.access-button:active {
+  transform: translateY(2px) scale(.992) !important;
+  box-shadow:
+    0 6px 15px rgba(100, 13, 198, .22),
+    0 0 14px rgba(175, 61, 255, .09) inset !important;
+}
+
+.signal-app.is-checking .access-button {
+  overflow: hidden;
+  filter: saturate(.9);
+}
+
+.signal-app.is-checking .access-button::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -35%;
+  width: 28%;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, .24),
+      rgba(213, 158, 255, .14),
+      transparent
+    );
+  content: "";
+  transform: skewX(-16deg);
+  animation:
+    premium-button-scan
+    980ms
+    ease-in-out
+    infinite;
+}
+
+.signal-app.is-checking .hero-visual {
+  filter: brightness(.78) saturate(.8);
+  transition: filter 240ms ease;
+}
+
+.signal-app.is-success .hero-visual {
+  filter: brightness(.86) saturate(.9);
+  transition: filter 300ms ease;
+}
+
+/* Паралакс: JS оновлює CSS variables, зміщення дуже делікатне. */
+.hero-visual.parallax-ready .hero-art {
+  margin-left: var(--hero-parallax-x, 0px);
+  margin-top: var(--hero-parallax-y, 0px);
+  transition:
+    margin 240ms ease-out;
+}
+
+/* Success flash без зміни існуючого success-panel. */
+.signal-app.premium-success-flash::after {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  background:
+    radial-gradient(
+      circle at 50% 58%,
+      rgba(61, 246, 145, .12),
+      transparent 38%
+    );
+  content: "";
+  pointer-events: none;
+  animation:
+    premium-success-flash
+    620ms
+    ease-out
+    both;
+}
+
+/* -------------------- KEYFRAMES -------------------- */
+
+@keyframes premium-slot-reel {
   0% {
-    opacity: 0.25;
-    transform: translate(-50%, calc(-50% - 34px)) scale(.94);
-    filter: saturate(.75) contrast(1.08) blur(8px) brightness(.72);
+    opacity: .2;
+    transform:
+      translate(-50%, calc(-50% - 42px))
+      scale(.925);
+    filter:
+      saturate(.66)
+      contrast(1.1)
+      blur(9px)
+      brightness(.62);
   }
 
-  18% {
-    opacity: .72;
-    transform: translate(-50%, calc(-50% + 23px)) scale(.975);
-    filter: saturate(1.15) contrast(1.1) blur(6px) brightness(.9);
+  17% {
+    opacity: .64;
+    transform:
+      translate(-50%, calc(-50% + 31px))
+      scale(.965);
+    filter:
+      saturate(1.08)
+      contrast(1.12)
+      blur(7px)
+      brightness(.82);
   }
 
-  38% {
-    opacity: .9;
-    transform: translate(-50%, calc(-50% - 17px)) scale(1.015);
-    filter: saturate(1.3) contrast(1.12) blur(4px) brightness(1.02);
+  35% {
+    opacity: .88;
+    transform:
+      translate(-50%, calc(-50% - 22px))
+      scale(1.012);
+    filter:
+      saturate(1.28)
+      contrast(1.13)
+      blur(4.5px)
+      brightness(.98);
   }
 
-  58% {
+  54% {
     opacity: 1;
-    transform: translate(-50%, calc(-50% + 10px)) scale(1.025);
-    filter: saturate(1.35) contrast(1.12) blur(2px) brightness(1.08);
+    transform:
+      translate(-50%, calc(-50% + 13px))
+      scale(1.03);
+    filter:
+      saturate(1.38)
+      contrast(1.13)
+      blur(2.2px)
+      brightness(1.08);
   }
 
-  76% {
-    transform: translate(-50%, calc(-50% - 5px)) scale(1.018);
-    filter: saturate(1.25) contrast(1.09) blur(.8px) brightness(1.12);
+  72% {
+    transform:
+      translate(-50%, calc(-50% - 7px))
+      scale(1.023);
+    filter:
+      saturate(1.3)
+      contrast(1.1)
+      blur(1px)
+      brightness(1.12);
   }
 
-  88% {
-    transform: translate(-50%, calc(-50% + 2px)) scale(1.012);
-    filter: saturate(1.18) contrast(1.07) blur(0) brightness(1.16)
-      drop-shadow(0 0 18px rgba(163, 43, 255, .22));
+  87% {
+    transform:
+      translate(-50%, calc(-50% + 3px))
+      scale(1.014);
+    filter:
+      saturate(1.18)
+      contrast(1.07)
+      blur(0)
+      brightness(1.16)
+      drop-shadow(
+        0 0 18px
+        rgba(163, 43, 255, .22)
+      );
   }
 
   100% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-    filter: saturate(1.07) contrast(1.05) blur(0) brightness(1)
-      drop-shadow(0 0 0 rgba(163, 43, 255, 0));
+    transform:
+      translate(-50%, -50%)
+      scale(1);
+    filter:
+      saturate(1.07)
+      contrast(1.05)
+      blur(0)
+      brightness(1);
   }
 }
 
-@keyframes slot-aura-intro {
+@keyframes premium-slot-lock {
   0% {
-    opacity: .12;
-    transform: translate(-50%, -50%) scale(.72);
+    transform:
+      translate(-50%, -50%)
+      scale(1);
   }
 
-  55% {
-    opacity: .78;
-    transform: translate(-50%, -50%) scale(1.08);
+  42% {
+    transform:
+      translate(-50%, calc(-50% + 4px))
+      scale(.996);
+  }
+
+  72% {
+    transform:
+      translate(-50%, calc(-50% - 1px))
+      scale(1.006);
+    filter:
+      saturate(1.16)
+      contrast(1.07)
+      brightness(1.14)
+      drop-shadow(
+        0 0 20px
+        rgba(244, 198, 79, .14)
+      );
+  }
+
+  100% {
+    transform:
+      translate(-50%, -50%)
+      scale(1);
+    filter:
+      saturate(1.07)
+      contrast(1.05)
+      brightness(1);
+  }
+}
+
+@keyframes premium-slot-aura {
+  0% {
+    opacity: .1;
+    transform:
+      translate(-50%, -50%)
+      scale(.7);
+  }
+
+  52% {
+    opacity: .74;
+    transform:
+      translate(-50%, -50%)
+      scale(1.08);
   }
 
   82% {
-    opacity: .9;
-    transform: translate(-50%, -50%) scale(1.16);
+    opacity: .92;
+    transform:
+      translate(-50%, -50%)
+      scale(1.17);
   }
 
   100% {
     opacity: .56;
-    transform: translate(-50%, -50%) scale(1);
+    transform:
+      translate(-50%, -50%)
+      scale(1);
   }
 }
 
-@keyframes slot-streak-left {
-  0%, 25% {
-    opacity: 0;
-    transform: translateX(-28px) rotate(-8deg);
+@keyframes premium-lock-aura {
+  0% {
+    opacity: .56;
+    transform:
+      translate(-50%, -50%)
+      scale(1);
   }
 
-  68% {
+  48% {
+    opacity: .92;
+    transform:
+      translate(-50%, -50%)
+      scale(1.18);
+  }
+
+  100% {
+    opacity: .56;
+    transform:
+      translate(-50%, -50%)
+      scale(1);
+  }
+}
+
+@keyframes premium-streak-left {
+  0%, 22% {
+    opacity: 0;
+    transform:
+      translateX(-30px)
+      rotate(-8deg);
+  }
+
+  67% {
     opacity: .95;
-    transform: translateX(5px) rotate(-8deg);
+    transform:
+      translateX(6px)
+      rotate(-8deg);
   }
 
   100% {
     opacity: .65;
-    transform: translateX(0) rotate(-8deg);
+    transform:
+      translateX(0)
+      rotate(-8deg);
   }
 }
 
-@keyframes slot-streak-right {
-  0%, 25% {
+@keyframes premium-streak-right {
+  0%, 22% {
     opacity: 0;
-    transform: translateX(28px) rotate(8deg);
+    transform:
+      translateX(30px)
+      rotate(8deg);
   }
 
-  68% {
+  67% {
     opacity: .95;
-    transform: translateX(-5px) rotate(8deg);
+    transform:
+      translateX(-6px)
+      rotate(8deg);
   }
 
   100% {
     opacity: .65;
-    transform: translateX(0) rotate(8deg);
+    transform:
+      translateX(0)
+      rotate(8deg);
   }
 }
 
+@keyframes premium-hero-shine {
+  0% {
+    left: -38%;
+    opacity: 0;
+  }
+
+  18% {
+    opacity: .82;
+  }
+
+  72% {
+    opacity: .62;
+  }
+
+  100% {
+    left: 116%;
+    opacity: 0;
+  }
+}
+
+@keyframes premium-ready-status {
+  0% {
+    opacity: 0;
+    transform:
+      translate(-50%, 6px)
+      scale(.96);
+  }
+
+  25%,
+  72% {
+    opacity: .94;
+    transform:
+      translate(-50%, 0)
+      scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translate(-50%, -3px)
+      scale(.99);
+  }
+}
+
+@keyframes premium-field-border {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes premium-button-scan {
+  0% {
+    left: -35%;
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  78% {
+    opacity: .9;
+  }
+
+  100% {
+    left: 125%;
+    opacity: 0;
+  }
+}
+
+@keyframes premium-success-flash {
+  0% {
+    opacity: 0;
+  }
+
+  32% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes premium-crown-glow {
+  0%,
+  100% {
+    filter:
+      drop-shadow(
+        0 0 7px
+        rgba(244, 198, 79, .34)
+      )
+      drop-shadow(
+        0 0 18px
+        rgba(244, 198, 79, .12)
+      );
+  }
+
+  50% {
+    filter:
+      drop-shadow(
+        0 0 9px
+        rgba(244, 198, 79, .48)
+      )
+      drop-shadow(
+        0 0 23px
+        rgba(244, 198, 79, .18)
+      );
+  }
+}
+
+body.premium-intro-complete .crown-mark {
+  animation:
+    premium-crown-glow
+    4.8s
+    ease-in-out
+    infinite;
+}
+
+/* Не робимо сильних ефектів для користувачів з reduced motion. */
 @media (prefers-reduced-motion: reduce) {
+  body.premium-boot .brand-emblem,
+  body.premium-boot .brand-name,
+  body.premium-boot .brand-subline,
+  body.premium-boot .brand-tag,
+  body.premium-boot .access-panel,
+  body.premium-boot footer,
+  body.premium-boot .brand-security {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
   .hero-visual.slot-intro-running .hero-art,
   .hero-visual.slot-intro-running .slot-aura,
-  .hero-visual.slot-intro-running .light-streak {
+  .hero-visual.slot-intro-running .light-streak,
+  .hero-visual.slot-lock .hero-art,
+  .hero-visual.slot-lock .slot-aura,
+  .hero-visual.slot-shine .hero-shine,
+  .pulse-system-ready.is-visible,
+  .key-field:focus-within::before,
+  body.premium-intro-complete .crown-mark {
     animation: none !important;
   }
 }
