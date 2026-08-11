@@ -261,6 +261,18 @@ function formatEuroBet(value) {
   }).format(value);
 }
 
+const ITALIAN_RISK_LABELS = {
+  "НИЗЬКИЙ": "BASSO",
+  "СЕРЕДНІЙ": "MEDIO",
+  "ВИСОКИЙ": "ALTO",
+};
+
+function getItalianRiskLabel(value) {
+  return ITALIAN_RISK_LABELS[
+    String(value || "").trim().toUpperCase()
+  ] || String(value || "");
+}
+
 /*
  * Популярні реальні слоти.
  * Нові обкладинки можна поступово додавати в assets/slots.
@@ -452,11 +464,11 @@ const newSlotNames = new Set([
 ]);
 
 const categoryLabels = {
-  all: "Усі слоти",
-  popular: "Популярні слоти",
-  new: "Нові слоти",
+  all: "Tutte le slot",
+  popular: "Slot popolari",
+  new: "Nuove slot",
   megaways: "Megaways",
-  favorites: "Обране",
+  favorites: "Preferiti",
 };
 
 let activeSlotCategory = "all";
@@ -484,7 +496,7 @@ function createSlotCard(slot, index) {
   card.dataset.slot = slot.name;
   card.setAttribute("role", "button");
   card.setAttribute("tabindex", "0");
-  card.setAttribute("aria-label", `Обрати слот ${slot.name}`);
+  card.setAttribute("aria-label", `Seleziona la slot ${slot.name}`);
   card.style.setProperty(
     "--slot-accent",
     slot.accent
@@ -643,8 +655,8 @@ function updateFavoriteButton(
   button.setAttribute(
     "aria-label",
     isFavorite
-      ? `Видалити ${slotName} з обраного`
-      : `Додати ${slotName} в обране`
+      ? `Rimuovi ${slotName} dai preferiti`
+      : `Aggiungi ${slotName} ai preferiti`
   );
 }
 
@@ -714,8 +726,8 @@ function toggleFavoriteSlot(slotName) {
 
   showToast(
     isRemoving
-      ? `${slotName} видалено з обраного`
-      : `${slotName} додано в обране`
+      ? `${slotName} rimosso dai preferiti`
+      : `${slotName} aggiunto ai preferiti`
   );
 
   if (
@@ -741,7 +753,7 @@ function slotMatchesCategory(
 
   if (category === "megaways") {
     return slot.name
-      .toLocaleLowerCase("uk-UA")
+      .toLocaleLowerCase("it-IT")
       .includes("megaways");
   }
 
@@ -793,7 +805,7 @@ function setActiveSlotCategory(category) {
 function normalizeSlotSearch(value) {
   return String(value || "")
     .trim()
-    .toLocaleLowerCase("uk-UA");
+    .toLocaleLowerCase("it-IT");
 }
 
 function renderAllSlotsCatalog(searchValue = "") {
@@ -840,7 +852,7 @@ function renderAllSlotsCatalog(searchValue = "") {
         applySelectedSlot(slot.name);
 
         showToast(
-          `${slot.name} обрано`
+          `${slot.name} selezionata`
         );
 
         void persistStatePatch({
@@ -877,14 +889,14 @@ function renderAllSlotsCatalog(searchValue = "") {
       !normalizedSearch
     ) {
       allSlotsEmptyTitle.textContent =
-        "Обраних слотів ще немає";
+        "Non hai ancora slot preferite";
       allSlotsEmptyText.textContent =
-        "Натисніть сердечко на слоті, щоб додати його сюди";
+        "Tocca il cuore su una slot per aggiungerla qui";
     } else {
       allSlotsEmptyTitle.textContent =
-        "Нічого не знайдено";
+        "Nessun risultato";
       allSlotsEmptyText.textContent =
-        "Спробуйте іншу назву або категорію";
+        "Prova un altro nome o una categoria diversa";
     }
   }
 
@@ -979,27 +991,27 @@ function renderSlotCatalog() {
 const scanStages = [
   {
     from: 0,
-    message: "Підключення до аналітичного ядра",
+    message: "Connessione al motore di analisi",
   },
   {
     from: 18,
-    message: "Отримання поточних параметрів слота",
+    message: "Acquisizione dei parametri attuali della slot",
   },
   {
     from: 38,
-    message: "Аналіз останніх ігрових циклів",
+    message: "Analisi degli ultimi cicli di gioco",
   },
   {
     from: 61,
-    message: "Розрахунок оптимальних параметрів",
+    message: "Calcolo dei parametri ottimali",
   },
   {
     from: 82,
-    message: "Перевірка результату системою Pulse",
+    message: "Verifica del risultato con il sistema Pulse",
   },
   {
     from: 96,
-    message: "Формування готового сигналу",
+    message: "Generazione del segnale",
   },
 ];
 
@@ -1578,13 +1590,13 @@ function renderActiveSignalTimer() {
 
   activeSignalTimerStatus.textContent =
     isFinished
-      ? "СИГНАЛ ЗАВЕРШЕНО"
-      : "СИГНАЛ АКТИВНИЙ";
+      ? "SEGNALE TERMINATO"
+      : "SEGNALE ATTIVO";
 
   activeSignalTimerHint.textContent =
     isFinished
-      ? "Час сигналу завершився. Можна створити новий сигнал"
-      : "Дотримуйтесь параметрів сигналу до завершення таймера";
+      ? "Il segnale è terminato. Ora puoi crearne uno nuovo"
+      : "Segui i parametri del segnale fino al termine del timer";
 
   setActiveSignalTimerButtons(
     !isFinished
@@ -1599,13 +1611,13 @@ function renderActiveSignalTimer() {
     updateRiskProfileInterface();
 
     signalOverlayTitle.textContent =
-      "СИГНАЛ ЗАВЕРШЕНО";
+      "SEGNALE TERMINATO";
 
     return false;
   }
 
   signalOverlayTitle.textContent =
-    "СИГНАЛ АКТИВНИЙ";
+    "SEGNALE ATTIVO";
 
   return true;
 }
@@ -1651,7 +1663,7 @@ function startActiveSignalTimer(signal) {
 
   if (!durationMs) {
     showToast(
-      "Не вдалося визначити тривалість сигналу"
+      "Impossibile determinare la durata del segnale"
     );
 
     return;
@@ -1676,7 +1688,7 @@ function startActiveSignalTimer(signal) {
   beginActiveSignalTimerLoop();
 
   showToast(
-    `Сигнал для ${signal.slotName} активовано`
+    `Segnale per ${signal.slotName} attivato`
   );
 }
 
@@ -1751,7 +1763,7 @@ function formatLastSignalTime(createdAt) {
   }
 
   return date.toLocaleTimeString(
-    "uk-UA",
+    "it-IT",
     {
       hour: "2-digit",
       minute: "2-digit",
@@ -1852,7 +1864,7 @@ function animateFreshLastSignal() {
 
   if (lastSignalChipLabel) {
     lastSignalChipLabel.textContent =
-      "Оновлено";
+      "Aggiornato";
   }
 
   void lastSignalChip.offsetWidth;
@@ -1876,7 +1888,7 @@ function animateFreshLastSignal() {
 
         window.setTimeout(() => {
           lastSignalChipLabel.textContent =
-            "Останній";
+            "Ultimo";
 
           lastSignalChipLabel.classList.remove(
             "is-switching"
@@ -1937,7 +1949,7 @@ function renderLastSignalSummary(
 
     lastSignalSpins.textContent =
       Number.isFinite(spins)
-        ? `${spins} обертів`
+        ? `${spins} giri`
         : "—";
   }
 
@@ -1948,7 +1960,7 @@ function renderLastSignalSummary(
         .toUpperCase();
 
     lastSignalRisk.textContent =
-      risk || "—";
+      getItalianRiskLabel(risk) || "—";
 
     lastSignalRisk.dataset.level =
       risk.toLowerCase();
@@ -1968,7 +1980,7 @@ function renderLastSignalSummary(
     lastSignalChipLabel
   ) {
     lastSignalChipLabel.textContent =
-      "Останній";
+      "Ultimo";
   }
 
   if (animateFresh) {
@@ -2213,7 +2225,7 @@ function persistStatePatch(
         stateSaveErrorWasShown = true;
 
         showToast(
-          "Не вдалося синхронізувати дані"
+          "Impossibile sincronizzare i dati"
         );
       }
 
@@ -2376,7 +2388,7 @@ function beginHomeInitialization() {
           );
 
           showToast(
-            "Не вдалося підключитися до профілю"
+            "Impossibile connettersi al profilo"
           );
 
           return false;
@@ -2419,7 +2431,7 @@ function resetSubIdModal() {
   subIdSuccessView.hidden = true;
   subIdMessage.innerHTML = "&nbsp;";
   subIdVerifyButton.disabled = false;
-  subIdVerifyText.textContent = "ПЕРЕВІРИТИ SUBID";
+  subIdVerifyText.textContent = "VERIFICA SUBID";
 }
 
 function openSubIdModal() {
@@ -2472,7 +2484,7 @@ function showSubIdError(message) {
   subIdField.classList.add("has-error");
   subIdMessage.textContent = message;
   subIdVerifyButton.disabled = false;
-  subIdVerifyText.textContent = "ПЕРЕВІРИТИ SUBID";
+  subIdVerifyText.textContent = "VERIFICA SUBID";
   subIdInput.focus();
 }
 
@@ -2483,7 +2495,7 @@ function startSubIdVerification(subId) {
   subIdField.classList.add("is-checking");
   subIdDialog.classList.add("is-checking");
   subIdVerifyButton.disabled = true;
-  subIdVerifyText.textContent = "ПЕРЕВІРЯЄМО...";
+  subIdVerifyText.textContent = "VERIFICA IN CORSO...";
 
   /*
    * ДЕМО-ПЕРЕВІРКА:
@@ -2547,12 +2559,12 @@ function startSubIdVerification(subId) {
               notificationsApi.add({
                 type: "success",
                 category:
-                  "SUBID ПІДТВЕРДЖЕНО",
+                  "SUBID VERIFICATO",
                 title:
-                  "Реєстрацію знайдено",
+                  "Registrazione trovata",
                 message:
-                  `SUBID ${pulseMaskSubId(subId)} успішно підтверджено. ` +
-                  "Доступ до створення сигналів відкрито.",
+                  `SUBID ${pulseMaskSubId(subId)} verificato correttamente. ` +
+                  "Accesso alla creazione dei segnali abilitato.",
               });
             }
           );
@@ -2586,7 +2598,7 @@ function startSubIdVerification(subId) {
         );
 
         showSubIdError(
-          "Не вдалося зберегти SUBID. Спробуйте ще раз"
+          "Impossibile salvare il SUBID. Riprova"
         );
       }
     },
@@ -2709,7 +2721,7 @@ function prepareScan(slot) {
   resultNewButton.disabled = false;
 
   signalOverlayTitle.textContent =
-    "НОВИЙ СИГНАЛ";
+    "NUOVO SEGNALE";
 
   scanSlotImage.src = slot.image;
   scanSlotName.textContent = slot.name;
@@ -2809,7 +2821,7 @@ function fillResult(signal) {
 
   resultRisk.innerHTML = `
     <span></span>
-    ${signal.risk}
+    ${getItalianRiskLabel(signal.risk)}
   `;
 
   resultRisk.dataset.level =
@@ -2827,7 +2839,7 @@ function showSignalResult() {
   scanProgress.style.width = "100%";
 
   scanStatus.textContent =
-    "Сигнал успішно сформовано";
+    "Segnale generato correttamente";
 
   resultRevealTimer =
     window.setTimeout(() => {
@@ -2835,7 +2847,7 @@ function showSignalResult() {
       resultView.hidden = false;
 
       signalOverlayTitle.textContent =
-        "СИГНАЛ ГОТОВИЙ";
+        "SEGNALE PRONTO";
 
       signalOverlay.classList.remove(
         "is-scanning"
@@ -3007,7 +3019,7 @@ subIdForm.addEventListener(
 
     if (!subId) {
       showSubIdError(
-        "Введіть свій SUBID для перевірки"
+        "Inserisci il tuo SUBID per la verifica"
       );
 
       return;
@@ -3126,7 +3138,7 @@ notificationButton.addEventListener(
   "click",
   () => {
     showToast(
-      "Нових сповіщень поки немає"
+      "Nessuna nuova notifica al momento"
     );
   }
 );
@@ -3207,7 +3219,7 @@ navItems.forEach((item) => {
       sectionName !== "Головна"
     ) {
       showToast(
-        `Розділ «${sectionName}» готується`
+        `La sezione «${sectionName}» è in preparazione`
       );
     }
   });
@@ -3479,12 +3491,12 @@ function pulseSendSignalNotification(
     (notificationsApi) => {
       notificationsApi.addSignal({
         title:
-          `Сигнал для ${signal.slotName} готовий`,
+          `Segnale per ${signal.slotName} pronto`,
         message:
-          `Ставка ${signal.bet} · ` +
-          `${signal.spins} обертань · ` +
-          `ризик ${signal.risk.toLowerCase()}. ` +
-          `Усього створено сигналів: ${signalCount}.`,
+          `Puntata ${signal.bet} · ` +
+          `${signal.spins} giri · ` +
+          `rischio ${getItalianRiskLabel(signal.risk).toLowerCase()}. ` +
+          `Segnali creati in totale: ${signalCount}.`,
       });
     }
   );
@@ -3524,7 +3536,7 @@ async function pulseRegisterSignalResult(
       );
 
       showToast(
-        "Сигнал створено, але прогрес ще не синхронізовано"
+        "Segnale creato, ma i progressi non sono ancora sincronizzati"
       );
 
       return;
