@@ -52,6 +52,9 @@
 
     <link rel="manifest" href="manifest.json" />
 
+    <link rel="preload" href="assets/arbify-pulse-logo.png" as="image" fetchpriority="high" />
+
+
     <style>
       :root {
         color-scheme: dark;
@@ -326,63 +329,23 @@
         ></div>
 
         <header class="topbar">
-          <div class="mini-brand">
-            <span class="brand-mark">
-              <svg
-                class="crown"
-                aria-hidden="true"
-                viewBox="0 0 64 48"
-                fill="none"
-              >
-                <path
-                  d="M9 36 5 13l16 10L32 5l11 18 16-10-4 23H9Z"
-                  stroke="currentColor"
-                  stroke-width="2.4"
-                  stroke-linejoin="round"
-                ></path>
+          <a
+            class="mini-brand image-brand"
+            href="home.html"
+            aria-label="ARBIFY PULSE — Home"
+          >
+            <img
+              class="arbify-logo-image"
+              src="assets/arbify-pulse-logo.png"
+              alt="ARBIFY PULSE"
+              draggable="false"
+              loading="eager"
+              fetchpriority="high"
+              decoding="sync"
+            />
+          </a>
 
-                <path
-                  d="M12 42h40M14 36h36"
-                  stroke="currentColor"
-                  stroke-width="2.4"
-                  stroke-linecap="round"
-                ></path>
-
-                <circle
-                  cx="5"
-                  cy="11"
-                  r="2.5"
-                  fill="currentColor"
-                ></circle>
-
-                <circle
-                  cx="32"
-                  cy="3"
-                  r="2.5"
-                  fill="currentColor"
-                ></circle>
-
-                <circle
-                  cx="59"
-                  cy="11"
-                  r="2.5"
-                  fill="currentColor"
-                ></circle>
-              </svg>
-            </span>
-
-            <div>
-              <p class="brand-name">
-                ARBIFY
-              </p>
-
-              <p class="brand-pulse">
-                — PULSE —
-              </p>
-            </div>
-          </div>
-
-          <button
+<button
             class="icon-button notification-button"
             id="notificationButton"
             type="button"
