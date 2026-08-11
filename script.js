@@ -738,7 +738,6 @@ function playSlotIntro() {
 playSlotIntro();
 preventPageZoom();
 configureSupport();
-addResponsibleNotice();
 setAppHeight();
 resetPagePosition();
 
