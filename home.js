@@ -215,9 +215,41 @@ const signalProfileTemplates = {
  * Ставка залежить від вибраного рівня ризику.
  */
 const ITALY_BETS_BY_RISK = {
-  "НИЗЬКИЙ": [0.2, 0.3, 0.4, 0.5],
-  "СЕРЕДНІЙ": [0.5, 0.75, 1, 1.5],
-  "ВИСОКИЙ": [2, 3, 5, 10],
+  "НИЗЬКИЙ": [
+    0.10, 0.15, 0.20, 0.25, 0.30, 0.40,
+    0.50, 0.60, 0.75, 0.80, 1.00
+  ],
+
+  "СЕРЕДНІЙ": [
+    0.50, 0.75, 0.80, 1.00, 1.20, 1.50,
+    1.75, 2.00, 2.50, 3.00, 4.00, 5.00
+  ],
+
+  "ВИСОКИЙ": [
+    2.00, 2.50, 3.00, 4.00, 5.00, 6.00,
+    7.50, 8.00, 10.00, 12.50, 15.00, 20.00
+  ],
+};
+
+/*
+ * Великий пул прокрутів, щоб сигнали не виглядали повторюваними.
+ * Для кожного рівня ризику свій широкий діапазон.
+ */
+const ITALY_SPINS_BY_RISK = {
+  "НИЗЬКИЙ": [
+    6, 7, 8, 9, 10, 11, 12, 13, 14,
+    15, 16, 18, 20, 22, 24
+  ],
+
+  "СЕРЕДНІЙ": [
+    8, 9, 10, 11, 12, 13, 14, 15, 16,
+    17, 18, 20, 22, 24, 26, 28, 30
+  ],
+
+  "ВИСОКИЙ": [
+    10, 12, 14, 15, 16, 18, 20, 22, 24,
+    25, 27, 30, 32, 35, 38, 40, 45
+  ],
 };
 
 function formatEuroBet(value) {
@@ -2592,11 +2624,15 @@ function createSignal(slot) {
     ITALY_BETS_BY_RISK[selectedRiskProfile] ||
     ITALY_BETS_BY_RISK["СЕРЕДНІЙ"];
 
+  const riskSpins =
+    ITALY_SPINS_BY_RISK[selectedRiskProfile] ||
+    ITALY_SPINS_BY_RISK["СЕРЕДНІЙ"];
+
   return {
     slotName: slot.name,
     slotImage: slot.image,
     bet: formatEuroBet(randomItem(riskBets)),
-    spins: randomItem(profile.spins),
+    spins: randomItem(riskSpins),
     risk: selectedRiskProfile,
     duration: randomItem(profile.durations),
     createdAt: Date.now(),
