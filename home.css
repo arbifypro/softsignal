@@ -7431,3 +7431,58 @@ body.pulse-welcome-open
     animation: none !important;
   }
 }
+
+/* ===== ONBOARDING — NEW ARBIFY PULSE LOGO ===== */
+/* Новий PNG-логотип у підказках. Без анімації появи та без скачка. */
+.pulse-welcome-brand {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.pulse-welcome-logo {
+  display: block;
+  width: 86px;
+  height: auto;
+  max-width: none;
+  object-fit: contain;
+  object-position: left center;
+  user-select: none;
+  -webkit-user-drag: none;
+  opacity: 1;
+  animation: pulseWelcomeLogoSoftBreath 5.8s ease-in-out infinite;
+  will-change: filter, opacity;
+}
+
+@keyframes pulseWelcomeLogoSoftBreath {
+  0%,
+  100% {
+    opacity: 0.98;
+    filter:
+      brightness(1)
+      saturate(1.03)
+      drop-shadow(0 0 3px rgba(190, 75, 255, 0.13))
+      drop-shadow(0 0 8px rgba(112, 58, 255, 0.06));
+  }
+
+  50% {
+    opacity: 1;
+    filter:
+      brightness(1.08)
+      saturate(1.08)
+      drop-shadow(0 0 6px rgba(202, 84, 255, 0.22))
+      drop-shadow(0 0 12px rgba(112, 58, 255, 0.10));
+  }
+}
+
+@media (max-width: 370px) {
+  .pulse-welcome-logo {
+    width: 80px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-welcome-logo {
+    animation: none !important;
+  }
+}
