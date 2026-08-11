@@ -1408,3 +1408,64 @@ body::-webkit-scrollbar,
     stroke-dashoffset: 0;
   }
 }
+
+
+/* =========================================================
+   SUCCESS ICON — CONTINUOUS IDLE LIFE
+   Після стартової анімації галочка продовжує м'яко "дихати".
+   ========================================================= */
+
+.success-icon {
+  animation:
+    successIconReveal 520ms
+    cubic-bezier(.16,.84,.28,1.08)
+    both,
+    successIconIdle 2.8s
+    ease-in-out
+    900ms
+    infinite !important;
+}
+
+.success-icon svg {
+  animation:
+    successCheckIdle 2.8s
+    ease-in-out
+    900ms
+    infinite;
+}
+
+@keyframes successIconIdle {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow:
+      0 0 26px rgba(66, 255, 154, 0.10);
+  }
+
+  50% {
+    transform: scale(1.035);
+    box-shadow:
+      0 0 36px rgba(66, 255, 154, 0.22),
+      0 0 14px rgba(66, 255, 154, 0.08) inset;
+  }
+}
+
+@keyframes successCheckIdle {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(67, 248, 155, 0));
+  }
+
+  50% {
+    transform: scale(1.045);
+    filter: drop-shadow(0 0 5px rgba(67, 248, 155, 0.42));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .success-icon,
+  .success-icon svg {
+    animation: none !important;
+  }
+}
