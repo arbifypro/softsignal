@@ -7303,3 +7303,10 @@ body.pulse-welcome-open
     animation: none !important;
   }
 }
+
+
+/* ===== FINAL PNG LOGO POSITION TUNING ===== */
+/* Розмір 86px не змінюємо: лише трохи вправо та вниз. */
+.image-brand {
+  transform: translate(3px, 6px);
+}
