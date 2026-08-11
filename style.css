@@ -1618,3 +1618,133 @@ body::-webkit-scrollbar,
     animation: none !important;
   }
 }
+
+/* =========================================================
+   HERO 777 — TRANSPARENT PREMIUM BLEND
+   PNG має alpha-канал: працюємо зі справжньою прозорістю.
+   Фінальні override-правила без зміни HTML/JS.
+   ========================================================= */
+
+.hero-visual {
+  isolation: isolate;
+  overflow: visible !important;
+}
+
+/* М'яке фіолетове світло саме за барабаном */
+.hero-visual::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  width: 88%;
+  height: 48%;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(166, 45, 255, 0.18) 0%,
+      rgba(111, 31, 214, 0.09) 42%,
+      rgba(70, 20, 140, 0.025) 66%,
+      transparent 78%
+    );
+  content: "";
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  filter: blur(28px);
+  opacity: 0.82;
+}
+
+/* Старі маски більше не потрібні: вони й створювали окремий темний блок */
+.hero-vignette,
+.hero-visual::after {
+  display: none !important;
+}
+
+.slot-aura {
+  top: 51% !important;
+  width: 72% !important;
+  height: 34% !important;
+  z-index: 1 !important;
+  background: rgba(133, 30, 238, 0.18) !important;
+  filter: blur(48px) !important;
+  opacity: 0.52 !important;
+}
+
+.light-streak {
+  opacity: 0.22 !important;
+  filter: blur(0.4px);
+}
+
+/* Стабільний PNG: без руху, scale та стрибка при завантаженні */
+.hero-art {
+  top: 50% !important;
+  width: 108% !important;
+  height: 89% !important;
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) !important;
+  transition: none !important;
+  animation: heroPremiumBreath 7.2s ease-in-out infinite !important;
+  will-change: filter, opacity;
+  filter:
+    saturate(1.045)
+    contrast(1.025)
+    brightness(1.01)
+    drop-shadow(0 8px 18px rgba(0, 0, 0, 0.26))
+    drop-shadow(0 0 9px rgba(166, 51, 255, 0.10));
+}
+
+@keyframes heroPremiumBreath {
+  0%,
+  100% {
+    opacity: 0.99;
+    filter:
+      saturate(1.04)
+      contrast(1.025)
+      brightness(1)
+      drop-shadow(0 8px 18px rgba(0, 0, 0, 0.26))
+      drop-shadow(0 0 7px rgba(166, 51, 255, 0.08));
+  }
+
+  50% {
+    opacity: 1;
+    filter:
+      saturate(1.06)
+      contrast(1.025)
+      brightness(1.035)
+      drop-shadow(0 8px 18px rgba(0, 0, 0, 0.26))
+      drop-shadow(0 0 12px rgba(183, 66, 255, 0.14));
+  }
+}
+
+/* Вимикаємо стару slot-intro анімацію, щоб вона не перебивала фінальний стиль */
+.hero-visual.slot-intro-running .hero-art,
+.hero-visual.slot-intro-finished .hero-art {
+  transform: translate(-50%, -50%) !important;
+  animation: heroPremiumBreath 7.2s ease-in-out infinite !important;
+}
+
+.hero-visual.slot-intro-running .slot-aura,
+.hero-visual.slot-intro-running .light-streak-one,
+.hero-visual.slot-intro-running .light-streak-two {
+  animation: none !important;
+}
+
+@media (max-height: 720px) {
+  .hero-art {
+    width: 105% !important;
+    height: 87% !important;
+  }
+
+  .hero-visual::before {
+    width: 84%;
+    height: 44%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-art,
+  .hero-visual.slot-intro-running .hero-art,
+  .hero-visual.slot-intro-finished .hero-art {
+    animation: none !important;
+  }
+}
