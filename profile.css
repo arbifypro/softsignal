@@ -5903,3 +5903,20 @@ body.subid-modal-open .subid-modal-backdrop {
     width: 80px;
   }
 }
+
+/* ===== PROFILE HEADER — HOME SHORT-SCREEN MATCH ===== */
+/*
+   На Home для невисоких телефонів topbar = 72px.
+   Цей блок стоїть останнім, тому Profile тепер повторює Home 1:1.
+*/
+@media (max-height: 760px) and (max-width: 559px) {
+  .topbar {
+    height: 72px !important;
+    min-height: 72px !important;
+    flex: 0 0 72px !important;
+  }
+
+  .content {
+    padding-top: 4px;
+  }
+}
