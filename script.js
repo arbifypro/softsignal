@@ -1,7 +1,7 @@
 "use strict";
 
 /*
- * Вкажи username менеджера БЕЗ символу @.
+ * Inserisci lo username del referente SENZA il simbolo @.
  */
 const TELEGRAM_USERNAME = "arbifypulse";
 const HOME_PAGE = "home.html";
@@ -202,7 +202,7 @@ function restoreAccessButton() {
 
   accessButton.innerHTML = `
     <span class="button-sheen"></span>
-    <span class="button-label">УВІЙТИ</span>
+    <span class="button-label">ACCEDI</span>
   `;
 }
 
@@ -249,7 +249,7 @@ function startVerification() {
 
   accessButton.innerHTML = `
     <span class="button-loader"></span>
-    <span>ПЕРЕВІРЯЄМО КЛЮЧ</span>
+    <span>VERIFICA DELLA CHIAVE</span>
   `;
 }
 
@@ -300,8 +300,8 @@ function getApiErrorMessage(error) {
     );
 
     return (
-      `Забагато спроб. ` +
-      `Спробуй знову через ${minutes} хв.`
+      `Troppi tentativi. ` +
+      `Riprova tra ${minutes} min.`
     );
   }
 
@@ -309,7 +309,7 @@ function getApiErrorMessage(error) {
     error?.data?.code ===
     "TELEGRAM_REQUIRED"
   ) {
-    return "Відкрий застосунок через Telegram";
+    return "Apri l’app tramite Telegram";
   }
 
   if (
@@ -317,7 +317,7 @@ function getApiErrorMessage(error) {
     error?.data?.code ===
       "REQUEST_TIMEOUT"
   ) {
-    return "Сервер відповідає надто довго. Спробуй ще раз";
+    return "Il server impiega troppo tempo a rispondere. Riprova";
   }
 
   if (
@@ -325,14 +325,14 @@ function getApiErrorMessage(error) {
     error?.data?.code ===
       "NETWORK_ERROR"
   ) {
-    return "Немає зв’язку із сервером. Перевір інтернет";
+    return "Impossibile connettersi al server. Controlla la connessione Internet";
   }
 
   if (error?.status === 503) {
-    return "Перевірка ключа тимчасово недоступна";
+    return "La verifica della chiave è temporaneamente non disponibile";
   }
 
-  return "Цей ключ не знайдено або його термін дії завершився";
+  return "Questa chiave non è stata trovata oppure è scaduta";
 }
 
 function requireArbifyApi() {
@@ -392,8 +392,8 @@ function configureSupport() {
 
   supportPopover.innerHTML = `
     <p>
-      Не можеш увійти? Напиши менеджеру — він допоможе отримати
-      або відновити ключ.
+      Non riesci ad accedere? Contatta il referente: ti aiuterà a ottenere
+      o recuperare la chiave.
     </p>
 
     <a
@@ -403,7 +403,7 @@ function configureSupport() {
       target="_blank"
       rel="noopener noreferrer"
     >
-      НАПИСАТИ В TELEGRAM
+      SCRIVI SU TELEGRAM
     </a>
   `;
 
@@ -421,7 +421,7 @@ function configureSupport() {
         supportPopover.querySelector(
           "p"
         ).textContent =
-          "Спочатку вкажи username менеджера у файлі script.js.";
+          "Prima specifica lo username del referente nel file script.js.";
       }
     );
   }
@@ -443,7 +443,7 @@ function addResponsibleNotice() {
     "responsible-note";
 
   notice.textContent =
-    "18+ · Грай відповідально";
+    "18+ · Gioca responsabilmente";
 
   footer.appendChild(notice);
 }
@@ -523,7 +523,7 @@ accessForm.addEventListener(
 
     if (key.length !== 6) {
       showKeyError(
-        "Ключ має складатися з 6 символів"
+        "La chiave deve contenere 6 caratteri"
       );
 
       return;
@@ -748,7 +748,7 @@ authenticateTelegramUser()
       "TELEGRAM_REQUIRED"
     ) {
       showSystemMessage(
-        "Відкрий застосунок через Telegram"
+        "Apri l’app tramite Telegram"
       );
 
       return;
