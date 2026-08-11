@@ -7194,3 +7194,112 @@ body.pulse-welcome-open
     stroke-dashoffset: 0 !important;
   }
 }
+
+/* ===== ARBIFY PULSE — PNG LOGO IN TOPBAR ===== */
+
+/*
+   Il PNG contiene già corona + ARBIFY + PULSE.
+   Manteniamo il logo nello stesso punto del vecchio marchio,
+   senza modificare altezza, padding o disposizione della topbar.
+*/
+.image-brand {
+  position: relative;
+  width: 136px;
+  height: 54px;
+  min-width: 136px;
+  flex: 0 0 136px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.arbify-logo-image {
+  width: 136px;
+  height: auto;
+  max-width: none;
+  display: block;
+  object-fit: contain;
+  object-position: left center;
+  user-select: none;
+  -webkit-user-drag: none;
+  transform-origin: left center;
+
+  /*
+     Il bagliore è molto leggero perché il PNG contiene già
+     il proprio neon. Serve solo a fonderlo con lo sfondo.
+  */
+  filter:
+    drop-shadow(0 0 5px rgba(191, 70, 255, 0.16))
+    drop-shadow(0 0 11px rgba(111, 63, 255, 0.08));
+
+  animation:
+    arbifyPngLogoIn 700ms cubic-bezier(0.16, 1, 0.3, 1) both,
+    arbifyPngLogoBreath 4.8s ease-in-out 1.2s infinite;
+  will-change: transform, filter, opacity;
+}
+
+/* Поява без зміщення логотипа з його звичного місця */
+@keyframes arbifyPngLogoIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+    filter:
+      blur(2px)
+      drop-shadow(0 0 0 rgba(191, 70, 255, 0));
+  }
+
+  68% {
+    opacity: 1;
+    transform: scale(1.015);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter:
+      blur(0)
+      drop-shadow(0 0 5px rgba(191, 70, 255, 0.16))
+      drop-shadow(0 0 11px rgba(111, 63, 255, 0.08));
+  }
+}
+
+/* Дуже м'яке неонове "дихання" після появи */
+@keyframes arbifyPngLogoBreath {
+  0%,
+  100% {
+    opacity: 0.96;
+    filter:
+      drop-shadow(0 0 4px rgba(191, 70, 255, 0.13))
+      drop-shadow(0 0 9px rgba(111, 63, 255, 0.06));
+  }
+
+  50% {
+    opacity: 1;
+    filter:
+      drop-shadow(0 0 6px rgba(214, 82, 255, 0.23))
+      drop-shadow(0 0 14px rgba(111, 63, 255, 0.11));
+  }
+}
+
+/* На дуже вузьких екранах зменшуємо лише сам логотип,
+   не рухаючи topbar і кнопку сповіщень. */
+@media (max-width: 370px) {
+  .image-brand {
+    width: 124px;
+    min-width: 124px;
+    flex-basis: 124px;
+  }
+
+  .arbify-logo-image {
+    width: 124px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arbify-logo-image {
+    animation: none !important;
+  }
+}
