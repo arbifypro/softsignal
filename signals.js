@@ -16,29 +16,29 @@ const slots = [
   {
     name: "Thunder Crown",
     image: "assets/mythic-thunder.webp",
-    bets: [10, 15, 20, 25, 30, 40, 50],
+    bets: [0.20, 0.30, 0.40, 0.50, 0.75, 1.00, 1.50],
     spins: [7, 8, 10, 12, 15],
     multipliers: [4, 6, 8, 10, 14, 18, 24],
   },
   {
     name: "Candy Spiral",
     image: "assets/candy-spiral.webp",
-    bets: [10, 15, 20, 25, 30, 40],
+    bets: [0.20, 0.40, 0.50, 0.75, 1.00, 1.50],
     spins: [8, 10, 12, 15, 18],
     multipliers: [3, 5, 7, 9, 12, 16, 21],
   },
   {
     name: "Gem Rocket",
     image: "assets/gem-rocket.webp",
-    bets: [15, 20, 25, 30, 40, 50, 75],
+    bets: [0.30, 0.50, 0.75, 1.00, 1.50, 2.00, 2.50],
     spins: [7, 9, 11, 12, 14],
     multipliers: [4, 6, 9, 11, 15, 20, 26],
   },
 ];
 
 /*
- * Demo identity pool for the LIVE feed.
- * These are synthetic Italian-style names used only in DEMO LIVE.
+ * Pool di identità sintetiche per il feed LIVE.
+ * Questi nomi in stile italiano sono usati solo nel feed LIVE.
  */
 const italianFirstNames = [
   "Marco", "Luca", "Matteo", "Alessandro", "Andrea", "Davide",
@@ -213,26 +213,28 @@ function formatAmount(
   amount,
   includeSign = false
 ) {
+  const numericAmount =
+    Number(amount);
+
   const absoluteAmount =
-    Math.abs(
-      Math.round(amount)
-    );
+    Math.abs(numericAmount);
 
   const formattedAmount =
     new Intl.NumberFormat(
-      "uk-UA",
+      "it-IT",
       {
-        maximumFractionDigits: 0,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
       }
     ).format(absoluteAmount);
 
   if (!includeSign) {
-    return `₴${formattedAmount}`;
+    return `${formattedAmount} €`;
   }
 
-  return amount >= 0
-    ? `+₴${formattedAmount}`
-    : `−₴${formattedAmount}`;
+  return numericAmount >= 0
+    ? `+${formattedAmount} €`
+    : `−${formattedAmount} €`;
 }
 
 function formatRelativeTime(
@@ -250,28 +252,28 @@ function formatRelativeTime(
     );
 
   if (seconds < 8) {
-    return "щойно";
+    return "adesso";
   }
 
   if (seconds < 60) {
-    return `${seconds} с тому`;
+    return `${seconds} s fa`;
   }
 
   const minutes =
     Math.floor(seconds / 60);
 
   if (minutes < 60) {
-    return `${minutes} хв тому`;
+    return `${minutes} min fa`;
   }
 
   const hours =
     Math.floor(minutes / 60);
 
   if (hours < 24) {
-    return `${hours} год тому`;
+    return `${hours} h fa`;
   }
 
-  return "сьогодні";
+  return "oggi";
 }
 
 function getSignalProgress(
@@ -555,8 +557,8 @@ function saveSignals() {
     );
   } catch {
     /*
-     * Якщо сховище браузера недоступне,
-     * стрічка продовжить працювати.
+     * Se la memoria del browser non è disponibile,
+     * il feed continuerà a funzionare.
      */
   }
 }
@@ -609,8 +611,8 @@ function saveCounters() {
     );
   } catch {
     /*
-     * Лічильники продовжать працювати
-     * без збереження.
+     * I contatori continueranno a funzionare
+     * anche senza salvataggio.
      */
   }
 }
@@ -630,9 +632,9 @@ function setStatusLabel(
   status
 ) {
   const labels = {
-    active: "АКТИВНИЙ",
-    won: "ВИГРАШ",
-    lost: "НЕ ЗАЙШОВ",
+    active: "ATTIVO",
+    won: "VINCENTE",
+    lost: "NON RIUSCITO",
   };
 
   element.innerHTML = `
@@ -785,7 +787,7 @@ function updateCard(signal) {
       );
 
     result.textContent =
-      "ОЧІКУЄМО";
+      "IN ATTESA";
 
     progressWrap.hidden =
       false;
@@ -794,8 +796,8 @@ function updateCard(signal) {
 
     progressLabel.textContent =
       progress < 70
-        ? "Сигнал виконується"
-        : "Завершення сигналу";
+        ? "Segnale in corso"
+        : "Segnale in fase di completamento";
 
     progressPercent.textContent =
       `${progress}%`;
@@ -824,16 +826,16 @@ function updateCard(signal) {
 
   outcomeLabel.textContent =
     didWin
-      ? "СИГНАЛ УСПІШНО ЗАЙШОВ"
-      : "СИГНАЛ НЕ ЗАЙШОВ";
+      ? "SEGNALE RIUSCITO"
+      : "SEGNALE NON RIUSCITO";
 
   outcomeValue.textContent =
     didWin
-      ? `Виграш ${formatAmount(
+      ? `Vincita ${formatAmount(
           signal.resultAmount,
           true
         )}`
-      : `Результат ${formatAmount(
+      : `Risultato ${formatAmount(
           signal.resultAmount,
           true
         )}`;
@@ -1224,8 +1226,8 @@ function updateCountdown() {
 
   nextSignalTimer.textContent =
     remainingSeconds === 1
-      ? "через 1 секунду"
-      : `через ${remainingSeconds} секунд`;
+      ? "tra 1 secondo"
+      : `tra ${remainingSeconds} secondi`;
 
   if (
     remainingMilliseconds > 0
@@ -1359,6 +1361,17 @@ function configureFilters() {
   );
 }
 
+function getItalianSectionName(sectionName) {
+  const labels = {
+    "Головна": "Home",
+    "Сигнали": "Segnali",
+    "Бонуси": "Bonus",
+    "Профіль": "Profilo",
+  };
+
+  return labels[sectionName] || sectionName;
+}
+
 function configureNavigation() {
   navigationItems.forEach(
     (item) => {
@@ -1371,8 +1384,8 @@ function configureNavigation() {
         );
 
       /*
-       * Якщо пункт має справжнє посилання,
-       * дозволяємо браузеру відкрити сторінку.
+       * Se la voce contiene un collegamento reale,
+       * lasciamo che il browser apra la pagina.
        */
       if (
         destination &&
@@ -1382,8 +1395,8 @@ function configureNavigation() {
       }
 
       /*
-       * Повідомлення показуємо лише для розділів,
-       * які ще не мають окремої сторінки.
+       * Mostriamo il messaggio solo per le sezioni
+       * che non hanno ancora una pagina dedicata.
        */
       item.addEventListener(
         "click",
@@ -1391,7 +1404,7 @@ function configureNavigation() {
           event.preventDefault();
 
           showToast(
-            `Розділ «${sectionName}» готується`
+            `La sezione «${getItalianSectionName(sectionName)}» è in preparazione`
           );
         }
       );
@@ -1447,8 +1460,8 @@ function stopTimers() {
 
 function initializePage() {
   /*
-   * Запам’ятовуємо, що користувач
-   * дійсно відкрив LIVE-сигнали.
+   * Memorizziamo che l’utente
+   * ha effettivamente aperto i segnali LIVE.
    */
   try {
     sessionStorage.setItem(
@@ -1457,8 +1470,8 @@ function initializePage() {
     );
   } catch {
     /*
-     * Сторінка продовжить працювати,
-     * навіть якщо сховище недоступне.
+     * La pagina continuerà a funzionare
+     * anche se la memoria non è disponibile.
      */
   }
 
