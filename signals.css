@@ -174,7 +174,7 @@ svg {
   pointer-events: none;
 }
 
-/* Верхня панель */
+/* Barra superiore */
 
 .topbar {
   position: relative;
@@ -301,7 +301,7 @@ svg {
   box-shadow: none;
 }
 
-/* Контент */
+/* Contenuto */
 
 .content {
   position: relative;
@@ -546,7 +546,7 @@ svg {
   font-weight: 680;
 }
 
-/* Статистика */
+/* Statistiche */
 
 .live-stats {
   min-height: 86px;
@@ -628,7 +628,7 @@ svg {
   );
 }
 
-/* Стрічка */
+/* Feed */
 
 .feed-section {
   margin-top: 20px;
@@ -652,17 +652,46 @@ svg {
 }
 
 .demo-mode-badge {
+  position: relative;
   height: 24px;
-  padding: 0 9px;
+  padding: 0 10px 0 20px;
   display: inline-flex;
   align-items: center;
-  border: 1px solid rgba(243, 199, 91, 0.18);
+  border: 1px solid rgba(44, 236, 134, 0.28);
   border-radius: 999px;
-  color: #d6b85f;
-  background: rgba(107, 80, 20, 0.09);
+  color: #55f0a0;
+  background: rgba(18, 112, 65, 0.13);
+  box-shadow:
+    0 0 0 1px rgba(44, 236, 134, 0.025),
+    0 0 14px rgba(44, 236, 134, 0.09),
+    inset 0 0 10px rgba(44, 236, 134, 0.035);
   font-size: 6px;
   font-weight: 850;
   letter-spacing: 0.12em;
+  animation: liveBadgeGlow 2s ease-in-out infinite;
+}
+
+.demo-mode-badge::before {
+  position: absolute;
+  left: 9px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 7px rgba(44, 236, 134, 0.72);
+  content: "";
+  animation: liveBadgeDot 1.45s ease-in-out infinite;
+}
+
+.demo-mode-badge::after {
+  position: absolute;
+  left: 6px;
+  width: 11px;
+  height: 11px;
+  border: 1px solid rgba(44, 236, 134, 0.36);
+  border-radius: 50%;
+  content: "";
+  animation: liveBadgeRing 1.45s ease-out infinite;
 }
 
 .filter-scroller {
@@ -824,7 +853,7 @@ svg {
   gap: 10px;
 }
 
-/* Картка сигналу */
+/* Scheda del segnale */
 
 .live-signal-card {
   position: relative;
@@ -1261,7 +1290,7 @@ svg {
   color: #ff708a;
 }
 
-/* Завантаження */
+/* Caricamento */
 
 .signal-skeleton {
   position: relative;
@@ -1393,7 +1422,7 @@ svg {
   font-size: 7px;
 }
 
-/* Нижнє меню */
+/* Menu inferiore */
 
 .bottom-nav {
   position: absolute;
@@ -1489,7 +1518,7 @@ svg {
   content: "";
 }
 
-/* Toast */
+/* Notifica toast */
 
 .toast {
   position: absolute;
@@ -1534,7 +1563,7 @@ svg {
   box-shadow: 0 0 8px rgba(198, 107, 255, 0.45);
 }
 
-/* Анімації */
+/* Animazioni */
 
 @keyframes pageReveal {
   from {
@@ -1675,7 +1704,52 @@ svg {
   }
 }
 
-/* Маленькі екрани */
+@keyframes liveBadgeGlow {
+  0%,
+  100% {
+    border-color: rgba(44, 236, 134, 0.22);
+    box-shadow:
+      0 0 0 1px rgba(44, 236, 134, 0.02),
+      0 0 10px rgba(44, 236, 134, 0.06),
+      inset 0 0 8px rgba(44, 236, 134, 0.025);
+  }
+
+  50% {
+    border-color: rgba(44, 236, 134, 0.43);
+    box-shadow:
+      0 0 0 1px rgba(44, 236, 134, 0.035),
+      0 0 18px rgba(44, 236, 134, 0.15),
+      inset 0 0 12px rgba(44, 236, 134, 0.055);
+  }
+}
+
+@keyframes liveBadgeDot {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: scale(0.88);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.16);
+  }
+}
+
+@keyframes liveBadgeRing {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.55);
+  }
+
+  75%,
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+
+/* Schermi piccoli */
 
 @media (max-width: 359px) {
   .topbar {
@@ -1771,8 +1845,8 @@ svg {
 }
 
 /* =========================================================
-   ТОЧНЕ ВИРІВНЮВАННЯ СИГНАЛІВ ПІД ГОЛОВНУ СТОРІНКУ
-   Цей блок має залишатися в самому кінці signals.css
+   ALLINEAMENTO PRECISO DEI SEGNALI ALLA PAGINA PRINCIPALE
+   Questo blocco deve rimanere alla fine di signals.css
    ========================================================= */
 
 body {
