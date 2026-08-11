@@ -1573,16 +1573,48 @@ body::-webkit-scrollbar,
   }
 }
 
-/* ===== HERO 777 — FINAL SMALLER SIZE ===== */
-/* Ще один крок зменшення: приблизно на 10% від попереднього варіанта. */
+/* ===== HERO 777 — SMALLER + SOFT STABLE LOAD ===== */
+/* Ще трохи компактніше, без різкого стрибка при появі. */
 .hero-art {
-  width: 117% !important;
-  height: 97% !important;
+  width: 111% !important;
+  height: 92% !important;
+
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) !important;
+  transition: none !important;
+
+  animation: heroSoftBreath 6.8s ease-in-out infinite !important;
+  will-change: filter, opacity;
+}
+
+@keyframes heroSoftBreath {
+  0%,
+  100% {
+    opacity: 0.985;
+    filter:
+      brightness(1)
+      saturate(1)
+      drop-shadow(0 0 4px rgba(168, 73, 255, 0.08));
+  }
+
+  50% {
+    opacity: 1;
+    filter:
+      brightness(1.035)
+      saturate(1.025)
+      drop-shadow(0 0 7px rgba(190, 78, 255, 0.13));
+  }
 }
 
 @media (max-height: 720px) {
   .hero-art {
-    width: 114% !important;
-    height: 95% !important;
+    width: 108% !important;
+    height: 90% !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-art {
+    animation: none !important;
   }
 }
