@@ -1572,3 +1572,18 @@ body::-webkit-scrollbar,
     font-size: 7px;
   }
 }
+
+/* ===== HERO 777 — FINAL SMALLER SIZE ===== */
+/* Зменшуємо тільки саму картинку 777 приблизно ще на 10%. */
+.hero-art {
+  width: 130% !important;
+  height: 108% !important;
+}
+
+/* На нижчих екранах теж тримаємо компактні пропорції. */
+@media (max-height: 720px) {
+  .hero-art {
+    width: 127% !important;
+    height: 106% !important;
+  }
+}
