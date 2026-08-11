@@ -6756,3 +6756,12 @@ body.pulse-welcome-open
   overscroll-behavior-y: contain;
   touch-action: pan-y;
 }
+
+/* =========================================================
+   HOME — RESPONSIBLE PLAY POSITION
+   Піднімаємо весь блок 18+ разом із текстом над bottom nav.
+   ========================================================= */
+.content .responsible-line {
+  position: relative !important;
+  top: -18px !important;
+}
