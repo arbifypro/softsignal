@@ -5801,3 +5801,105 @@ body.subid-modal-open .subid-modal-backdrop {
     animation: none !important;
   }
 }
+
+/* ===== PROFILE HEADER — EXACT HOME MATCH ===== */
+/* Повністю копіюємо геометрію Home, щоб не було скачка ні логотипа, ні дзвіночка. */
+
+.topbar {
+  position: relative;
+  z-index: 20;
+  width: 100%;
+  height: 82px !important;
+  min-height: 82px !important;
+  flex: 0 0 82px !important;
+  padding:
+    max(10px, env(safe-area-inset-top))
+    20px
+    0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 0 !important;
+  border-bottom: 0 !important;
+  background: #06070d !important;
+  background-color: #06070d !important;
+  box-shadow: none !important;
+}
+
+.mini-brand,
+.image-brand {
+  margin: 0;
+  padding: 0;
+}
+
+.image-brand {
+  position: relative;
+  width: 86px;
+  height: 54px;
+  min-width: 86px;
+  flex: 0 0 86px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0;
+  overflow: visible;
+  transform: translate(3px, -3px);
+}
+
+.arbify-logo-image {
+  width: 86px;
+  height: auto;
+  max-width: none;
+  display: block;
+  object-fit: contain;
+  object-position: left center;
+}
+
+/* Дзвіночок 1:1 як на Home */
+.topbar .icon-button {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  min-height: 42px;
+  flex: 0 0 42px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 50%;
+  color: #e4e1ec;
+  background: rgba(10, 11, 19, 0.88);
+  box-shadow: none;
+}
+
+.topbar .icon-button svg {
+  width: 20px;
+  height: 20px;
+  color: #e4e1ec;
+}
+
+.topbar .notification-dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  border: 2px solid #08090f;
+  border-radius: 50%;
+  background: #ff395f;
+  box-sizing: content-box;
+  box-shadow: none;
+}
+
+@media (max-width: 370px) {
+  .image-brand {
+    width: 80px;
+    min-width: 80px;
+    flex-basis: 80px;
+  }
+
+  .arbify-logo-image {
+    width: 80px;
+  }
+}
