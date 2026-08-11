@@ -1144,3 +1144,48 @@ body::-webkit-scrollbar,
     animation: none !important;
   }
 }
+
+/* =========================================================
+   SUPPORT POPOVER — COMPACT MOBILE FIT
+   Зменшено тільки вікно «Потрібна допомога?».
+   ========================================================= */
+.support-popover {
+  width: min(100%, 270px) !important;
+  max-width: 270px !important;
+  margin-bottom: 8px !important;
+  padding: 8px 10px !important;
+  border-radius: 8px !important;
+  font-size: 8px !important;
+  line-height: 1.35 !important;
+}
+
+.support-popover p {
+  margin: 0 0 8px !important;
+}
+
+.support-popover .telegram-button {
+  min-height: 34px !important;
+  padding: 0 10px !important;
+  font-size: 8px !important;
+  border-radius: 8px !important;
+}
+
+@media (max-height: 720px) {
+  .support-popover {
+    width: min(100%, 250px) !important;
+    max-width: 250px !important;
+    margin-bottom: 6px !important;
+    padding: 7px 9px !important;
+    font-size: 7.5px !important;
+    line-height: 1.3 !important;
+  }
+
+  .support-popover p {
+    margin-bottom: 6px !important;
+  }
+
+  .support-popover .telegram-button {
+    min-height: 31px !important;
+    font-size: 7.5px !important;
+  }
+}
