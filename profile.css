@@ -2300,7 +2300,7 @@ body.has-exclusive-theme .profile-eyebrow > span {
   font-size: 5.5px;
   font-weight: 850;
   letter-spacing: 0.11em;
-  content: "ОСТАННІЙ";
+  content: "ULTIMO";
 }
 
 .signal-history-item.is-latest::after {
@@ -2750,7 +2750,7 @@ body.has-exclusive-theme .profile-eyebrow > span {
   font-weight: 850;
   line-height: 1;
   letter-spacing: 0.10em;
-  content: "ОСТАННІЙ";
+  content: "ULTIMO";
 }
 
 .signal-history-item.is-latest
@@ -4030,7 +4030,7 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
   box-shadow:0 0 0 3px rgba(50,229,140,.07),0 0 8px rgba(50,229,140,.60);
   filter:none;animation:profileVerifiedDot 1.9s ease-in-out infinite
 }
-.profile-subid-verified::after{content:"ПІДТВЕРДЖЕНО"}
+.profile-subid-verified::after{content:"VERIFICATO"}
 .profile-subid-cell.is-verified::after{display:none!important}
 @keyframes profileVerifiedBreath{
   0%,100%{border-color:rgba(48,226,137,.15);box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 0 10px rgba(45,226,137,.025)}
@@ -4107,7 +4107,7 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
 }
 
 .profile-subid-verified::after {
-  content: "ПІДТВЕРДЖЕНО";
+  content: "VERIFICATO";
   transform: translateY(0.3px);
 }
 
@@ -4223,7 +4223,7 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
 }
 
 .profile-subid-verified::after {
-  content: "ПІДТВЕРДЖЕНО";
+  content: "VERIFICATO";
 }
 
 .profile-subid-cell.is-verified::after {
@@ -4323,7 +4323,7 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
 }
 
 .profile-subid-verified::after {
-  content: "ПІДТВЕРДЖЕНО";
+  content: "VERIFICATO";
 }
 
 .profile-subid-cell.is-verified::after {
@@ -4413,7 +4413,7 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
 }
 
 .profile-subid-verified::after {
-  content: "ПІДТВЕРДЖЕНО";
+  content: "VERIFICATO";
 }
 
 .profile-subid-cell.is-verified::after {
@@ -4533,7 +4533,7 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
 }
 
 .profile-subid-verified::after {
-  content: "Підтверджено";
+  content: "VERIFICATO";
 }
 
 @keyframes profileSubIdVerifiedPulse {
@@ -4583,7 +4583,7 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
 }
 
 .profile-subid-verified::after {
-  content: "Підтверджено";
+  content: "VERIFICATO";
   font: inherit;
   letter-spacing: inherit;
   line-height: inherit;
@@ -4634,7 +4634,7 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
   font: inherit !important;
   line-height: inherit !important;
   letter-spacing: inherit !important;
-  content: "Підтверджено";
+  content: "VERIFICATO";
 }
 
 /* ARBIFY PROFILE — VERIFIED TYPOGRAPHY TRUE 1:1 FINAL */
@@ -4696,7 +4696,7 @@ body.profile-guide-preparing .profile-guide{pointer-events:none}
 .profile-subid-verified::after {
   display: inline !important;
   position: static !important;
-  content: "Підтверджено" !important;
+  content: "VERIFICATO" !important;
 
   margin: 0 !important;
   padding: 0 !important;
