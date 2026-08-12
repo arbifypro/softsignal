@@ -251,7 +251,7 @@ function setAppHeight() {
 }
 
 function formatNumber(value) {
-  return new Intl.NumberFormat("uk-UA").format(
+  return new Intl.NumberFormat("it-IT").format(
     Math.max(
       0,
       Math.floor(Number(value) || 0)
@@ -712,7 +712,7 @@ function maskSubId(value) {
     String(value || "").trim();
 
   if (!normalizedValue) {
-    return "Не підтверджено";
+    return "Non verificato";
   }
 
   if (normalizedValue.length <= 2) {
@@ -784,9 +784,9 @@ function getProfileName() {
       ) || ""
     ).trim();
 
-    return storedName || "Учасник Pulse";
+    return storedName || "Membro Pulse";
   } catch {
-    return "Учасник Pulse";
+    return "Membro Pulse";
   }
 }
 
@@ -916,7 +916,7 @@ function resetProfileSubIdModal() {
   subIdMessage.innerHTML = "&nbsp;";
   subIdVerifyButton.disabled = false;
   subIdVerifyText.textContent =
-    "ПЕРЕВІРИТИ SUBID";
+    "VERIFICA SUBID";
 }
 
 function openProfileSubIdModal() {
@@ -1016,7 +1016,7 @@ function showProfileSubIdError(
   subIdVerifyButton.disabled = false;
 
   subIdVerifyText.textContent =
-    "ПЕРЕВІРИТИ SUBID";
+    "VERIFICA SUBID";
 
   subIdInput?.focus();
 }
@@ -1052,7 +1052,7 @@ function startProfileSubIdVerification(
   subIdVerifyButton.disabled = true;
 
   subIdVerifyText.textContent =
-    "ПЕРЕВІРЯЄМО...";
+    "VERIFICA IN CORSO...";
 
   /*
    * Зберігаємо SUBID тим самим способом,
@@ -1115,7 +1115,7 @@ function startProfileSubIdVerification(
                 () => {
                   renderProfile();
                   showToast(
-                    "SUBID успішно підтверджено"
+                    "SUBID verificato correttamente"
                   );
                 }
               );
@@ -1127,7 +1127,7 @@ function startProfileSubIdVerification(
           );
 
           showProfileSubIdError(
-            "Не вдалося зберегти SUBID. Спробуйте ще раз"
+            "Impossibile salvare il SUBID. Riprova"
           );
         }
       },
@@ -1186,13 +1186,13 @@ function formatSignalHistoryDate(createdAt) {
   const timestamp = Number(createdAt);
 
   if (!Number.isFinite(timestamp)) {
-    return "Нещодавно";
+    return "Recentemente";
   }
 
   const date = new Date(timestamp);
 
   if (Number.isNaN(date.getTime())) {
-    return "Нещодавно";
+    return "Recentemente";
   }
 
   const now = new Date();
@@ -1217,7 +1217,7 @@ function formatSignalHistoryDate(createdAt) {
   );
 
   const time = date.toLocaleTimeString(
-    "uk-UA",
+    "it-IT",
     {
       hour: "2-digit",
       minute: "2-digit",
@@ -1225,15 +1225,15 @@ function formatSignalHistoryDate(createdAt) {
   );
 
   if (dayDifference === 0) {
-    return `Сьогодні · ${time}`;
+    return `Oggi · ${time}`;
   }
 
   if (dayDifference === 1) {
-    return `Вчора · ${time}`;
+    return `Ieri · ${time}`;
   }
 
   const dayMonth = date.toLocaleDateString(
-    "uk-UA",
+    "it-IT",
     {
       day: "2-digit",
       month: "short",
@@ -1249,9 +1249,9 @@ function normalizeSignalRisk(value) {
     .toUpperCase();
 
   return [
-    "НИЗЬКИЙ",
-    "СЕРЕДНІЙ",
-    "ВИСОКИЙ",
+    "BASSO",
+    "MEDIO",
+    "ALTO",
   ].includes(risk)
     ? risk
     : "—";
@@ -1336,7 +1336,7 @@ function createSignalHistoryItem(
   );
 
   name.textContent =
-    signal.slotName || "Слот";
+    signal.slotName || "Slot";
 
   const date = document.createElement(
     "time"
@@ -1382,7 +1382,7 @@ function createSignalHistoryItem(
 
   spins.textContent =
     Number.isFinite(spinsValue)
-      ? `${spinsValue} обертів`
+      ? `${spinsValue} giri`
       : "—";
 
   const dividerTwo =
@@ -1437,7 +1437,7 @@ function createSignalHistoryItem(
 
     side.setAttribute(
       "aria-label",
-      "Останній сигнал"
+      "Ultimo segnale"
     );
   } else {
     side.setAttribute(
@@ -1524,8 +1524,8 @@ function renderSignalHistory() {
     if (label) {
       label.textContent =
         signalHistoryExpanded
-          ? "Згорнути"
-          : `Показати ще ${
+          ? "Mostra meno"
+          : `Mostra altri ${
               history.length -
               SIGNAL_HISTORY_COLLAPSED_COUNT
             }`;
@@ -1627,7 +1627,7 @@ function renderProfile() {
 
   profileLevelTrack.setAttribute(
     "aria-label",
-    `Рівень ${levelData.level}: ${levelData.name}`
+    `Livello ${levelData.level}: ${levelData.name}`
   );
 
   profileAccessKey.textContent =
@@ -1682,7 +1682,7 @@ function renderProfile() {
 
     profileSubId.setAttribute(
       "aria-label",
-      "Підтвердити SUBID"
+      "Verifica SUBID"
     );
   }
 
@@ -1727,7 +1727,7 @@ function renderNotificationStatus() {
 
   if (!("Notification" in window)) {
     profileNotificationStatus.textContent =
-      "Внутрішні активні";
+      "Notifiche interne attive";
 
     return;
   }
@@ -1736,7 +1736,7 @@ function renderNotificationStatus() {
     Notification.permission === "granted"
   ) {
     profileNotificationStatus.textContent =
-      "Дозволені";
+      "Consentite";
 
     return;
   }
@@ -1745,13 +1745,13 @@ function renderNotificationStatus() {
     Notification.permission === "denied"
   ) {
     profileNotificationStatus.textContent =
-      "Заблоковані";
+      "Bloccate";
 
     return;
   }
 
   profileNotificationStatus.textContent =
-    "Потрібен дозвіл";
+    "Autorizzazione richiesta";
 }
 
 /*
@@ -1767,7 +1767,7 @@ async function configureNotifications() {
 
   if (!("Notification" in window)) {
     showToast(
-      "Внутрішні сповіщення Pulse вже працюють"
+      "Le notifiche interne di Pulse sono già attive"
     );
 
     return;
@@ -1777,7 +1777,7 @@ async function configureNotifications() {
     Notification.permission === "denied"
   ) {
     showToast(
-      "Дозвіл заблоковано у налаштуваннях браузера"
+      "L’autorizzazione è bloccata nelle impostazioni del browser"
     );
 
     return;
@@ -1799,7 +1799,7 @@ async function configureNotifications() {
     });
 
     showToast(
-      "Системні сповіщення вже увімкнені"
+      "Le notifiche di sistema sono già attive"
     );
 
     return;
@@ -1825,33 +1825,33 @@ async function configureNotifications() {
       });
 
       showToast(
-        "Сповіщення успішно увімкнено"
+        "Notifiche attivate correttamente"
       );
 
       window.PulseNotifications?.add({
         type: "success",
-        category: "НАЛАШТУВАННЯ",
-        title: "Сповіщення увімкнено",
+        category: "IMPOSTAZIONI",
+        title: "Notifiche attivate",
         message:
-          "Тепер важливі події Pulse не загубляться.",
+          "Ora non perderai gli aggiornamenti importanti di Pulse.",
       });
 
       return;
     }
 
     showToast(
-      "Сповіщення не було дозволено"
+      "Le notifiche non sono state autorizzate"
     );
   } catch {
     showToast(
-      "Не вдалося змінити дозвіл сповіщень"
+      "Impossibile modificare l’autorizzazione alle notifiche"
     );
   }
 }
 
 function openLanguageSettings() {
   showToast(
-    "Італійську версію додамо після завершення української"
+    "La versione italiana è già attiva"
   );
 }
 
@@ -1860,7 +1860,7 @@ function openTelegramSupport() {
     !isTelegramSupportConfigured()
   ) {
     showToast(
-      "Telegram підтримки підключимо наприкінці розробки"
+      "L’assistenza Telegram sarà collegata al termine dello sviluppo"
     );
 
     return;
@@ -1910,7 +1910,7 @@ function resetLogoutConfirmation() {
       <path d="M13.5 8.5 17 12l-3.5 3.5M8 12h9"></path>
     </svg>
 
-    ВИЙТИ З АКАУНТА
+    ESCI DALL’ACCOUNT
   `;
 }
 
@@ -1924,10 +1924,10 @@ function logout() {
     );
 
     logoutButton.textContent =
-      "НАТИСНИ ЩЕ РАЗ ДЛЯ ВИХОДУ";
+      "PREMI DI NUOVO PER USCIRE";
 
     showToast(
-      "Повторне натискання підтвердить вихід"
+      "Premi di nuovo per confermare l’uscita"
     );
 
     logoutConfirmTimer =
@@ -2259,7 +2259,7 @@ function initializeProfile() {
 
           if (!subId) {
             showProfileSubIdError(
-              "Введіть свій SUBID для перевірки"
+              "Inserisci il tuo SUBID per la verifica"
             );
 
             return;
@@ -2463,7 +2463,7 @@ function initializeProfile() {
       finishProfileLoading();
 
       showToast(
-        "Не вдалося завантажити профіль"
+        "Impossibile caricare il profilo"
       );
     });
 
