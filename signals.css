@@ -2341,3 +2341,20 @@ body.page-ready {
     flex-basis: 72px !important;
   }
 }
+
+
+/* ===== SIGNALS TOPBAR — FINAL PIXEL MATCH WITH HOME ===== */
+/*
+   На компактних екранах Home змінює верхній padding .content з 10px на 4px.
+   Оскільки на Signals topbar знаходиться всередині .content,
+   компенсуємо саме ці 4px. Це зберігає природний скрол і ставить
+   логотип та дзвіночок у ту саму стартову позицію, що й на Home.
+*/
+@media (max-height: 760px) and (max-width: 559px) {
+  .content > .topbar {
+    margin:
+      -4px
+      -18px
+      4px !important;
+  }
+}
