@@ -49,7 +49,7 @@
 
     if (!initData) {
       throw new ArbifyApiError(
-        "Відкрийте застосунок через Telegram",
+        "Apri l’app tramite Telegram",
         401,
         {
           code: "TELEGRAM_REQUIRED",
@@ -96,7 +96,7 @@
       if (!response.ok || data.ok === false) {
         throw new ArbifyApiError(
           data.error ||
-            "Не вдалося виконати запит",
+            "Impossibile completare la richiesta",
           response.status,
           data
         );
@@ -110,7 +110,7 @@
 
       if (error?.name === "AbortError") {
         throw new ArbifyApiError(
-          "Сервер відповідає надто довго",
+          "Il server sta impiegando troppo tempo a rispondere",
           408,
           {
             code: "REQUEST_TIMEOUT",
@@ -119,7 +119,7 @@
       }
 
       throw new ArbifyApiError(
-        "Немає зв’язку із сервером",
+        "Impossibile connettersi al server",
         0,
         {
           code: "NETWORK_ERROR",
@@ -268,7 +268,7 @@
       Array.isArray(statePatch)
     ) {
       throw new ArbifyApiError(
-        "Некоректні дані для збереження",
+        "Dati non validi da salvare",
         400,
         {
           code: "INVALID_STATE",
