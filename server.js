@@ -1153,7 +1153,7 @@ async function evaluateRewardTask(
         context.user.bot_started_at
       ),
       message:
-        "Спочатку запусти офіційного Telegram-бота.",
+        "Avvia prima il bot Telegram ufficiale.",
     };
   }
 
@@ -1164,7 +1164,7 @@ async function evaluateRewardTask(
       return {
         eligible: false,
         message:
-          "Підписку буде перевірено після натискання кнопки.",
+          "L’iscrizione verrà verificata dopo aver premuto il pulsante.",
       };
     }
 
@@ -1174,7 +1174,7 @@ async function evaluateRewardTask(
           context.user.telegram_id
         ),
       message:
-        "Підписку на Telegram-канал не знайдено.",
+        "Iscrizione al canale Telegram non trovata.",
     };
   }
 
@@ -1189,7 +1189,7 @@ async function evaluateRewardTask(
             ?.completed === true
       ),
       message:
-        "Спочатку відкрий і заповни сторінку профілю.",
+        "Apri e completa prima la pagina del profilo.",
     };
   }
 
@@ -1200,7 +1200,7 @@ async function evaluateRewardTask(
           .notifications_enabled_at
       ),
       message:
-        "Спочатку дозволь сповіщення.",
+        "Abilita prima le notifiche.",
     };
   }
 
@@ -1213,7 +1213,7 @@ async function evaluateRewardTask(
         )
       ),
       message:
-        "Спочатку підтвердь свій SUBID.",
+        "Verifica prima il tuo SUBID.",
     };
   }
 
@@ -1223,8 +1223,8 @@ async function evaluateRewardTask(
         progress.favoriteSlots >=
         progress.favoriteSlotsMaximum,
       message:
-        `Додано ${progress.favoriteSlots} із ` +
-        `${progress.favoriteSlotsMaximum} слотів.`,
+        `Aggiunti ${progress.favoriteSlots} su ` +
+        `${progress.favoriteSlotsMaximum} slot.`,
     };
   }
 
@@ -1234,7 +1234,7 @@ async function evaluateRewardTask(
         context.activity
           .signals_created >= 1,
       message:
-        "Спочатку створи свій перший сигнал.",
+        "Crea prima il tuo primo segnale.",
     };
   }
 
@@ -1244,7 +1244,7 @@ async function evaluateRewardTask(
         context.activity.live_viewed_at
       ),
       message:
-        "Спочатку відкрий сторінку LIVE-сигналів.",
+        "Apri prima la pagina dei segnali LIVE.",
     };
   }
 
@@ -1257,7 +1257,7 @@ async function evaluateRewardTask(
           .responsible_guide_read_at
       ),
       message:
-        "Спочатку прочитай правила відповідальної гри.",
+        "Leggi prima le regole sul gioco responsabile.",
     };
   }
 
@@ -1267,15 +1267,15 @@ async function evaluateRewardTask(
         progress.signalMaster >=
         progress.signalMasterMaximum,
       message:
-        `Створено ${progress.signalMaster} із ` +
-        `${progress.signalMasterMaximum} сигналів.`,
+        `Creati ${progress.signalMaster} su ` +
+        `${progress.signalMasterMaximum} segnali.`,
     };
   }
 
   return {
     eligible: false,
     message:
-      "Завдання не знайдено.",
+      "Attività non trovata.",
   };
 }
 
