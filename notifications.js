@@ -528,7 +528,7 @@
         button.setAttribute(
           "aria-label",
           unreadCount > 0
-            ? `Notifiche: ${unreadCount} нових`
+            ? `Notifiche: ${unreadCount} nuove`
             : "Notifiche"
         );
 
