@@ -184,7 +184,7 @@ function sendApiError(response, error) {
 
   sendJson(response, 500, {
     ok: false,
-    error: "Internal server error",
+    error: "Errore interno del server",
   });
 }
 
@@ -199,7 +199,7 @@ function readJsonBody(request) {
         reject(
           new ApiError(
             413,
-            "Request body is too large"
+            "Il contenuto della richiesta è troppo grande"
           )
         );
 
@@ -218,7 +218,7 @@ function readJsonBody(request) {
         reject(
           new ApiError(
             400,
-            "Invalid JSON"
+            "JSON non valido"
           )
         );
       }
@@ -299,7 +299,7 @@ function sanitizeStatePatch(input) {
   ) {
     throw new ApiError(
       400,
-      "State must be an object"
+      "Lo stato deve essere un oggetto"
     );
   }
 
@@ -330,14 +330,14 @@ function sanitizeStatePatch(input) {
   } catch {
     throw new ApiError(
       400,
-      "State is not valid JSON"
+      "Lo stato non è un JSON valido"
     );
   }
 
   if (serialized.length > MAX_STATE_SIZE) {
     throw new ApiError(
       413,
-      "State is too large"
+      "Lo stato è troppo grande"
     );
   }
 
@@ -348,7 +348,7 @@ function validateTelegramInitData(initData) {
   if (!BOT_TOKEN) {
     throw new ApiError(
       503,
-      "Telegram authentication is unavailable"
+      "Autenticazione Telegram non disponibile"
     );
   }
 
@@ -359,7 +359,7 @@ function validateTelegramInitData(initData) {
   ) {
     throw new ApiError(
       401,
-      "Telegram authentication is required"
+      "È richiesta l’autenticazione tramite Telegram"
     );
   }
 
@@ -375,7 +375,7 @@ function validateTelegramInitData(initData) {
   ) {
     throw new ApiError(
       401,
-      "Invalid Telegram authentication"
+      "Autenticazione Telegram non valida"
     );
   }
 
@@ -418,7 +418,7 @@ function validateTelegramInitData(initData) {
   ) {
     throw new ApiError(
       401,
-      "Invalid Telegram authentication"
+      "Autenticazione Telegram non valida"
     );
   }
 
@@ -438,7 +438,7 @@ function validateTelegramInitData(initData) {
   ) {
     throw new ApiError(
       401,
-      "Telegram session has expired"
+      "La sessione Telegram è scaduta"
     );
   }
 
@@ -451,7 +451,7 @@ function validateTelegramInitData(initData) {
   } catch {
     throw new ApiError(
       401,
-      "Telegram user data is missing"
+      "Dati utente Telegram mancanti"
     );
   }
 
@@ -462,7 +462,7 @@ function validateTelegramInitData(initData) {
   if (!/^\d{1,20}$/.test(telegramId)) {
     throw new ApiError(
       401,
-      "Telegram user data is invalid"
+      "Dati utente Telegram non validi"
     );
   }
 
@@ -1063,7 +1063,7 @@ async function getRewardContext(
   if (!row) {
     throw new ApiError(
       404,
-      "User was not found"
+      "Utente non trovato"
     );
   }
 
@@ -1101,7 +1101,7 @@ async function isTelegramChannelMember(
   if (!TELEGRAM_CHANNEL_CHAT_ID) {
     throw new ApiError(
       503,
-      "Telegram channel verification is not configured",
+      "La verifica del canale Telegram non è configurata",
       {
         code:
           "CHANNEL_VERIFICATION_NOT_CONFIGURED",
@@ -1534,7 +1534,7 @@ async function handleAccessVerification(
     if (!ACCESS_KEY) {
       throw new ApiError(
         503,
-        "Access key is not configured"
+        "La chiave di accesso non è configurata"
       );
     }
 
@@ -1559,7 +1559,7 @@ async function handleAccessVerification(
 
       throw new ApiError(
         429,
-        "Too many attempts",
+        "Troppi tentativi",
         {
           retryAfterSeconds,
         }
@@ -1612,8 +1612,8 @@ async function handleAccessVerification(
         lockedUntil ? 429 : 401,
 
         lockedUntil
-          ? "Too many attempts"
-          : "Invalid access key",
+          ? "Troppi tentativi"
+          : "Chiave di accesso non valida",
 
         lockedUntil
           ? {
@@ -1683,7 +1683,7 @@ async function handleStateSave(
     if (!user.access_granted) {
       throw new ApiError(
         403,
-        "Access has not been activated"
+        "L’accesso non è stato attivato"
       );
     }
 
@@ -1739,7 +1739,7 @@ async function requireActivatedUser(
   if (!user.access_granted) {
     throw new ApiError(
       403,
-      "Access has not been activated"
+      "L’accesso non è stato attivato"
     );
   }
 
@@ -1793,7 +1793,7 @@ async function handleRewardVerification(
     ) {
       throw new ApiError(
         404,
-        "Reward task was not found"
+        "Attività premio non trovata"
       );
     }
 
@@ -1874,7 +1874,7 @@ async function handleRewardClaim(
     if (!taskId || !definition) {
       throw new ApiError(
         404,
-        "Reward task was not found"
+        "Attività premio non trovata"
       );
     }
 
@@ -1935,7 +1935,7 @@ async function handleRewardClaim(
     if (!lockedUser) {
       throw new ApiError(
         404,
-        "User was not found"
+        "Utente non trovato"
       );
     }
 
@@ -2103,7 +2103,7 @@ async function handleActivityRecord(
       ) {
         throw new ApiError(
           400,
-          "Notification permission is not granted"
+          "L’autorizzazione alle notifiche non è stata concessa"
         );
       }
 
@@ -2191,7 +2191,7 @@ async function handleActivityRecord(
     } else {
       throw new ApiError(
         400,
-        "Unsupported activity type"
+        "Tipo di attività non supportato"
       );
     }
 
@@ -2216,7 +2216,7 @@ async function telegramRequest(
 ) {
   if (!BOT_TOKEN) {
     throw new Error(
-      "BOT_TOKEN is not configured"
+      "BOT_TOKEN non è configurato"
     );
   }
 
@@ -2241,7 +2241,7 @@ async function telegramRequest(
   if (!result.ok) {
     throw new Error(
       result.description ||
-      "Telegram API request failed"
+      "Richiesta API Telegram non riuscita"
     );
   }
 
@@ -2358,7 +2358,7 @@ function serveStaticFile(
     );
   } catch {
     response.writeHead(400);
-    response.end("Bad request");
+    response.end("Richiesta non valida");
 
     return;
   }
@@ -2376,7 +2376,7 @@ function serveStaticFile(
     )
   ) {
     response.writeHead(404);
-    response.end("Not found");
+    response.end("Non trovato");
 
     return;
   }
@@ -2397,7 +2397,7 @@ function serveStaticFile(
     !filePath.startsWith(safeRoot)
   ) {
     response.writeHead(403);
-    response.end("Forbidden");
+    response.end("Accesso negato");
 
     return;
   }
@@ -2418,7 +2418,7 @@ function serveStaticFile(
         );
 
         response.end(
-          "Not found"
+          "Non trovato"
         );
 
         return;
@@ -2692,7 +2692,7 @@ const server = http.createServer(
     });
 
     response.end(
-      "Method not allowed"
+      "Metodo non consentito"
     );
   }
 );
