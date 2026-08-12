@@ -128,7 +128,7 @@
         .slice(0, MAX_NOTIFICATIONS);
     } catch (error) {
       console.warn(
-        "Не вдалося завантажити сповіщення:",
+        "Impossibile caricare le notifiche:",
         error
       );
 
@@ -146,7 +146,7 @@
       );
     } catch (error) {
       console.warn(
-        "Не вдалося зберегти сповіщення:",
+        "Impossibile salvare le notifiche:",
         error
       );
     }
@@ -159,7 +159,7 @@
    */
 
   function formatNumber(value) {
-    return new Intl.NumberFormat("uk-UA").format(value);
+    return new Intl.NumberFormat("it-IT").format(value);
   }
 
   function getUnreadCount() {
@@ -179,17 +179,17 @@
       lastDigit === 1 &&
       lastTwoDigits !== 11
     ) {
-      return "нове повідомлення";
+      return "nuova notifica";
     }
 
     if (
       [2, 3, 4].includes(lastDigit) &&
       ![12, 13, 14].includes(lastTwoDigits)
     ) {
-      return "нові повідомлення";
+      return "nuove notifiche";
     }
 
-    return "нових повідомлень";
+    return "nuove notifiche";
   }
 
   function formatRelativeTime(timestamp) {
@@ -200,22 +200,22 @@
       Math.floor(difference / 60000);
 
     if (minutes < 1) {
-      return "щойно";
+      return "adesso";
     }
 
     if (minutes < 60) {
-      return `${minutes} хв`;
+      return `${minutes} min`;
     }
 
     const hours =
       Math.floor(minutes / 60);
 
     if (hours < 24) {
-      return `${hours} год`;
+      return `${hours} h`;
     }
 
     return new Intl.DateTimeFormat(
-      "uk-UA",
+      "it-IT",
       {
         day: "2-digit",
         month: "2-digit",
@@ -355,7 +355,7 @@
               class="pulse-notification-title"
               id="pulseNotificationTitle"
             >
-              Сповіщення
+              Notifiche
             </h2>
           </div>
 
@@ -363,7 +363,7 @@
             class="pulse-notification-close"
             type="button"
             data-pulse-notification-close
-            aria-label="Закрити сповіщення"
+            aria-label="Chiudi notifiche"
           >
             <svg
               aria-hidden="true"
@@ -380,7 +380,7 @@
 
         <div class="pulse-notification-summary">
           <span data-pulse-notification-summary>
-            Нових повідомлень немає
+            Nessuna nuova notifica
           </span>
 
           <button
@@ -389,7 +389,7 @@
             data-pulse-notification-clear
             hidden
           >
-            ОЧИСТИТИ
+            CANCELLA
           </button>
         </div>
 
@@ -410,11 +410,11 @@
             ${getIconMarkup("system")}
           </div>
 
-          <strong>Поки що тихо</strong>
+          <strong>Ancora nessuna notifica</strong>
 
           <p>
-            Тут з’являтимуться виконані завдання,
-            отримані нагороди та важливі повідомлення Pulse.
+            Qui appariranno le attività completate,
+            i premi ricevuti e le notifiche importanti di Pulse.
           </p>
         </div>
       </aside>
@@ -482,7 +482,7 @@
     badge.textContent = "0";
     badge.setAttribute(
       "aria-label",
-      "Нові сповіщення"
+      "Nuove notifiche"
     );
 
     button.appendChild(badge);
@@ -528,8 +528,8 @@
         button.setAttribute(
           "aria-label",
           unreadCount > 0
-            ? `Сповіщення: ${unreadCount} нових`
-            : "Сповіщення"
+            ? `Notifiche: ${unreadCount} нових`
+            : "Notifiche"
         );
 
         badge.textContent =
@@ -670,8 +670,8 @@
       unreadCount > 0
         ? `${unreadCount} ${getPluralMessage(unreadCount)}`
         : hasNotifications
-          ? "Усі повідомлення прочитано"
-          : "Нових повідомлень немає";
+          ? "Tutte le notifiche sono state lette"
+          : "Nessuna nuova notifica";
 
     renderBadge();
   }
@@ -764,7 +764,7 @@ function openNotificationCenter() {
         ></span>
 
         <span>
-          Нових сповіщень поки немає
+          Nessuna nuova notifica al momento
         </span>
       `;
 
@@ -971,25 +971,25 @@ function openNotificationCenter() {
   }
 
   function addTaskCompleted({
-    taskTitle = "Завдання",
+    taskTitle = "Attività",
     reward = 0,
   } = {}) {
     return addNotification({
       type: "success",
-      category: "ЗАВДАННЯ ВИКОНАНО",
+      category: "ATTIVITÀ COMPLETATA",
       title: taskTitle,
       message:
         reward > 0
-          ? "Завдання підтверджено. Нагорода готова до отримання."
-          : "Завдання успішно виконано.",
+          ? "Attività verificata. Il premio è pronto per essere riscattato."
+          : "Attività completata con successo.",
       reward,
     });
   }
 
   function addReward({
-    title = "Нагороду зараховано",
+    title = "Premio accreditato",
     reward = 0,
-    message = "Баланс PULSE успішно оновлено.",
+    message = "Il saldo PULSE è stato aggiornato correttamente.",
   } = {}) {
     return addNotification({
       type: "reward",
@@ -1001,8 +1001,8 @@ function openNotificationCenter() {
   }
 
   function addSignal({
-    title = "Новий сигнал готовий",
-    message = "Відкрий сигнал, щоб переглянути параметри.",
+    title = "Nuovo segnale pronto",
+    message = "Apri il segnale per visualizzare i parametri.",
   } = {}) {
     return addNotification({
       type: "signal",
