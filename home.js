@@ -6,6 +6,10 @@ const SUBID_VERIFY_DELAY = 1200;
 const SUBID_SUCCESS_DELAY = 850;
 const SUBID_STORAGE_KEY = "arbifyVerifiedSubId";
 const FAVORITE_SLOTS_STORAGE_KEY = "arbifyFavoriteSlots";
+const ACTIVE_SIGNAL_TIMER_STORAGE_KEY = "arbifyActiveSignalTimer";
+const RISK_PROFILE_STORAGE_KEY = "arbifyRiskProfile";
+const ONBOARDING_STORAGE_KEY = "arbifyOnboardingSeen";
+const PROFILE_ONBOARDING_REQUEST_KEY = "arbifyOpenOnboardingFromProfile";
 
 const slotGrid = document.querySelector(".slot-grid");
 const signalButton = document.querySelector("#signalButton");
@@ -36,6 +40,10 @@ const allSlotsCategories = document.querySelector(
 );
 const favoriteSlotsCount = document.querySelector(
   "#favoriteSlotsCount"
+);
+
+const allSlotsFavoritesButton = document.querySelector(
+  "#allSlotsFavoritesButton"
 );
 const navItems = document.querySelectorAll(".nav-item");
 const toast = document.querySelector("#toast");
@@ -91,28 +99,179 @@ const resultDuration = document.querySelector("#resultDuration");
 const resultActionButton = document.querySelector("#resultActionButton");
 const resultNewButton = document.querySelector("#resultNewButton");
 
+const activeSignalTimer = document.querySelector(
+  "#activeSignalTimer"
+);
+const activeSignalTimerStatus = document.querySelector(
+  "#activeSignalTimerStatus"
+);
+const activeSignalTimerSlot = document.querySelector(
+  "#activeSignalTimerSlot"
+);
+const activeSignalTimerValue = document.querySelector(
+  "#activeSignalTimerValue"
+);
+const activeSignalTimerProgress = document.querySelector(
+  "#activeSignalTimerProgress"
+);
+const activeSignalTimerHint = document.querySelector(
+  "#activeSignalTimerHint"
+);
+
+const activeSignalNotice = document.querySelector(
+  "#activeSignalNotice"
+);
+const activeSignalNoticeBackdrop = document.querySelector(
+  "#activeSignalNoticeBackdrop"
+);
+const activeSignalNoticeButton = document.querySelector(
+  "#activeSignalNoticeButton"
+);
+const activeSignalNoticeTime = document.querySelector(
+  "#activeSignalNoticeTime"
+);
+
+const riskProfile = document.querySelector(
+  "#riskProfile"
+);
+
+const riskProfileOptions = document.querySelectorAll(
+  ".risk-profile-option"
+);
+
+const pulseOnboarding = document.querySelector(
+  "#pulseOnboarding"
+);
+
+const pulseOnboardingSkip = document.querySelector(
+  "#pulseOnboardingSkip"
+);
+
+const pulseOnboardingNext = document.querySelector(
+  "#pulseOnboardingNext"
+);
+
+const lastSignalChip = document.querySelector(
+  "#lastSignalChip"
+);
+
+const lastSignalChipLabel =
+  lastSignalChip?.querySelector("span");
+
+const lastSignalFloat = document.querySelector(
+  "#lastSignalFloat"
+);
+
+const lastSignalImage = document.querySelector(
+  "#lastSignalImage"
+);
+
+const lastSignalName = document.querySelector(
+  "#lastSignalName"
+);
+
+const lastSignalBet = document.querySelector(
+  "#lastSignalBet"
+);
+
+const lastSignalSpins = document.querySelector(
+  "#lastSignalSpins"
+);
+
+const lastSignalRisk = document.querySelector(
+  "#lastSignalRisk"
+);
+
+const lastSignalTime = document.querySelector(
+  "#lastSignalTime"
+);
+
 const signalProfileTemplates = {
   balanced: {
-    bets: [10, 20, 25, 30],
+    bets: [0.2, 0.3, 0.4, 0.5],
     spins: [8, 10, 12, 15],
     risks: ["НИЗЬКИЙ", "СЕРЕДНІЙ"],
     durations: ["02:30", "03:00", "03:30"],
   },
 
   dynamic: {
-    bets: [10, 15, 20, 25],
+    bets: [0.5, 0.75, 1, 1.5],
     spins: [10, 12, 15, 18],
     risks: ["СЕРЕДНІЙ", "ВИСОКИЙ"],
     durations: ["02:45", "03:00", "04:00"],
   },
 
   focused: {
-    bets: [15, 20, 30, 40],
+    bets: [2, 3, 5, 10],
     spins: [7, 9, 11, 14],
     risks: ["НИЗЬКИЙ", "СЕРЕДНІЙ"],
     durations: ["02:00", "02:30", "03:00"],
   },
 };
+
+/*
+ * Італійська EUR-версія:
+ * депозит €10 не обмежує мінімальну ставку.
+ * Ставка залежить від вибраного рівня ризику.
+ */
+const ITALY_BETS_BY_RISK = {
+  "НИЗЬКИЙ": [
+    0.10, 0.15, 0.20, 0.25, 0.30, 0.40,
+    0.50, 0.60, 0.75, 0.80, 1.00
+  ],
+
+  "СЕРЕДНІЙ": [
+    0.50, 0.75, 0.80, 1.00, 1.20, 1.50,
+    1.75, 2.00, 2.50, 3.00, 4.00, 5.00
+  ],
+
+  "ВИСОКИЙ": [
+    2.00, 2.50, 3.00, 4.00, 5.00, 6.00,
+    7.50, 8.00, 10.00, 12.50, 15.00, 20.00
+  ],
+};
+
+/*
+ * Великий пул прокрутів, щоб сигнали не виглядали повторюваними.
+ * Для кожного рівня ризику свій широкий діапазон.
+ */
+const ITALY_SPINS_BY_RISK = {
+  "НИЗЬКИЙ": [
+    6, 7, 8, 9, 10, 11, 12, 13, 14,
+    15, 16, 18, 20, 22, 24
+  ],
+
+  "СЕРЕДНІЙ": [
+    8, 9, 10, 11, 12, 13, 14, 15, 16,
+    17, 18, 20, 22, 24, 26, 28, 30
+  ],
+
+  "ВИСОКИЙ": [
+    10, 12, 14, 15, 16, 18, 20, 22, 24,
+    25, 27, 30, 32, 35, 38, 40, 45
+  ],
+};
+
+function formatEuroBet(value) {
+  return new Intl.NumberFormat("it-IT", {
+    style: "currency",
+    currency: "EUR",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+const ITALIAN_RISK_LABELS = {
+  "НИЗЬКИЙ": "BASSO",
+  "СЕРЕДНІЙ": "MEDIO",
+  "ВИСОКИЙ": "ALTO",
+};
+
+function getItalianRiskLabel(value) {
+  return ITALIAN_RISK_LABELS[
+    String(value || "").trim().toUpperCase()
+  ] || String(value || "");
+}
 
 /*
  * Популярні реальні слоти.
@@ -305,11 +464,11 @@ const newSlotNames = new Set([
 ]);
 
 const categoryLabels = {
-  all: "Усі слоти",
-  popular: "Популярні слоти",
-  new: "Нові слоти",
+  all: "Tutte le slot",
+  popular: "Slot popolari",
+  new: "Nuove slot",
   megaways: "Megaways",
-  favorites: "Обране",
+  favorites: "Preferiti",
 };
 
 let activeSlotCategory = "all";
@@ -337,7 +496,7 @@ function createSlotCard(slot, index) {
   card.dataset.slot = slot.name;
   card.setAttribute("role", "button");
   card.setAttribute("tabindex", "0");
-  card.setAttribute("aria-label", `Обрати слот ${slot.name}`);
+  card.setAttribute("aria-label", `Seleziona la slot ${slot.name}`);
   card.style.setProperty(
     "--slot-accent",
     slot.accent
@@ -496,8 +655,8 @@ function updateFavoriteButton(
   button.setAttribute(
     "aria-label",
     isFavorite
-      ? `Видалити ${slotName} з обраного`
-      : `Додати ${slotName} в обране`
+      ? `Rimuovi ${slotName} dai preferiti`
+      : `Aggiungi ${slotName} ai preferiti`
   );
 }
 
@@ -517,6 +676,26 @@ function updateFavoriteInterface() {
     favoriteSlotsCount.textContent =
       String(favoriteSlotNames.size);
   }
+
+  if (allSlotsFavoritesButton) {
+    const favoritesAreOpen =
+      activeSlotCategory === "favorites";
+
+    allSlotsFavoritesButton.classList.toggle(
+      "is-active",
+      favoritesAreOpen
+    );
+
+    allSlotsFavoritesButton.setAttribute(
+      "aria-pressed",
+      String(favoritesAreOpen)
+    );
+
+    allSlotsFavoritesButton.setAttribute(
+      "aria-selected",
+      String(favoritesAreOpen)
+    );
+  }
 }
 
 function toggleFavoriteSlot(slotName) {
@@ -532,10 +711,23 @@ function toggleFavoriteSlot(slotName) {
   saveFavoriteSlots();
   updateFavoriteInterface();
 
+  /*
+   * Синхронізуємо обране з профілем/сервером.
+   * Завдання «Додати 3 слоти в обране» на сторінці Bonus
+   * читає саме цей список у Telegram Mini App.
+   */
+  if (homeReady) {
+    void persistStatePatch({
+      favorites: [
+        ...favoriteSlotNames,
+      ],
+    });
+  }
+
   showToast(
     isRemoving
-      ? `${slotName} видалено з обраного`
-      : `${slotName} додано в обране`
+      ? `${slotName} rimosso dai preferiti`
+      : `${slotName} aggiunto ai preferiti`
   );
 
   if (
@@ -561,7 +753,7 @@ function slotMatchesCategory(
 
   if (category === "megaways") {
     return slot.name
-      .toLocaleLowerCase("uk-UA")
+      .toLocaleLowerCase("it-IT")
       .includes("megaways");
   }
 
@@ -606,12 +798,14 @@ function setActiveSlotCategory(category) {
   renderAllSlotsCatalog(
     allSlotsSearchInput?.value || ""
   );
+
+  updateFavoriteInterface();
 }
 
 function normalizeSlotSearch(value) {
   return String(value || "")
     .trim()
-    .toLocaleLowerCase("uk-UA");
+    .toLocaleLowerCase("it-IT");
 }
 
 function renderAllSlotsCatalog(searchValue = "") {
@@ -658,7 +852,7 @@ function renderAllSlotsCatalog(searchValue = "") {
         applySelectedSlot(slot.name);
 
         showToast(
-          `${slot.name} обрано`
+          `${slot.name} selezionata`
         );
 
         void persistStatePatch({
@@ -695,14 +889,14 @@ function renderAllSlotsCatalog(searchValue = "") {
       !normalizedSearch
     ) {
       allSlotsEmptyTitle.textContent =
-        "Обраних слотів ще немає";
+        "Non hai ancora slot preferite";
       allSlotsEmptyText.textContent =
-        "Натисніть сердечко на слоті, щоб додати його сюди";
+        "Tocca il cuore su una slot per aggiungerla qui";
     } else {
       allSlotsEmptyTitle.textContent =
-        "Нічого не знайдено";
+        "Nessun risultato";
       allSlotsEmptyText.textContent =
-        "Спробуйте іншу назву або категорію";
+        "Prova un altro nome o una categoria diversa";
     }
   }
 
@@ -797,27 +991,27 @@ function renderSlotCatalog() {
 const scanStages = [
   {
     from: 0,
-    message: "Підключення до аналітичного ядра",
+    message: "Connessione al motore di analisi",
   },
   {
     from: 18,
-    message: "Отримання поточних параметрів слота",
+    message: "Acquisizione dei parametri attuali della slot",
   },
   {
     from: 38,
-    message: "Аналіз останніх ігрових циклів",
+    message: "Analisi degli ultimi cicli di gioco",
   },
   {
     from: 61,
-    message: "Розрахунок оптимальних параметрів",
+    message: "Calcolo dei parametri ottimali",
   },
   {
     from: 82,
-    message: "Перевірка результату системою Pulse",
+    message: "Verifica del risultato con il sistema Pulse",
   },
   {
     from: 96,
-    message: "Формування готового сигналу",
+    message: "Generazione del segnale",
   },
 ];
 
@@ -841,6 +1035,708 @@ let homeState = {};
 let homeInitializationPromise = null;
 let stateSaveQueue = Promise.resolve({});
 let stateSaveErrorWasShown = false;
+let activeSignalTimerInterval;
+let activeSignalNoticeInterval;
+let activeSignalNoticeRevealTimer;
+let activeSignalTimerState = loadActiveSignalTimerState();
+let selectedRiskProfile = loadRiskProfile();
+let pulseOnboardingTimer;
+let pulseOnboardingCloseTimer;
+let lastSignalPopoverTimer;
+let lastSignalFreshTimer;
+
+updateRiskProfileInterface();
+
+
+
+
+
+function consumeProfileOnboardingRequest() {
+  let requested = false;
+
+  try {
+    requested =
+      sessionStorage.getItem(
+        PROFILE_ONBOARDING_REQUEST_KEY
+      ) === "true";
+
+    if (requested) {
+      sessionStorage.removeItem(
+        PROFILE_ONBOARDING_REQUEST_KEY
+      );
+    }
+  } catch {
+    /*
+     * Якщо sessionStorage недоступний,
+     * перевіряємо fallback query-параметр.
+     */
+  }
+
+  try {
+    const url = new URL(
+      window.location.href
+    );
+
+    if (
+      url.searchParams.get(
+        "onboarding"
+      ) === "1"
+    ) {
+      requested = true;
+      url.searchParams.delete(
+        "onboarding"
+      );
+
+      window.history.replaceState(
+        window.history.state,
+        "",
+        url.pathname +
+          url.search +
+          url.hash
+      );
+    }
+  } catch {
+    /* URL fallback не критичний. */
+  }
+
+  return requested;
+}
+
+
+function hasSeenPulseOnboarding() {
+  try {
+    return (
+      localStorage.getItem(
+        ONBOARDING_STORAGE_KEY
+      ) === "true"
+    );
+  } catch {
+    return false;
+  }
+}
+
+function markPulseOnboardingSeen() {
+  try {
+    localStorage.setItem(
+      ONBOARDING_STORAGE_KEY,
+      "true"
+    );
+  } catch {
+    /* Tutorial може показатися знову. */
+  }
+}
+
+function openPulseOnboarding() {
+  if (!pulseOnboarding) {
+    return;
+  }
+
+  if (
+    !allSlotsOverlay.hidden ||
+    !subIdModal.hidden ||
+    !signalOverlay.hidden ||
+    (
+      activeSignalNotice &&
+      !activeSignalNotice.hidden
+    )
+  ) {
+    return;
+  }
+
+  window.clearTimeout(
+    pulseOnboardingCloseTimer
+  );
+
+  pulseOnboarding.hidden = false;
+
+  document.body.classList.add(
+    "pulse-welcome-open"
+  );
+
+  window.requestAnimationFrame(() => {
+    pulseOnboarding.classList.add(
+      "is-open"
+    );
+  });
+}
+
+function closePulseOnboarding(
+  remember = true
+) {
+  if (!pulseOnboarding) {
+    return;
+  }
+
+  if (remember) {
+    markPulseOnboardingSeen();
+  }
+
+  window.clearTimeout(
+    pulseOnboardingTimer
+  );
+
+  window.clearTimeout(
+    pulseOnboardingCloseTimer
+  );
+
+  pulseOnboarding.classList.remove(
+    "is-open"
+  );
+
+  document.body.classList.remove(
+    "pulse-welcome-open"
+  );
+
+  pulseOnboardingCloseTimer =
+    window.setTimeout(() => {
+      pulseOnboarding.hidden = true;
+    }, 260);
+}
+
+function schedulePulseOnboarding() {
+  if (hasActiveSignalTimer()) {
+    return;
+  }
+
+  window.clearTimeout(
+    pulseOnboardingTimer
+  );
+
+  pulseOnboardingTimer =
+    window.setTimeout(
+      openPulseOnboarding,
+      520
+    );
+}
+
+function normalizeRiskProfile(value) {
+  const normalized = String(value || "")
+    .trim()
+    .toUpperCase();
+
+  return [
+    "НИЗЬКИЙ",
+    "СЕРЕДНІЙ",
+    "ВИСОКИЙ",
+  ].includes(normalized)
+    ? normalized
+    : "СЕРЕДНІЙ";
+}
+
+function loadRiskProfile() {
+  try {
+    return normalizeRiskProfile(
+      localStorage.getItem(
+        RISK_PROFILE_STORAGE_KEY
+      ) || "СЕРЕДНІЙ"
+    );
+  } catch {
+    return "СЕРЕДНІЙ";
+  }
+}
+
+function saveRiskProfile(value) {
+  selectedRiskProfile =
+    normalizeRiskProfile(value);
+
+  try {
+    localStorage.setItem(
+      RISK_PROFILE_STORAGE_KEY,
+      selectedRiskProfile
+    );
+  } catch {
+    /* Профіль залишиться активним до перезавантаження. */
+  }
+}
+
+function hasActiveSignalTimer() {
+  const timerState =
+    loadActiveSignalTimerState();
+
+  return Boolean(
+    timerState &&
+    timerState.endAt > Date.now()
+  );
+}
+
+function updateRiskProfileInterface() {
+  riskProfileOptions.forEach((button) => {
+    const isActive =
+      button.dataset.risk ===
+      selectedRiskProfile;
+
+    button.classList.toggle(
+      "is-active",
+      isActive
+    );
+
+    button.setAttribute(
+      "aria-checked",
+      String(isActive)
+    );
+  });
+
+  const isLocked =
+    hasActiveSignalTimer();
+
+  riskProfile?.classList.toggle(
+    "is-locked",
+    isLocked
+  );
+
+  riskProfile?.setAttribute(
+    "aria-disabled",
+    String(isLocked)
+  );
+}
+
+function selectRiskProfile(value) {
+  if (hasActiveSignalTimer()) {
+    activeSignalTimerState =
+      loadActiveSignalTimerState();
+
+    openActiveSignalNotice();
+    return;
+  }
+
+  saveRiskProfile(value);
+  updateRiskProfileInterface();
+}
+
+function stopActiveSignalNoticeInterval() {
+  window.clearInterval(
+    activeSignalNoticeInterval
+  );
+
+  activeSignalNoticeInterval = undefined;
+}
+
+function updateActiveSignalNoticeTime() {
+  if (
+    !activeSignalNoticeTime ||
+    !activeSignalTimerState
+  ) {
+    return;
+  }
+
+  const remainingMs = Math.max(
+    0,
+    activeSignalTimerState.endAt -
+      Date.now()
+  );
+
+  activeSignalNoticeTime.textContent =
+    formatActiveSignalRemaining(
+      remainingMs
+    );
+
+  if (remainingMs <= 0) {
+    closeActiveSignalNotice();
+  }
+}
+
+function openActiveSignalNotice() {
+  activeSignalTimerState =
+    loadActiveSignalTimerState();
+
+  if (
+    !activeSignalTimerState ||
+    activeSignalTimerState.endAt <=
+      Date.now()
+  ) {
+    return;
+  }
+
+  updateActiveSignalNoticeTime();
+
+  window.clearTimeout(
+    activeSignalNoticeRevealTimer
+  );
+
+  activeSignalNotice.hidden = false;
+  activeSignalNotice.classList.remove(
+    "is-open"
+  );
+
+  document.body.classList.add(
+    "active-signal-notice-open"
+  );
+
+  /*
+   * Спочатку показуємо backdrop.
+   * Картка з'являється трохи пізніше,
+   * коли blur уже встиг відмалюватися.
+   */
+  window.requestAnimationFrame(() => {
+    activeSignalNotice.classList.add(
+      "is-backdrop-ready"
+    );
+
+    activeSignalNoticeRevealTimer =
+      window.setTimeout(() => {
+        activeSignalNotice.classList.add(
+          "is-open"
+        );
+      }, 90);
+  });
+
+  stopActiveSignalNoticeInterval();
+
+  activeSignalNoticeInterval =
+    window.setInterval(
+      updateActiveSignalNoticeTime,
+      250
+    );
+}
+
+function closeActiveSignalNotice() {
+  if (!activeSignalNotice) {
+    return;
+  }
+
+  stopActiveSignalNoticeInterval();
+
+  window.clearTimeout(
+    activeSignalNoticeRevealTimer
+  );
+
+  activeSignalNotice.classList.remove(
+    "is-open"
+  );
+
+  window.setTimeout(() => {
+    activeSignalNotice.classList.remove(
+      "is-backdrop-ready"
+    );
+
+    document.body.classList.remove(
+      "active-signal-notice-open"
+    );
+  }, 70);
+
+  window.setTimeout(() => {
+    activeSignalNotice.hidden = true;
+  }, 210);
+}
+
+
+function parseSignalDurationToMilliseconds(duration) {
+  const match = String(duration || "")
+    .trim()
+    .match(/^(\d{1,2}):([0-5]\d)$/);
+
+  if (!match) {
+    return 0;
+  }
+
+  const minutes = Number(match[1]);
+  const seconds = Number(match[2]);
+
+  return (minutes * 60 + seconds) * 1000;
+}
+
+function formatActiveSignalRemaining(milliseconds) {
+  const totalSeconds = Math.max(
+    0,
+    Math.ceil(milliseconds / 1000)
+  );
+
+  const minutes = Math.floor(
+    totalSeconds / 60
+  );
+
+  const seconds = totalSeconds % 60;
+
+  return (
+    String(minutes).padStart(2, "0") +
+    ":" +
+    String(seconds).padStart(2, "0")
+  );
+}
+
+function loadActiveSignalTimerState() {
+  try {
+    const rawValue = localStorage.getItem(
+      ACTIVE_SIGNAL_TIMER_STORAGE_KEY
+    );
+
+    if (!rawValue) {
+      return null;
+    }
+
+    const parsedValue = JSON.parse(rawValue);
+
+    if (
+      !parsedValue ||
+      typeof parsedValue !== "object" ||
+      !Number.isFinite(parsedValue.endAt) ||
+      !Number.isFinite(parsedValue.startedAt) ||
+      !Number.isFinite(parsedValue.durationMs) ||
+      !parsedValue.signal
+    ) {
+      return null;
+    }
+
+    return parsedValue;
+  } catch {
+    return null;
+  }
+}
+
+function saveActiveSignalTimerState(state) {
+  activeSignalTimerState = state;
+
+  try {
+    localStorage.setItem(
+      ACTIVE_SIGNAL_TIMER_STORAGE_KEY,
+      JSON.stringify(state)
+    );
+  } catch {
+    /* Таймер продовжить працювати до закриття сторінки. */
+  }
+}
+
+function clearActiveSignalTimerState() {
+  activeSignalTimerState = null;
+
+  try {
+    localStorage.removeItem(
+      ACTIVE_SIGNAL_TIMER_STORAGE_KEY
+    );
+  } catch {
+    /* Локальне очищення не критичне. */
+  }
+}
+
+function stopActiveSignalTimerInterval() {
+  window.clearInterval(
+    activeSignalTimerInterval
+  );
+
+  activeSignalTimerInterval = undefined;
+}
+
+function setActiveSignalTimerButtons(isRunning) {
+  /*
+   * "ПОЧАТИ СИГНАЛ" лишається видимою та клікабельною.
+   * Якщо таймер уже активний, клік відкриє повідомлення,
+   * але не перезапустить відлік.
+   */
+  resultActionButton.hidden = false;
+  resultActionButton.disabled = false;
+
+  /*
+   * Створення нового сигналу блокуємо до завершення поточного.
+   */
+  resultNewButton.hidden = isRunning;
+  resultNewButton.disabled = isRunning;
+}
+
+function renderActiveSignalTimer() {
+  if (
+    !activeSignalTimerState ||
+    !activeSignalTimer
+  ) {
+    return false;
+  }
+
+  const now = Date.now();
+  const remainingMs = Math.max(
+    0,
+    activeSignalTimerState.endAt - now
+  );
+
+  const durationMs = Math.max(
+    1,
+    activeSignalTimerState.durationMs
+  );
+
+  const progress = Math.max(
+    0,
+    Math.min(
+      1,
+      remainingMs / durationMs
+    )
+  );
+
+  const isFinished = remainingMs <= 0;
+  const isEnding =
+    !isFinished &&
+    remainingMs <= 30000;
+
+  activeSignalTimer.hidden = false;
+
+  activeSignalTimer.classList.toggle(
+    "is-ending",
+    isEnding
+  );
+
+  activeSignalTimer.classList.toggle(
+    "is-finished",
+    isFinished
+  );
+
+  activeSignalTimerValue.textContent =
+    formatActiveSignalRemaining(
+      remainingMs
+    );
+
+  activeSignalTimerProgress.style.width =
+    `${progress * 100}%`;
+
+  activeSignalTimerSlot.textContent =
+    activeSignalTimerState.signal
+      ?.slotName || "";
+
+  activeSignalTimerStatus.textContent =
+    isFinished
+      ? "SEGNALE TERMINATO"
+      : "SEGNALE ATTIVO";
+
+  activeSignalTimerHint.textContent =
+    isFinished
+      ? "Il segnale è terminato. Ora puoi crearne uno nuovo"
+      : "Segui i parametri del segnale fino al termine del timer";
+
+  setActiveSignalTimerButtons(
+    !isFinished
+  );
+
+  updateRiskProfileInterface();
+
+  if (isFinished) {
+    stopActiveSignalTimerInterval();
+    clearActiveSignalTimerState();
+    resultNewButton.hidden = false;
+    updateRiskProfileInterface();
+
+    signalOverlayTitle.textContent =
+      "SEGNALE TERMINATO";
+
+    return false;
+  }
+
+  signalOverlayTitle.textContent =
+    "SEGNALE ATTIVO";
+
+  return true;
+}
+
+function beginActiveSignalTimerLoop() {
+  stopActiveSignalTimerInterval();
+
+  if (!renderActiveSignalTimer()) {
+    return;
+  }
+
+  activeSignalTimerInterval =
+    window.setInterval(
+      renderActiveSignalTimer,
+      250
+    );
+}
+
+function startActiveSignalTimer(signal) {
+  activeSignalTimerState =
+    loadActiveSignalTimerState();
+
+  if (
+    activeSignalTimerState &&
+    activeSignalTimerState.endAt >
+      Date.now()
+  ) {
+    activeSignal = {
+      ...activeSignalTimerState.signal,
+    };
+
+    beginActiveSignalTimerLoop();
+
+    openActiveSignalNotice();
+
+    return;
+  }
+
+  const durationMs =
+    parseSignalDurationToMilliseconds(
+      signal?.duration
+    );
+
+  if (!durationMs) {
+    showToast(
+      "Impossibile determinare la durata del segnale"
+    );
+
+    return;
+  }
+
+  const startedAt = Date.now();
+
+  saveActiveSignalTimerState({
+    signal: {
+      ...signal,
+    },
+    startedAt,
+    endAt: startedAt + durationMs,
+    durationMs,
+  });
+
+  activeSignal = {
+    ...signal,
+  };
+
+  activeSignalTimer.hidden = false;
+  beginActiveSignalTimerLoop();
+
+  showToast(
+    `Segnale per ${signal.slotName} attivato`
+  );
+}
+
+function restoreActiveSignalTimerIfAvailable() {
+  if (!activeSignalTimerState) {
+    return false;
+  }
+
+  if (
+    activeSignalTimerState.endAt <=
+    Date.now()
+  ) {
+    clearActiveSignalTimerState();
+    return false;
+  }
+
+  activeSignal = {
+    ...activeSignalTimerState.signal,
+  };
+
+  fillResult(activeSignal);
+
+  scanView.hidden = true;
+  resultView.hidden = false;
+  signalOverlay.hidden = false;
+
+  signalOverlay.classList.remove(
+    "is-scanning"
+  );
+
+  signalOverlay.classList.add(
+    "is-result"
+  );
+
+  document.body.classList.add(
+    "signal-overlay-open"
+  );
+
+  window.requestAnimationFrame(() => {
+    signalOverlay.classList.add(
+      "is-open"
+    );
+  });
+
+  beginActiveSignalTimerLoop();
+
+  return true;
+}
 
 function showToast(message) {
   window.clearTimeout(toastTimer);
@@ -851,6 +1747,245 @@ function showToast(message) {
   toastTimer = window.setTimeout(() => {
     toast.classList.remove("is-visible");
   }, 2400);
+}
+
+function formatLastSignalTime(createdAt) {
+  const timestamp = Number(createdAt);
+
+  if (!Number.isFinite(timestamp)) {
+    return "";
+  }
+
+  const date = new Date(timestamp);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return date.toLocaleTimeString(
+    "it-IT",
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+    }
+  );
+}
+
+function closeLastSignalPopover() {
+  window.clearTimeout(
+    lastSignalPopoverTimer
+  );
+
+  if (!lastSignalFloat) {
+    return;
+  }
+
+  lastSignalFloat.classList.remove(
+    "is-visible"
+  );
+
+  lastSignalChip?.setAttribute(
+    "aria-expanded",
+    "false"
+  );
+
+  window.setTimeout(() => {
+    if (
+      !lastSignalFloat.classList.contains(
+        "is-visible"
+      )
+    ) {
+      lastSignalFloat.hidden = true;
+    }
+  }, 190);
+}
+
+function openLastSignalPopover() {
+  if (
+    !lastSignalFloat ||
+    !lastSignalChip ||
+    lastSignalChip.hidden
+  ) {
+    return;
+  }
+
+  window.clearTimeout(
+    lastSignalPopoverTimer
+  );
+
+  lastSignalFloat.hidden = false;
+
+  lastSignalChip.setAttribute(
+    "aria-expanded",
+    "true"
+  );
+
+  window.requestAnimationFrame(() => {
+    lastSignalFloat.classList.add(
+      "is-visible"
+    );
+  });
+
+  lastSignalPopoverTimer =
+    window.setTimeout(
+      closeLastSignalPopover,
+      4200
+    );
+}
+
+function toggleLastSignalPopover() {
+  if (
+    lastSignalFloat &&
+    !lastSignalFloat.hidden &&
+    lastSignalFloat.classList.contains(
+      "is-visible"
+    )
+  ) {
+    closeLastSignalPopover();
+    return;
+  }
+
+  openLastSignalPopover();
+}
+
+function animateFreshLastSignal() {
+  if (!lastSignalChip) {
+    return;
+  }
+
+  window.clearTimeout(
+    lastSignalFreshTimer
+  );
+
+  lastSignalChip.classList.remove(
+    "is-fresh",
+    "is-updated"
+  );
+
+  if (lastSignalChipLabel) {
+    lastSignalChipLabel.textContent =
+      "Aggiornato";
+  }
+
+  void lastSignalChip.offsetWidth;
+
+  lastSignalChip.classList.add(
+    "is-fresh",
+    "is-updated"
+  );
+
+  lastSignalFreshTimer =
+    window.setTimeout(() => {
+      lastSignalChip.classList.remove(
+        "is-fresh",
+        "is-updated"
+      );
+
+      if (lastSignalChipLabel) {
+        lastSignalChipLabel.classList.add(
+          "is-switching"
+        );
+
+        window.setTimeout(() => {
+          lastSignalChipLabel.textContent =
+            "Ultimo";
+
+          lastSignalChipLabel.classList.remove(
+            "is-switching"
+          );
+        }, 140);
+      }
+    }, 1700);
+}
+
+function renderLastSignalSummary(
+  signal,
+  options = {}
+) {
+  const animateFresh =
+    options.animateFresh === true;
+
+  if (
+    !lastSignalChip ||
+    !lastSignalFloat ||
+    !signal ||
+    typeof signal !== "object" ||
+    !signal.slotName
+  ) {
+    if (lastSignalChip) {
+      lastSignalChip.hidden = true;
+    }
+
+    if (lastSignalFloat) {
+      lastSignalFloat.hidden = true;
+      lastSignalFloat.classList.remove(
+        "is-visible"
+      );
+    }
+
+    return;
+  }
+
+  if (lastSignalImage) {
+    lastSignalImage.src =
+      signal.slotImage || "";
+
+    lastSignalImage.alt =
+      signal.slotName || "";
+  }
+
+  if (lastSignalName) {
+    lastSignalName.textContent =
+      signal.slotName || "";
+  }
+
+  if (lastSignalBet) {
+    lastSignalBet.textContent =
+      signal.bet || "—";
+  }
+
+  if (lastSignalSpins) {
+    const spins = Number(signal.spins);
+
+    lastSignalSpins.textContent =
+      Number.isFinite(spins)
+        ? `${spins} giri`
+        : "—";
+  }
+
+  if (lastSignalRisk) {
+    const risk =
+      String(signal.risk || "")
+        .trim()
+        .toUpperCase();
+
+    lastSignalRisk.textContent =
+      getItalianRiskLabel(risk) || "—";
+
+    lastSignalRisk.dataset.level =
+      risk.toLowerCase();
+  }
+
+  if (lastSignalTime) {
+    lastSignalTime.textContent =
+      formatLastSignalTime(
+        signal.createdAt
+      );
+  }
+
+  lastSignalChip.hidden = false;
+
+  if (
+    !animateFresh &&
+    lastSignalChipLabel
+  ) {
+    lastSignalChipLabel.textContent =
+      "Ultimo";
+  }
+
+  if (animateFresh) {
+    animateFreshLastSignal();
+  }
 }
 
 function getArbifyApi() {
@@ -955,7 +2090,18 @@ function applySelectedSlot(
     return;
   }
 
-  slotCards.forEach((card) => {
+  riskProfileOptions.forEach((button) => {
+  button.addEventListener(
+    "click",
+    () => {
+      selectRiskProfile(
+        button.dataset.risk
+      );
+    }
+  );
+});
+
+slotCards.forEach((card) => {
     card.classList.toggle(
       "is-selected",
       card === matchingCard
@@ -990,7 +2136,32 @@ function applyDatabaseState(state) {
     homeState.selectedSlot
   );
 
+  if (
+    Array.isArray(
+      homeState.favorites
+    )
+  ) {
+    favoriteSlotNames =
+      new Set(
+        homeState.favorites.filter(
+          (slotName) => {
+            return slotCatalog.some(
+              (slot) =>
+                slot.name === slotName
+            );
+          }
+        )
+      );
+
+    saveFavoriteSlots();
+    updateFavoriteInterface();
+  }
+
   if (homeState.lastSignal) {
+    renderLastSignalSummary(
+      homeState.lastSignal
+    );
+
     try {
       sessionStorage.setItem(
         "arbifyLastSignal",
@@ -1003,6 +2174,8 @@ function applyDatabaseState(state) {
        * Останній сигнал уже є у базі.
        */
     }
+  } else {
+    renderLastSignalSummary(null);
   }
 }
 
@@ -1052,7 +2225,7 @@ function persistStatePatch(
         stateSaveErrorWasShown = true;
 
         showToast(
-          "Не вдалося синхронізувати дані"
+          "Impossibile sincronizzare i dati"
         );
       }
 
@@ -1085,6 +2258,18 @@ async function migrateLegacyState() {
     patch.selectedSlot =
       selectedSlot.name;
   }
+
+  if (
+    !Array.isArray(
+      homeState.favorites
+    ) &&
+    favoriteSlotNames.size > 0
+  ) {
+    patch.favorites = [
+      ...favoriteSlotNames,
+    ];
+  }
+
 
   if (
     !homeState.taskProgress
@@ -1165,6 +2350,28 @@ async function initializeHomeState() {
   document.documentElement.dataset
     .arbifyPageReady = "true";
 
+  const onboardingRequestedFromProfile =
+    consumeProfileOnboardingRequest();
+
+  if (onboardingRequestedFromProfile) {
+    /*
+     * Відкриваємо той самий #pulseOnboarding,
+     * який використовується при першому запуску.
+     * Маленька затримка дає Home завершити перший paint.
+     */
+    window.clearTimeout(
+      pulseOnboardingTimer
+    );
+
+    pulseOnboardingTimer =
+      window.setTimeout(
+        openPulseOnboarding,
+        80
+      );
+  } else {
+    schedulePulseOnboarding();
+  }
+
   return true;
 }
 
@@ -1181,7 +2388,7 @@ function beginHomeInitialization() {
           );
 
           showToast(
-            "Не вдалося підключитися до профілю"
+            "Impossibile connettersi al profilo"
           );
 
           return false;
@@ -1224,7 +2431,7 @@ function resetSubIdModal() {
   subIdSuccessView.hidden = true;
   subIdMessage.innerHTML = "&nbsp;";
   subIdVerifyButton.disabled = false;
-  subIdVerifyText.textContent = "ПЕРЕВІРИТИ SUBID";
+  subIdVerifyText.textContent = "VERIFICA SUBID";
 }
 
 function openSubIdModal() {
@@ -1277,7 +2484,7 @@ function showSubIdError(message) {
   subIdField.classList.add("has-error");
   subIdMessage.textContent = message;
   subIdVerifyButton.disabled = false;
-  subIdVerifyText.textContent = "ПЕРЕВІРИТИ SUBID";
+  subIdVerifyText.textContent = "VERIFICA SUBID";
   subIdInput.focus();
 }
 
@@ -1288,7 +2495,7 @@ function startSubIdVerification(subId) {
   subIdField.classList.add("is-checking");
   subIdDialog.classList.add("is-checking");
   subIdVerifyButton.disabled = true;
-  subIdVerifyText.textContent = "ПЕРЕВІРЯЄМО...";
+  subIdVerifyText.textContent = "VERIFICA IN CORSO...";
 
   /*
    * ДЕМО-ПЕРЕВІРКА:
@@ -1352,12 +2559,12 @@ function startSubIdVerification(subId) {
               notificationsApi.add({
                 type: "success",
                 category:
-                  "SUBID ПІДТВЕРДЖЕНО",
+                  "SUBID VERIFICATO",
                 title:
-                  "Реєстрацію знайдено",
+                  "Registrazione trovata",
                 message:
-                  `SUBID ${pulseMaskSubId(subId)} успішно підтверджено. ` +
-                  "Доступ до створення сигналів відкрито.",
+                  `SUBID ${pulseMaskSubId(subId)} verificato correttamente. ` +
+                  "Accesso alla creazione dei segnali abilitato.",
               });
             }
           );
@@ -1391,7 +2598,7 @@ function startSubIdVerification(subId) {
         );
 
         showSubIdError(
-          "Не вдалося зберегти SUBID. Спробуйте ще раз"
+          "Impossibile salvare il SUBID. Riprova"
         );
       }
     },
@@ -1425,18 +2632,31 @@ function createSignal(slot) {
     signalProfiles[slot.name] ||
     signalProfiles["Gates of Olympus"];
 
+  const riskBets =
+    ITALY_BETS_BY_RISK[selectedRiskProfile] ||
+    ITALY_BETS_BY_RISK["СЕРЕДНІЙ"];
+
+  const riskSpins =
+    ITALY_SPINS_BY_RISK[selectedRiskProfile] ||
+    ITALY_SPINS_BY_RISK["СЕРЕДНІЙ"];
+
   return {
     slotName: slot.name,
     slotImage: slot.image,
-    bet: `₴${randomItem(profile.bets)}`,
-    spins: randomItem(profile.spins),
-    risk: randomItem(profile.risks),
+    bet: formatEuroBet(randomItem(riskBets)),
+    spins: randomItem(riskSpins),
+    risk: selectedRiskProfile,
     duration: randomItem(profile.durations),
     createdAt: Date.now(),
   };
 }
 
 function saveSignal(signal) {
+  renderLastSignalSummary(
+    signal,
+    { animateFresh: true }
+  );
+
   try {
     sessionStorage.setItem(
       "arbifyLastSignal",
@@ -1484,8 +2704,24 @@ function prepareScan(slot) {
   selectedSlot = slot;
   activeSignal = null;
 
+  stopActiveSignalTimerInterval();
+
+  if (activeSignalTimer) {
+    activeSignalTimer.hidden = true;
+    activeSignalTimer.classList.remove(
+      "is-ending",
+      "is-finished"
+    );
+  }
+
+  resultActionButton.hidden = false;
+  resultActionButton.disabled = false;
+
+  resultNewButton.hidden = false;
+  resultNewButton.disabled = false;
+
   signalOverlayTitle.textContent =
-    "НОВИЙ СИГНАЛ";
+    "NUOVO SEGNALE";
 
   scanSlotImage.src = slot.image;
   scanSlotName.textContent = slot.name;
@@ -1554,6 +2790,20 @@ function closeSignalOverlay() {
 }
 
 function fillResult(signal) {
+  if (activeSignalTimer) {
+    activeSignalTimer.hidden = true;
+    activeSignalTimer.classList.remove(
+      "is-ending",
+      "is-finished"
+    );
+  }
+
+  resultActionButton.hidden = false;
+  resultActionButton.disabled = false;
+
+  resultNewButton.hidden = false;
+  resultNewButton.disabled = false;
+
   resultSlotImage.src =
     signal.slotImage;
 
@@ -1571,7 +2821,7 @@ function fillResult(signal) {
 
   resultRisk.innerHTML = `
     <span></span>
-    ${signal.risk}
+    ${getItalianRiskLabel(signal.risk)}
   `;
 
   resultRisk.dataset.level =
@@ -1589,7 +2839,7 @@ function showSignalResult() {
   scanProgress.style.width = "100%";
 
   scanStatus.textContent =
-    "Сигнал успішно сформовано";
+    "Segnale generato correttamente";
 
   resultRevealTimer =
     window.setTimeout(() => {
@@ -1597,7 +2847,7 @@ function showSignalResult() {
       resultView.hidden = false;
 
       signalOverlayTitle.textContent =
-        "СИГНАЛ ГОТОВИЙ";
+        "SEGNALE PRONTO";
 
       signalOverlay.classList.remove(
         "is-scanning"
@@ -1696,7 +2946,7 @@ slotCards.forEach((card) => {
       getSelectedSlot();
 
     showToast(
-      `${selectedSlot.name} обрано`
+      `${selectedSlot.name} selezionata`
     );
 
     void persistStatePatch({
@@ -1710,6 +2960,18 @@ signalButton.addEventListener(
   "click",
   async () => {
     if (!(await ensureHomeReady())) {
+      return;
+    }
+
+    activeSignalTimerState =
+      loadActiveSignalTimerState();
+
+    if (
+      activeSignalTimerState &&
+      activeSignalTimerState.endAt >
+        Date.now()
+    ) {
+      restoreActiveSignalTimerIfAvailable();
       return;
     }
 
@@ -1757,7 +3019,7 @@ subIdForm.addEventListener(
 
     if (!subId) {
       showSubIdError(
-        "Введіть свій SUBID для перевірки"
+        "Inserisci il tuo SUBID per la verifica"
       );
 
       return;
@@ -1806,15 +3068,69 @@ resultActionButton.addEventListener(
       return;
     }
 
-    const message =
-      `Сигнал для ${activeSignal.slotName} активовано на ` +
-      activeSignal.duration;
+    activeSignalTimerState =
+      loadActiveSignalTimerState();
 
-    closeSignalOverlay();
+    if (
+      activeSignalTimerState &&
+      activeSignalTimerState.endAt >
+        Date.now()
+    ) {
+      beginActiveSignalTimerLoop();
+      openActiveSignalNotice();
 
-    window.setTimeout(() => {
-      showToast(message);
-    }, 240);
+      return;
+    }
+
+    startActiveSignalTimer(
+      activeSignal
+    );
+  }
+);
+
+activeSignalNoticeButton?.addEventListener(
+  "click",
+  closeActiveSignalNotice
+);
+
+activeSignalNoticeBackdrop?.addEventListener(
+  "click",
+  closeActiveSignalNotice
+);
+
+pulseOnboardingNext?.addEventListener(
+  "click",
+  () => {
+    closePulseOnboarding(true);
+  }
+);
+
+pulseOnboardingSkip?.addEventListener(
+  "click",
+  () => {
+    closePulseOnboarding(true);
+  }
+);
+
+lastSignalChip?.addEventListener(
+  "click",
+  (event) => {
+    event.stopPropagation();
+    toggleLastSignalPopover();
+  }
+);
+
+lastSignalFloat?.addEventListener(
+  "click",
+  (event) => {
+    event.stopPropagation();
+  }
+);
+
+document.addEventListener(
+  "click",
+  () => {
+    closeLastSignalPopover();
   }
 );
 
@@ -1822,7 +3138,7 @@ notificationButton.addEventListener(
   "click",
   () => {
     showToast(
-      "Нових сповіщень поки немає"
+      "Nessuna nuova notifica al momento"
     );
   }
 );
@@ -1863,6 +3179,7 @@ allSlotsSearchClear?.addEventListener(
   }
 );
 
+
 allSlotsCategories?.addEventListener(
   "click",
   (event) => {
@@ -1902,7 +3219,7 @@ navItems.forEach((item) => {
       sectionName !== "Головна"
     ) {
       showToast(
-        `Розділ «${sectionName}» готується`
+        `La sezione «${sectionName}» è in preparazione`
       );
     }
   });
@@ -1911,6 +3228,24 @@ navItems.forEach((item) => {
 document.addEventListener(
   "keydown",
   (event) => {
+    if (
+      event.key === "Escape" &&
+      pulseOnboarding &&
+      !pulseOnboarding.hidden
+    ) {
+      closePulseOnboarding(true);
+      return;
+    }
+
+    if (
+      event.key === "Escape" &&
+      activeSignalNotice &&
+      !activeSignalNotice.hidden
+    ) {
+      closeActiveSignalNotice();
+      return;
+    }
+
     if (
       event.key === "Escape" &&
       !allSlotsOverlay.hidden
@@ -1956,6 +3291,28 @@ window.addEventListener(
     );
 
     stopScanning();
+    stopActiveSignalTimerInterval();
+    stopActiveSignalNoticeInterval();
+
+    window.clearTimeout(
+      activeSignalNoticeRevealTimer
+    );
+
+    window.clearTimeout(
+      pulseOnboardingTimer
+    );
+
+    window.clearTimeout(
+      pulseOnboardingCloseTimer
+    );
+
+    window.clearTimeout(
+      lastSignalPopoverTimer
+    );
+
+    window.clearTimeout(
+      lastSignalFreshTimer
+    );
   }
 );
 
@@ -2134,12 +3491,12 @@ function pulseSendSignalNotification(
     (notificationsApi) => {
       notificationsApi.addSignal({
         title:
-          `Сигнал для ${signal.slotName} готовий`,
+          `Segnale per ${signal.slotName} pronto`,
         message:
-          `Ставка ${signal.bet} · ` +
-          `${signal.spins} обертань · ` +
-          `ризик ${signal.risk.toLowerCase()}. ` +
-          `Усього створено сигналів: ${signalCount}.`,
+          `Puntata ${signal.bet} · ` +
+          `${signal.spins} giri · ` +
+          `rischio ${getItalianRiskLabel(signal.risk).toLowerCase()}. ` +
+          `Segnali creati in totale: ${signalCount}.`,
       });
     }
   );
@@ -2179,7 +3536,7 @@ async function pulseRegisterSignalResult(
       );
 
       showToast(
-        "Сигнал створено, але прогрес ще не синхронізовано"
+        "Segnale creato, ma i progressi non sono ancora sincronizzati"
       );
 
       return;
