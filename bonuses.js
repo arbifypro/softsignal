@@ -2761,6 +2761,55 @@ async function enableNotificationsTask() {
 
   clearTaskMessage(taskId);
 
+  const api = getArbifyApi();
+
+  if (api.isTelegramMiniApp()) {
+    try {
+      const permissionGranted =
+        await api.requestWriteAccess();
+
+      if (!permissionGranted) {
+        setTaskMessage(
+          taskId,
+          "È necessario consentire al bot di inviarti messaggi",
+          "is-error"
+        );
+
+        showToast(
+          "Autorizzazione alle notifiche non concessa"
+        );
+
+        return;
+      }
+
+      await recordServerRewardActivity(
+        "notifications-enabled",
+        {
+          permission: "granted",
+        }
+      );
+
+      showToast(
+        "Notifiche attivate correttamente"
+      );
+
+      return;
+    } catch (error) {
+      setTaskMessage(
+        taskId,
+        error?.message ||
+          "Impossibile attivare le notifiche Telegram",
+        "is-error"
+      );
+
+      showToast(
+        "Impossibile attivare le notifiche"
+      );
+
+      return;
+    }
+  }
+
   if (!("Notification" in window)) {
     setTaskMessage(
       taskId,
@@ -2780,23 +2829,12 @@ async function enableNotificationsTask() {
       Notification.permission ===
       "granted"
     ) {
-      const api = getArbifyApi();
+      record.status = "claimable";
+      record.verifiedAt =
+        Date.now();
 
-      if (api.isTelegramMiniApp()) {
-        await recordServerRewardActivity(
-          "notifications-enabled",
-          {
-            permission: "granted",
-          }
-        );
-      } else {
-        record.status = "claimable";
-        record.verifiedAt =
-          Date.now();
-
-        saveRewardsState();
-        renderTask(taskId);
-      }
+      saveRewardsState();
+      renderTask(taskId);
 
       showToast(
         "Le notifiche sono già consentite"
@@ -2827,23 +2865,12 @@ async function enableNotificationsTask() {
         .requestPermission();
 
     if (permission === "granted") {
-      const api = getArbifyApi();
+      record.status = "claimable";
+      record.verifiedAt =
+        Date.now();
 
-      if (api.isTelegramMiniApp()) {
-        await recordServerRewardActivity(
-          "notifications-enabled",
-          {
-            permission: "granted",
-          }
-        );
-      } else {
-        record.status = "claimable";
-        record.verifiedAt =
-          Date.now();
-
-        saveRewardsState();
-        renderTask(taskId);
-      }
+      saveRewardsState();
+      renderTask(taskId);
 
       showToast(
         "Notifiche attivate correttamente"
@@ -2860,7 +2887,7 @@ async function enableNotificationsTask() {
   } catch (error) {
     setTaskMessage(
       taskId,
-      "La verifica delle notifiche sarà disponibile nella Telegram Mini App",
+      "Impossibile verificare le notifiche in questo browser",
       "is-error"
     );
 
