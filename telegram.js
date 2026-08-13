@@ -452,6 +452,44 @@
     return result;
   }
 
+  function requestWriteAccess() {
+    if (
+      !telegram ||
+      typeof telegram.requestWriteAccess !==
+        "function"
+    ) {
+      return Promise.reject(
+        new ArbifyApiError(
+          "La tua versione di Telegram non supporta questa autorizzazione",
+          400,
+          {
+            code: "WRITE_ACCESS_NOT_SUPPORTED",
+          }
+        )
+      );
+    }
+
+    return new Promise((resolve, reject) => {
+      try {
+        telegram.requestWriteAccess(
+          (granted) => {
+            resolve(granted === true);
+          }
+        );
+      } catch (error) {
+        reject(
+          new ArbifyApiError(
+            "Impossibile richiedere l’autorizzazione alle notifiche",
+            400,
+            {
+              code: "WRITE_ACCESS_REQUEST_FAILED",
+            }
+          )
+        );
+      }
+    });
+  }
+
   function getCurrentUser() {
     return currentUser;
   }
@@ -478,6 +516,7 @@
     verifyRewardTask,
     claimRewardTask,
     recordActivity,
+    requestWriteAccess,
     getCurrentUser,
     getCurrentState,
     getInitData: getTelegramInitData,
