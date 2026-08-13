@@ -1,7 +1,7 @@
 "use strict";
 
 const TELEGRAM_BOT_USERNAME = "YOUR_BOT_USERNAME";
-const TELEGRAM_CHANNEL_USERNAME = "YOUR_CHANNEL_USERNAME";
+const TELEGRAM_CHANNEL_USERNAME = "arbifypulseit";
 
 const STORAGE_KEY = "arbifyRewardsStateV2";
 const VERIFICATION_DELAY = 1600;
