@@ -1,0 +1,1033 @@
+/*
+ * =========================================================
+ * ARBIFY PULSE — ГЛОБАЛЬНИЙ ЦЕНТР СПОВІЩЕНЬ
+ * Підключається на всіх внутрішніх сторінках застосунку.
+ * =========================================================
+ */
+
+:root {
+  --pulse-notification-visual-height: 100dvh;
+}
+
+/*
+ * Лічильник біля дзвіночка.
+ */
+
+.notification-button {
+  position: relative;
+}
+
+.notification-button .notification-dot {
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+
+.notification-button.has-notifications .notification-dot {
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+[data-notification-badge] {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  z-index: 3;
+  display: grid;
+  min-width: 18px;
+  height: 18px;
+  place-items: center;
+  padding: 0 5px;
+  border: 2px solid #07080d;
+  border-radius: 999px;
+  color: #fff;
+  background:
+    linear-gradient(145deg, #ff4b78 0%, #ee2459 100%);
+  box-shadow:
+    0 0 0 1px rgba(255, 76, 126, 0.2),
+    0 0 15px rgba(255, 47, 105, 0.48);
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 9px;
+  font-weight: 850;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  pointer-events: none;
+  transform-origin: center;
+  animation: pulseNotificationBadgeIn 260ms ease-out both;
+}
+
+[data-notification-badge][hidden] {
+  display: none !important;
+}
+
+/*
+ * Контейнер і затемнення.
+ */
+
+.pulse-notification-center[hidden] {
+  display: none !important;
+}
+
+.pulse-notification-center {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  width: 100%;
+  height: var(--pulse-notification-visual-height, 100dvh);
+  overflow: hidden;
+  overscroll-behavior: none;
+  pointer-events: none;
+}
+
+.pulse-notification-center.is-open {
+  pointer-events: auto;
+}
+
+.pulse-notification-backdrop {
+  position: absolute;
+  inset: -20px;
+  background:
+    radial-gradient(
+      circle at 50% 82%,
+      rgba(127, 29, 219, 0.18),
+      transparent 42%
+    ),
+    rgba(1, 2, 6, 0.78);
+  opacity: 0;
+  -webkit-backdrop-filter: blur(8px) saturate(0.82);
+  backdrop-filter: blur(8px) saturate(0.82);
+  transition: opacity 280ms ease;
+  will-change: opacity;
+}
+
+.pulse-notification-center.is-open
+  .pulse-notification-backdrop {
+  opacity: 1;
+}
+
+/*
+ * Основна панель.
+ */
+
+.pulse-notification-panel {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  width: min(100%, 430px);
+  max-height: min(76dvh, 720px);
+  min-height: 330px;
+  flex-direction: column;
+  margin: 0 auto;
+  padding:
+    10px
+    18px
+    max(20px, env(safe-area-inset-bottom));
+  overflow: hidden;
+  border: 1px solid rgba(173, 70, 255, 0.3);
+  border-bottom: 0;
+  border-radius: 30px 30px 0 0;
+  color: #f8f7fc;
+  background:
+    radial-gradient(
+      circle at 52% -8%,
+      rgba(170, 54, 255, 0.25),
+      transparent 39%
+    ),
+    radial-gradient(
+      circle at 100% 28%,
+      rgba(51, 232, 145, 0.06),
+      transparent 36%
+    ),
+    linear-gradient(
+      165deg,
+      rgba(21, 13, 34, 0.985),
+      rgba(7, 7, 15, 0.995) 52%,
+      rgba(4, 5, 11, 0.998)
+    );
+  box-shadow:
+    0 -1px 0 rgba(255, 255, 255, 0.035) inset,
+    0 -24px 70px rgba(0, 0, 0, 0.54),
+    0 -14px 62px rgba(107, 20, 190, 0.14);
+  opacity: 0;
+  transform: translate3d(0, calc(100% + 28px), 0);
+  transition:
+    transform 420ms cubic-bezier(0.2, 0.82, 0.22, 1),
+    opacity 220ms ease;
+  will-change: transform, opacity;
+}
+
+.pulse-notification-panel::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(
+      115deg,
+      rgba(255, 255, 255, 0.025),
+      transparent 28%,
+      transparent 72%,
+      rgba(172, 55, 255, 0.035)
+    );
+  content: "";
+  pointer-events: none;
+}
+
+.pulse-notification-center.is-open
+  .pulse-notification-panel {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.pulse-notification-handle {
+  position: relative;
+  z-index: 1;
+  width: 44px;
+  height: 4px;
+  flex: 0 0 auto;
+  margin: 0 auto 10px;
+  border-radius: 999px;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(158, 55, 255, 0.14),
+      rgba(214, 136, 255, 0.86),
+      rgba(158, 55, 255, 0.14)
+    );
+  box-shadow: 0 0 14px rgba(186, 75, 255, 0.28);
+}
+
+/*
+ * Заголовок.
+ */
+
+.pulse-notification-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 2px 2px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.pulse-notification-heading {
+  min-width: 0;
+}
+
+.pulse-notification-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 5px;
+  color: #c267ff;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.pulse-notification-eyebrow::before {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #b43cff;
+  box-shadow: 0 0 12px rgba(180, 60, 255, 0.8);
+  content: "";
+}
+
+.pulse-notification-title {
+  margin: 0;
+  color: #fff;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 23px;
+  font-weight: 790;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+}
+
+.pulse-notification-close {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 50%;
+  color: #aaa6b5;
+  background: rgba(5, 6, 13, 0.68);
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(166, 66, 255, 0.025) inset;
+  cursor: pointer;
+  transition:
+    color 170ms ease,
+    border-color 170ms ease,
+    background 170ms ease,
+    transform 170ms ease;
+}
+
+.pulse-notification-close:hover {
+  border-color: rgba(181, 79, 255, 0.35);
+  color: #fff;
+  background: rgba(112, 30, 175, 0.16);
+}
+
+.pulse-notification-close:active {
+  transform: scale(0.94);
+}
+
+.pulse-notification-close svg {
+  width: 18px;
+  height: 18px;
+}
+
+/*
+ * Підсумок і кнопка очищення.
+ */
+
+.pulse-notification-summary {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: 40px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 2px 6px;
+}
+
+.pulse-notification-summary > span {
+  overflow: hidden;
+  color: #797685;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pulse-notification-clear {
+  flex: 0 0 auto;
+  padding: 5px 0 5px 10px;
+  border: 0;
+  color: #bd65f7;
+  background: transparent;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    opacity 160ms ease;
+}
+
+.pulse-notification-clear:hover {
+  color: #dc9cff;
+}
+
+.pulse-notification-clear:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.pulse-notification-clear[hidden] {
+  display: none !important;
+}
+
+/*
+ * Список.
+ */
+
+.pulse-notification-list {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 9px;
+  padding: 4px 2px 12px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pulse-notification-list::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.pulse-notification-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 12px;
+  flex: 0 0 auto;
+  padding: 13px 14px 13px 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 17px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.037),
+      rgba(255, 255, 255, 0.012)
+    ),
+    rgba(7, 8, 16, 0.74);
+  box-shadow:
+    0 10px 26px rgba(0, 0, 0, 0.16),
+    0 1px 0 rgba(255, 255, 255, 0.025) inset;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.pulse-notification-item::after {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #b83eff;
+  box-shadow: 0 0 10px rgba(184, 62, 255, 0.8);
+  content: "";
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+.pulse-notification-item.is-unread {
+  border-color: rgba(176, 65, 255, 0.23);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(137, 35, 215, 0.105),
+      rgba(255, 255, 255, 0.014)
+    ),
+    rgba(8, 8, 18, 0.9);
+}
+
+.pulse-notification-item.is-unread::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.pulse-notification-item:active {
+  transform: scale(0.988);
+}
+
+.pulse-notification-icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid rgba(179, 69, 255, 0.26);
+  border-radius: 14px;
+  color: #ca72ff;
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      rgba(184, 69, 255, 0.25),
+      transparent 65%
+    ),
+    rgba(92, 26, 141, 0.12);
+  box-shadow:
+    0 0 22px rgba(128, 29, 201, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+}
+
+.pulse-notification-icon svg {
+  width: 21px;
+  height: 21px;
+}
+
+.pulse-notification-item.is-reward
+  .pulse-notification-icon {
+  border-color: rgba(244, 194, 76, 0.28);
+  color: #f6c85e;
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      rgba(244, 194, 76, 0.22),
+      transparent 65%
+    ),
+    rgba(107, 73, 9, 0.13);
+  box-shadow: 0 0 22px rgba(225, 167, 45, 0.1);
+}
+
+.pulse-notification-item.is-success
+  .pulse-notification-icon {
+  border-color: rgba(41, 223, 132, 0.27);
+  color: #36e390;
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      rgba(41, 223, 132, 0.2),
+      transparent 65%
+    ),
+    rgba(15, 104, 60, 0.12);
+  box-shadow: 0 0 22px rgba(36, 212, 123, 0.09);
+}
+
+.pulse-notification-item.is-signal
+  .pulse-notification-icon {
+  border-color: rgba(82, 163, 255, 0.27);
+  color: #69b4ff;
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      rgba(82, 163, 255, 0.2),
+      transparent 65%
+    ),
+    rgba(24, 76, 135, 0.12);
+}
+
+.pulse-notification-copy {
+  min-width: 0;
+  padding-top: 1px;
+}
+
+.pulse-notification-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.pulse-notification-meta > span:first-child {
+  overflow: hidden;
+  color: #b262e9;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 7px;
+  font-weight: 850;
+  letter-spacing: 0.17em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.pulse-notification-time {
+  flex: 0 0 auto;
+  color: #5f5c69;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 8px;
+  font-weight: 650;
+}
+
+.pulse-notification-item-title {
+  margin: 0;
+  padding-right: 8px;
+  overflow: hidden;
+  color: #f7f6fb;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 12px;
+  font-weight: 760;
+  line-height: 1.28;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pulse-notification-message {
+  display: -webkit-box;
+  margin: 4px 0 0;
+  overflow: hidden;
+  color: #817e8c;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 9px;
+  font-weight: 520;
+  line-height: 1.42;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.pulse-notification-reward {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 7px;
+  padding: 4px 7px;
+  border: 1px solid rgba(244, 194, 76, 0.2);
+  border-radius: 7px;
+  color: #f4c85f;
+  background: rgba(111, 72, 7, 0.12);
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 8px;
+  font-weight: 820;
+  letter-spacing: 0.06em;
+}
+
+/*
+ * Порожній стан.
+ */
+
+.pulse-notification-empty {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  min-height: 235px;
+  flex: 1 1 auto;
+  place-content: center;
+  justify-items: center;
+  padding: 30px 28px 45px;
+  text-align: center;
+}
+
+.pulse-notification-empty[hidden] {
+  display: none !important;
+}
+
+.pulse-notification-empty-icon {
+  display: grid;
+  width: 68px;
+  height: 68px;
+  place-items: center;
+  margin-bottom: 16px;
+  border: 1px solid rgba(177, 66, 255, 0.23);
+  border-radius: 22px;
+  color: #b955f6;
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      rgba(177, 66, 255, 0.2),
+      transparent 67%
+    ),
+    rgba(66, 22, 98, 0.1);
+  box-shadow:
+    0 0 34px rgba(128, 35, 190, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+}
+
+.pulse-notification-empty-icon svg {
+  width: 29px;
+  height: 29px;
+}
+
+.pulse-notification-empty strong {
+  color: #f5f3fa;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 15px;
+  font-weight: 760;
+}
+
+.pulse-notification-empty p {
+  max-width: 270px;
+  margin: 8px 0 0;
+  color: #706d79;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+/*
+ * Блокування фону під панеллю.
+ */
+
+html.pulse-notifications-locked,
+html.pulse-notifications-locked body {
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+}
+
+body.pulse-notifications-open {
+  touch-action: none;
+}
+
+body.pulse-notifications-open
+  .pulse-notification-panel,
+body.pulse-notifications-open
+  .pulse-notification-list {
+  touch-action: pan-y;
+}
+
+/*
+ * Клавіатура і невисокі екрани.
+ */
+
+@media (max-height: 620px) {
+  .pulse-notification-panel {
+    max-height: 88dvh;
+    min-height: 280px;
+    border-radius: 24px 24px 0 0;
+  }
+
+  .pulse-notification-empty {
+    min-height: 190px;
+    padding-top: 18px;
+    padding-bottom: 24px;
+  }
+}
+
+@media (min-width: 700px) {
+  .pulse-notification-panel {
+    right: max(24px, calc((100vw - 430px) / 2));
+    bottom: 24px;
+    left: auto;
+    width: 400px;
+    border-bottom: 1px solid rgba(173, 70, 255, 0.3);
+    border-radius: 26px;
+    transform:
+      translate3d(0, 26px, 0)
+      scale(0.97);
+  }
+
+  .pulse-notification-center.is-open
+    .pulse-notification-panel {
+    transform:
+      translate3d(0, 0, 0)
+      scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-notification-badge],
+  .pulse-notification-backdrop,
+  .pulse-notification-panel,
+  .pulse-notification-item,
+  .pulse-notification-close {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes pulseNotificationBadgeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.45);
+  }
+
+  70% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* =========================================================
+   КОМПАКТНИЙ ЦЕНТР СПОВІЩЕНЬ
+   ========================================================= */
+
+.pulse-notification-panel {
+  right: max(14px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  left: max(14px, env(safe-area-inset-left));
+
+  width: auto;
+  max-width: 400px;
+  max-height: min(68dvh, 540px);
+  min-height: 0;
+
+  margin: 0 auto;
+  padding: 9px 14px 14px;
+
+  border: 1px solid rgba(173, 70, 255, 0.34);
+  border-radius: 24px;
+
+  transform:
+    translate3d(0, 30px, 0)
+    scale(0.965);
+}
+
+.pulse-notification-center.is-open
+  .pulse-notification-panel {
+  transform:
+    translate3d(0, 0, 0)
+    scale(1);
+}
+
+.pulse-notification-handle {
+  margin-bottom: 7px;
+}
+
+.pulse-notification-header {
+  padding: 1px 1px 11px;
+}
+
+.pulse-notification-title {
+  font-size: 21px;
+}
+
+.pulse-notification-close {
+  width: 36px;
+  height: 36px;
+}
+
+.pulse-notification-close svg {
+  width: 16px;
+  height: 16px;
+}
+
+.pulse-notification-summary {
+  min-height: 34px;
+  padding: 6px 1px 4px;
+}
+
+.pulse-notification-list {
+  gap: 8px;
+  padding: 3px 1px 1px;
+}
+
+.pulse-notification-item {
+  padding: 11px 12px 11px 10px;
+  border-radius: 15px;
+}
+
+/* =========================================================
+   ПОВІДОМЛЕННЯ, КОЛИ СПОВІЩЕНЬ НЕМАЄ
+   ========================================================= */
+
+.pulse-notification-toast {
+  position: fixed;
+
+  bottom:
+    max(
+      108px,
+      calc(env(safe-area-inset-bottom) + 88px)
+    );
+
+  left: 50%;
+  z-index: 6000;
+
+  display: flex;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  min-height: 44px;
+
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  padding: 11px 16px;
+
+  border: 1px solid rgba(177, 70, 255, 0.3);
+  border-radius: 14px;
+
+  color: #f1edf7;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(29, 18, 43, 0.98),
+      rgba(8, 8, 16, 0.99)
+    );
+
+  box-shadow:
+    0 14px 36px rgba(0, 0, 0, 0.42),
+    0 0 24px rgba(142, 41, 213, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.3;
+  text-align: center;
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  transform:
+    translate3d(-50%, 14px, 0)
+    scale(0.96);
+
+  transition:
+    opacity 180ms ease,
+    visibility 180ms ease,
+    transform 260ms
+      cubic-bezier(0.2, 0.82, 0.22, 1);
+}
+
+.pulse-notification-toast.is-visible {
+  opacity: 1;
+  visibility: visible;
+
+  transform:
+    translate3d(-50%, 0, 0)
+    scale(1);
+}
+
+.pulse-notification-toast-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+
+  border-radius: 50%;
+
+  background: #b844ff;
+
+  box-shadow:
+    0 0 12px rgba(184, 68, 255, 0.82);
+}
+
+/* Невисокі екрани */
+
+@media (max-height: 620px) {
+  .pulse-notification-panel {
+    bottom: max(
+      10px,
+      env(safe-area-inset-bottom)
+    );
+
+    max-height: calc(100dvh - 20px);
+    min-height: 0;
+    border-radius: 20px;
+  }
+}
+
+/* Комп’ютери та планшети */
+
+@media (min-width: 700px) {
+  .pulse-notification-panel {
+    right: 24px;
+    bottom: 24px;
+    left: auto;
+
+    width: 390px;
+    max-width: calc(100vw - 48px);
+  }
+
+  .pulse-notification-toast {
+    bottom: 32px;
+  }
+}
+
+/* ===== NOTIFICATION BADGE — ARBIFY PURPLE NEON ===== */
+/* Фіолетово-рожевий індикатор під стиль ARBIFY PULSE. */
+[data-notification-badge] {
+  background:
+    linear-gradient(
+      145deg,
+      #d86bff 0%,
+      #a83cff 48%,
+      #7d35ff 100%
+    ) !important;
+
+  box-shadow:
+    0 0 0 1px rgba(205, 102, 255, 0.22),
+    0 0 7px rgba(190, 72, 255, 0.48),
+    0 0 15px rgba(132, 53, 255, 0.24) !important;
+
+  animation:
+    pulseNotificationBadgeIn 260ms ease-out both,
+    pulseNotificationPurpleGlow 3.2s ease-in-out 320ms infinite !important;
+}
+
+/* Пульсує тільки світіння — сам кружечок не рухається і не масштабується. */
+@keyframes pulseNotificationPurpleGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(205, 102, 255, 0.20),
+      0 0 6px rgba(190, 72, 255, 0.38),
+      0 0 12px rgba(132, 53, 255, 0.18);
+  }
+
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(220, 135, 255, 0.28),
+      0 0 9px rgba(203, 89, 255, 0.60),
+      0 0 18px rgba(132, 53, 255, 0.30);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-notification-badge] {
+    animation: none !important;
+  }
+}

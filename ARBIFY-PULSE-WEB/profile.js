@@ -1,0 +1,2473 @@
+"use strict";
+
+/* PostgreSQL profile sync · 2026-08-03 */
+
+/*
+ * =========================================================
+ * ARBIFY PULSE — ПРОФІЛЬ
+ * =========================================================
+ */
+
+const ACCESS_STORAGE_KEY = "arbifyAccess";
+const REWARDS_STORAGE_KEY = "arbifyRewardsStateV2";
+const SUBID_STORAGE_KEY = "arbifyVerifiedSubId";
+const SIGNAL_COUNT_STORAGE_KEY = "arbifyCreatedSignalCount";
+const LAST_SIGNAL_STORAGE_KEY = "arbifyLastSignal";
+const PROFILE_COMPLETED_STORAGE_KEY = "arbifyProfileCompleted";
+const PROFILE_NAME_STORAGE_KEY = "arbifyProfileName";
+const PULSE_LEVEL_STORAGE_KEY = "arbifyPulseLevel";
+const PULSE_UNLOCKS_STORAGE_KEY = "arbifyPulseUnlocks";
+
+const PULSE_LEVELS = Object.freeze([
+  {
+    level: 1,
+    minimum: 0,
+    maximum: 250,
+    name: "STARTER",
+    unlockKey: "base-access",
+  },
+  {
+    level: 2,
+    minimum: 250,
+    maximum: 600,
+    name: "ACTIVE",
+    unlockKey: "profile-frame",
+  },
+  {
+    level: 3,
+    minimum: 600,
+    maximum: 1200,
+    name: "PREMIUM",
+    unlockKey: "premium-badge",
+  },
+  {
+    level: 4,
+    minimum: 1200,
+    maximum: null,
+    name: "ELITE",
+    unlockKey: "exclusive-theme",
+  },
+]);
+
+/*
+ * Вкажи username менеджера БЕЗ символу @.
+ */
+const TELEGRAM_SUPPORT_USERNAME = "arbifypulse";
+
+const TOAST_DURATION = 2600;
+const LOGOUT_CONFIRM_DURATION = 3600;
+const SUBID_VERIFY_DELAY = 1200;
+const SUBID_SUCCESS_DELAY = 850;
+
+/*
+ * =========================================================
+ * ЕЛЕМЕНТИ СТОРІНКИ
+ * =========================================================
+ */
+
+const profileMemberName = document.querySelector(
+  "#profileMemberName"
+);
+
+const profileLevel = document.querySelector(
+  "#profileLevel"
+);
+
+const profileLevelProgress = document.querySelector(
+  "#profileLevelProgress"
+);
+
+const profileLevelTrack = document.querySelector(
+  "#profileLevelTrack"
+);
+
+const profileLevelBar = document.querySelector(
+  "#profileLevelBar"
+);
+
+const profileAccessKey = document.querySelector(
+  "#profileAccessKey"
+);
+
+const profileSubId = document.querySelector(
+  "#profileSubId"
+);
+
+const profileSubIdVerified = document.querySelector(
+  "#profileSubIdVerified"
+);
+
+
+const subIdModal = document.querySelector(
+  "#subIdModal"
+);
+
+const subIdModalBackdrop = document.querySelector(
+  ".subid-modal-backdrop"
+);
+
+const subIdDialog = document.querySelector(
+  ".subid-dialog"
+);
+
+const subIdCloseButton = document.querySelector(
+  "#subIdCloseButton"
+);
+
+const subIdFormView = document.querySelector(
+  "#subIdFormView"
+);
+
+const subIdSuccessView = document.querySelector(
+  "#subIdSuccessView"
+);
+
+const subIdForm = document.querySelector(
+  "#subIdForm"
+);
+
+const subIdField = document.querySelector(
+  "#subIdField"
+);
+
+const subIdInput = document.querySelector(
+  "#subIdInput"
+);
+
+const subIdMessage = document.querySelector(
+  "#subIdMessage"
+);
+
+const subIdVerifyButton = document.querySelector(
+  "#subIdVerifyButton"
+);
+
+const subIdVerifyText = document.querySelector(
+  "#subIdVerifyText"
+);
+
+const profileGuideButton = document.querySelector(
+  "#profileGuideButton"
+);
+
+const profileGuide = document.querySelector(
+  "#profileGuide"
+);
+
+const profileGuideBackdrop = document.querySelector(
+  "#profileGuideBackdrop"
+);
+
+const profileGuideClose = document.querySelector(
+  "#profileGuideClose"
+);
+
+const profileGuideDone = document.querySelector(
+  "#profileGuideDone"
+);
+
+const profilePulseBalance = document.querySelector(
+  "#profilePulseBalance"
+);
+
+const profileSignalCount = document.querySelector(
+  "#profileSignalCount"
+);
+
+const profileTaskCount = document.querySelector(
+  "#profileTaskCount"
+);
+
+const signalHistoryList = document.querySelector(
+  "#signalHistoryList"
+);
+
+const signalHistoryEmpty = document.querySelector(
+  "#signalHistoryEmpty"
+);
+
+const signalHistoryCount = document.querySelector(
+  "#signalHistoryCount"
+);
+
+const signalHistoryMore = document.querySelector(
+  "#signalHistoryMore"
+);
+
+const profileNotificationsButton =
+  document.querySelector(
+    "#profileNotificationsButton"
+  );
+
+const profileNotificationStatus =
+  document.querySelector(
+    "#profileNotificationStatus"
+  );
+
+const profileLanguageButton = document.querySelector(
+  "#profileLanguageButton"
+);
+
+const profileSupportButton = document.querySelector(
+  "#profileSupportButton"
+);
+
+const logoutButton = document.querySelector(
+  "#logoutButton"
+);
+
+const toast = document.querySelector("#toast");
+const toastText = document.querySelector("#toastText");
+
+let toastTimer;
+let logoutConfirmTimer;
+let logoutConfirmationActive = false;
+let profileDatabaseReady = false;
+let profileDatabaseUser = null;
+let profileDatabaseState = {};
+let profileSaveQueue = Promise.resolve({});
+let profileInitializationPromise = null;
+let signalHistoryExpanded = false;
+let profileGuideCloseTimer;
+let subIdVerifyTimer;
+let subIdSuccessTimer;
+let subIdCloseTimer;
+
+/*
+ * =========================================================
+ * ДОПОМІЖНІ ФУНКЦІЇ
+ * =========================================================
+ */
+
+function setAppHeight() {
+  const height =
+    window.visualViewport?.height ||
+    window.innerHeight;
+
+  document.documentElement.style.setProperty(
+    "--app-height",
+    `${height}px`
+  );
+}
+
+function formatNumber(value) {
+  return new Intl.NumberFormat("it-IT").format(
+    Math.max(
+      0,
+      Math.floor(Number(value) || 0)
+    )
+  );
+}
+
+function showToast(message) {
+  window.clearTimeout(toastTimer);
+
+  toastText.textContent = message;
+  toast.classList.add("is-visible");
+
+  toastTimer = window.setTimeout(() => {
+    toast.classList.remove("is-visible");
+  }, TOAST_DURATION);
+}
+
+function readJsonStorage(
+  storage,
+  key,
+  fallbackValue
+) {
+  try {
+    const storedValue = storage.getItem(key);
+
+    if (!storedValue) {
+      return fallbackValue;
+    }
+
+    return JSON.parse(storedValue);
+  } catch {
+    return fallbackValue;
+  }
+}
+
+function getArbifyApi() {
+  return window.ARBIFY_API || null;
+}
+
+async function recordProfileActivity(
+  type,
+  payload = {}
+) {
+  const api = getArbifyApi();
+
+  if (!api?.isTelegramMiniApp?.()) {
+    return null;
+  }
+
+  const result = await api.recordActivity(
+    type,
+    payload
+  );
+
+  profileDatabaseState = {
+    ...api.getCurrentState(),
+  };
+
+  return result;
+}
+
+function isObject(value) {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      !Array.isArray(value)
+  );
+}
+
+function getDatabaseTaskProgress() {
+  return isObject(
+    profileDatabaseState.taskProgress
+  )
+    ? profileDatabaseState.taskProgress
+    : {};
+}
+
+function getDatabaseProfile() {
+  return isObject(
+    profileDatabaseState.profile
+  )
+    ? profileDatabaseState.profile
+    : {};
+}
+
+function saveProfileState(
+  statePatch,
+  {
+    required = false,
+  } = {}
+) {
+  if (!profileDatabaseReady) {
+    return Promise.resolve(
+      profileDatabaseState
+    );
+  }
+
+  const api = getArbifyApi();
+
+  if (!api) {
+    return Promise.resolve(
+      profileDatabaseState
+    );
+  }
+
+  profileDatabaseState = {
+    ...profileDatabaseState,
+    ...statePatch,
+  };
+
+  const operation = profileSaveQueue
+    .catch(() => {
+      return profileDatabaseState;
+    })
+    .then(async () => {
+      const savedState =
+        await api.saveState(
+          statePatch
+        );
+
+      profileDatabaseState = {
+        ...savedState,
+      };
+
+      if (profileDatabaseUser) {
+        profileDatabaseUser.state =
+          profileDatabaseState;
+      }
+
+      return profileDatabaseState;
+    });
+
+  profileSaveQueue = operation.catch(
+    (error) => {
+      console.error(
+        "Profile state save error:",
+        error.message
+      );
+
+      return profileDatabaseState;
+    }
+  );
+
+  return required
+    ? operation
+    : profileSaveQueue;
+}
+
+function restoreDatabaseCompatibilityState() {
+  const taskProgress =
+    getDatabaseTaskProgress();
+
+  try {
+    if (profileDatabaseState.subid) {
+      sessionStorage.setItem(
+        SUBID_STORAGE_KEY,
+        String(
+          profileDatabaseState.subid
+        )
+      );
+    }
+
+    if (
+      Number.isSafeInteger(
+        Number(
+          taskProgress.createdSignalCount
+        )
+      )
+    ) {
+      localStorage.setItem(
+        SIGNAL_COUNT_STORAGE_KEY,
+        String(
+          Math.max(
+            0,
+            Number(
+              taskProgress.createdSignalCount
+            )
+          )
+        )
+      );
+    }
+
+    const databaseProfile =
+      getDatabaseProfile();
+
+    if (databaseProfile.name) {
+      localStorage.setItem(
+        PROFILE_NAME_STORAGE_KEY,
+        String(databaseProfile.name)
+      );
+    }
+
+    if (
+      databaseProfile.completed === true
+    ) {
+      sessionStorage.setItem(
+        PROFILE_COMPLETED_STORAGE_KEY,
+        "true"
+      );
+    }
+  } catch {
+    /*
+     * PostgreSQL залишається головним
+     * сховищем даних профілю.
+     */
+  }
+}
+
+function readRewardsState() {
+  if (profileDatabaseReady) {
+    const savedUnlocks = Array.isArray(
+      profileDatabaseState.pulseUnlocks
+    )
+      ? profileDatabaseState.pulseUnlocks
+      : [];
+
+    return {
+      balance: Math.max(
+        0,
+        Number(
+          profileDatabaseState.pulseBalance
+        ) || 0
+      ),
+
+      tasks: isObject(
+        profileDatabaseState.completedTasks
+      )
+        ? profileDatabaseState.completedTasks
+        : {},
+
+      unlockedLevelRewards: Array.from(
+        new Set([
+          "base-access",
+          ...savedUnlocks,
+        ])
+      ),
+    };
+  }
+
+  const storedState = readJsonStorage(
+    localStorage,
+    REWARDS_STORAGE_KEY,
+    null
+  );
+
+  if (
+    !storedState ||
+    typeof storedState !== "object"
+  ) {
+    return {
+      balance: 0,
+      tasks: {},
+      unlockedLevelRewards: ["base-access"],
+    };
+  }
+
+  const savedUnlocks = Array.isArray(
+    storedState.unlockedLevelRewards
+  )
+    ? storedState.unlockedLevelRewards
+    : readJsonStorage(
+        localStorage,
+        PULSE_UNLOCKS_STORAGE_KEY,
+        []
+      );
+
+  return {
+    balance: Math.max(
+      0,
+      Number(storedState.balance) || 0
+    ),
+
+    tasks:
+      storedState.tasks &&
+      typeof storedState.tasks === "object"
+        ? storedState.tasks
+        : {},
+
+    unlockedLevelRewards: Array.from(
+      new Set([
+        "base-access",
+        ...(Array.isArray(savedUnlocks)
+          ? savedUnlocks
+          : []),
+      ])
+    ),
+  };
+}
+
+function readCreatedSignalCount() {
+  if (profileDatabaseReady) {
+    const taskProgress =
+      getDatabaseTaskProgress();
+
+    const savedCount = Number(
+      taskProgress.createdSignalCount
+    );
+
+    if (
+      Number.isSafeInteger(savedCount) &&
+      savedCount >= 0
+    ) {
+      return savedCount;
+    }
+
+    if (
+      Array.isArray(
+        profileDatabaseState.signalHistory
+      )
+    ) {
+      return profileDatabaseState
+        .signalHistory.length;
+    }
+
+    return profileDatabaseState.lastSignal
+      ? 1
+      : 0;
+  }
+
+  const storedValue =
+    localStorage.getItem(
+      SIGNAL_COUNT_STORAGE_KEY
+    ) ||
+    sessionStorage.getItem(
+      SIGNAL_COUNT_STORAGE_KEY
+    );
+
+  const parsedValue = Number(storedValue);
+
+  if (
+    Number.isFinite(parsedValue) &&
+    parsedValue > 0
+  ) {
+    return Math.floor(parsedValue);
+  }
+
+  return sessionStorage.getItem(
+    LAST_SIGNAL_STORAGE_KEY
+  )
+    ? 1
+    : 0;
+}
+
+function countCompletedTasks(tasks) {
+  return Object.values(tasks).filter(
+    (task) => {
+      return (
+        task &&
+        typeof task === "object" &&
+        task.status === "completed"
+      );
+    }
+  ).length;
+}
+
+/*
+ * =========================================================
+ * РІВНІ PULSE
+ * =========================================================
+ */
+
+function getLevelData(balance) {
+  const normalizedBalance = Math.max(
+    Number(balance) || 0,
+    0
+  );
+
+  return (
+    [...PULSE_LEVELS]
+      .reverse()
+      .find((levelData) => {
+        return (
+          normalizedBalance >=
+          levelData.minimum
+        );
+      }) || PULSE_LEVELS[0]
+  );
+}
+
+function getUnlockedLevelRewards(
+  balance,
+  savedUnlocks = []
+) {
+  const unlockedRewards = new Set([
+    "base-access",
+    ...(Array.isArray(savedUnlocks)
+      ? savedUnlocks
+      : []),
+  ]);
+
+  PULSE_LEVELS.forEach((levelData) => {
+    if (balance >= levelData.minimum) {
+      unlockedRewards.add(
+        levelData.unlockKey
+      );
+    }
+  });
+
+  return Array.from(unlockedRewards);
+}
+
+function applyProfileLevelState(
+  levelData,
+  unlockedRewards
+) {
+  const levelValue = String(
+    levelData.level
+  );
+
+  document.documentElement.dataset.pulseLevel =
+    levelValue;
+
+  document.body.dataset.pulseLevel =
+    levelValue;
+
+  document.body.classList.toggle(
+    "has-profile-frame",
+    unlockedRewards.includes(
+      "profile-frame"
+    )
+  );
+
+  document.body.classList.toggle(
+    "has-premium-badge",
+    unlockedRewards.includes(
+      "premium-badge"
+    )
+  );
+
+  document.body.classList.toggle(
+    "has-exclusive-theme",
+    unlockedRewards.includes(
+      "exclusive-theme"
+    )
+  );
+
+  try {
+    localStorage.setItem(
+      PULSE_LEVEL_STORAGE_KEY,
+      levelValue
+    );
+
+    localStorage.setItem(
+      PULSE_UNLOCKS_STORAGE_KEY,
+      JSON.stringify(unlockedRewards)
+    );
+  } catch {
+    /*
+     * Профіль продовжить працювати,
+     * навіть якщо localStorage недоступний.
+     */
+  }
+}
+
+function maskSubId(value) {
+  const normalizedValue =
+    String(value || "").trim();
+
+  if (!normalizedValue) {
+    return "Non verificato";
+  }
+
+  if (normalizedValue.length <= 2) {
+    return "•".repeat(
+      normalizedValue.length
+    );
+  }
+
+  if (normalizedValue.length <= 4) {
+    return (
+      normalizedValue.slice(0, 1) +
+      "•".repeat(
+        normalizedValue.length - 2
+      ) +
+      normalizedValue.slice(-1)
+    );
+  }
+
+  return (
+    normalizedValue.slice(0, 2) +
+    "•".repeat(
+      Math.min(
+        normalizedValue.length - 4,
+        6
+      )
+    ) +
+    normalizedValue.slice(-2)
+  );
+}
+
+function getProfileName() {
+  if (profileDatabaseReady) {
+    const databaseProfile =
+      getDatabaseProfile();
+
+    const savedName = String(
+      databaseProfile.name || ""
+    ).trim();
+
+    if (savedName) {
+      return savedName;
+    }
+
+    const telegramName = [
+      profileDatabaseUser?.firstName,
+      profileDatabaseUser?.lastName,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+
+    if (telegramName) {
+      return telegramName;
+    }
+
+    const telegramUsername = String(
+      profileDatabaseUser?.username || ""
+    ).trim();
+
+    if (telegramUsername) {
+      return `@${telegramUsername}`;
+    }
+  }
+
+  try {
+    const storedName = String(
+      localStorage.getItem(
+        PROFILE_NAME_STORAGE_KEY
+      ) || ""
+    ).trim();
+
+    return storedName || "Membro Pulse";
+  } catch {
+    return "Membro Pulse";
+  }
+}
+
+function isTelegramSupportConfigured() {
+  const normalizedUsername = String(
+    TELEGRAM_SUPPORT_USERNAME || ""
+  )
+    .trim()
+    .replace(/^@+/, "");
+
+  return (
+    normalizedUsername.length > 0 &&
+    normalizedUsername !== "YOUR_USERNAME"
+  );
+}
+
+
+
+function openProfileGuide() {
+  /*
+   * Відкриваємо не копію інструкції у профілі,
+   * а оригінальний onboarding з home.html.
+   * Одноразовий flag живе тільки до переходу.
+   */
+  try {
+    sessionStorage.setItem(
+      "arbifyOpenOnboardingFromProfile",
+      "true"
+    );
+  } catch {
+    /*
+     * Fallback нижче через query-параметр,
+     * якщо sessionStorage недоступний.
+     */
+    window.location.href =
+      "home.html?onboarding=1";
+
+    return;
+  }
+
+  window.location.href = "home.html";
+}
+
+function closeProfileGuide() {
+  if (!profileGuide) {
+    return;
+  }
+
+  window.clearTimeout(
+    profileGuideCloseTimer
+  );
+
+  profileGuide.classList.remove(
+    "is-open"
+  );
+
+  profileGuideButton?.setAttribute(
+    "aria-expanded",
+    "false"
+  );
+
+  document.body.classList.remove(
+    "profile-guide-open",
+    "profile-guide-preparing"
+  );
+
+  profileGuideCloseTimer =
+    window.setTimeout(() => {
+      if (
+        !profileGuide.classList.contains(
+          "is-open"
+        )
+      ) {
+        profileGuide.hidden = true;
+      }
+    }, 240);
+}
+
+
+function normalizeProfileSubId(value) {
+  return String(value || "")
+    .trim()
+    .replace(/\s+/g, "")
+    .slice(0, 64);
+}
+
+function hasProfileVerifiedSubId() {
+  const verifiedSubId =
+    profileDatabaseReady
+      ? profileDatabaseState.subid
+      : sessionStorage.getItem(
+          SUBID_STORAGE_KEY
+        );
+
+  return Boolean(
+    normalizeProfileSubId(
+      verifiedSubId
+    )
+  );
+}
+
+function resetProfileSubIdModal() {
+  if (
+    !subIdDialog ||
+    !subIdField ||
+    !subIdFormView ||
+    !subIdSuccessView ||
+    !subIdMessage ||
+    !subIdVerifyButton ||
+    !subIdVerifyText
+  ) {
+    return;
+  }
+
+  subIdDialog.classList.remove(
+    "is-checking",
+    "is-success"
+  );
+
+  subIdField.classList.remove(
+    "has-error",
+    "is-checking"
+  );
+
+  subIdFormView.hidden = false;
+  subIdSuccessView.hidden = true;
+  subIdMessage.innerHTML = "&nbsp;";
+  subIdVerifyButton.disabled = false;
+  subIdVerifyText.textContent =
+    "VERIFICA SUBID";
+}
+
+function openProfileSubIdModal() {
+  if (
+    !subIdModal ||
+    !subIdInput ||
+    hasProfileVerifiedSubId()
+  ) {
+    return;
+  }
+
+  window.clearTimeout(toastTimer);
+  window.clearTimeout(subIdCloseTimer);
+
+  toast?.classList.remove("is-visible");
+  resetProfileSubIdModal();
+
+  subIdInput.value = "";
+  subIdModal.hidden = false;
+
+  document.body.classList.add(
+    "subid-modal-open"
+  );
+
+  window.requestAnimationFrame(() => {
+    subIdModal.classList.add(
+      "is-open"
+    );
+  });
+}
+
+function closeProfileSubIdModal(
+  afterClose
+) {
+  if (!subIdModal) {
+    return;
+  }
+
+  window.clearTimeout(subIdVerifyTimer);
+  window.clearTimeout(subIdSuccessTimer);
+  window.clearTimeout(subIdCloseTimer);
+
+  subIdInput?.blur();
+
+  subIdModal.classList.remove(
+    "is-open"
+  );
+
+  document.body.classList.remove(
+    "subid-modal-open"
+  );
+
+  subIdCloseTimer =
+    window.setTimeout(() => {
+      subIdModal.hidden = true;
+      resetProfileSubIdModal();
+
+      if (
+        typeof afterClose ===
+        "function"
+      ) {
+        afterClose();
+      }
+    }, 220);
+}
+
+function showProfileSubIdError(
+  message
+) {
+  if (
+    !subIdDialog ||
+    !subIdField ||
+    !subIdMessage ||
+    !subIdVerifyButton ||
+    !subIdVerifyText
+  ) {
+    return;
+  }
+
+  subIdDialog.classList.remove(
+    "is-checking"
+  );
+
+  subIdField.classList.remove(
+    "is-checking"
+  );
+
+  void subIdField.offsetWidth;
+
+  subIdField.classList.add(
+    "has-error"
+  );
+
+  subIdMessage.textContent =
+    message;
+
+  subIdVerifyButton.disabled = false;
+
+  subIdVerifyText.textContent =
+    "VERIFICA SUBID";
+
+  subIdInput?.focus();
+}
+
+function startProfileSubIdVerification(
+  subId
+) {
+  if (
+    !subIdDialog ||
+    !subIdField ||
+    !subIdMessage ||
+    !subIdVerifyButton ||
+    !subIdVerifyText
+  ) {
+    return;
+  }
+
+  subIdInput?.blur();
+  subIdMessage.innerHTML = "&nbsp;";
+
+  subIdField.classList.remove(
+    "has-error"
+  );
+
+  subIdField.classList.add(
+    "is-checking"
+  );
+
+  subIdDialog.classList.add(
+    "is-checking"
+  );
+
+  subIdVerifyButton.disabled = true;
+
+  subIdVerifyText.textContent =
+    "VERIFICA IN CORSO...";
+
+  /*
+   * Зберігаємо SUBID тим самим способом,
+   * яким профіль уже синхронізує свій state.
+   * Поки серверної Keitaro-перевірки немає,
+   * будь-який непорожній SUBID приймається.
+   */
+  subIdVerifyTimer =
+    window.setTimeout(
+      async () => {
+        try {
+          if (profileDatabaseReady) {
+            await saveProfileState(
+              {
+                subid: subId,
+              },
+              {
+                required: true,
+              }
+            );
+          } else {
+            profileDatabaseState = {
+              ...profileDatabaseState,
+              subid: subId,
+            };
+          }
+
+          try {
+            sessionStorage.setItem(
+              SUBID_STORAGE_KEY,
+              subId
+            );
+          } catch {
+            /*
+             * У Telegram основна копія
+             * вже збережена у PostgreSQL.
+             */
+          }
+
+          subIdDialog.classList.remove(
+            "is-checking"
+          );
+
+          subIdDialog.classList.add(
+            "is-success"
+          );
+
+          subIdField.classList.remove(
+            "is-checking"
+          );
+
+          subIdFormView.hidden = true;
+          subIdSuccessView.hidden = false;
+
+          renderProfile();
+
+          subIdSuccessTimer =
+            window.setTimeout(() => {
+              closeProfileSubIdModal(
+                () => {
+                  renderProfile();
+                  showToast(
+                    "SUBID verificato correttamente"
+                  );
+                }
+              );
+            }, SUBID_SUCCESS_DELAY);
+        } catch (error) {
+          console.error(
+            "Profile SUBID save error:",
+            error.message
+          );
+
+          showProfileSubIdError(
+            "Impossibile salvare il SUBID. Riprova"
+          );
+        }
+      },
+      SUBID_VERIFY_DELAY
+    );
+}
+
+function activateProfileSubId() {
+  if (
+    hasProfileVerifiedSubId()
+  ) {
+    return;
+  }
+
+  openProfileSubIdModal();
+}
+
+const SIGNAL_HISTORY_LIMIT = 20;
+const SIGNAL_HISTORY_COLLAPSED_COUNT = 5;
+
+function readSignalHistory() {
+  if (
+    profileDatabaseReady &&
+    Array.isArray(
+      profileDatabaseState.signalHistory
+    )
+  ) {
+    return profileDatabaseState
+      .signalHistory
+      .filter((signal) => {
+        return (
+          signal &&
+          typeof signal === "object" &&
+          signal.slotName
+        );
+      })
+      .slice(0, SIGNAL_HISTORY_LIMIT);
+  }
+
+  const lastSignal = readJsonStorage(
+    sessionStorage,
+    LAST_SIGNAL_STORAGE_KEY,
+    null
+  );
+
+  return (
+    lastSignal &&
+    typeof lastSignal === "object" &&
+    lastSignal.slotName
+  )
+    ? [lastSignal]
+    : [];
+}
+
+function formatSignalHistoryDate(createdAt) {
+  const timestamp = Number(createdAt);
+
+  if (!Number.isFinite(timestamp)) {
+    return "Recentemente";
+  }
+
+  const date = new Date(timestamp);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Recentemente";
+  }
+
+  const now = new Date();
+
+  const startOfToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
+
+  const startOfSignalDay = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  );
+
+  const dayDifference = Math.round(
+    (
+      startOfToday.getTime() -
+      startOfSignalDay.getTime()
+    ) / 86400000
+  );
+
+  const time = date.toLocaleTimeString(
+    "it-IT",
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+    }
+  );
+
+  if (dayDifference === 0) {
+    return `Oggi · ${time}`;
+  }
+
+  if (dayDifference === 1) {
+    return `Ieri · ${time}`;
+  }
+
+  const dayMonth = date.toLocaleDateString(
+    "it-IT",
+    {
+      day: "2-digit",
+      month: "short",
+    }
+  );
+
+  return `${dayMonth} · ${time}`;
+}
+
+function normalizeSignalRisk(value) {
+  const risk = String(value || "")
+    .trim()
+    .toUpperCase();
+
+  return [
+    "BASSO",
+    "MEDIO",
+    "ALTO",
+  ].includes(risk)
+    ? risk
+    : "—";
+}
+
+function createSignalHistoryItem(
+  signal,
+  index
+) {
+  const item = document.createElement(
+    "article"
+  );
+
+  item.className = "signal-history-item";
+
+  if (index === 0) {
+    item.classList.add("is-latest");
+  }
+
+  item.style.setProperty(
+    "--history-index",
+    String(Math.min(index, 6))
+  );
+
+  const media = document.createElement(
+    "span"
+  );
+
+  media.className = "signal-history-media";
+
+  const image = document.createElement("img");
+  image.alt = signal.slotName || "";
+  image.loading = "lazy";
+  image.decoding = "async";
+
+  if (signal.slotImage) {
+    image.src = signal.slotImage;
+  } else {
+    image.hidden = true;
+  }
+
+  image.addEventListener(
+    "error",
+    () => {
+      image.hidden = true;
+      media.classList.add(
+        "has-image-error"
+      );
+    },
+    {
+      once: true,
+    }
+  );
+
+  const pulse = document.createElement(
+    "span"
+  );
+
+  pulse.className =
+    "signal-history-media-pulse";
+  pulse.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+
+  media.append(image, pulse);
+
+  const copy = document.createElement(
+    "div"
+  );
+
+  copy.className = "signal-history-copy";
+
+  const top = document.createElement(
+    "div"
+  );
+
+  top.className = "signal-history-item-top";
+
+  const name = document.createElement(
+    "strong"
+  );
+
+  name.textContent =
+    signal.slotName || "Slot";
+
+  const date = document.createElement(
+    "time"
+  );
+
+  date.textContent =
+    formatSignalHistoryDate(
+      signal.createdAt
+    );
+
+  if (
+    Number.isFinite(
+      Number(signal.createdAt)
+    )
+  ) {
+    date.dateTime = new Date(
+      Number(signal.createdAt)
+    ).toISOString();
+  }
+
+  top.append(name, date);
+
+  const meta = document.createElement(
+    "div"
+  );
+
+  meta.className = "signal-history-meta";
+
+  const bet = document.createElement(
+    "span"
+  );
+  bet.textContent = signal.bet || "—";
+
+  const dividerOne =
+    document.createElement("i");
+
+  const spins = document.createElement(
+    "span"
+  );
+
+  const spinsValue =
+    Number(signal.spins);
+
+  spins.textContent =
+    Number.isFinite(spinsValue)
+      ? `${spinsValue} giri`
+      : "—";
+
+  const dividerTwo =
+    document.createElement("i");
+
+  const risk = document.createElement(
+    "span"
+  );
+
+  risk.className =
+    "signal-history-risk";
+
+  const riskValue =
+    normalizeSignalRisk(signal.risk);
+
+  risk.textContent = riskValue;
+  risk.dataset.risk =
+    riskValue.toLowerCase();
+
+  meta.append(
+    bet,
+    dividerOne,
+    spins,
+    dividerTwo,
+    risk
+  );
+
+  copy.append(top, meta);
+
+  const side = document.createElement(
+    "span"
+  );
+
+  side.className = "signal-history-side";
+
+  if (index === 0) {
+    side.classList.add("is-latest");
+
+    side.innerHTML = `
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="m8 12 2.6 2.6L16.5 8.7"></path>
+      </svg>
+    `;
+
+    side.setAttribute(
+      "aria-label",
+      "Ultimo segnale"
+    );
+  } else {
+    side.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+  }
+
+  item.append(media, copy, side);
+
+  return item;
+}
+
+function renderSignalHistory() {
+  if (
+    !signalHistoryList ||
+    !signalHistoryEmpty ||
+    !signalHistoryCount ||
+    !signalHistoryMore
+  ) {
+    return;
+  }
+
+  const history = readSignalHistory();
+
+  signalHistoryCount.textContent =
+    String(history.length);
+
+  signalHistoryEmpty.hidden =
+    history.length > 0;
+
+  signalHistoryList.hidden =
+    history.length === 0;
+
+  if (history.length === 0) {
+    signalHistoryList.replaceChildren();
+    signalHistoryMore.hidden = true;
+    return;
+  }
+
+  const visibleHistory =
+    signalHistoryExpanded
+      ? history
+      : history.slice(
+          0,
+          SIGNAL_HISTORY_COLLAPSED_COUNT
+        );
+
+  const fragment =
+    document.createDocumentFragment();
+
+  visibleHistory.forEach(
+    (signal, index) => {
+      fragment.appendChild(
+        createSignalHistoryItem(
+          signal,
+          index
+        )
+      );
+    }
+  );
+
+  signalHistoryList.replaceChildren(
+    fragment
+  );
+
+  const hasMore =
+    history.length >
+    SIGNAL_HISTORY_COLLAPSED_COUNT;
+
+  signalHistoryMore.hidden = !hasMore;
+
+  if (hasMore) {
+    signalHistoryMore.classList.toggle(
+      "is-expanded",
+      signalHistoryExpanded
+    );
+
+    const label =
+      signalHistoryMore.querySelector(
+        "span"
+      );
+
+    if (label) {
+      label.textContent =
+        signalHistoryExpanded
+          ? "Mostra meno"
+          : `Mostra altri ${
+              history.length -
+              SIGNAL_HISTORY_COLLAPSED_COUNT
+            }`;
+    }
+  }
+}
+
+function toggleSignalHistory() {
+  signalHistoryExpanded =
+    !signalHistoryExpanded;
+
+  renderSignalHistory();
+}
+
+/*
+ * =========================================================
+ * ВІДОБРАЖЕННЯ ПРОФІЛЮ
+ * =========================================================
+ */
+
+function renderProfile() {
+  const rewardsState = readRewardsState();
+
+  const balance = rewardsState.balance;
+
+  const levelData = getLevelData(balance);
+
+  const unlockedRewards =
+    getUnlockedLevelRewards(
+      balance,
+      rewardsState.unlockedLevelRewards
+    );
+
+  const completedTasks =
+    countCompletedTasks(
+      rewardsState.tasks
+    );
+
+  const signalCount =
+    readCreatedSignalCount();
+
+  const verifiedSubId =
+    profileDatabaseReady
+      ? profileDatabaseState.subid
+      : sessionStorage.getItem(
+          SUBID_STORAGE_KEY
+        );
+
+  const isMaximumLevel =
+    levelData.maximum === null;
+
+  const progressPercent = isMaximumLevel
+    ? 100
+    : Math.min(
+        (balance / levelData.maximum) * 100,
+        100
+      );
+
+  applyProfileLevelState(
+    levelData,
+    unlockedRewards
+  );
+
+  profileMemberName.textContent =
+    getProfileName();
+
+  profileLevel.textContent =
+    String(levelData.level);
+
+  profileLevelProgress.textContent =
+    isMaximumLevel
+      ? `${formatNumber(
+          balance
+        )} PULSE · MAX`
+      : `${formatNumber(balance)} / ` +
+        `${formatNumber(
+          levelData.maximum
+        )} PULSE`;
+
+  profileLevelBar.style.width =
+    `${progressPercent}%`;
+
+  profileLevelTrack.setAttribute(
+    "aria-valuemax",
+    String(
+      isMaximumLevel
+        ? Math.max(
+            levelData.minimum,
+            balance
+          )
+        : levelData.maximum
+    )
+  );
+
+  profileLevelTrack.setAttribute(
+    "aria-valuenow",
+    String(balance)
+  );
+
+  profileLevelTrack.setAttribute(
+    "aria-label",
+    `Livello ${levelData.level}: ${levelData.name}`
+  );
+
+  profileAccessKey.textContent =
+    "K7••••";
+
+  profileSubId.textContent =
+    maskSubId(verifiedSubId);
+
+  const hasVerifiedSubId =
+    Boolean(
+      String(verifiedSubId || "").trim()
+    );
+
+  profileSubIdVerified.hidden =
+    !hasVerifiedSubId;
+
+  profileSubId.closest(
+    ".profile-subid-cell"
+  )?.classList.toggle(
+    "is-verified",
+    hasVerifiedSubId
+  );
+
+
+  profileSubId.classList.toggle(
+    "is-subid-action",
+    !hasVerifiedSubId
+  );
+
+  if (hasVerifiedSubId) {
+    profileSubId.removeAttribute(
+      "role"
+    );
+
+    profileSubId.removeAttribute(
+      "tabindex"
+    );
+
+    profileSubId.removeAttribute(
+      "aria-label"
+    );
+  } else {
+    profileSubId.setAttribute(
+      "role",
+      "button"
+    );
+
+    profileSubId.setAttribute(
+      "tabindex",
+      "0"
+    );
+
+    profileSubId.setAttribute(
+      "aria-label",
+      "Verifica SUBID"
+    );
+  }
+
+  profilePulseBalance.textContent =
+    formatNumber(balance);
+
+  profileSignalCount.textContent =
+    formatNumber(signalCount);
+
+  profileTaskCount.textContent =
+    formatNumber(completedTasks);
+
+  renderSignalHistory();
+}
+
+function finishProfileLoading() {
+  const profilePageLoader =
+    document.querySelector(
+      "#profilePageLoader"
+    );
+
+  document.body.classList.remove(
+    "profile-data-loading"
+  );
+
+  document.body.classList.add(
+    "profile-data-ready"
+  );
+
+  if (profilePageLoader) {
+    profilePageLoader.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+  }
+}
+
+function renderNotificationStatus() {
+  if (!profileNotificationStatus) {
+    return;
+  }
+
+  if (!("Notification" in window)) {
+    profileNotificationStatus.textContent =
+      "Notifiche interne attive";
+
+    return;
+  }
+
+  if (
+    Notification.permission === "granted"
+  ) {
+    profileNotificationStatus.textContent =
+      "Consentite";
+
+    return;
+  }
+
+  if (
+    Notification.permission === "denied"
+  ) {
+    profileNotificationStatus.textContent =
+      "Bloccate";
+
+    return;
+  }
+
+  profileNotificationStatus.textContent =
+    "Autorizzazione richiesta";
+}
+
+/*
+ * =========================================================
+ * НАЛАШТУВАННЯ
+ * =========================================================
+ */
+
+async function configureNotifications() {
+  if (!profileNotificationStatus) {
+    return;
+  }
+
+  if (!("Notification" in window)) {
+    showToast(
+      "Le notifiche interne di Pulse sono già attive"
+    );
+
+    return;
+  }
+
+  if (
+    Notification.permission === "denied"
+  ) {
+    showToast(
+      "L’autorizzazione è bloccata nelle impostazioni del browser"
+    );
+
+    return;
+  }
+
+  if (
+    Notification.permission === "granted"
+  ) {
+    void recordProfileActivity(
+      "notifications-enabled",
+      {
+        permission: "granted",
+      }
+    ).catch((error) => {
+      console.error(
+        "Notification activity save error:",
+        error.message
+      );
+    });
+
+    showToast(
+      "Le notifiche di sistema sono già attive"
+    );
+
+    return;
+  }
+
+  try {
+    const permission =
+      await Notification.requestPermission();
+
+    renderNotificationStatus();
+
+    if (permission === "granted") {
+      void recordProfileActivity(
+        "notifications-enabled",
+        {
+          permission,
+        }
+      ).catch((error) => {
+        console.error(
+          "Notification activity save error:",
+          error.message
+        );
+      });
+
+      showToast(
+        "Notifiche attivate correttamente"
+      );
+
+      window.PulseNotifications?.add({
+        type: "success",
+        category: "IMPOSTAZIONI",
+        title: "Notifiche attivate",
+        message:
+          "Ora non perderai gli aggiornamenti importanti di Pulse.",
+      });
+
+      return;
+    }
+
+    showToast(
+      "Le notifiche non sono state autorizzate"
+    );
+  } catch {
+    showToast(
+      "Impossibile modificare l’autorizzazione alle notifiche"
+    );
+  }
+}
+
+function openLanguageSettings() {
+  showToast(
+    "La versione italiana è già attiva"
+  );
+}
+
+function openTelegramSupport() {
+  if (
+    !isTelegramSupportConfigured()
+  ) {
+    showToast(
+      "L’assistenza Telegram sarà collegata al termine dello sviluppo"
+    );
+
+    return;
+  }
+
+  const normalizedUsername = String(
+    TELEGRAM_SUPPORT_USERNAME
+  )
+    .trim()
+    .replace(/^@+/, "");
+
+  window.open(
+    `https://t.me/${normalizedUsername}`,
+    "_blank",
+    "noopener,noreferrer"
+  );
+}
+
+/*
+ * =========================================================
+ * ВИХІД З АКАУНТА
+ * =========================================================
+ */
+
+function resetLogoutConfirmation() {
+  window.clearTimeout(
+    logoutConfirmTimer
+  );
+
+  logoutConfirmationActive = false;
+
+  logoutButton.removeAttribute(
+    "data-confirming"
+  );
+
+  logoutButton.innerHTML = `
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M10 5H5.5v14H10"></path>
+      <path d="M13.5 8.5 17 12l-3.5 3.5M8 12h9"></path>
+    </svg>
+
+    ESCI DALL’ACCOUNT
+  `;
+}
+
+function logout() {
+  if (!logoutConfirmationActive) {
+    logoutConfirmationActive = true;
+
+    logoutButton.setAttribute(
+      "data-confirming",
+      "true"
+    );
+
+    logoutButton.textContent =
+      "PREMI DI NUOVO PER USCIRE";
+
+    showToast(
+      "Premi di nuovo per confermare l’uscita"
+    );
+
+    logoutConfirmTimer =
+      window.setTimeout(
+        resetLogoutConfirmation,
+        LOGOUT_CONFIRM_DURATION
+      );
+
+    return;
+  }
+
+  window.clearTimeout(
+    logoutConfirmTimer
+  );
+
+  /*
+   * Видаляємо лише поточний доступ.
+   * Баланс, завдання та сповіщення
+   * залишаються збереженими.
+   */
+  sessionStorage.removeItem(
+    ACCESS_STORAGE_KEY
+  );
+
+  window.location.replace("index.html");
+}
+
+/*
+ * =========================================================
+ * МОБІЛЬНА ПОВЕДІНКА
+ * =========================================================
+ */
+
+function preventPageZoom() {
+  document.addEventListener(
+    "gesturestart",
+    (event) => {
+      event.preventDefault();
+    },
+    {
+      passive: false,
+    }
+  );
+
+  document.addEventListener(
+    "touchmove",
+    (event) => {
+      if (event.touches.length > 1) {
+        event.preventDefault();
+      }
+    },
+    {
+      passive: false,
+    }
+  );
+
+  window.addEventListener(
+    "wheel",
+    (event) => {
+      if (event.ctrlKey) {
+        event.preventDefault();
+      }
+    },
+    {
+      passive: false,
+    }
+  );
+}
+
+async function initializeProfileDatabase() {
+  const api = getArbifyApi();
+
+  if (
+    !api ||
+    !api.isTelegramMiniApp()
+  ) {
+    const browserAccess =
+      sessionStorage.getItem(
+        ACCESS_STORAGE_KEY
+      ) === "granted";
+
+    if (!browserAccess) {
+      window.location.replace(
+        "index.html"
+      );
+
+      return false;
+    }
+
+    return true;
+  }
+
+  await api.ready;
+
+  const user =
+    api.getCurrentUser() ||
+    (await api.authenticate());
+
+  if (!user?.accessGranted) {
+    sessionStorage.removeItem(
+      ACCESS_STORAGE_KEY
+    );
+
+    window.location.replace(
+      "index.html"
+    );
+
+    return false;
+  }
+
+  sessionStorage.setItem(
+    ACCESS_STORAGE_KEY,
+    "granted"
+  );
+
+  profileDatabaseUser = user;
+
+  profileDatabaseState = {
+    ...(user.state ||
+      api.getCurrentState() ||
+      {}),
+  };
+
+  profileDatabaseReady = true;
+
+  restoreDatabaseCompatibilityState();
+
+  return true;
+}
+
+async function markProfileCompleted() {
+  sessionStorage.setItem(
+    PROFILE_COMPLETED_STORAGE_KEY,
+    "true"
+  );
+
+  const profileName =
+    getProfileName();
+
+  try {
+    localStorage.setItem(
+      PROFILE_NAME_STORAGE_KEY,
+      profileName
+    );
+  } catch {
+    /*
+     * У Telegram дані однаково
+     * збережуться у PostgreSQL.
+     */
+  }
+
+  if (!profileDatabaseReady) {
+    return;
+  }
+
+  try {
+    await recordProfileActivity(
+      "profile-completed"
+    );
+  } catch (error) {
+    console.error(
+      "Profile activity save error:",
+      error.message
+    );
+  }
+
+  const currentProfile =
+    getDatabaseProfile();
+
+  const nextProfile = {
+    ...currentProfile,
+    name: profileName,
+    completed: true,
+  };
+
+  profileDatabaseState.profile =
+    nextProfile;
+
+  if (
+    currentProfile.completed === true &&
+    currentProfile.name === profileName
+  ) {
+    return;
+  }
+
+  await saveProfileState(
+    {
+      profile: nextProfile,
+    },
+    {
+      required: true,
+    }
+  );
+}
+
+async function refreshProfileDatabase() {
+  if (!profileDatabaseReady) {
+    return;
+  }
+
+  const api = getArbifyApi();
+
+  if (!api) {
+    return;
+  }
+
+  try {
+    const user =
+      await api.authenticate({
+        force: true,
+      });
+
+    if (!user?.accessGranted) {
+      window.location.replace(
+        "index.html"
+      );
+
+      return;
+    }
+
+    profileDatabaseUser = user;
+    profileDatabaseState = {
+      ...(user.state ||
+        api.getCurrentState() ||
+        {}),
+    };
+
+    restoreDatabaseCompatibilityState();
+    renderProfile();
+  } catch (error) {
+    console.error(
+      "Profile refresh error:",
+      error.message
+    );
+  }
+}
+
+/*
+ * =========================================================
+ * ЗАПУСК
+ * =========================================================
+ */
+
+function initializeProfile() {
+  if (profileInitializationPromise) {
+    return profileInitializationPromise;
+  }
+
+  profileInitializationPromise =
+    (async () => {
+      const accessAllowed =
+        await initializeProfileDatabase();
+
+      if (!accessAllowed) {
+        return;
+      }
+
+      try {
+        await markProfileCompleted();
+      } catch (error) {
+        console.error(
+          "Profile completion save error:",
+          error.message
+        );
+      }
+
+      setAppHeight();
+      renderProfile();
+      renderNotificationStatus();
+      finishProfileLoading();
+      preventPageZoom();
+
+      signalHistoryMore?.addEventListener(
+        "click",
+        toggleSignalHistory
+      );
+
+      profileNotificationsButton?.addEventListener(
+        "click",
+        configureNotifications
+      );
+
+      profileLanguageButton?.addEventListener(
+        "click",
+        openLanguageSettings
+      );
+
+      profileSubId?.addEventListener(
+        "click",
+        activateProfileSubId
+      );
+
+      profileSubId?.addEventListener(
+        "keydown",
+        (event) => {
+          if (
+            event.key === "Enter" ||
+            event.key === " "
+          ) {
+            if (
+              !hasProfileVerifiedSubId()
+            ) {
+              event.preventDefault();
+              activateProfileSubId();
+            }
+          }
+        }
+      );
+
+      subIdForm?.addEventListener(
+        "submit",
+        (event) => {
+          event.preventDefault();
+
+          if (
+            subIdVerifyButton?.disabled
+          ) {
+            return;
+          }
+
+          const subId =
+            normalizeProfileSubId(
+              subIdInput?.value
+            );
+
+          if (subIdInput) {
+            subIdInput.value = subId;
+          }
+
+          if (!subId) {
+            showProfileSubIdError(
+              "Inserisci il tuo SUBID per la verifica"
+            );
+
+            return;
+          }
+
+          startProfileSubIdVerification(
+            subId
+          );
+        }
+      );
+
+      subIdInput?.addEventListener(
+        "input",
+        () => {
+          subIdField?.classList.remove(
+            "has-error"
+          );
+
+          if (subIdMessage) {
+            subIdMessage.innerHTML =
+              "&nbsp;";
+          }
+        }
+      );
+
+      subIdCloseButton?.addEventListener(
+        "click",
+        () => {
+          closeProfileSubIdModal();
+        }
+      );
+
+      subIdModalBackdrop?.addEventListener(
+        "click",
+        () => {
+          closeProfileSubIdModal();
+        }
+      );
+
+      profileGuideButton?.addEventListener(
+        "click",
+        openProfileGuide
+      );
+
+      profileGuideClose?.addEventListener(
+        "click",
+        closeProfileGuide
+      );
+
+      profileGuideDone?.addEventListener(
+        "click",
+        closeProfileGuide
+      );
+
+      profileGuideBackdrop?.addEventListener(
+        "click",
+        closeProfileGuide
+      );
+
+      profileSupportButton.addEventListener(
+        "click",
+        openTelegramSupport
+      );
+
+      logoutButton.addEventListener(
+        "click",
+        logout
+      );
+
+      window.addEventListener(
+        "resize",
+        setAppHeight
+      );
+
+      window.visualViewport?.addEventListener(
+        "resize",
+        setAppHeight
+      );
+
+      document.addEventListener(
+        "keydown",
+        (event) => {
+          if (
+            event.key === "Escape" &&
+            subIdModal &&
+            !subIdModal.hidden
+          ) {
+            closeProfileSubIdModal();
+            return;
+          }
+
+          if (
+            event.key === "Escape" &&
+            profileGuide &&
+            !profileGuide.hidden
+          ) {
+            closeProfileGuide();
+          }
+        }
+      );
+
+      window.addEventListener(
+        "pageshow",
+        (event) => {
+          if (
+            event.persisted &&
+            profileDatabaseReady
+          ) {
+            void refreshProfileDatabase();
+          } else {
+            renderProfile();
+          }
+
+          renderNotificationStatus();
+        }
+      );
+
+      window.addEventListener(
+        "arbify:state-updated",
+        (event) => {
+          const updatedState =
+            event.detail?.state;
+
+          if (
+            profileDatabaseReady &&
+            isObject(updatedState)
+          ) {
+            profileDatabaseState = {
+              ...updatedState,
+            };
+
+            restoreDatabaseCompatibilityState();
+            renderProfile();
+          }
+        }
+      );
+
+      window.addEventListener(
+        "storage",
+        (event) => {
+          if (
+            event.key ===
+              REWARDS_STORAGE_KEY ||
+            event.key ===
+              SIGNAL_COUNT_STORAGE_KEY ||
+            event.key ===
+              PROFILE_NAME_STORAGE_KEY ||
+            event.key ===
+              PULSE_LEVEL_STORAGE_KEY ||
+            event.key ===
+              PULSE_UNLOCKS_STORAGE_KEY
+          ) {
+            renderProfile();
+          }
+        }
+      );
+
+      window.addEventListener(
+        "beforeunload",
+        () => {
+          window.clearTimeout(toastTimer);
+
+          window.clearTimeout(
+            logoutConfirmTimer
+          );
+
+          window.clearTimeout(
+            profileGuideCloseTimer
+          );
+
+
+          window.clearTimeout(
+            subIdVerifyTimer
+          );
+
+          window.clearTimeout(
+            subIdSuccessTimer
+          );
+
+          window.clearTimeout(
+            subIdCloseTimer
+          );
+        }
+      );
+
+      window.requestAnimationFrame(() => {
+        document.body.classList.add(
+          "page-ready"
+        );
+      });
+    })().catch((error) => {
+      console.error(
+        "Profile initialization error:",
+        error.message
+      );
+
+      document.body.classList.add(
+        "page-ready"
+      );
+
+      finishProfileLoading();
+
+      showToast(
+        "Impossibile caricare il profilo"
+      );
+    });
+
+  return profileInitializationPromise;
+}
+
+void initializeProfile();

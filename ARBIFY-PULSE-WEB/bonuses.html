@@ -1,0 +1,1577 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+
+    <meta
+      name="description"
+      content="Attività, premi e bonus ARBIFY PULSE."
+    />
+
+    <meta name="theme-color" content="#020307" />
+
+    <meta
+      name="theme-color"
+      content="#020307"
+      media="(prefers-color-scheme: light)"
+    />
+
+    <meta
+      name="theme-color"
+      content="#020307"
+      media="(prefers-color-scheme: dark)"
+    />
+
+    <meta name="color-scheme" content="dark" />
+    <meta
+      name="msapplication-navbutton-color"
+      content="#020307"
+    />
+    <meta
+      name="apple-mobile-web-app-capable"
+      content="yes"
+    />
+    <meta
+      name="mobile-web-app-capable"
+      content="yes"
+    />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black"
+    />
+    <meta
+      name="apple-mobile-web-app-title"
+      content="ARBIFY PULSE"
+    />
+
+    <title>Bonus — ARBIFY PULSE</title>
+
+    <link
+      rel="icon"
+      href="assets/favicon.svg"
+      type="image/svg+xml"
+    />
+
+    <link
+      rel="manifest"
+      href="manifest.json"
+    />
+
+    <link rel="preload" href="assets/arbify-pulse-logo.png" as="image" fetchpriority="high" />
+
+
+    <style>
+      :root {
+        color-scheme: dark;
+        background: #020307;
+        background-color: #020307;
+      }
+
+      html,
+      body {
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+        height: 100%;
+        min-height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: #020307 !important;
+        background-color: #020307 !important;
+        touch-action: pan-y;
+        -ms-touch-action: pan-y;
+        overscroll-behavior: none;
+      }
+
+      body {
+        opacity: 1 !important;
+      }
+
+      .page-shell {
+        width: 100vw !important;
+        max-width: none !important;
+      }
+
+      .pulse-app,
+      .rewards-app {
+        width: min(100vw, 430px) !important;
+        max-width: 430px !important;
+      }
+
+      /*
+       * Indicatori discreti di caricamento dei dati dinamici.
+       * Scompaiono automaticamente non appena bonuses.js
+       * inserisce i valori effettivi dal database.
+       */
+      #pulseBalance:empty,
+      #levelBadge:empty,
+      #levelProgressValue:empty {
+        display: inline-block;
+        overflow: hidden;
+        border-radius: 999px;
+        background: linear-gradient(
+          100deg,
+          rgba(255, 255, 255, 0.05) 20%,
+          rgba(210, 101, 255, 0.3) 42%,
+          rgba(255, 255, 255, 0.08) 62%,
+          rgba(255, 255, 255, 0.05) 80%
+        );
+        background-size: 240% 100%;
+        color: transparent;
+        vertical-align: middle;
+        animation: balance-data-loading 1.15s ease-in-out infinite;
+      }
+
+      #pulseBalance:empty {
+        width: 112px;
+        height: 0.82em;
+        min-height: 46px;
+      }
+
+      #levelBadge:empty {
+        width: 88px;
+        height: 14px;
+      }
+
+      #levelProgressValue:empty {
+        width: 86px;
+        height: 14px;
+      }
+
+      #levelProgressBar[style*="width: 0%"] {
+        width: 34% !important;
+        opacity: 0.72;
+        background: linear-gradient(
+          90deg,
+          rgba(136, 31, 255, 0.18),
+          rgba(220, 93, 255, 0.78),
+          rgba(136, 31, 255, 0.18)
+        );
+        background-size: 220% 100%;
+        animation: balance-data-loading 1.15s ease-in-out infinite;
+      }
+
+      @keyframes balance-data-loading {
+        0% {
+          background-position: 100% 0;
+        }
+
+        100% {
+          background-position: -100% 0;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #pulseBalance:empty,
+        #levelBadge:empty,
+        #levelProgressValue:empty,
+        #levelProgressBar[style*="width: 0%"] {
+          animation: none;
+        }
+      }
+    </style>
+
+    <link
+      rel="stylesheet"
+      href="bonuses.css?v=20260810-home-align-1"
+    />
+
+    <link
+      rel="stylesheet"
+      href="notifications.css?v=20260802-1"
+    />
+
+    <!-- Telegram SDK e API vengono caricati prima della logica della pagina. -->
+<script src="web-api.js?v=20260813-web-1"></script>
+  </head>
+
+  <body>
+    <main class="page-shell">
+      <div
+        class="ambient ambient-one"
+        aria-hidden="true"
+      ></div>
+
+      <div
+        class="ambient ambient-two"
+        aria-hidden="true"
+      ></div>
+
+      <section
+        class="pulse-app rewards-app"
+        aria-label="Bonus e attività ARBIFY PULSE"
+      >
+        <div
+          class="app-noise"
+          aria-hidden="true"
+        ></div>
+        <div class="content">
+          <header class="topbar">
+                    <a
+                      class="mini-brand image-brand"
+                      href="home.html"
+                      aria-label="ARBIFY PULSE — Home"
+                    >
+                      <img
+                        class="arbify-logo-image"
+                        src="assets/arbify-pulse-logo.png"
+                        alt="ARBIFY PULSE"
+                        draggable="false"
+                        loading="eager"
+                        fetchpriority="high"
+                        decoding="sync"
+                      />
+                    </a>
+          
+          <button
+                      class="icon-button notification-button"
+                      id="notificationButton"
+                      type="button"
+                      aria-label="Notifiche"
+                      aria-controls="notificationCenter"
+                      aria-expanded="false"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.7"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path
+                          d="M6.2 10.2c0-3.6 2.1-6.2 5.8-6.2s5.8 2.6 5.8 6.2v4l1.7 2.4h-15l1.7-2.4v-4Z"
+                        ></path>
+          
+                        <path
+                          d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"
+                        ></path>
+                      </svg>
+          
+                      <span
+                        class="notification-dot"
+                        aria-hidden="true"
+                      ></span>
+          
+                      <span
+                        class="notification-badge"
+                        id="notificationBadge"
+                        aria-label="Nuove notifiche"
+                        hidden
+                      >
+                        0
+                      </span>
+                    </button>
+                  </header>
+
+          <section
+            class="rewards-heading"
+            aria-labelledby="rewardsPageTitle"
+          >
+            <p class="rewards-eyebrow">
+              <span aria-hidden="true"></span>
+              PULSE REWARDS
+            </p>
+
+            <h1 id="rewardsPageTitle">Bonus</h1>
+
+            <p>
+              Completa le attività, accumula PULSE e sblocca nuove
+              funzionalità
+            </p>
+          </section>
+
+          <section
+            class="balance-card"
+            aria-label="Saldo PULSE"
+          >
+            <div
+              class="balance-glow"
+              aria-hidden="true"
+            ></div>
+
+            <div class="balance-main">
+              <div class="balance-copy">
+                <span class="balance-label">
+                  IL TUO SALDO
+                </span>
+
+                <div class="balance-value">
+                  <strong
+                    id="pulseBalance"
+                    aria-live="polite"
+                    aria-busy="true"
+                  ></strong>
+
+                  <span>PULSE</span>
+                </div>
+
+                <div class="level-row">
+                  <span
+                    class="level-badge"
+                    id="levelBadge"
+                    aria-live="polite"
+                    aria-busy="true"
+                  ></span>
+
+                  <span
+                    class="level-progress-value"
+                    id="levelProgressValue"
+                    aria-live="polite"
+                    aria-busy="true"
+                  ></span>
+                </div>
+
+                <div
+                  class="level-progress"
+                  role="progressbar"
+                  aria-label="Progresso del livello"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow="0"
+                >
+                  <span
+                    id="levelProgressBar"
+                    style="width: 0%"
+                  ></span>
+                </div>
+
+                <div class="streak-badge">
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M12.5 3.5c.7 3.4-1.6 4.5-2.2 6.5-.4 1.4.2 2.3 1.1 3.1-.1-2.3 1.5-3.5 3-4.7 1.6 1.8 2.7 3.7 2.7 6.1a5.4 5.4 0 0 1-10.8 0c0-4.2 3.4-7.8 6.2-11Z"
+                    ></path>
+                  </svg>
+
+                  <span>4 GIORNI DI FILA</span>
+                </div>
+              </div>
+
+              <div
+                class="pulse-coin"
+                aria-hidden="true"
+              >
+                <span class="coin-ring coin-ring-one"></span>
+                <span class="coin-ring coin-ring-two"></span>
+
+                <svg
+                  viewBox="0 0 100 100"
+                  fill="none"
+                >
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="42"
+                    stroke="currentColor"
+                    stroke-width="3"
+                  ></circle>
+
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="33"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    opacity="0.45"
+                  ></circle>
+
+                  <path
+                    d="M34 55c7-20 25-22 34-12-4-2-10-2-14 1-5 3-6 9-5 14 6 2 12 0 16-4-5 14-20 19-31 11"
+                    stroke="currentColor"
+                    stroke-width="5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+          </section>
+
+          <section
+            class="tasks-section"
+            aria-labelledby="tasksTitle"
+          >
+            <div class="tasks-heading">
+              <div>
+                <p class="section-kicker">
+                  CENTRO PREMI
+                </p>
+
+                <h2 id="tasksTitle">
+                  Le tue attività
+                </h2>
+              </div>
+
+              <div class="refresh-timer">
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="8.5"
+                  ></circle>
+
+                  <path d="M12 7v5l3.5 2"></path>
+                </svg>
+
+                <span>
+                  AGGIORNAMENTO
+
+                  <strong id="taskRefreshTimer">
+                    06:42:18
+                  </strong>
+                </span>
+              </div>
+            </div>
+
+            <div
+              class="task-filters"
+              role="tablist"
+              aria-label="Categorie delle attività"
+            >
+              <button
+                class="task-filter is-active"
+                type="button"
+                role="tab"
+                data-filter="all"
+                aria-selected="true"
+              >
+                Tutte
+
+                <span id="allTasksCount">10</span>
+              </button>
+
+              <button
+                class="task-filter"
+                type="button"
+                role="tab"
+                data-filter="starter"
+                aria-selected="false"
+              >
+                Iniziali
+              </button>
+
+              <button
+                class="task-filter"
+                type="button"
+                role="tab"
+                data-filter="daily"
+                aria-selected="false"
+              >
+                Giornaliere
+              </button>
+
+              <button
+                class="task-filter"
+                type="button"
+                role="tab"
+                data-filter="achievement"
+                aria-selected="false"
+              >
+                Traguardi
+              </button>
+            </div>
+
+            <div
+              class="task-list"
+              id="taskList"
+            >
+              <article
+                class="task-card"
+                data-task-id="telegram-bot"
+                data-category="starter"
+                data-state="available"
+                data-reward="100"
+              >
+                <div class="task-icon task-icon-telegram">
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path
+                      d="M20.6 4.1 3.9 10.6c-1.1.4-1.1 1.1-.2 1.4l4.3 1.3 1.6 4.9c.2.7.1 1 .9 1 .6 0 .9-.3 1.2-.6l2.1-2 4.4 3.2c.8.5 1.4.2 1.6-.8l2.8-13.2c.3-1.2-.5-1.8-1.5-1.4l-.5-.3Zm-11.9 8.8 9.7-6.1c.5-.3.9-.1.5.3l-8 7.2-.3 3.1-1.9-4.5Z"
+                    ></path>
+                  </svg>
+                </div>
+
+                <div class="task-copy">
+                  <span class="task-type">
+                    TELEGRAM
+                  </span>
+
+                  <h3>
+                    Avviare il nostro bot
+                  </h3>
+
+                  <strong class="task-reward">
+                    +100 PULSE
+                  </strong>
+
+                  <p
+                    class="task-message"
+                    aria-live="polite"
+                  ></p>
+                </div>
+
+                <button
+                  class="task-action task-action-primary"
+                  type="button"
+                  data-task-action="open"
+                >
+                  ESEGUI
+                </button>
+              </article>
+
+              <article
+                class="task-card"
+                data-task-id="telegram-channel"
+                data-category="starter"
+                data-state="available"
+                data-reward="80"
+              >
+                <div class="task-icon task-icon-channel">
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M5 8.5h3l7-3v13l-7-3H5z"></path>
+                    <path d="M8 15.5 9.5 20h3L11 16.8"></path>
+                    <path d="M18 9.2c1.3 1.4 1.3 4.2 0 5.6"></path>
+                  </svg>
+                </div>
+
+                <div class="task-copy">
+                  <span class="task-type">
+                    TELEGRAM
+                  </span>
+
+                  <h3>
+                    Iscriviti al canale
+                  </h3>
+
+                  <strong class="task-reward">
+                    +80 PULSE
+                  </strong>
+
+                  <p
+                    class="task-message"
+                    aria-live="polite"
+                  ></p>
+                </div>
+
+                <button
+                  class="task-action task-action-primary"
+                  type="button"
+                  data-task-action="open"
+                >
+                  ESEGUI
+                </button>
+              </article>
+
+              <article
+                class="task-card"
+                data-task-id="complete-profile"
+                data-category="starter"
+                data-state="checking"
+                data-reward="50"
+              >
+                <div class="task-icon task-icon-profile">
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle
+                      cx="12"
+                      cy="8"
+                      r="4"
+                    ></circle>
+
+                    <path
+                      d="M4.8 20c.7-4 3.1-6 7.2-6s6.5 2 7.2 6"
+                    ></path>
+                  </svg>
+                </div>
+
+                <div class="task-copy">
+                  <span class="task-type">
+                    PROFILO
+                  </span>
+
+                  <h3>
+                    Completa il tuo profilo
+                  </h3>
+
+                  <strong class="task-reward">
+                    +50 PULSE
+                  </strong>
+
+                  <p
+                    class="task-message"
+                    aria-live="polite"
+                  ></p>
+                </div>
+
+                <button
+                  class="task-action task-action-outline"
+                  type="button"
+                  data-task-action="check"
+                >
+                  VERIFICA
+                </button>
+              </article>
+
+              <article
+                class="task-card"
+                data-task-id="notifications"
+                data-category="starter"
+                data-state="available"
+                data-reward="30"
+              >
+                <div class="task-icon task-icon-notification">
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M6.2 10.2c0-3.6 2.1-6.2 5.8-6.2s5.8 2.6 5.8 6.2v4l1.7 2.4h-15l1.7-2.4v-4Z"
+                    ></path>
+
+                    <path
+                      d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"
+                    ></path>
+                  </svg>
+                </div>
+
+                <div class="task-copy">
+                  <span class="task-type">
+                    APP
+                  </span>
+
+                  <h3>
+                    Attiva le notifiche
+                  </h3>
+
+                  <strong class="task-reward">
+                    +30 PULSE
+                  </strong>
+
+                  <p
+                    class="task-message"
+                    aria-live="polite"
+                  ></p>
+                </div>
+
+                <button
+                  class="task-action task-action-primary"
+                  type="button"
+                  data-task-action="enable"
+                >
+                  ATTIVA
+                </button>
+              </article>
+
+              <article
+                class="task-card"
+                data-task-id="confirm-subid"
+                data-category="starter"
+                data-state="checking"
+                data-reward="150"
+              >
+                <div class="task-icon task-icon-subid">
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle
+                      cx="8.5"
+                      cy="15.5"
+                      r="3.5"
+                    ></circle>
+
+                    <path d="m11 13 7.2-7.2"></path>
+                    <path d="m16 8 2 2M18.5 5.5 20 7"></path>
+                  </svg>
+                </div>
+
+                <div class="task-copy">
+                  <span class="task-type">
+                    VERIFICA
+                  </span>
+
+                  <h3>
+                    Verifica il tuo SUBID
+                  </h3>
+
+                  <strong class="task-reward">
+                    +150 PULSE
+                  </strong>
+
+                  <p
+                    class="task-message"
+                    aria-live="polite"
+                  ></p>
+                </div>
+
+                <button
+                  class="task-action task-action-outline"
+                  type="button"
+                  data-task-action="check"
+                >
+                  VERIFICA
+                </button>
+              </article>
+
+              <article
+                class="task-card"
+                data-task-id="favorite-slots"
+                data-category="starter"
+                data-state="available"
+                data-reward="40"
+              >
+                <div class="task-icon task-icon-favorite">
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M20.5 9.2c0 5.2-8.5 10.3-8.5 10.3S3.5 14.4 3.5 9.2A4.7 4.7 0 0 1 12 6.3a4.7 4.7 0 0 1 8.5 2.9Z"
+                    ></path>
+                  </svg>
+                </div>
+
+                <div class="task-copy">
+                  <span class="task-type">
+                    PREFERITI
+                  </span>
+
+                  <h3>
+                    Aggiungi 3 slot ai preferiti
+                  </h3>
+
+                  <div class="task-progress-copy">
+                    <strong class="task-reward">
+                      +40 PULSE
+                    </strong>
+
+                    <span>1 / 3</span>
+                  </div>
+
+                  <div class="task-mini-progress">
+                    <span style="width: 33%"></span>
+                  </div>
+
+                  <p
+                    class="task-message"
+                    aria-live="polite"
+                  ></p>
+                </div>
+
+                <button
+                  class="task-action task-action-secondary"
+                  type="button"
+                  data-task-action="navigate"
+                  data-target-page="home.html"
+                >
+                  VAI
+                </button>
+              </article>
+
+              <article
+                class="task-card"
+                data-task-id="first-signal"
+                data-category="daily"
+                data-state="available"
+                data-reward="30"
+              >
+                <div class="task-icon task-icon-signal">
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M12 4v16"></path>
+                    <path d="M7.8 7.4a6 6 0 0 0 0 9.2"></path>
+                    <path d="M16.2 7.4a6 6 0 0 1 0 9.2"></path>
+                  </svg>
+                </div>
+
+                <div class="task-copy">
+                  <span class="task-type">
+                    GIORNALIERA
+                  </span>
+
+                  <h3>
+                    Ottieni il primo segnale
+                  </h3>
+
+                  <strong class="task-reward">
+                    +30 PULSE
+                  </strong>
+
+                  <p
+                    class="task-message"
+                    aria-live="polite"
+                  ></p>
+                </div>
+
+                <button
+                  class="task-action task-action-secondary"
+                  type="button"
+                  data-task-action="navigate"
+                  data-target-page="home.html"
+                >
+                  VAI
+                </button>
+              </article>
+
+              <article
+                class="task-card"
+                data-task-id="view-live"
+                data-category="daily"
+                data-state="available"
+                data-reward="10"
+              >
+                <div class="task-icon task-icon-live">
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="2"
+                    ></circle>
+
+                    <path d="M7.8 7.4a6 6 0 0 0 0 9.2"></path>
+                    <path d="M16.2 7.4a6 6 0 0 1 0 9.2"></path>
+                    <path d="M4.7 4.3a10.2 10.2 0 0 0 0 15.4"></path>
+                    <path d="M19.3 4.3a10.2 10.2 0 0 1 0 15.4"></path>
+                  </svg>
+                </div>
+
+                <div class="task-copy">
+                  <span class="task-type">
+                    GIORNALIERA
+                  </span>
+
+                  <h3>
+                    Visualizza i segnali LIVE
+                  </h3>
+
+                  <strong class="task-reward">
+                    +10 PULSE
+                  </strong>
+
+                  <p
+                    class="task-message"
+                    aria-live="polite"
+                  ></p>
+                </div>
+
+                <button
+                  class="task-action task-action-secondary"
+                  type="button"
+                  data-task-action="navigate"
+                  data-target-page="signals.html"
+                >
+                  VAI
+                </button>
+              </article>
+
+              <article
+                class="task-card"
+                data-task-id="responsible-guide"
+                data-category="starter"
+                data-state="available"
+                data-reward="30"
+              >
+                <div class="task-icon task-icon-guide">
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M5 4.5h9a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3V4.5Z"
+                    ></path>
+
+                    <path d="M8 8h6M8 11.5h6M8 15h4"></path>
+                    <path d="M17 8h2v12h-2"></path>
+                  </svg>
+                </div>
+
+                <div class="task-copy">
+                  <span class="task-type">
+                    SICUREZZA
+                  </span>
+
+                  <h3>
+                    Leggi le regole del gioco responsabile
+                  </h3>
+
+                  <strong class="task-reward">
+                    +30 PULSE
+                  </strong>
+
+                  <p
+                    class="task-message"
+                    aria-live="polite"
+                  ></p>
+                </div>
+
+                <button
+                  class="task-action task-action-secondary"
+                  type="button"
+                  data-task-action="guide"
+                >
+                  LEGGI
+                </button>
+              </article>
+
+              <article
+                class="task-card"
+                data-task-id="signal-master"
+                data-category="achievement"
+                data-state="progress"
+                data-reward="100"
+              >
+                <div class="task-icon task-icon-achievement">
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle
+                      cx="12"
+                      cy="8"
+                      r="5"
+                    ></circle>
+
+                    <path d="m9 12-1 8 4-2.4 4 2.4-1-8"></path>
+                    <path d="m10.3 8 1.1 1.1L14 6.5"></path>
+                  </svg>
+                </div>
+
+                <div class="task-copy">
+                  <span class="task-type">
+                    TRAGUARDO
+                  </span>
+
+                  <h3>
+                    Ottieni 10 segnali
+                  </h3>
+
+                  <div class="task-progress-copy">
+                    <strong class="task-reward">
+                      +100 PULSE
+                    </strong>
+
+                    <span>3 / 10</span>
+                  </div>
+
+                  <div class="task-mini-progress">
+                    <span style="width: 30%"></span>
+                  </div>
+
+                  <p
+                    class="task-message"
+                    aria-live="polite"
+                  ></p>
+                </div>
+
+                <button
+                  class="task-action task-action-outline"
+                  type="button"
+                  data-task-action="check"
+                >
+                  VERIFICA
+                </button>
+              </article>
+            </div>
+          </section>
+
+          <section
+            class="weekly-card"
+            aria-labelledby="weeklyGoalTitle"
+          >
+            <div class="weekly-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 64 64"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle
+                  cx="30"
+                  cy="34"
+                  r="19"
+                ></circle>
+
+                <circle
+                  cx="30"
+                  cy="34"
+                  r="11"
+                ></circle>
+
+                <circle
+                  cx="30"
+                  cy="34"
+                  r="3"
+                ></circle>
+
+                <path d="m33 31 20-20"></path>
+                <path d="M45 11h8v8"></path>
+              </svg>
+            </div>
+
+            <div class="weekly-content">
+              <div class="weekly-heading">
+                <div>
+                  <span>OBIETTIVO SETTIMANALE</span>
+
+                  <h2 id="weeklyGoalTitle">
+                    Completa 7 attività
+                  </h2>
+                </div>
+
+                <strong>+300 PULSE</strong>
+              </div>
+
+              <div class="weekly-progress-copy">
+                <span>Progresso di questa settimana</span>
+
+                <strong id="weeklyProgressText">
+                  4 / 7
+                </strong>
+              </div>
+
+              <div
+                class="weekly-nodes"
+                id="weeklyNodes"
+                role="progressbar"
+                aria-label="Progresso settimanale"
+                aria-valuemin="0"
+                aria-valuemax="7"
+                aria-valuenow="4"
+              >
+                <span class="is-complete">✓</span>
+                <span class="is-complete">✓</span>
+                <span class="is-complete">✓</span>
+                <span class="is-complete">✓</span>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </section>
+
+          <div class="responsible-line">
+            <span>18+</span>
+
+            <p>
+              Gioca responsabilmente. L’esito del gioco dipende dal
+              caso.
+            </p>
+          </div>
+        </div>
+
+        <nav
+          class="bottom-nav"
+          aria-label="Menu principale"
+        >
+          <a
+            class="nav-item"
+            href="home.html"
+            data-section="Головна"
+          >
+            <span class="nav-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m3.5 10.4 8.5-7 8.5 7"></path>
+
+                <path
+                  d="M5.8 9.2v10.2h12.4V9.2M9.5 19.4v-6.2h5v6.2"
+                ></path>
+              </svg>
+            </span>
+
+            <span>Home</span>
+          </a>
+
+          <a
+            class="nav-item"
+            href="signals.html"
+            data-section="Сигнали"
+          >
+            <span class="nav-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 4v16"></path>
+                <path d="M7.8 7.4a6 6 0 0 0 0 9.2"></path>
+                <path d="M16.2 7.4a6 6 0 0 1 0 9.2"></path>
+                <path d="M4.7 4.3a10.2 10.2 0 0 0 0 15.4"></path>
+                <path d="M19.3 4.3a10.2 10.2 0 0 1 0 15.4"></path>
+              </svg>
+            </span>
+
+            <span>Segnali</span>
+          </a>
+
+          <a
+            class="nav-item is-active"
+            href="bonuses.html"
+            data-section="Бонуси"
+            aria-current="page"
+          >
+            <span class="nav-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M4 10.2h16v10H4zM3 6.8h18v3.4H3zM12 6.8v13.4"
+                ></path>
+
+                <path
+                  d="M11.7 6.7C9.8 6.9 7 6.5 7 4.5 7 2.2 11 3 11.7 6.7ZM12.3 6.7c1.9.2 4.7-.2 4.7-2.2 0-2.3-4-1.5-4.7 2.2Z"
+                ></path>
+              </svg>
+            </span>
+
+            <span>Bonus</span>
+          </a>
+
+          <a
+            class="nav-item"
+            href="profile.html"
+            data-section="Профіль"
+          >
+            <span class="nav-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle
+                  cx="12"
+                  cy="8"
+                  r="4"
+                ></circle>
+
+                <path
+                  d="M4.8 20c.7-4 3.1-6 7.2-6s6.5 2 7.2 6"
+                ></path>
+              </svg>
+            </span>
+
+            <span>Profilo</span>
+          </a>
+        </nav>
+
+        <div
+          class="notification-center"
+          id="notificationCenter"
+          aria-hidden="true"
+          hidden
+        >
+          <div
+            class="notification-center-backdrop"
+            data-close-notifications
+            aria-hidden="true"
+          ></div>
+
+          <aside
+            class="notification-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="notificationCenterTitle"
+          >
+            <div
+              class="notification-panel-handle"
+              aria-hidden="true"
+            ></div>
+
+            <header class="notification-panel-header">
+              <div>
+                <p>
+                  <span aria-hidden="true"></span>
+                  PULSE CENTER
+                </p>
+
+                <h2 id="notificationCenterTitle">
+                  Notifiche
+                </h2>
+              </div>
+
+              <button
+                class="notification-panel-close"
+                id="notificationPanelClose"
+                type="button"
+                aria-label="Chiudi notifiche"
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                >
+                  <path d="m6 6 12 12M18 6 6 18"></path>
+                </svg>
+              </button>
+            </header>
+
+            <div class="notification-panel-summary">
+              <span id="notificationSummary">
+                Nessuna nuova notifica
+              </span>
+
+              <button
+                id="notificationClearButton"
+                type="button"
+                hidden
+              >
+                Cancella
+              </button>
+            </div>
+
+            <div
+              class="notification-list"
+              id="notificationList"
+              aria-live="polite"
+            ></div>
+
+            <div
+              class="notification-empty"
+              id="notificationEmpty"
+            >
+              <div
+                class="notification-empty-icon"
+                aria-hidden="true"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M6.2 10.2c0-3.6 2.1-6.2 5.8-6.2s5.8 2.6 5.8 6.2v4l1.7 2.4h-15l1.7-2.4v-4Z"
+                  ></path>
+
+                  <path
+                    d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"
+                  ></path>
+                </svg>
+              </div>
+
+              <strong>Per ora è tutto tranquillo</strong>
+
+              <p>
+                Qui compariranno le attività completate, i premi ricevuti
+                e le notifiche importanti di Pulse.
+              </p>
+            </div>
+          </aside>
+        </div>
+
+        <div
+          class="verification-overlay"
+          id="verificationOverlay"
+          aria-hidden="true"
+          hidden
+        >
+          <div
+            class="verification-backdrop"
+            data-close-verification
+            aria-hidden="true"
+          ></div>
+
+          <section
+            class="verification-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="verificationTitle"
+          >
+            <button
+              class="verification-close"
+              id="verificationClose"
+              type="button"
+              aria-label="Chiudi"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              >
+                <path d="m6 6 12 12M18 6 6 18"></path>
+              </svg>
+            </button>
+
+            <div
+              class="verification-icon"
+              id="verificationIcon"
+            >
+              <span class="verification-loader"></span>
+
+              <svg
+                class="verification-success"
+                aria-hidden="true"
+                viewBox="0 0 32 32"
+                fill="none"
+              >
+                <path
+                  d="m8.5 16.5 5 5 10-11"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+              </svg>
+            </div>
+
+            <p class="verification-eyebrow">
+              PULSE VERIFICATION
+            </p>
+
+            <h2 id="verificationTitle">
+              Verifica dell’attività
+            </h2>
+
+            <p id="verificationDescription">
+              Attendi qualche secondo mentre il sistema verifica
+              il risultato.
+            </p>
+
+            <button
+              class="verification-button"
+              id="verificationActionButton"
+              type="button"
+              hidden
+            >
+              RITIRA IL PREMIO
+            </button>
+          </section>
+        </div>
+
+        <div
+          class="guide-overlay"
+          id="guideOverlay"
+          aria-hidden="true"
+          hidden
+        >
+          <div
+            class="guide-backdrop"
+            data-close-guide
+            aria-hidden="true"
+          ></div>
+
+          <section
+            class="guide-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="guideTitle"
+          >
+            <button
+              class="guide-close"
+              id="guideClose"
+              type="button"
+              aria-label="Chiudi"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              >
+                <path d="m6 6 12 12M18 6 6 18"></path>
+              </svg>
+            </button>
+
+            <div
+              class="guide-icon"
+              aria-hidden="true"
+            >
+              18+
+            </div>
+
+            <p class="guide-eyebrow">
+              GIOCO RESPONSABILE
+            </p>
+
+            <h2 id="guideTitle">
+              Mantieni il controllo del gioco
+            </h2>
+
+            <div class="guide-content">
+              <p>
+                Gioca solo somme che puoi permetterti di perdere.
+              </p>
+
+              <p>
+                Non cercare di recuperare le perdite aumentando
+                le puntate.
+              </p>
+
+              <p>
+                Fai delle pause e stabilisci in anticipo limiti di tempo
+                e di spesa.
+              </p>
+
+              <p>
+                I segnali non garantiscono alcun risultato, perché il gioco
+                dipende dal caso.
+              </p>
+            </div>
+
+            <button
+              class="guide-confirm"
+              id="guideConfirm"
+              type="button"
+            >
+              HO LETTO
+            </button>
+          </section>
+        </div>
+
+        <div
+          class="toast"
+          id="toast"
+          role="status"
+          aria-live="polite"
+        >
+          <span
+            class="toast-dot"
+            aria-hidden="true"
+          ></span>
+
+          <span id="toastText"></span>
+        </div>
+
+        <div
+          class="reward-toast"
+          id="rewardToast"
+          role="status"
+          aria-live="polite"
+          aria-hidden="true"
+        >
+          <span
+            class="reward-toast-icon"
+            aria-hidden="true"
+          >
+            +
+          </span>
+
+          <div>
+            <strong id="rewardToastValue">
+              +100 PULSE
+            </strong>
+
+            <span>Premio accreditato</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="notifications.js?v=20260803-2"></script>
+    <script src="bonuses.js?v=20260810-favorite-task-sync-1"></script>
+  </body>
+</html>

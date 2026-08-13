@@ -1,0 +1,1774 @@
+:root {
+  --font-geist-sans:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI";
+
+  --font-geist-mono:
+    "SFMono-Regular",
+    Consolas,
+    "Liberation Mono";
+
+  --page: #010205;
+  --panel: #030509;
+  --panel-soft: #090c12;
+  --gold: #f4c64f;
+  --gold-soft: #a67d22;
+  --violet: #7b16e8;
+  --violet-hot: #a82cff;
+  --text: #f8f6fb;
+  --muted: #85828d;
+
+  color-scheme: dark;
+  background-color: #010205;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html {
+  min-width: 100%;
+  min-height: 100%;
+  background: #010205 !important;
+  background-color: #010205 !important;
+  color-scheme: dark;
+  touch-action: pan-y;
+  -ms-touch-action: pan-y;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+  margin: 0;
+  background: #010205 !important;
+  background-color: #010205 !important;
+  color: var(--text);
+  font-family:
+    var(--font-geist-sans),
+    Arial,
+    sans-serif;
+  touch-action: pan-y;
+  -ms-touch-action: pan-y;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.page-shell {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow: hidden;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(
+      circle at 50% 14%,
+      rgba(69, 26, 139, 0.12),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 50% 90%,
+      rgba(122, 24, 219, 0.05),
+      transparent 32%
+    ),
+    #010205;
+}
+
+.page-shell::before {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 49.95%,
+      rgba(255, 255, 255, 0.018) 50%,
+      transparent 50.05%
+    ),
+    linear-gradient(
+      transparent 49.95%,
+      rgba(255, 255, 255, 0.012) 50%,
+      transparent 50.05%
+    );
+  background-size: 64px 64px;
+  content: "";
+  mask-image:
+    radial-gradient(
+      circle at center,
+      #000 0%,
+      transparent 72%
+    );
+}
+
+.ambient {
+  position: fixed;
+  z-index: -1;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+.ambient-one {
+  top: -180px;
+  left: 10%;
+  background: #7b16e8;
+}
+
+.ambient-two {
+  right: 10%;
+  bottom: -190px;
+  background: #c28a23;
+}
+
+.signal-app {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  width: min(100%, 390px);
+  min-height:
+    min(
+      780px,
+      calc(100svh - 48px)
+    );
+  overflow: hidden;
+  flex-direction: column;
+  border:
+    1px solid
+    rgba(143, 153, 171, 0.17);
+  border-radius: 30px;
+  background:
+    radial-gradient(
+      circle at 50% 39%,
+      rgba(77, 12, 134, 0.065),
+      transparent 34%
+    ),
+    linear-gradient(
+      180deg,
+      #030509 0%,
+      #020307 100%
+    );
+  box-shadow:
+    0 35px 100px rgba(0, 0, 0, 0.72),
+    0 0 0 1px
+      rgba(255, 255, 255, 0.018)
+      inset,
+    0 0 48px
+      rgba(85, 29, 158, 0.055);
+}
+
+.signal-app::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.013),
+      transparent
+    );
+  content: "";
+  pointer-events: none;
+}
+
+.app-noise {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  opacity: 0.025;
+  pointer-events: none;
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E");
+  mix-blend-mode: soft-light;
+}
+
+.top-line {
+  display: none !important;
+}
+
+.brand {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  flex-direction: column;
+  justify-content: center;
+  padding: 37px 24px 4px;
+  text-align: center;
+}
+
+.brand-emblem {
+  display: grid;
+  width: 42px;
+  height: 33px;
+  place-items: center;
+  color: var(--gold);
+}
+
+.crown-mark {
+  width: 39px;
+  filter:
+    drop-shadow(
+      0 0 7px
+      rgba(244, 198, 79, 0.34)
+    )
+    drop-shadow(
+      0 0 18px
+      rgba(244, 198, 79, 0.12)
+    );
+}
+
+.brand-copy {
+  text-align: center;
+}
+
+.brand-name {
+  margin: 5px 0 0;
+  color: #fffefa;
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+  font-size: 31px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-indent: 0.16em;
+  text-shadow:
+    0 0 24px
+    rgba(255, 255, 255, 0.06);
+}
+
+.brand-subline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 9px;
+  color: var(--gold);
+}
+
+.brand-subline span {
+  width: 34px;
+  height: 1px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      currentColor
+    );
+}
+
+.brand-subline span:last-child {
+  transform: scaleX(-1);
+}
+
+.brand-subline p {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.31em;
+  text-indent: 0.31em;
+}
+
+.brand-tag {
+  margin: 8px 0 0;
+  color: #d4ae45;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-indent: 0.18em;
+}
+
+.hero-visual {
+  position: relative;
+  height: 252px;
+  flex: 0 0 auto;
+  margin: 1px 12px 0;
+  overflow: hidden;
+}
+
+.hero-art {
+  position: absolute;
+  top: 49%;
+  left: 50%;
+  z-index: 2;
+  width: 150%;
+  height: 125%;
+  max-width: none;
+  object-fit: contain;
+  object-position: center;
+  transform:
+    translate(-50%, -50%);
+  filter:
+    saturate(1.07)
+    contrast(1.05);
+  animation:
+    hero-float
+    6.8s
+    ease-in-out
+    infinite;
+}
+
+.hero-vignette {
+  position: absolute;
+  inset: -2px;
+  z-index: 3;
+  background:
+    linear-gradient(
+      180deg,
+      #030509 0%,
+      transparent 15%,
+      transparent 79%,
+      #030509 100%
+    ),
+    linear-gradient(
+      90deg,
+      #030509 0%,
+      transparent 12%,
+      transparent 88%,
+      #030509 100%
+    );
+  pointer-events: none;
+}
+
+.slot-aura {
+  position: absolute;
+  top: 52%;
+  left: 50%;
+  width: 78%;
+  height: 45%;
+  border-radius: 50%;
+  background:
+    rgba(119, 22, 224, 0.35);
+  filter: blur(54px);
+  opacity: 0.56;
+  transform:
+    translate(-50%, -50%);
+}
+
+.light-streak {
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+  width: 45%;
+  height: 1px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(161, 43, 255, 0.4),
+      transparent
+    );
+  opacity: 0.65;
+}
+
+.light-streak-one {
+  left: 0;
+  transform: rotate(-8deg);
+}
+
+.light-streak-two {
+  right: 0;
+  transform: rotate(8deg);
+}
+
+.access-panel,
+.success-panel {
+  position: relative;
+  z-index: 4;
+  padding: 0 28px;
+}
+
+.section-heading {
+  text-align: center;
+}
+
+.section-heading h1 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.section-heading > p {
+  margin: 9px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--gold);
+  font-size: 8px;
+  font-weight: 750;
+  letter-spacing: 0.2em;
+}
+
+.success-panel h1 {
+  margin: 0;
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.success-copy {
+  max-width: 300px;
+  margin: 9px auto 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+form {
+  margin-top: 20px;
+}
+
+.key-field {
+  position: relative;
+  display: flex;
+  height: 54px;
+  align-items: center;
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.095);
+  border-radius: 9px;
+  background: #0a0d13;
+  box-shadow:
+    0 13px 24px rgba(0, 0, 0, 0.2),
+    0 1px
+      rgba(255, 255, 255, 0.02)
+      inset;
+  transition: 180ms ease;
+}
+
+.key-field:focus-within {
+  border-color:
+    rgba(148, 45, 255, 0.58);
+  background: #0c0d16;
+  box-shadow:
+    0 0 0 3px
+      rgba(129, 29, 228, 0.09),
+    0 14px 28px
+      rgba(0, 0, 0, 0.23);
+}
+
+.key-field.has-error {
+  border-color:
+    rgba(255, 76, 103, 0.6);
+  animation:
+    field-shake
+    320ms
+    ease;
+}
+
+.field-icon {
+  display: grid;
+  width: 48px;
+  height: 100%;
+  flex: 0 0 auto;
+  place-items: center;
+  color: var(--gold);
+}
+
+.field-icon svg {
+  width: 18px;
+}
+
+.key-field input {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding-left: 14px;
+  border: 0;
+  outline: 0;
+  color: #f9f6ff;
+  background: transparent;
+  font-family:
+    var(--font-geist-mono),
+    monospace;
+  font-size: 12px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.key-field input::placeholder {
+  color: #66636d;
+  font-family:
+    var(--font-geist-sans),
+    Arial,
+    sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.key-length {
+  display: none;
+}
+
+.form-message {
+  min-height: 25px;
+  padding: 7px 3px 2px;
+  color: #ff6d84;
+  font-size: 9px;
+}
+
+.access-button {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 54px;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border:
+    1px solid
+    rgba(209, 140, 255, 0.26);
+  border-radius: 9px;
+  color: white;
+  background:
+    linear-gradient(
+      115deg,
+      rgba(255, 255, 255, 0.045),
+      transparent 46%
+    ),
+    linear-gradient(
+      180deg,
+      #8122ef 0%,
+      #5b08bd 100%
+    );
+  box-shadow:
+    0 12px 28px
+      rgba(100, 13, 198, 0.27),
+    0 0 22px
+      rgba(175, 61, 255, 0.13)
+      inset,
+    0 1px
+      rgba(255, 255, 255, 0.17)
+      inset;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 720;
+  letter-spacing: 0.05em;
+  transition:
+    transform 160ms ease,
+    filter 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.access-button:hover {
+  filter: brightness(1.1);
+  box-shadow:
+    0 15px 32px
+      rgba(100, 13, 198, 0.33),
+    0 0 26px
+      rgba(175, 61, 255, 0.16)
+      inset;
+  transform: translateY(-1px);
+}
+
+.access-button:active {
+  transform: translateY(1px);
+}
+
+.access-button:focus-visible,
+.support-button:focus-visible,
+.text-button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.access-button:disabled {
+  cursor: wait;
+  filter: saturate(0.7);
+}
+
+.button-sheen {
+  position: absolute;
+  top: -55%;
+  left: -43%;
+  width: 23%;
+  height: 210%;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.17),
+      transparent
+    );
+  transform: rotate(18deg);
+  animation:
+    button-sheen
+    5s
+    ease-in-out
+    infinite;
+}
+
+.button-loader {
+  width: 15px;
+  height: 15px;
+  border:
+    2px solid
+    rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation:
+    spin
+    0.8s
+    linear
+    infinite;
+}
+
+.success-panel {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding-top: 4px;
+  text-align: center;
+  animation:
+    success-in
+    420ms
+    ease-out;
+}
+
+.success-icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 13px;
+  place-items: center;
+  border:
+    1px solid
+    rgba(66, 255, 154, 0.31);
+  border-radius: 50%;
+  color: #43f89b;
+  background:
+    rgba(66, 255, 154, 0.055);
+  box-shadow:
+    0 0 26px
+    rgba(66, 255, 154, 0.1);
+}
+
+.success-icon svg {
+  width: 25px;
+}
+
+.success-copy {
+  margin-bottom: 19px;
+}
+
+.success-button {
+  height: 52px;
+  border-color:
+    rgba(65, 247, 151, 0.2);
+  background:
+    linear-gradient(
+      180deg,
+      #0daf5c,
+      #087c42
+    );
+  box-shadow:
+    0 12px 29px
+    rgba(5, 164, 84, 0.15);
+}
+
+.text-button {
+  margin-top: 11px;
+  border: 0;
+  color: #75717c;
+  background: none;
+  cursor: pointer;
+  font-size: 9px;
+}
+
+footer {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin-top: auto;
+  padding: 18px 28px 26px;
+}
+
+.support-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  color: #97949e;
+  background: none;
+  cursor: pointer;
+  font-size: 10px;
+  transition: color 160ms ease;
+}
+
+.support-button:hover {
+  color: #e7e1ee;
+}
+
+.support-pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #9d32ed;
+  box-shadow:
+    0 0 10px
+    #9d32ed;
+}
+
+.support-popover {
+  width: 100%;
+  max-width: 300px;
+  margin-bottom: 11px;
+  padding: 10px 13px;
+  border:
+    1px solid
+    rgba(154, 60, 247, 0.15);
+  border-radius: 9px;
+  color: #aaa6b0;
+  background:
+    rgba(125, 32, 222, 0.045);
+  font-size: 9px;
+  line-height: 1.5;
+  text-align: center;
+  animation:
+    success-in
+    220ms
+    ease-out;
+}
+
+.version {
+  margin: 10px 0 0;
+  color: #36333c;
+  font-family:
+    var(--font-geist-mono),
+    monospace;
+  font-size: 6px;
+  letter-spacing: 0.17em;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes hero-float {
+  0%,
+  100% {
+    transform:
+      translate(-50%, -50%)
+      scale(1);
+  }
+
+  50% {
+    transform:
+      translate(
+        -50%,
+        calc(-50% - 4px)
+      )
+      scale(1.01);
+  }
+}
+
+@keyframes button-sheen {
+  0%,
+  60% {
+    left: -43%;
+  }
+
+  79%,
+  100% {
+    left: 125%;
+  }
+}
+
+@keyframes field-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  30% {
+    transform: translateX(-5px);
+  }
+
+  60% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes success-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Телефони */
+@media (max-width: 540px) {
+  html,
+  body,
+  .page-shell {
+    background: #010205 !important;
+    background-color: #010205 !important;
+  }
+
+  .page-shell {
+    display: block;
+    padding: 0;
+  }
+
+  .page-shell::before,
+  .ambient {
+    display: none !important;
+  }
+
+  .signal-app {
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100svh;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .brand {
+    padding-top:
+      max(
+        34px,
+        env(safe-area-inset-top)
+      );
+  }
+
+  footer {
+    padding-bottom:
+      max(
+        23px,
+        env(safe-area-inset-bottom)
+      );
+  }
+}
+
+@media (max-height: 720px) {
+  .brand {
+    padding-top: 18px;
+  }
+
+  .brand-emblem {
+    width: 35px;
+    height: 27px;
+  }
+
+  .crown-mark {
+    width: 32px;
+  }
+
+  .brand-name {
+    font-size: 27px;
+  }
+
+  .hero-visual {
+    height: 210px;
+  }
+
+  .section-heading > p {
+    margin-top: 6px;
+  }
+
+  form {
+    margin-top: 14px;
+  }
+
+  .key-field,
+  .access-button {
+    height: 49px;
+  }
+
+  footer {
+    padding-top: 10px;
+    padding-bottom: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* Статична сторінка входу під час відкриття клавіатури */
+html {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden !important;
+  overscroll-behavior: none;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+body {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: var(--app-height, 100dvh);
+  min-height: 0 !important;
+  max-height: var(--app-height, 100dvh);
+  overflow: hidden !important;
+  overscroll-behavior: none;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.page-shell {
+  width: 100%;
+  height: var(--app-height, 100dvh);
+  min-height: 0 !important;
+  max-height: var(--app-height, 100dvh);
+  overflow: hidden !important;
+}
+
+/* Приховуємо смугу прокрутки */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.page-shell::-webkit-scrollbar,
+.signal-app::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+/* Фіксована висота на телефонах */
+@media (max-width: 540px) {
+  .signal-app {
+    height: var(--app-height, 100dvh);
+    min-height: 0 !important;
+    max-height: var(--app-height, 100dvh);
+    overflow: hidden !important;
+  }
+
+  /*
+   * 16px не дозволяє Safari автоматично збільшувати
+   * сторінку після натискання на поле.
+   */
+  .key-field input {
+    font-size: 16px;
+  }
+}
+
+
+/* =========================================================
+   ARBIFY PULSE — SLOT INTRO
+   Одноразова кінематографічна анімація барабана при вході.
+   Після завершення повертається стандартний hero-float.
+   ========================================================= */
+
+.hero-visual.slot-intro-running .hero-art {
+  animation: slot-reel-intro 1450ms cubic-bezier(.16,.84,.24,1) both !important;
+  will-change: transform, filter, opacity;
+}
+
+.hero-visual.slot-intro-running .slot-aura {
+  animation: slot-aura-intro 1450ms ease-out both;
+}
+
+.hero-visual.slot-intro-running .light-streak-one {
+  animation: slot-streak-left 1450ms ease-out both;
+}
+
+.hero-visual.slot-intro-running .light-streak-two {
+  animation: slot-streak-right 1450ms ease-out both;
+}
+
+.hero-visual.slot-intro-finished .hero-art {
+  animation: hero-float 6.8s ease-in-out infinite;
+}
+
+@keyframes slot-reel-intro {
+  0% {
+    opacity: 0.25;
+    transform: translate(-50%, calc(-50% - 34px)) scale(.94);
+    filter: saturate(.75) contrast(1.08) blur(8px) brightness(.72);
+  }
+
+  18% {
+    opacity: .72;
+    transform: translate(-50%, calc(-50% + 23px)) scale(.975);
+    filter: saturate(1.15) contrast(1.1) blur(6px) brightness(.9);
+  }
+
+  38% {
+    opacity: .9;
+    transform: translate(-50%, calc(-50% - 17px)) scale(1.015);
+    filter: saturate(1.3) contrast(1.12) blur(4px) brightness(1.02);
+  }
+
+  58% {
+    opacity: 1;
+    transform: translate(-50%, calc(-50% + 10px)) scale(1.025);
+    filter: saturate(1.35) contrast(1.12) blur(2px) brightness(1.08);
+  }
+
+  76% {
+    transform: translate(-50%, calc(-50% - 5px)) scale(1.018);
+    filter: saturate(1.25) contrast(1.09) blur(.8px) brightness(1.12);
+  }
+
+  88% {
+    transform: translate(-50%, calc(-50% + 2px)) scale(1.012);
+    filter: saturate(1.18) contrast(1.07) blur(0) brightness(1.16)
+      drop-shadow(0 0 18px rgba(163, 43, 255, .22));
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    filter: saturate(1.07) contrast(1.05) blur(0) brightness(1)
+      drop-shadow(0 0 0 rgba(163, 43, 255, 0));
+  }
+}
+
+@keyframes slot-aura-intro {
+  0% {
+    opacity: .12;
+    transform: translate(-50%, -50%) scale(.72);
+  }
+
+  55% {
+    opacity: .78;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+
+  82% {
+    opacity: .9;
+    transform: translate(-50%, -50%) scale(1.16);
+  }
+
+  100% {
+    opacity: .56;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes slot-streak-left {
+  0%, 25% {
+    opacity: 0;
+    transform: translateX(-28px) rotate(-8deg);
+  }
+
+  68% {
+    opacity: .95;
+    transform: translateX(5px) rotate(-8deg);
+  }
+
+  100% {
+    opacity: .65;
+    transform: translateX(0) rotate(-8deg);
+  }
+}
+
+@keyframes slot-streak-right {
+  0%, 25% {
+    opacity: 0;
+    transform: translateX(28px) rotate(8deg);
+  }
+
+  68% {
+    opacity: .95;
+    transform: translateX(-5px) rotate(8deg);
+  }
+
+  100% {
+    opacity: .65;
+    transform: translateX(0) rotate(8deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-visual.slot-intro-running .hero-art,
+  .hero-visual.slot-intro-running .slot-aura,
+  .hero-visual.slot-intro-running .light-streak {
+    animation: none !important;
+  }
+}
+
+/* =========================================================
+   HERO 777 — SIZE + BACKGROUND BLEND FIX
+   Змінено тільки вигляд картинки слотів.
+   ========================================================= */
+
+/* Трішки зменшуємо сам 777. */
+.hero-art {
+  width: 143% !important;
+  height: 118% !important;
+}
+
+/*
+ * Прибираємо видимий прямокутник між hero та success-блоком.
+ * Hero-віньєтка плавно зводить краї картинки в колір сторінки.
+ */
+.hero-vignette {
+  inset: -8px !important;
+  background:
+    linear-gradient(
+      180deg,
+      #030509 0%,
+      rgba(3, 5, 9, 0.92) 7%,
+      transparent 21%,
+      transparent 68%,
+      rgba(3, 5, 9, 0.58) 82%,
+      #030509 100%
+    ),
+    linear-gradient(
+      90deg,
+      #030509 0%,
+      rgba(3, 5, 9, 0.88) 5%,
+      transparent 17%,
+      transparent 83%,
+      rgba(3, 5, 9, 0.88) 95%,
+      #030509 100%
+    ) !important;
+}
+
+/*
+ * Нижню частину hero додатково розчиняємо у фоні.
+ * Сам слот не рухаємо — маскуємо тільки край картинки.
+ */
+.hero-visual::after {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  left: -2px;
+  z-index: 4;
+  height: 72px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(3, 5, 9, 0),
+      rgba(3, 5, 9, 0.5) 48%,
+      #030509 100%
+    );
+  content: "";
+  pointer-events: none;
+}
+
+/* На низьких екранах теж залишаємо невелике зменшення. */
+@media (max-height: 720px) {
+  .hero-art {
+    width: 140% !important;
+    height: 116% !important;
+  }
+
+  .hero-visual::after {
+    height: 60px;
+  }
+}
+
+/* Пульсація кнопки "Отримати ключ доступу" */
+.support-button {
+  animation: supportButtonPulse 2.2s ease-in-out infinite;
+}
+
+.support-button .support-pulse {
+  animation: supportDotPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes supportButtonPulse {
+  0%,
+  100% {
+    color: rgba(235, 229, 255, 0.72);
+    text-shadow:
+      0 0 0 rgba(164, 92, 255, 0);
+  }
+
+  50% {
+    color: #ffffff;
+    text-shadow:
+      0 0 7px rgba(177, 105, 255, 0.65),
+      0 0 16px rgba(130, 52, 220, 0.28);
+  }
+}
+
+@keyframes supportDotPulse {
+  0%,
+  100% {
+    transform: scale(0.9);
+    opacity: 0.65;
+    box-shadow:
+      0 0 0 0 rgba(168, 92, 255, 0);
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+    box-shadow:
+      0 0 0 5px rgba(168, 92, 255, 0.08),
+      0 0 10px rgba(168, 92, 255, 0.65);
+  }
+}
+
+
+/* =========================================================
+   SUPPORT POPOVER — COMPACT MOBILE FIX
+   Зменшуємо тільки вікно "Отримати ключ доступу".
+   ========================================================= */
+.support-popover {
+  width: calc(100% - 28px) !important;
+  max-width: 250px !important;
+  margin-right: auto !important;
+  margin-bottom: 9px !important;
+  margin-left: auto !important;
+  padding: 8px 10px !important;
+  border-radius: 8px !important;
+  font-size: 8.5px !important;
+  line-height: 1.4 !important;
+}
+
+@media (max-width: 540px) {
+  .support-popover {
+    width: min(250px, calc(100vw - 56px)) !important;
+    max-width: calc(100vw - 56px) !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .support-popover {
+    width: min(230px, calc(100vw - 48px)) !important;
+    max-width: calc(100vw - 48px) !important;
+    padding: 7px 9px !important;
+    font-size: 8px !important;
+  }
+}
+
+
+/* =========================================================
+   SUCCESS ICON — PREMIUM CHECK ANIMATION
+   Анімуємо тільки зелену галочку після підтвердження ключа.
+   ========================================================= */
+
+.success-icon {
+  position: relative;
+  animation:
+    successIconReveal 520ms
+    cubic-bezier(.16,.84,.28,1.08)
+    both,
+    successIconGlow 2.8s
+    ease-in-out
+    620ms
+    infinite;
+}
+
+.success-icon::after {
+  position: absolute;
+  inset: -10px;
+  border:
+    1px solid
+    rgba(66, 255, 154, 0.28);
+  border-radius: 50%;
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  animation:
+    successIconRing
+    720ms
+    ease-out
+    160ms
+    both;
+}
+
+.success-icon svg path {
+  stroke-dasharray: 28;
+  stroke-dashoffset: 28;
+  animation:
+    successCheckDraw
+    460ms
+    cubic-bezier(.2,.8,.2,1)
+    220ms
+    forwards;
+}
+
+@keyframes successIconReveal {
+  0% {
+    opacity: 0;
+    transform: scale(.72);
+  }
+
+  62% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes successCheckDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes successIconRing {
+  0% {
+    opacity: 0;
+    transform: scale(.72);
+  }
+
+  35% {
+    opacity: .62;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.48);
+  }
+}
+
+@keyframes successIconGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 26px
+      rgba(66, 255, 154, 0.1);
+  }
+
+  50% {
+    box-shadow:
+      0 0 32px
+      rgba(66, 255, 154, 0.18),
+      0 0 14px
+      rgba(66, 255, 154, 0.08)
+      inset;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .success-icon,
+  .success-icon::after,
+  .success-icon svg path {
+    animation: none !important;
+  }
+
+  .success-icon svg path {
+    stroke-dashoffset: 0;
+  }
+}
+
+
+/* =========================================================
+   SUCCESS ICON — CONTINUOUS IDLE LIFE
+   Після стартової анімації галочка продовжує м'яко "дихати".
+   ========================================================= */
+
+.success-icon {
+  animation:
+    successIconReveal 520ms
+    cubic-bezier(.16,.84,.28,1.08)
+    both,
+    successIconIdle 2.8s
+    ease-in-out
+    900ms
+    infinite !important;
+}
+
+.success-icon svg {
+  animation:
+    successCheckIdle 2.8s
+    ease-in-out
+    900ms
+    infinite;
+}
+
+@keyframes successIconIdle {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow:
+      0 0 26px rgba(66, 255, 154, 0.10);
+  }
+
+  50% {
+    transform: scale(1.035);
+    box-shadow:
+      0 0 36px rgba(66, 255, 154, 0.22),
+      0 0 14px rgba(66, 255, 154, 0.08) inset;
+  }
+}
+
+@keyframes successCheckIdle {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(67, 248, 155, 0));
+  }
+
+  50% {
+    transform: scale(1.045);
+    filter: drop-shadow(0 0 5px rgba(67, 248, 155, 0.42));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .success-icon,
+  .success-icon svg {
+    animation: none !important;
+  }
+}
+
+/* ===== INDEX — ARBIFY PULSE PNG LOGO ===== */
+/*
+   Новий PNG-логотип на сторінці введення ключа.
+   Старі .brand-emblem/.brand-copy залишаються нешкідливими,
+   але в HTML їх більше немає.
+*/
+.brand {
+  padding-top: 37px;
+  padding-bottom: 4px;
+}
+
+.index-brand-logo {
+  display: block;
+  width: 118px;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+  opacity: 1;
+  animation: indexLogoSoftBreath 5.8s ease-in-out infinite;
+  will-change: filter, opacity;
+}
+
+@keyframes indexLogoSoftBreath {
+  0%,
+  100% {
+    opacity: 0.98;
+    filter:
+      brightness(1)
+      saturate(1.03)
+      drop-shadow(0 0 3px rgba(190, 75, 255, 0.13))
+      drop-shadow(0 0 8px rgba(112, 58, 255, 0.06));
+  }
+
+  50% {
+    opacity: 1;
+    filter:
+      brightness(1.08)
+      saturate(1.08)
+      drop-shadow(0 0 6px rgba(202, 84, 255, 0.22))
+      drop-shadow(0 0 12px rgba(112, 58, 255, 0.10));
+  }
+}
+
+@media (max-width: 540px) {
+  .index-brand-logo {
+    width: 118px;
+  }
+}
+
+@media (max-height: 720px) {
+  .brand {
+    padding-top: 18px;
+  }
+
+  .index-brand-logo {
+    width: 104px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .index-brand-logo {
+    animation: none !important;
+  }
+}
+
+
+/* ===== INDEX — CASINO SIGNALS TAG ===== */
+.index-brand-tag {
+  margin: 7px 0 0;
+  font-size: 8px;
+  font-weight: 750;
+  line-height: 1;
+  letter-spacing: 0.24em;
+  text-indent: 0.24em;
+  text-transform: uppercase;
+
+  color: #d86bff;
+  background:
+    linear-gradient(
+      90deg,
+      #8f4cff 0%,
+      #d86bff 42%,
+      #f0b6ff 58%,
+      #9f5cff 100%
+    );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  text-shadow:
+    0 0 5px rgba(207, 91, 255, 0.26),
+    0 0 12px rgba(117, 63, 255, 0.10);
+}
+
+@media (max-height: 720px) {
+  .index-brand-tag {
+    margin-top: 6px;
+    font-size: 7px;
+  }
+}
+
+/* ===== HERO 777 — SMALLER + SOFT STABLE LOAD ===== */
+/* Ще трохи компактніше, без різкого стрибка при появі. */
+.hero-art {
+  width: 111% !important;
+  height: 92% !important;
+
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) !important;
+  transition: none !important;
+
+  animation: heroSoftBreath 6.8s ease-in-out infinite !important;
+  will-change: filter, opacity;
+}
+
+@keyframes heroSoftBreath {
+  0%,
+  100% {
+    opacity: 0.985;
+    filter:
+      brightness(1)
+      saturate(1)
+      drop-shadow(0 0 4px rgba(168, 73, 255, 0.08));
+  }
+
+  50% {
+    opacity: 1;
+    filter:
+      brightness(1.035)
+      saturate(1.025)
+      drop-shadow(0 0 7px rgba(190, 78, 255, 0.13));
+  }
+}
+
+@media (max-height: 720px) {
+  .hero-art {
+    width: 108% !important;
+    height: 90% !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-art {
+    animation: none !important;
+  }
+}
+
+/* =========================================================
+   HERO 777 — TRANSPARENT PREMIUM BLEND
+   PNG має alpha-канал: працюємо зі справжньою прозорістю.
+   Фінальні override-правила без зміни HTML/JS.
+   ========================================================= */
+
+.hero-visual {
+  isolation: isolate;
+  overflow: visible !important;
+}
+
+/* М'яке фіолетове світло саме за барабаном */
+.hero-visual::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  width: 88%;
+  height: 48%;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(166, 45, 255, 0.18) 0%,
+      rgba(111, 31, 214, 0.09) 42%,
+      rgba(70, 20, 140, 0.025) 66%,
+      transparent 78%
+    );
+  content: "";
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  filter: blur(28px);
+  opacity: 0.82;
+}
+
+/* Старі маски більше не потрібні: вони й створювали окремий темний блок */
+.hero-vignette,
+.hero-visual::after {
+  display: none !important;
+}
+
+.slot-aura {
+  top: 51% !important;
+  width: 72% !important;
+  height: 34% !important;
+  z-index: 1 !important;
+  background: rgba(133, 30, 238, 0.18) !important;
+  filter: blur(48px) !important;
+  opacity: 0.52 !important;
+}
+
+.light-streak {
+  opacity: 0.22 !important;
+  filter: blur(0.4px);
+}
+
+/* Стабільний PNG: без руху, scale та стрибка при завантаженні */
+.hero-art {
+  top: 50% !important;
+  width: 108% !important;
+  height: 89% !important;
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) !important;
+  transition: none !important;
+  animation: heroPremiumBreath 7.2s ease-in-out infinite !important;
+  will-change: filter, opacity;
+  filter:
+    saturate(1.045)
+    contrast(1.025)
+    brightness(1.01)
+    drop-shadow(0 8px 18px rgba(0, 0, 0, 0.26))
+    drop-shadow(0 0 9px rgba(166, 51, 255, 0.10));
+}
+
+@keyframes heroPremiumBreath {
+  0%,
+  100% {
+    opacity: 0.99;
+    filter:
+      saturate(1.04)
+      contrast(1.025)
+      brightness(1)
+      drop-shadow(0 8px 18px rgba(0, 0, 0, 0.26))
+      drop-shadow(0 0 7px rgba(166, 51, 255, 0.08));
+  }
+
+  50% {
+    opacity: 1;
+    filter:
+      saturate(1.06)
+      contrast(1.025)
+      brightness(1.035)
+      drop-shadow(0 8px 18px rgba(0, 0, 0, 0.26))
+      drop-shadow(0 0 12px rgba(183, 66, 255, 0.14));
+  }
+}
+
+/* Вимикаємо стару slot-intro анімацію, щоб вона не перебивала фінальний стиль */
+.hero-visual.slot-intro-running .hero-art,
+.hero-visual.slot-intro-finished .hero-art {
+  transform: translate(-50%, -50%) !important;
+  animation: heroPremiumBreath 7.2s ease-in-out infinite !important;
+}
+
+.hero-visual.slot-intro-running .slot-aura,
+.hero-visual.slot-intro-running .light-streak-one,
+.hero-visual.slot-intro-running .light-streak-two {
+  animation: none !important;
+}
+
+@media (max-height: 720px) {
+  .hero-art {
+    width: 105% !important;
+    height: 87% !important;
+  }
+
+  .hero-visual::before {
+    width: 84%;
+    height: 44%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-art,
+  .hero-visual.slot-intro-running .hero-art,
+  .hero-visual.slot-intro-finished .hero-art {
+    animation: none !important;
+  }
+}
+
+
+/* ===== SUCCESS EYEBROW — MATCH CASINO SIGNALS ===== */
+/* "ДОСТУП ПІДТВЕРДЖЕНО" у тому самому purple-neon стилі, що CASINO SIGNALS */
+.success-panel .eyebrow {
+  color: #d86bff !important;
+  background:
+    linear-gradient(
+      90deg,
+      #8f4cff 0%,
+      #d86bff 42%,
+      #f0b6ff 58%,
+      #9f5cff 100%
+    );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  text-shadow:
+    0 0 5px rgba(207, 91, 255, 0.26),
+    0 0 12px rgba(117, 63, 255, 0.10);
+
+  letter-spacing: 0.24em;
+}

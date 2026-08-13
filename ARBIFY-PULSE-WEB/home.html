@@ -1,0 +1,1722 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+
+    <meta
+      name="description"
+      content="Dashboard principale della piattaforma ARBIFY PULSE."
+    />
+
+    <meta name="theme-color" content="#020307" />
+
+    <meta
+      name="theme-color"
+      content="#020307"
+      media="(prefers-color-scheme: light)"
+    />
+
+    <meta
+      name="theme-color"
+      content="#020307"
+      media="(prefers-color-scheme: dark)"
+    />
+
+    <meta name="color-scheme" content="dark" />
+
+    <meta
+      name="msapplication-navbutton-color"
+      content="#020307"
+    />
+
+    <meta
+      name="apple-mobile-web-app-capable"
+      content="yes"
+    />
+
+    <meta
+      name="mobile-web-app-capable"
+      content="yes"
+    />
+
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black"
+    />
+
+    <meta
+      name="apple-mobile-web-app-title"
+      content="ARBIFY PULSE"
+    />
+
+    <title>ARBIFY PULSE — Home</title>
+
+    <link
+      rel="icon"
+      href="assets/favicon.svg"
+      type="image/svg+xml"
+    />
+
+    <link
+      rel="manifest"
+      href="manifest.json"
+    />
+
+    
+    <link rel="preload" href="assets/arbify-pulse-logo.png" as="image" fetchpriority="high" />
+<link
+      rel="preload"
+      href="assets/mythic-thunder.webp"
+      as="image"
+    />
+
+    <style>
+      :root {
+        color-scheme: dark;
+        background-color: #020307;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-width: 100%;
+        min-height: 100%;
+        background: #020307 !important;
+        background-color: #020307 !important;
+        touch-action: pan-y;
+        -ms-touch-action: pan-y;
+        overscroll-behavior: none;
+      }
+    </style>
+
+
+    <style id="catalog-search-critical-styles">
+      .catalog-search-wrap {
+        width: 100%;
+        margin: 0 0 16px;
+      }
+
+      .catalog-search-box {
+        width: 100%;
+        height: 44px;
+        padding: 0 12px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.055);
+      }
+
+      .catalog-search-box > svg {
+        width: 18px !important;
+        height: 18px !important;
+        min-width: 18px !important;
+        min-height: 18px !important;
+        max-width: 18px !important;
+        max-height: 18px !important;
+        flex: 0 0 18px !important;
+        display: block !important;
+        color: #8f8d9a;
+      }
+
+      .catalog-search-box input {
+        width: 100%;
+        min-width: 0;
+        height: 100%;
+        padding: 0;
+        border: 0;
+        outline: 0;
+        color: #f2eff7;
+        background: transparent;
+        font: inherit;
+        font-size: 13px;
+        appearance: none;
+        -webkit-appearance: none;
+      }
+
+      .catalog-search-box input::placeholder {
+        color: #777582;
+        opacity: 1;
+      }
+
+      .catalog-search-clear {
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        padding: 0;
+        display: grid;
+        place-items: center;
+        border: 0;
+        border-radius: 50%;
+        color: #8e8b98;
+        background: rgba(255, 255, 255, 0.055);
+      }
+
+      .catalog-search-clear[hidden] {
+        display: none !important;
+      }
+
+      .catalog-search-clear svg {
+        width: 14px !important;
+        height: 14px !important;
+        max-width: 14px !important;
+        max-height: 14px !important;
+        display: block !important;
+      }
+
+      .catalog-search-empty[hidden] {
+        display: none !important;
+      }
+    </style>
+
+
+    <style id="catalog-categories-critical-styles">
+      .all-slots-categories {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+      }
+
+      .all-slots-category-heart {
+        width: 14px !important;
+        height: 14px !important;
+        display: inline-grid !important;
+        place-items: center !important;
+        flex: 0 0 14px !important;
+        font-size: 16px !important;
+        line-height: 14px !important;
+      }
+    </style>
+
+    <link rel="stylesheet" href="home.css?v=20260810-welcome-topbar-align-2" />
+    <link rel="stylesheet" href="notifications.css" />
+
+    <link
+      rel="stylesheet"
+      href="transitions.css?v=20260730-1"
+    />
+<script src="web-api.js?v=20260813-web-1"></script>
+    <script src="transitions.js?v=20260730-1"></script>
+  </head>
+
+  <body>
+    <main class="page-shell">
+      <div class="ambient ambient-one"></div>
+      <div class="ambient ambient-two"></div>
+
+      <section
+        class="pulse-app"
+        aria-label="Home ARBIFY PULSE"
+      >
+        <div class="app-noise"></div>
+
+        <header class="topbar">
+          <div class="mini-brand image-brand">
+            <img
+              class="arbify-logo-image"
+              src="assets/arbify-pulse-logo.png"
+              alt="ARBIFY PULSE"
+              draggable="false"
+            
+              loading="eager"
+            
+              fetchpriority="high"
+            
+              decoding="sync"
+            />
+          </div>
+
+          <button
+            class="icon-button notification-button"
+            id="notificationButton"
+            type="button"
+            aria-label="Notifiche"
+            aria-controls="pulseNotificationCenter"
+            aria-expanded="false"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M6.2 10.2c0-3.6 2.1-6.2 5.8-6.2s5.8 2.6 5.8 6.2v4l1.7 2.4h-15l1.7-2.4v-4Z"
+              ></path>
+
+              <path
+                d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"
+              ></path>
+            </svg>
+
+            <span
+              class="notification-dot"
+              aria-hidden="true"
+            ></span>
+
+            <span
+              class="notification-badge"
+              data-notification-badge
+              aria-label="Nuove notifiche"
+              hidden
+            >
+              0
+            </span>
+          </button>
+        </header>
+
+        <div class="content">
+          <section class="access-card">
+            <div class="access-card-top">
+              <div>
+                <p class="micro-label">
+                  STATO ACCESSO
+                </p>
+
+                <p class="access-status">
+                  <span class="live-dot"></span>
+                  ATTIVO
+                </p>
+              </div>
+
+              <div class="key-badge">
+                <span>CHIAVE</span>
+                <strong>K7••••</strong>
+              </div>
+            </div>
+
+            <div class="access-divider"></div>
+
+            <div class="system-row">
+              <span class="system-orb">
+                <span></span>
+              </span>
+
+              <p>
+                <strong>
+                  Pulse Core online
+                </strong>
+
+                <span>
+                  Sistema pronto per l’analisi
+                </span>
+              </p>
+
+              <span class="online-pill">
+                ONLINE
+              </span>
+            </div>
+          </section>
+
+          <section class="slots-section">
+            <div class="section-title-row">
+              <div>
+                <p class="eyebrow">
+                  SCEGLI IL GIOCO
+                </p>
+
+                <h1>
+                  Slot popolari
+                </h1>
+              </div>
+
+              <button
+                class="text-link"
+                id="allSlotsButton"
+                type="button"
+              >
+                Tutte
+
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m9 5 7 7-7 7"></path>
+                </svg>
+              </button>
+            </div>
+
+            <div class="slot-grid">
+              <button
+                class="slot-card is-selected"
+                data-slot="Thunder Crown"
+                type="button"
+                style="--slot-accent: #8d4cff"
+              >
+                <span class="slot-image-wrap">
+                  <img
+                    src="assets/mythic-thunder.webp"
+                    alt=""
+                  />
+
+                  <span class="slot-shine"></span>
+
+                  <span class="selected-check">
+                    ✓
+                  </span>
+                </span>
+
+                <span class="slot-name">
+                  Thunder Crown
+                </span>
+              </button>
+
+              <button
+                class="slot-card"
+                data-slot="Candy Spiral"
+                type="button"
+                style="--slot-accent: #ff4ecb"
+              >
+                <span class="slot-image-wrap">
+                  <img
+                    src="assets/candy-spiral.webp"
+                    alt=""
+                  />
+
+                  <span class="slot-shine"></span>
+
+                  <span class="selected-check">
+                    ✓
+                  </span>
+                </span>
+
+                <span class="slot-name">
+                  Candy Spiral
+                </span>
+              </button>
+
+              <button
+                class="slot-card"
+                data-slot="Gem Rocket"
+                type="button"
+                style="--slot-accent: #21d4ff"
+              >
+                <span class="slot-image-wrap">
+                  <img
+                    src="assets/gem-rocket.webp"
+                    alt=""
+                  />
+
+                  <span class="slot-shine"></span>
+
+                  <span class="selected-check">
+                    ✓
+                  </span>
+                </span>
+
+                <span class="slot-name">
+                  Gem Rocket
+                </span>
+              </button>
+            </div>
+          </section>
+
+          <section
+            class="signal-card"
+            id="signalCard"
+          >
+            <div class="signal-card-glow"></div>
+
+            <button
+              class="last-signal-chip"
+              id="lastSignalChip"
+              type="button"
+              aria-expanded="false"
+              aria-controls="lastSignalFloat"
+              hidden
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M4 12a8 8 0 1 0 2.3-5.7"></path>
+                <path d="M4 5v5h5"></path>
+              </svg>
+
+              <span>Ultimo</span>
+
+              <i aria-hidden="true"></i>
+            </button>
+
+            <section
+              class="last-signal-popover"
+              id="lastSignalFloat"
+              aria-label="Ultimo segnale"
+              hidden
+            >
+              <div class="last-signal-popover-arrow"></div>
+
+              <div class="last-signal-thumb">
+                <img
+                  id="lastSignalImage"
+                  src=""
+                  alt=""
+                />
+
+                <span
+                  class="last-signal-live-dot"
+                  aria-hidden="true"
+                ></span>
+              </div>
+
+              <div class="last-signal-copy">
+                <div class="last-signal-topline">
+                  <span>ULTIMO SEGNALE</span>
+                  <small id="lastSignalTime"></small>
+                </div>
+
+                <strong id="lastSignalName"></strong>
+
+                <div class="last-signal-meta">
+                  <span id="lastSignalBet"></span>
+                  <i></i>
+                  <span id="lastSignalSpins"></span>
+                  <i></i>
+                  <span
+                    class="last-signal-risk"
+                    id="lastSignalRisk"
+                  ></span>
+                </div>
+              </div>
+
+              <div
+                class="last-signal-status"
+                aria-hidden="true"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m8 12 2.6 2.6L16.5 8.7"></path>
+                </svg>
+              </div>
+            </section>
+
+            <div
+              class="radar"
+              aria-hidden="true"
+            >
+              <span
+                class="radar-circle radar-circle-one"
+              ></span>
+
+              <span
+                class="radar-circle radar-circle-two"
+              ></span>
+
+              <span
+                class="radar-circle radar-circle-three"
+              ></span>
+
+              <span
+                class="radar-cross radar-cross-x"
+              ></span>
+
+              <span
+                class="radar-cross radar-cross-y"
+              ></span>
+
+              <span class="radar-sweep"></span>
+
+              <span class="radar-core">
+                <span></span>
+              </span>
+            </div>
+
+            <div class="signal-copy">
+              <p class="signal-kicker">
+                <span></span>
+                PULSE ANALYSIS
+              </p>
+
+              <h2 id="signalTitle">
+                NUOVO SEGNALE
+              </h2>
+<div
+                class="risk-profile"
+                id="riskProfile"
+                aria-label="Profilo di rischio"
+              >
+                <span class="risk-profile-label">
+                  PROFILO DI RISCHIO
+                </span>
+
+                <div
+                  class="risk-profile-options"
+                  role="radiogroup"
+                  aria-label="Seleziona il livello di rischio"
+                >
+                  <button
+                    class="risk-profile-option"
+                    type="button"
+                    data-risk="НИЗЬКИЙ"
+                    role="radio"
+                    aria-checked="false"
+                  >
+                    Basso
+                  </button>
+
+                  <button
+                    class="risk-profile-option is-active"
+                    type="button"
+                    data-risk="СЕРЕДНІЙ"
+                    role="radio"
+                    aria-checked="true"
+                  >
+                    Medio
+                  </button>
+
+                  <button
+                    class="risk-profile-option"
+                    type="button"
+                    data-risk="ВИСОКИЙ"
+                    role="radio"
+                    aria-checked="false"
+                  >
+                    Alto
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button
+              class="signal-button"
+              id="signalButton"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="m13.5 2-6 11h5l-2 9 7-12h-5l1-8Z"
+                ></path>
+              </svg>
+
+              <span id="signalButtonText">
+                AVVIA
+              </span>
+            </button>
+          </section>
+
+          <div class="responsible-line">
+            <span>18+</span>
+
+            <p>
+              Gioca responsabilmente. L’esito del gioco dipende
+              dal caso.
+            </p>
+          </div>
+        </div>
+
+        <!-- Welcome Tutorial ARBIFY PULSE -->
+        <section
+          class="pulse-welcome"
+          id="pulseOnboarding"
+          aria-label="Come usare ARBIFY PULSE"
+          hidden
+        >
+          <div
+            class="pulse-welcome-backdrop"
+            aria-hidden="true"
+          ></div>
+
+          <div
+            class="pulse-welcome-orb pulse-welcome-orb-one"
+            aria-hidden="true"
+          ></div>
+
+          <div
+            class="pulse-welcome-orb pulse-welcome-orb-two"
+            aria-hidden="true"
+          ></div>
+
+          <div class="pulse-welcome-shell">
+            <header class="pulse-welcome-header">
+              <div class="pulse-welcome-brand">
+                <img
+                  class="pulse-welcome-logo"
+                  src="assets/arbify-pulse-logo.png"
+                  alt="ARBIFY PULSE"
+                  draggable="false"
+                  loading="eager"
+                  fetchpriority="high"
+                  decoding="sync"
+                />
+              </div>
+
+              <button
+                class="pulse-welcome-skip"
+                id="pulseOnboardingSkip"
+                type="button"
+              >
+                Salta
+              </button>
+            </header>
+
+            <div class="pulse-welcome-intro">
+              <span class="pulse-welcome-kicker">
+                AVVIO RAPIDO
+              </span>
+
+              <h2>
+                3 passaggi per il primo segnale
+              </h2>
+
+              <p>
+                L’intero processo richiede meno di un minuto.
+                Ecco cosa devi fare.
+              </p>
+            </div>
+
+            <div class="pulse-welcome-steps">
+              <article class="pulse-welcome-step is-subid">
+                <div class="pulse-welcome-step-number">
+                  01
+                </div>
+
+                <div class="pulse-welcome-step-body">
+                  <div class="pulse-welcome-step-title">
+                    <div>
+                      <span>VERIFICA</span>
+                      <strong>Inserisci il SUBID</strong>
+                    </div>
+
+                    <span class="pulse-welcome-step-status">
+                      1 / 3
+                    </span>
+                  </div>
+
+                  <p>
+                    Il SUBID è il codice alla fine del tuo
+                    link di registrazione, dopo il simbolo
+                    <strong>=</strong>.
+                  </p>
+
+                  <div
+                    class="pulse-welcome-subid-demo"
+                    aria-hidden="true"
+                  >
+                    <span class="pulse-welcome-link-muted">
+                      ...?subid=
+                    </span>
+
+                    <span class="pulse-welcome-subid-value">
+                      AB12CD
+                    </span>
+
+                    <span class="pulse-welcome-copy-chip">
+                      COPIA
+                    </span>
+                  </div>
+                </div>
+              </article>
+
+              <article class="pulse-welcome-step is-config">
+                <div class="pulse-welcome-step-number">
+                  02
+                </div>
+
+                <div class="pulse-welcome-step-body">
+                  <div class="pulse-welcome-step-title">
+                    <div>
+                      <span>CONFIGURAZIONE</span>
+                      <strong>Scegli il gioco e il rischio</strong>
+                    </div>
+
+                    <span class="pulse-welcome-step-status">
+                      2 / 3
+                    </span>
+                  </div>
+
+                  <p>
+                    Scegli la slot desiderata, quindi
+                    seleziona il profilo di rischio più adatto a te.
+                  </p>
+
+                  <div
+                    class="pulse-welcome-config-demo"
+                    aria-hidden="true"
+                  >
+                    <div class="pulse-welcome-mini-slots">
+                      <span></span>
+                      <span class="is-demo-selected"></span>
+                      <span></span>
+                    </div>
+
+                    <div class="pulse-welcome-mini-risk">
+                      <span>Basso</span>
+                      <span class="is-demo-risk">Medio</span>
+                      <span>Alto</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="pulse-welcome-step is-launch">
+                <div class="pulse-welcome-step-number">
+                  03
+                </div>
+
+                <div class="pulse-welcome-step-body">
+                  <div class="pulse-welcome-step-title">
+                    <div>
+                      <span>PRONTO</span>
+                      <strong>Avvia il segnale</strong>
+                    </div>
+
+                    <span class="pulse-welcome-step-status">
+                      3 / 3
+                    </span>
+                  </div>
+
+                  <p>
+                    Premi «Avvia» — Pulse eseguirà
+                    l’analisi e mostrerà i parametri del segnale.
+                  </p>
+
+                  <div
+                    class="pulse-welcome-launch-demo"
+                    aria-hidden="true"
+                  >
+                    <span class="pulse-welcome-demo-button">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="m13.5 2-6 11h5l-2 9 7-12h-5l1-8Z"></path>
+                      </svg>
+
+                      AVVIA
+
+                      <i></i>
+                    </span>
+
+                    <span class="pulse-welcome-ready">
+                      <b></b>
+                      SEGNALE PRONTO
+                    </span>
+                  </div>
+                </div>
+              </article>
+            </div>
+
+            <div class="pulse-welcome-footer">
+              <p>
+                Il sistema richiederà il SUBID solo prima
+                del primo avvio di un segnale.
+              </p>
+
+              <button
+                class="pulse-welcome-start"
+                id="pulseOnboardingNext"
+                type="button"
+              >
+                <span>ENTRA IN ARBIFY</span>
+
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m9 5 7 7-7 7"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Catalogo completo delle slot -->
+        <section
+          class="all-slots-overlay"
+          id="allSlotsOverlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="allSlotsTitle"
+          hidden
+        >
+          <header class="all-slots-header">
+            <button
+              class="all-slots-back-button"
+              id="allSlotsBackButton"
+              type="button"
+              aria-label="Torna alla Home"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m15 5-7 7 7 7"></path>
+              </svg>
+            </button>
+
+            <div>
+              <p>CATALOGO GIOCHI</p>
+              <h2 id="allSlotsTitle">Tutte le slot</h2>
+            </div>
+
+            <span
+              class="all-slots-count"
+              id="allSlotsCount"
+            >
+              0
+            </span>
+          </header>
+
+          <div class="all-slots-content">
+            <div class="catalog-search-wrap">
+              <label class="catalog-search-box" for="allSlotsSearchInput">
+                <svg width="18" height="18" style="width:18px!important;height:18px!important;min-width:18px!important;min-height:18px!important;max-width:18px!important;max-height:18px!important;display:block!important;flex:0 0 18px!important;"
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="11" cy="11" r="6.5"></circle>
+                  <path d="m16 16 4 4"></path>
+                </svg>
+
+                <input
+                  id="allSlotsSearchInput"
+                  type="text"
+                  placeholder="Cerca una slot"
+                  maxlength="60"
+                  autocomplete="off"
+                  autocapitalize="off"
+                  spellcheck="false"
+                />
+
+                <button
+                  class="catalog-search-clear"
+                  id="allSlotsSearchClear"
+                  type="button"
+                  aria-label="Cancella ricerca"
+                  hidden
+                >
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                  >
+                    <path d="M7 7l10 10M17 7 7 17"></path>
+                  </svg>
+                </button>
+              </label>
+            </div>
+
+            <div
+              class="all-slots-categories"
+              id="allSlotsCategories"
+              role="tablist"
+              aria-label="Categorie slot"
+            >
+              <button
+                class="all-slots-category is-active"
+                type="button"
+                data-category="all"
+                role="tab"
+                aria-selected="true"
+              >
+                Tutte
+              </button>
+
+              <button
+                class="all-slots-category"
+                type="button"
+                data-category="popular"
+                role="tab"
+                aria-selected="false"
+              >
+                Popolari
+              </button>
+
+              <button
+                class="all-slots-category"
+                type="button"
+                data-category="new"
+                role="tab"
+                aria-selected="false"
+              >
+                Nuove
+              </button>
+
+              <button
+                class="all-slots-category"
+                type="button"
+                data-category="megaways"
+                role="tab"
+                aria-selected="false"
+              >
+                Megaways
+              </button>
+
+              <button
+                class="all-slots-category all-slots-category-favorites"
+                id="allSlotsFavoritesButton"
+                type="button"
+                data-category="favorites"
+                role="tab"
+                aria-selected="false"
+                aria-pressed="false"
+              >
+                <span class="all-slots-category-heart" aria-hidden="true">♡</span>
+                <span>Preferiti</span>
+                <strong id="favoriteSlotsCount">0</strong>
+              </button>
+            </div>
+
+<div
+              class="all-slots-grid"
+              id="allSlotsGrid"
+            ></div>
+
+            <div
+              class="catalog-search-empty"
+              id="allSlotsEmpty"
+              hidden
+            >
+              <strong id="allSlotsEmptyTitle">Nessun risultato</strong>
+              <span id="allSlotsEmptyText">Prova con un altro nome</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Finestra di verifica SUBID -->
+        <section
+          class="subid-modal"
+          id="subIdModal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="subIdModalTitle"
+          hidden
+        >
+          <div
+            class="subid-modal-backdrop"
+            aria-hidden="true"
+          ></div>
+
+          <div class="subid-dialog">
+            <button
+              class="subid-close-button"
+              id="subIdCloseButton"
+              type="button"
+              aria-label="Chiudi verifica SUBID"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              >
+                <path
+                  d="M6 6l12 12M18 6 6 18"
+                ></path>
+              </svg>
+            </button>
+
+            <div class="subid-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 32 32"
+                fill="none"
+              >
+                <path
+                  d="M12.5 18.5a6 6 0 1 1 4.4 3.4"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                ></path>
+
+                <path
+                  d="M17 17 27 7M22 7h5v5"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+              </svg>
+            </div>
+
+            <div
+              class="subid-form-view"
+              id="subIdFormView"
+            >
+              <p class="subid-kicker">
+                VERIFICA REGISTRAZIONE
+              </p>
+
+              <h2 id="subIdModalTitle">
+                Inserisci il tuo SUBID
+              </h2>
+
+              <p class="subid-description">
+                Inserisci il SUBID associato al tuo
+                link personale di registrazione.
+              </p>
+
+              <form
+                class="subid-form"
+                id="subIdForm"
+                novalidate
+              >
+                <label
+                  class="subid-field"
+                  id="subIdField"
+                >
+                  <span class="sr-only">
+                    Il tuo SUBID
+                  </span>
+
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle
+                      cx="8"
+                      cy="15.5"
+                      r="3.5"
+                    ></circle>
+
+                    <path
+                      d="m10.6 13 7.6-7.6M16 7.7l2.3 2.3M18.2 5.5l1.7 1.7"
+                    ></path>
+                  </svg>
+
+                  <input
+                    id="subIdInput"
+                    type="text"
+                    placeholder="Inserisci il tuo SUBID"
+                    maxlength="64"
+                    autocomplete="off"
+                    autocapitalize="off"
+                    spellcheck="false"
+                  />
+                </label>
+
+                <p
+                  class="subid-message"
+                  id="subIdMessage"
+                  aria-live="polite"
+                >
+                  &nbsp;
+                </p>
+
+                <button
+                  class="subid-verify-button"
+                  id="subIdVerifyButton"
+                  type="submit"
+                >
+                  <span class="subid-button-loader"></span>
+
+                  <span id="subIdVerifyText">
+                    VERIFICA SUBID
+                  </span>
+                </button>
+              </form>
+
+              <p class="subid-hint">
+                Il SUBID si trova alla fine del tuo
+                link di registrazione
+              </p>
+            </div>
+
+            <div
+              class="subid-success-view"
+              id="subIdSuccessView"
+              hidden
+            >
+              <div class="subid-success-check">
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 32 32"
+                  fill="none"
+                >
+                  <path
+                    d="m8.5 16.5 5 5 10-11"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>
+                </svg>
+              </div>
+
+              <p>
+                REGISTRAZIONE VERIFICATA
+              </p>
+
+              <h2>
+                Accesso consentito
+              </h2>
+
+              <span>
+                Avvio dell’analisi della slot selezionata
+              </span>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- Avviso di segnale già attivo -->
+        <section
+          class="active-signal-notice"
+          id="activeSignalNotice"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="activeSignalNoticeTitle"
+          hidden
+        >
+          <div
+            class="active-signal-notice-backdrop"
+            id="activeSignalNoticeBackdrop"
+            aria-hidden="true"
+          ></div>
+
+          <div class="active-signal-notice-dialog">
+            <div class="active-signal-notice-head">
+              <div class="active-signal-notice-status">
+                <span aria-hidden="true"></span>
+                SEGNALE ATTIVO
+              </div>
+
+              <div
+                class="active-signal-notice-pulse"
+                aria-hidden="true"
+              >
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+
+            <h2 id="activeSignalNoticeTitle">
+              Il segnale attuale è ancora attivo
+            </h2>
+
+            <p class="active-signal-notice-copy">
+              Un nuovo segnale sarà disponibile al termine
+              della sessione corrente.
+            </p>
+
+            <div class="active-signal-notice-time">
+              <span>TEMPO RIMANENTE</span>
+
+              <strong id="activeSignalNoticeTime">
+                00:00
+              </strong>
+            </div>
+
+            <div
+              class="active-signal-notice-progress"
+              aria-hidden="true"
+            >
+              <span></span>
+            </div>
+
+            <button
+              class="active-signal-notice-button"
+              id="activeSignalNoticeButton"
+              type="button"
+            >
+              TORNA AL SEGNALE
+            </button>
+          </div>
+        </section>
+
+
+        <!-- Processo di scansione a schermo intero -->
+        <section
+          class="signal-overlay"
+          id="signalOverlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="signalOverlayTitle"
+          hidden
+        >
+          <header class="signal-overlay-header">
+            <button
+              class="signal-back-button"
+              id="signalBackButton"
+              type="button"
+              aria-label="Torna alla Home"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="m15 5-7 7 7 7"
+                ></path>
+              </svg>
+            </button>
+
+            <p id="signalOverlayTitle">
+              NUOVO SEGNALE
+            </p>
+
+            <span
+              class="signal-header-spacer"
+              aria-hidden="true"
+            ></span>
+          </header>
+
+          <div
+            class="scan-view"
+            id="scanView"
+          >
+            <div class="scan-slot">
+              <img
+                id="scanSlotImage"
+                src="assets/mythic-thunder.webp"
+                alt=""
+              />
+
+              <div>
+                <span>
+                  ANALISI SLOT
+                </span>
+
+                <strong id="scanSlotName">
+                  Thunder Crown
+                </strong>
+              </div>
+            </div>
+
+            <div
+              class="scan-radar"
+              aria-hidden="true"
+            >
+              <span
+                class="scan-ring scan-ring-one"
+              ></span>
+
+              <span
+                class="scan-ring scan-ring-two"
+              ></span>
+
+              <span
+                class="scan-ring scan-ring-three"
+              ></span>
+
+              <span
+                class="scan-line scan-line-horizontal"
+              ></span>
+
+              <span
+                class="scan-line scan-line-vertical"
+              ></span>
+
+              <span class="scan-sweep"></span>
+
+              <span class="scan-center">
+                <span></span>
+              </span>
+            </div>
+
+            <div class="scan-copy">
+              <p class="scan-kicker">
+                PULSE CORE ANALYSIS
+              </p>
+
+              <h2>
+                SCANSIONE...
+              </h2>
+
+              <p id="scanStatus">
+                Connessione al motore di analisi
+              </p>
+
+              <strong id="scanPercent">
+                0%
+              </strong>
+            </div>
+
+            <div
+              class="scan-progress"
+              aria-hidden="true"
+            >
+              <span id="scanProgress"></span>
+            </div>
+
+            <p class="scan-wait">
+              Attendi qualche secondo
+              <span></span>
+            </p>
+          </div>
+
+          <div
+            class="result-view"
+            id="resultView"
+            hidden
+          >
+            <div class="result-success-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 32 32"
+                fill="none"
+              >
+                <path
+                  d="m8.5 16.5 5 5 10-11"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+              </svg>
+            </div>
+
+            <p class="result-kicker">
+              SEGNALE PRONTO
+            </p>
+
+            <h2>
+              Puoi iniziare
+            </h2>
+
+            <div class="result-slot-card">
+              <img
+                id="resultSlotImage"
+                src="assets/mythic-thunder.webp"
+                alt=""
+              />
+
+              <div>
+                <span>
+                  SLOT SELEZIONATA
+                </span>
+
+                <strong id="resultSlotName">
+                  Thunder Crown
+                </strong>
+              </div>
+            </div>
+
+            <div class="result-details">
+              <div class="result-row">
+                <span>
+                  Puntata consigliata
+                </span>
+
+                <strong id="resultBet">
+                  0,50 €
+                </strong>
+              </div>
+
+              <div class="result-row">
+                <span>
+                  Numero di giri
+                </span>
+
+                <strong id="resultSpins">
+                  12
+                </strong>
+              </div>
+
+              <div class="result-row">
+                <span>
+                  Livello di rischio
+                </span>
+
+                <strong
+                  class="result-risk"
+                  id="resultRisk"
+                >
+                  <span></span>
+                  MEDIO
+                </strong>
+              </div>
+
+              <div class="result-row">
+                <span>
+                  Durata del segnale
+                </span>
+
+                <strong id="resultDuration">
+                  03:00
+                </strong>
+              </div>
+            </div>
+
+
+            <section
+              class="active-signal-timer"
+              id="activeSignalTimer"
+              aria-live="polite"
+              hidden
+            >
+              <div class="active-signal-timer-top">
+                <div class="active-signal-timer-status">
+                  <span
+                    class="active-signal-timer-dot"
+                    aria-hidden="true"
+                  ></span>
+
+                  <span id="activeSignalTimerStatus">
+                    SEGNALE ATTIVO
+                  </span>
+                </div>
+
+                <span
+                  class="active-signal-timer-slot"
+                  id="activeSignalTimerSlot"
+                ></span>
+              </div>
+
+              <strong
+                class="active-signal-timer-value"
+                id="activeSignalTimerValue"
+              >
+                03:00
+              </strong>
+
+              <div
+                class="active-signal-timer-progress"
+                aria-hidden="true"
+              >
+                <span id="activeSignalTimerProgress"></span>
+              </div>
+
+              <p
+                class="active-signal-timer-hint"
+                id="activeSignalTimerHint"
+              >
+                Segui i parametri del segnale fino al termine del timer
+              </p>
+            </section>
+
+            <button
+              class="result-action-button"
+              id="resultActionButton"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="m13.5 2-6 11h5l-2 9 7-12h-5l1-8Z"
+                ></path>
+              </svg>
+
+              <span>
+                AVVIA SEGNALE
+              </span>
+            </button>
+
+            <button
+              class="result-new-button"
+              id="resultNewButton"
+              type="button"
+            >
+              CREA NUOVO SEGNALE
+            </button>
+
+            <p class="result-warning">
+              18+ · L’esito del gioco dipende dal caso
+            </p>
+          </div>
+        </section>
+
+        <nav
+          class="bottom-nav"
+          aria-label="Menu principale"
+        >
+          <button
+            class="nav-item is-active"
+            type="button"
+            data-section="Головна"
+          >
+            <span class="nav-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="m3.5 10.4 8.5-7 8.5 7"
+                ></path>
+
+                <path
+                  d="M5.8 9.2v10.2h12.4V9.2M9.5 19.4v-6.2h5v6.2"
+                ></path>
+              </svg>
+            </span>
+
+            <span>Home</span>
+          </button>
+
+          <a
+            class="nav-item"
+            href="signals.html"
+            data-section="Сигнали"
+          >
+            <span class="nav-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M12 4v16"
+                ></path>
+
+                <path
+                  d="M7.8 7.4a6 6 0 0 0 0 9.2M16.2 7.4a6 6 0 0 1 0 9.2"
+                ></path>
+
+                <path
+                  d="M4.7 4.3a10.2 10.2 0 0 0 0 15.4M19.3 4.3a10.2 10.2 0 0 1 0 15.4"
+                ></path>
+              </svg>
+            </span>
+
+            <span>Segnali</span>
+          </a>
+
+          <a
+            class="nav-item"
+            href="bonuses.html"
+            data-section="Бонуси"
+          >
+            <span class="nav-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M4 10.2h16v10H4zM3 6.8h18v3.4H3zM12 6.8v13.4"
+                ></path>
+
+                <path
+                  d="M11.7 6.7C9.8 6.9 7 6.5 7 4.5 7 2.2 11 3 11.7 6.7ZM12.3 6.7c1.9.2 4.7-.2 4.7-2.2 0-2.3-4-1.5-4.7 2.2Z"
+                ></path>
+              </svg>
+            </span>
+
+            <span>Bonus</span>
+          </a>
+
+          <a
+            class="nav-item"
+            href="profile.html"
+            data-section="Профіль"
+          >
+            <span class="nav-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle
+                  cx="12"
+                  cy="8"
+                  r="4"
+                ></circle>
+
+                <path
+                  d="M4.8 20c.7-4 3.1-6 7.2-6s6.5 2 7.2 6"
+                ></path>
+              </svg>
+            </span>
+
+            <span>Profilo</span>
+          </a>
+        </nav>
+
+        <div
+          class="toast"
+          id="toast"
+          role="status"
+          aria-live="polite"
+        >
+          <span class="toast-dot"></span>
+          <span id="toastText"></span>
+        </div>
+      </section>
+    </main>
+
+    <script src="notifications.js?v=20260803-1"></script>
+    <script src="home.js?v=20260809-last-signal-chip-1"></script>
+  </body>
+</html>

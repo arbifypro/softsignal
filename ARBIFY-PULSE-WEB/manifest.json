@@ -1,0 +1,20 @@
+{
+  "name": "ARBIFY PULSE",
+  "short_name": "ARBIFY",
+  "description": "Versione web di ARBIFY PULSE",
+  "lang": "it",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#020307",
+  "theme_color": "#020307",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+
+    <meta
+      name="description"
+      content="Accesso riservato alla piattaforma di segnali di gioco ARBIFY PULSE."
+    />
+
+    <meta name="theme-color" content="#020307" />
+    <meta
+      name="theme-color"
+      content="#020307"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#020307"
+      media="(prefers-color-scheme: dark)"
+    />
+    <meta name="color-scheme" content="dark" />
+    <meta name="msapplication-navbutton-color" content="#020307" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="ARBIFY PULSE" />
+
+    <title>ARBIFY PULSE — segnali riservati</title>
+
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="manifest.json" />
+    <link
+      rel="preload"
+      href="assets/arbify-pulse-logo.png"
+      as="image"
+      fetchpriority="high"
+    />
+
+    <style>
+      :root {
+        color-scheme: dark;
+        background-color: #020307;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-width: 100%;
+        min-height: 100%;
+        background: #020307 !important;
+        background-color: #020307 !important;
+        touch-action: pan-y;
+        -ms-touch-action: pan-y;
+        overscroll-behavior: none;
+      }
+    </style>
+
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="effects.css" />
+  </head>
+
+  <body>
+    <main class="page-shell">
+      <div class="ambient ambient-one"></div>
+      <div class="ambient ambient-two"></div>
+
+      <section class="signal-app" aria-label="Accesso ad ARBIFY PULSE">
+        <div class="app-noise"></div>
+
+        <header class="brand">
+          <img
+            class="index-brand-logo"
+            src="assets/arbify-pulse-logo.png"
+            alt="ARBIFY PULSE"
+            draggable="false"
+            loading="eager"
+            fetchpriority="high"
+            decoding="sync"
+          />
+
+          <p class="index-brand-tag">CASINO SIGNALS</p>
+        </header>
+
+        <div class="hero-visual" aria-hidden="true">
+          <div class="slot-aura"></div>
+          <div class="light-streak light-streak-one"></div>
+          <div class="light-streak light-streak-two"></div>
+
+          <img
+            class="hero-art"
+            src="assets/arbify-pulse-hero-v2.png"
+            alt=""
+            draggable="false"
+          />
+
+          <div class="hero-vignette"></div>
+        </div>
+
+        <section class="access-panel" id="accessPanel">
+          <div class="section-heading">
+            <h1>Accesso riservato</h1>
+            <p>Inserisci la tua chiave personale per continuare</p>
+          </div>
+
+          <form id="accessForm" novalidate>
+            <label class="key-field" id="keyField">
+              <span class="sr-only">Chiave di accesso</span>
+              <input
+                id="accessKey"
+                type="text"
+                placeholder="Inserisci la chiave"
+                maxlength="32"
+                autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+              />
+              <span class="field-icon">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                  <circle cx="8.5" cy="15.5" r="3.5" stroke="currentColor" stroke-width="1.6"></circle>
+                  <path d="m11 13 7.2-7.2M16 8l2 2M18.5 5.5l1.5 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+                </svg>
+              </span>
+              <span class="key-length" id="keyLength" aria-hidden="true"></span>
+            </label>
+
+            <div class="form-message" id="formMessage" aria-live="polite">&nbsp;</div>
+
+            <button class="access-button" id="accessButton" type="submit">
+              <span class="button-sheen"></span>
+              <span class="button-label">ACCEDI</span>
+            </button>
+          </form>
+        </section>
+
+        <section class="success-panel" id="successPanel" aria-live="polite" hidden>
+          <div class="success-icon">
+            <svg aria-hidden="true" viewBox="0 0 32 32" fill="none">
+              <path d="m8.5 16.5 5 5 10-11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+
+          <p class="eyebrow">ACCESSO CONFERMATO</p>
+          <h1>Benvenuto su Pulse</h1>
+          <p class="success-copy">Chiave verificata. Il tuo profilo segnali è pronto.</p>
+
+          <button class="access-button success-button" id="continueButton" type="button">
+            <span>VAI AI SEGNALI</span>
+            <span aria-hidden="true">→</span>
+          </button>
+
+          <button class="text-button" id="resetButton" type="button">Inserisci un'altra chiave</button>
+        </section>
+
+        <footer>
+          <div class="support-popover" id="supportPopover" role="status" hidden>
+            Contatta il referente che ti ha fornito la chiave di accesso.
+          </div>
+
+          <button class="support-button" id="supportButton" type="button" aria-expanded="false">
+            <span class="support-pulse"></span>
+            Ottieni una chiave di accesso
+          </button>
+
+          <p class="version">© 2022–2026 ArbifyPulse Inc.</p>
+        </footer>
+      </section>
+    </main>
+<script src="web-api.js?v=20260813-web-1"></script>
+    <script src="script.js?v=20260803-1"></script>
+  </body>
+</html>

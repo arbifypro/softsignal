@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+
+    <meta
+      name="description"
+      content="Segnali della community ARBIFY PULSE in tempo reale."
+    />
+
+    <meta name="theme-color" content="#020307" />
+    <meta
+      name="theme-color"
+      content="#020307"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#020307"
+      media="(prefers-color-scheme: dark)"
+    />
+
+    <meta name="color-scheme" content="dark" />
+    <meta name="msapplication-navbutton-color" content="#020307" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="ARBIFY PULSE" />
+
+    <title>Segnali LIVE — ARBIFY PULSE</title>
+
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="manifest.json" />
+
+    
+    <link rel="preload" href="assets/arbify-pulse-logo.png" as="image" fetchpriority="high" />
+<link rel="preload" href="assets/mythic-thunder.webp" as="image" />
+    <link rel="preload" href="assets/candy-spiral.webp" as="image" />
+    <link rel="preload" href="assets/gem-rocket.webp" as="image" />
+
+    <style>
+      :root {
+        color-scheme: dark;
+        background: #020307;
+        background-color: #020307;
+      }
+
+      html,
+      body {
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+        height: 100%;
+        min-height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: #020307 !important;
+        background-color: #020307 !important;
+        touch-action: pan-y;
+        -ms-touch-action: pan-y;
+        overscroll-behavior: none;
+      }
+
+      body {
+        opacity: 1 !important;
+      }
+
+      .page-shell {
+        width: 100vw !important;
+        max-width: none !important;
+      }
+
+      .pulse-app,
+      .signals-app {
+        width: min(100vw, 430px) !important;
+        max-width: 430px !important;
+      }
+    </style>
+
+    <link rel="stylesheet" href="signals.css?v=20260729-2" />
+    <link rel="stylesheet" href="notifications.css" />
+    <link
+      rel="stylesheet"
+      href="transitions.css?v=20260730-1"
+    />
+
+    <script src="transitions.js?v=20260730-1"></script>
+<script src="web-api.js?v=20260813-web-1"></script>
+  </head>
+
+  <body>
+    <main class="page-shell">
+      <div class="ambient ambient-one" aria-hidden="true"></div>
+      <div class="ambient ambient-two" aria-hidden="true"></div>
+
+      <section
+        class="pulse-app signals-app"
+        aria-label="Segnali LIVE ARBIFY PULSE"
+      >
+        <div class="app-noise" aria-hidden="true"></div>
+        <div class="content">
+          <header class="topbar">
+                    <a
+                      class="mini-brand image-brand"
+                      href="home.html"
+                      aria-label="ARBIFY PULSE — Home"
+                    >
+                      <img
+                        class="arbify-logo-image"
+                        src="assets/arbify-pulse-logo.png"
+                        alt="ARBIFY PULSE"
+                        draggable="false"
+                      
+                        loading="eager"
+                      
+                        fetchpriority="high"
+                      
+                        decoding="sync"
+                      />
+                    </a>
+          
+                    <button
+                      class="icon-button notification-button"
+                      id="notificationButton"
+                      type="button"
+                      aria-label="Notifiche"
+                      aria-controls="pulseNotificationCenter"
+                      aria-expanded="false"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.7"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path
+                          d="M6.2 10.2c0-3.6 2.1-6.2 5.8-6.2s5.8 2.6 5.8 6.2v4l1.7 2.4h-15l1.7-2.4v-4Z"
+                        ></path>
+          
+                        <path
+                          d="M9.8 19.2c.5.6 1.2.8 2.2.8s1.7-.2 2.2-.8"
+                        ></path>
+                      </svg>
+          
+                      <span
+                        class="notification-dot"
+                        aria-hidden="true"
+                      ></span>
+          
+                      <span
+                        class="notification-badge"
+                        data-notification-badge
+                        aria-label="Nuove notifiche"
+                        hidden
+                      >
+                        0
+                      </span>
+                    </button>
+                  </header>
+
+          <section class="live-hero" aria-labelledby="livePageTitle">
+            <div class="live-hero-top">
+              <div>
+                <p class="live-eyebrow">
+                  <span class="live-pulse-dot" aria-hidden="true"></span>
+                  PULSE LIVE
+                </p>
+
+                <h1 id="livePageTitle">Segnali della community</h1>
+              </div>
+
+              <div class="connection-pill" id="connectionPill">
+                <span aria-hidden="true"></span>
+                ONLINE
+              </div>
+            </div>
+
+            <p class="live-description">
+              Le nuove attività vengono visualizzate automaticamente in tempo reale
+            </p>
+
+            <div class="next-signal">
+              <div class="next-signal-icon" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+
+              <div>
+                <span>PROSSIMO AGGIORNAMENTO</span>
+                <strong id="nextSignalTimer">tra 6 secondi</strong>
+              </div>
+            </div>
+          </section>
+
+          <section class="live-stats" aria-label="Statistiche dei segnali">
+            <div class="stat-item">
+              <span>ATTIVI</span>
+              <strong id="activeSignalsCount">—</strong>
+
+              <small class="stat-live">
+                <span aria-hidden="true"></span>
+                ora
+              </small>
+            </div>
+
+            <div class="stat-divider" aria-hidden="true"></div>
+
+            <div class="stat-item">
+              <span>VINCENTI</span>
+              <strong class="stat-win" id="wonSignalsCount">—</strong>
+              <small>oggi</small>
+            </div>
+
+            <div class="stat-divider" aria-hidden="true"></div>
+
+            <div class="stat-item">
+              <span>TOTALE</span>
+              <strong id="totalSignalsCount">—</strong>
+              <small>nelle ultime 24 ore</small>
+            </div>
+          </section>
+
+          <section class="feed-section" aria-labelledby="feedTitle">
+            <div class="feed-heading">
+              <div>
+                <p class="section-kicker">ATTIVITÀ DEGLI UTENTI</p>
+                <h2 id="feedTitle">Feed LIVE</h2>
+              </div>
+
+              <span class="demo-mode-badge" id="feedModeBadge">
+                LIVE
+              </span>
+            </div>
+
+            <div class="filter-scroller" aria-label="Filtri dei segnali">
+              <button
+                class="filter-button is-active"
+                type="button"
+                data-filter="all"
+                aria-pressed="true"
+              >
+                Tutti
+                <span id="allFilterCount">0</span>
+              </button>
+
+              <button
+                class="filter-button"
+                type="button"
+                data-filter="active"
+                aria-pressed="false"
+              >
+                Attivi
+                <span id="activeFilterCount">0</span>
+              </button>
+
+              <button
+                class="filter-button"
+                type="button"
+                data-filter="won"
+                aria-pressed="false"
+              >
+                Vincenti
+                <span id="wonFilterCount">0</span>
+              </button>
+
+              <button
+                class="filter-button"
+                type="button"
+                data-filter="lost"
+                aria-pressed="false"
+              >
+                Non riusciti
+                <span id="lostFilterCount">0</span>
+              </button>
+            </div>
+
+            <div
+              class="new-signal-banner"
+              id="newSignalBanner"
+              role="status"
+              aria-live="polite"
+              hidden
+            >
+              <span class="new-signal-wave" aria-hidden="true"></span>
+
+              <div>
+                <strong>Nuovo segnale LIVE</strong>
+                <span id="newSignalBannerText">Aggiunto al feed</span>
+              </div>
+            </div>
+
+            <div
+              class="live-feed"
+              id="signalFeed"
+              aria-live="polite"
+              aria-busy="true"
+            >
+              <div class="signal-skeleton" aria-hidden="true">
+                <span class="skeleton-avatar"></span>
+                <span class="skeleton-line skeleton-line-long"></span>
+                <span class="skeleton-line skeleton-line-short"></span>
+                <span class="skeleton-block"></span>
+              </div>
+
+              <div class="signal-skeleton" aria-hidden="true">
+                <span class="skeleton-avatar"></span>
+                <span class="skeleton-line skeleton-line-long"></span>
+                <span class="skeleton-line skeleton-line-short"></span>
+                <span class="skeleton-block"></span>
+              </div>
+
+              <div class="signal-skeleton" aria-hidden="true">
+                <span class="skeleton-avatar"></span>
+                <span class="skeleton-line skeleton-line-long"></span>
+                <span class="skeleton-line skeleton-line-short"></span>
+                <span class="skeleton-block"></span>
+              </div>
+            </div>
+
+            <div class="empty-feed" id="emptyFeed" hidden>
+              <span class="empty-feed-icon" aria-hidden="true">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 4v16"></path>
+                  <path d="M7.8 7.4a6 6 0 0 0 0 9.2"></path>
+                  <path d="M16.2 7.4a6 6 0 0 1 0 9.2"></path>
+                </svg>
+              </span>
+
+              <strong>Nessun segnale al momento</strong>
+              <p>I nuovi segnali appariranno automaticamente in questo feed</p>
+            </div>
+          </section>
+
+          <div class="responsible-line">
+            <span>18+</span>
+            <p>Gioca responsabilmente. L’esito del gioco dipende dal caso.</p>
+          </div>
+        </div>
+
+        <nav class="bottom-nav" aria-label="Menu principale">
+          <a class="nav-item" href="home.html" data-section="Головна">
+            <span class="nav-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m3.5 10.4 8.5-7 8.5 7"></path>
+
+                <path
+                  d="M5.8 9.2v10.2h12.4V9.2M9.5 19.4v-6.2h5v6.2"
+                ></path>
+              </svg>
+            </span>
+
+            <span>Home</span>
+          </a>
+
+          <a
+            class="nav-item is-active"
+            href="signals.html"
+            data-section="Сигнали"
+            aria-current="page"
+          >
+            <span class="nav-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 4v16"></path>
+                <path d="M7.8 7.4a6 6 0 0 0 0 9.2"></path>
+                <path d="M16.2 7.4a6 6 0 0 1 0 9.2"></path>
+                <path d="M4.7 4.3a10.2 10.2 0 0 0 0 15.4"></path>
+                <path d="M19.3 4.3a10.2 10.2 0 0 1 0 15.4"></path>
+              </svg>
+            </span>
+
+            <span>Segnali</span>
+          </a>
+
+          <a
+            class="nav-item"
+            href="bonuses.html"
+            data-section="Бонуси"
+          >
+            <span class="nav-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M4 10.2h16v10H4zM3 6.8h18v3.4H3zM12 6.8v13.4"
+                ></path>
+
+                <path
+                  d="M11.7 6.7C9.8 6.9 7 6.5 7 4.5 7 2.2 11 3 11.7 6.7ZM12.3 6.7c1.9.2 4.7-.2 4.7-2.2 0-2.3-4-1.5-4.7 2.2Z"
+                ></path>
+              </svg>
+            </span>
+
+            <span>Bonus</span>
+          </a>
+
+          <a class="nav-item" href="profile.html" data-section="Профіль">
+            <span class="nav-icon">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="8" r="4"></circle>
+
+                <path
+                  d="M4.8 20c.7-4 3.1-6 7.2-6s6.5 2 7.2 6"
+                ></path>
+              </svg>
+            </span>
+
+            <span>Profilo</span>
+          </a>
+        </nav>
+
+        <div
+          class="toast"
+          id="toast"
+          role="status"
+          aria-live="polite"
+        >
+          <span class="toast-dot" aria-hidden="true"></span>
+          <span id="toastText"></span>
+        </div>
+      </section>
+    </main>
+
+    <template id="signalCardTemplate">
+      <article class="live-signal-card" data-status="active">
+        <span class="card-accent" aria-hidden="true"></span>
+
+        <header class="signal-user-row">
+          <div class="signal-user">
+            <span class="user-avatar" data-avatar></span>
+
+            <span class="user-copy">
+              <strong data-user></strong>
+
+              <span>
+                <span class="user-online-dot" aria-hidden="true"></span>
+                UTENTE PULSE
+              </span>
+            </span>
+          </div>
+
+          <time class="signal-time" data-time></time>
+        </header>
+
+        <div class="signal-game-row">
+          <img
+            class="signal-game-image"
+            data-slot-image
+            src=""
+            alt=""
+          />
+
+          <div class="signal-game-copy">
+            <span>SEGNALE PER LA SLOT</span>
+            <strong data-slot-name></strong>
+            <small data-signal-id></small>
+          </div>
+
+          <span class="signal-status" data-status-label>
+            <span aria-hidden="true"></span>
+            ATTIVO
+          </span>
+        </div>
+
+        <div class="signal-metrics">
+          <div>
+            <span>PUNTATA</span>
+            <strong data-bet></strong>
+          </div>
+
+          <div>
+            <span>GIRI</span>
+            <strong data-spins></strong>
+          </div>
+
+          <div>
+            <span>RISULTATO</span>
+            <strong data-result>IN ATTESA</strong>
+          </div>
+        </div>
+
+        <div class="signal-progress" data-progress-wrap>
+          <div class="signal-progress-copy">
+            <span data-progress-label>Segnale in corso</span>
+            <strong data-progress-percent>0%</strong>
+          </div>
+
+          <span class="signal-progress-track">
+            <span data-progress-bar></span>
+          </span>
+        </div>
+
+        <div class="signal-outcome" data-outcome hidden>
+          <span
+            class="outcome-icon"
+            data-outcome-icon
+            aria-hidden="true"
+          ></span>
+
+          <div>
+            <span data-outcome-label></span>
+            <strong data-outcome-value></strong>
+          </div>
+        </div>
+      </article>
+    </template>
+
+    <script src="notifications.js?v=20260803-1"></script>
+    <script src="signals.js?v=20260804-2"></script>
+  </body>
+</html>
