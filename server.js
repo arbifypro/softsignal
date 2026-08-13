@@ -2365,6 +2365,8 @@ function serveStaticFile(
 
   if (pathname === "/") {
     pathname = "/index.html";
+  } else if (pathname.endsWith("/")) {
+    pathname += "index.html";
   }
 
   const requestedFile =
