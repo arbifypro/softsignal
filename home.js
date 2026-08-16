@@ -2640,15 +2640,24 @@ function randomItem(items) {
   ];
 }
 
-function createMinesPattern() {
+function createMinesPattern(riskProfile = "balanced") {
   const allIndexes = Array.from(
     { length: 25 },
     (_, index) => index
   );
 
+  const patternLengthByRisk = {
+    focused: 2,
+    balanced: 4,
+    aggressive: 6,
+  };
+
+  const patternLength =
+    patternLengthByRisk[riskProfile] ?? 4;
+
   const selected = [];
 
-  while (selected.length < 4) {
+  while (selected.length < patternLength) {
     const candidate =
       allIndexes[
         Math.floor(
@@ -2686,7 +2695,7 @@ function renderMinesResult(signal) {
   }
 
   const suggestedCells =
-    signal.minesCells.slice(0, 4);
+    signal.minesCells;
 
   const suggestedSteps =
     new Map(
@@ -2764,6 +2773,12 @@ function renderMinesResult(signal) {
     routeFragment
   );
 
+  minesRoute.style.gridTemplateColumns =
+    `repeat(${Math.min(
+      suggestedCells.length,
+      4
+    )}, 1fr)`;
+
   if (minesSequenceLabel) {
     minesSequenceLabel.textContent =
       `${suggestedCells.length} CELLE`;
@@ -2794,7 +2809,9 @@ function createSignal(slot) {
     ...(slot.name === "Mines"
       ? {
           minesCells:
-            createMinesPattern(),
+            createMinesPattern(
+              selectedRiskProfile
+            ),
         }
       : {}),
   };
