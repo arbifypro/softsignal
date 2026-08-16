@@ -99,6 +99,12 @@ const resultDuration = document.querySelector("#resultDuration");
 const resultActionButton = document.querySelector("#resultActionButton");
 const resultNewButton = document.querySelector("#resultNewButton");
 
+const minesResultView = document.querySelector("#minesResultView");
+const minesBoard = document.querySelector("#minesBoard");
+const minesRoute = document.querySelector("#minesRoute");
+const minesSequenceLabel = document.querySelector("#minesSequenceLabel");
+const minesNewButton = document.querySelector("#minesNewButton");
+
 const activeSignalTimer = document.querySelector(
   "#activeSignalTimer"
 );
@@ -2634,6 +2640,136 @@ function randomItem(items) {
   ];
 }
 
+function createMinesPattern() {
+  const allIndexes = Array.from(
+    { length: 25 },
+    (_, index) => index
+  );
+
+  const selected = [];
+
+  while (selected.length < 4) {
+    const candidate =
+      allIndexes[
+        Math.floor(
+          Math.random() * allIndexes.length
+        )
+      ];
+
+    if (!selected.includes(candidate)) {
+      selected.push(candidate);
+    }
+  }
+
+  return selected;
+}
+
+function getMinesCellLabel(index) {
+  const column =
+    ["A", "B", "C", "D", "E"][
+      index % 5
+    ];
+
+  const row =
+    Math.floor(index / 5) + 1;
+
+  return `${column}${row}`;
+}
+
+function renderMinesResult(signal) {
+  if (
+    !minesBoard ||
+    !minesRoute ||
+    !Array.isArray(signal?.minesCells)
+  ) {
+    return;
+  }
+
+  const suggestedCells =
+    signal.minesCells.slice(0, 4);
+
+  const suggestedSteps =
+    new Map(
+      suggestedCells.map(
+        (cellIndex, stepIndex) => [
+          cellIndex,
+          stepIndex + 1,
+        ]
+      )
+    );
+
+  const boardFragment =
+    document.createDocumentFragment();
+
+  for (let index = 0; index < 25; index += 1) {
+    const cell =
+      document.createElement("span");
+
+    cell.className = "mines-cell";
+    cell.setAttribute(
+      "aria-label",
+      `Cella ${getMinesCellLabel(index)}`
+    );
+
+    if (suggestedSteps.has(index)) {
+      cell.classList.add(
+        "is-suggested"
+      );
+
+      cell.dataset.step =
+        String(
+          suggestedSteps.get(index)
+        );
+
+      cell.setAttribute(
+        "aria-label",
+        `Passaggio ${
+          suggestedSteps.get(index)
+        }: cella ${
+          getMinesCellLabel(index)
+        }`
+      );
+    }
+
+    boardFragment.appendChild(cell);
+  }
+
+  minesBoard.replaceChildren(
+    boardFragment
+  );
+
+  const routeFragment =
+    document.createDocumentFragment();
+
+  suggestedCells.forEach(
+    (cellIndex, stepIndex) => {
+      const routeStep =
+        document.createElement("div");
+
+      routeStep.className =
+        "mines-route-step";
+
+      routeStep.innerHTML = `
+        <span>STEP ${stepIndex + 1}</span>
+        <strong>${getMinesCellLabel(cellIndex)}</strong>
+      `;
+
+      routeFragment.appendChild(
+        routeStep
+      );
+    }
+  );
+
+  minesRoute.replaceChildren(
+    routeFragment
+  );
+
+  if (minesSequenceLabel) {
+    minesSequenceLabel.textContent =
+      `${suggestedCells.length} CELLE`;
+  }
+}
+
 function createSignal(slot) {
   const profile =
     signalProfiles[slot.name] ||
@@ -2655,6 +2791,12 @@ function createSignal(slot) {
     risk: selectedRiskProfile,
     duration: randomItem(profile.durations),
     createdAt: Date.now(),
+    ...(slot.name === "Mines"
+      ? {
+          minesCells:
+            createMinesPattern(),
+        }
+      : {}),
   };
 }
 
@@ -2740,6 +2882,11 @@ function prepareScan(slot) {
   scanProgress.style.width = "0%";
 
   resultView.hidden = true;
+
+  if (minesResultView) {
+    minesResultView.hidden = true;
+  }
+
   scanView.hidden = false;
 
   signalOverlay.classList.remove(
@@ -2793,6 +2940,10 @@ function closeSignalOverlay() {
     signalOverlay.hidden = true;
     scanView.hidden = false;
     resultView.hidden = true;
+
+    if (minesResultView) {
+      minesResultView.hidden = true;
+    }
   }, 220);
 }
 
@@ -2851,10 +3002,36 @@ function showSignalResult() {
   resultRevealTimer =
     window.setTimeout(() => {
       scanView.hidden = true;
-      resultView.hidden = false;
 
-      signalOverlayTitle.textContent =
-        "SEGNALE PRONTO";
+      const isMinesSignal =
+        activeSignal?.slotName ===
+        "Mines";
+
+      if (isMinesSignal) {
+        resultView.hidden = true;
+
+        if (minesResultView) {
+          renderMinesResult(
+            activeSignal
+          );
+
+          minesResultView.hidden =
+            false;
+        }
+
+        signalOverlayTitle.textContent =
+          "MINES · PATTERN";
+      } else {
+        if (minesResultView) {
+          minesResultView.hidden =
+            true;
+        }
+
+        resultView.hidden = false;
+
+        signalOverlayTitle.textContent =
+          "SEGNALE PRONTO";
+      }
 
       signalOverlay.classList.remove(
         "is-scanning"
@@ -3058,6 +3235,17 @@ signalBackButton.addEventListener(
 );
 
 resultNewButton.addEventListener(
+  "click",
+  () => {
+    prepareScan(
+      getSelectedSlot()
+    );
+
+    runScan();
+  }
+);
+
+minesNewButton?.addEventListener(
   "click",
   () => {
     prepareScan(
