@@ -448,6 +448,13 @@ const slotCatalog = [
     accent: "#d64f8f",
     profile: "balanced",
   },
+  {
+    name: "Mines",
+    image: "assets/slots/mines.webp",
+    fallbackImage: "assets/gem-rocket.webp",
+    accent: "#b14cff",
+    profile: "focused",
+  },
  ];
 
 const popularSlotNames = new Set(
