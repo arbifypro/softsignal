@@ -2640,20 +2640,22 @@ function randomItem(items) {
   ];
 }
 
-function createMinesPattern(riskProfile = "balanced") {
+function createMinesPattern(
+  riskLevel = "СЕРЕДНІЙ"
+) {
   const allIndexes = Array.from(
     { length: 25 },
     (_, index) => index
   );
 
   const patternLengthByRisk = {
-    focused: 2,
-    balanced: 4,
-    aggressive: 6,
+    "НИЗЬКИЙ": 2,
+    "СЕРЕДНІЙ": 4,
+    "ВИСОКИЙ": 6,
   };
 
   const patternLength =
-    patternLengthByRisk[riskProfile] ?? 4;
+    patternLengthByRisk[riskLevel] || 4;
 
   const selected = [];
 
@@ -2772,12 +2774,6 @@ function renderMinesResult(signal) {
   minesRoute.replaceChildren(
     routeFragment
   );
-
-  minesRoute.style.gridTemplateColumns =
-    `repeat(${Math.min(
-      suggestedCells.length,
-      4
-    )}, 1fr)`;
 
   if (minesSequenceLabel) {
     minesSequenceLabel.textContent =
