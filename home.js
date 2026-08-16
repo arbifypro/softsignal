@@ -3033,7 +3033,7 @@ function showSignalResult() {
         }
 
         signalOverlayTitle.textContent =
-          "MINES · PATTERN";
+          "MINES";
       } else {
         if (minesResultView) {
           minesResultView.hidden =
