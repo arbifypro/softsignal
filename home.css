@@ -7529,3 +7529,341 @@ body.pulse-welcome-open
     width: 80px !important;
   }
 }
+
+/* =========================================================
+   MINES — RISULTATO DEDICATO
+   Stili isolati: non modificano gli altri giochi.
+   ========================================================= */
+
+.mines-result-view[hidden] {
+  display: none !important;
+}
+
+.mines-result-view {
+  position: relative;
+  z-index: 2;
+  min-height: 0;
+  padding:
+    8px
+    22px
+    max(18px, env(safe-area-inset-bottom));
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  animation: resultViewIn 360ms ease-out both;
+}
+
+.mines-result-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  border: 1px solid rgba(185, 92, 255, 0.22);
+  border-radius: 999px;
+  color: #c997ff;
+  background: rgba(126, 45, 210, 0.08);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.mines-result-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #b95cff;
+  box-shadow:
+    0 0 8px #b95cff,
+    0 0 16px rgba(185, 92, 255, 0.48);
+}
+
+.mines-result-view > h2 {
+  margin: 13px 0 0;
+  color: #faf8ff;
+  font-size: 22px;
+  font-weight: 760;
+  letter-spacing: -0.025em;
+}
+
+.mines-result-lead {
+  margin: 7px 0 0;
+  color: #85818e;
+  font-size: 10px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.mines-signal-panel {
+  position: relative;
+  width: min(100%, 340px);
+  margin-top: 18px;
+  padding: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(179, 83, 255, 0.22);
+  border-radius: 20px;
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(151, 55, 255, 0.16),
+      transparent 36%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(17, 11, 29, 0.98),
+      rgba(6, 7, 13, 0.98)
+    );
+  box-shadow:
+    0 24px 55px rgba(0, 0, 0, 0.34),
+    0 0 36px rgba(120, 39, 220, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.mines-signal-panel::before {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      115deg,
+      transparent 24%,
+      rgba(205, 139, 255, 0.055),
+      transparent 68%
+    );
+  content: "";
+  pointer-events: none;
+}
+
+.mines-panel-top {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.mines-panel-top > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mines-panel-top span {
+  color: #7f708e;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.mines-panel-top strong {
+  color: #f2e9ff;
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.mines-simulation-pill {
+  padding: 6px 8px;
+  border: 1px solid rgba(244, 196, 78, 0.17);
+  border-radius: 999px;
+  color: #e5c76d !important;
+  background: rgba(244, 196, 78, 0.055);
+  font-size: 7px !important;
+  letter-spacing: 0.1em !important;
+}
+
+.mines-board-shell {
+  position: relative;
+  z-index: 1;
+  margin-top: 13px;
+}
+
+.mines-column-labels {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 7px;
+  margin: 0 0 6px;
+  padding: 0 2px;
+}
+
+.mines-column-labels span {
+  color: #625c6d;
+  font-size: 7px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.mines-board {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 7px;
+}
+
+.mines-cell {
+  position: relative;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 11px;
+  color: #595665;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(20, 20, 31, 0.98),
+      rgba(9, 9, 16, 0.98)
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.mines-cell::after {
+  position: absolute;
+  inset: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.025);
+  border-radius: 7px;
+  content: "";
+}
+
+.mines-cell.is-suggested {
+  border-color: rgba(196, 108, 255, 0.6);
+  color: #fff;
+  background:
+    radial-gradient(
+      circle,
+      rgba(190, 92, 255, 0.32),
+      rgba(84, 25, 145, 0.25) 58%,
+      rgba(12, 8, 20, 0.98) 100%
+    );
+  box-shadow:
+    0 0 0 1px rgba(185, 92, 255, 0.1),
+    0 0 18px rgba(160, 62, 255, 0.22),
+    inset 0 0 18px rgba(190, 91, 255, 0.14);
+}
+
+.mines-cell.is-suggested::before {
+  position: relative;
+  z-index: 2;
+  width: 23px;
+  height: 23px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(232, 197, 255, 0.52);
+  border-radius: 50%;
+  color: white;
+  background: rgba(151, 55, 240, 0.42);
+  box-shadow:
+    0 0 12px rgba(192, 92, 255, 0.48);
+  content: attr(data-step);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.mines-route {
+  position: relative;
+  z-index: 1;
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+}
+
+.mines-route-step {
+  min-width: 0;
+  padding: 8px 5px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+  text-align: center;
+}
+
+.mines-route-step span,
+.mines-route-step strong {
+  display: block;
+}
+
+.mines-route-step span {
+  color: #6e6877;
+  font-size: 6px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.mines-route-step strong {
+  margin-top: 3px;
+  color: #d8b9f5;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.mines-result-note {
+  width: min(100%, 330px);
+  margin: 13px 0 0;
+  color: #676370;
+  font-size: 8px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.mines-new-button {
+  width: min(100%, 330px);
+  margin-top: auto;
+  padding: 13px 16px;
+  border: 1px solid rgba(205, 139, 255, 0.24);
+  border-radius: 12px;
+  color: #fff;
+  background:
+    linear-gradient(
+      180deg,
+      #a246f0,
+      #6b17c7
+    );
+  box-shadow:
+    0 10px 25px rgba(111, 27, 201, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.07em;
+  cursor: pointer;
+}
+
+.mines-new-button:active {
+  transform: translateY(1px) scale(0.985);
+}
+
+@media (max-height: 720px) and (max-width: 559px) {
+  .mines-result-view {
+    padding-top: 2px;
+  }
+
+  .mines-result-view > h2 {
+    margin-top: 8px;
+    font-size: 19px;
+  }
+
+  .mines-signal-panel {
+    margin-top: 11px;
+    padding: 13px;
+  }
+
+  .mines-board {
+    gap: 5px;
+  }
+
+  .mines-column-labels {
+    gap: 5px;
+  }
+
+  .mines-route {
+    margin-top: 10px;
+    gap: 5px;
+  }
+
+  .mines-result-note {
+    margin-top: 9px;
+  }
+}
+
