@@ -1581,6 +1581,80 @@
               18+ · L’esito del gioco dipende dal caso
             </p>
           </div>
+
+          <!-- Risultato dedicato esclusivamente al gioco Mines -->
+          <div
+            class="mines-result-view"
+            id="minesResultView"
+            hidden
+          >
+            <div class="mines-result-status">
+              <span class="mines-result-status-dot"></span>
+              <span>MINES · SIMULAZIONE PRONTA</span>
+            </div>
+
+            <h2>Pattern consigliato</h2>
+
+            <p class="mines-result-lead">
+              Apri le celle nell’ordine indicato dal sistema Pulse.
+            </p>
+
+            <section
+              class="mines-signal-panel"
+              aria-label="Pattern Mines"
+            >
+              <div class="mines-panel-top">
+                <div>
+                  <span>SEQUENZA</span>
+                  <strong id="minesSequenceLabel">
+                    4 CELLE
+                  </strong>
+                </div>
+
+                <span class="mines-simulation-pill">
+                  SIMULAZIONE
+                </span>
+              </div>
+
+              <div class="mines-board-shell">
+                <div
+                  class="mines-column-labels"
+                  aria-hidden="true"
+                >
+                  <span>A</span>
+                  <span>B</span>
+                  <span>C</span>
+                  <span>D</span>
+                  <span>E</span>
+                </div>
+
+                <div
+                  class="mines-board"
+                  id="minesBoard"
+                  aria-label="Griglia Mines 5 per 5"
+                ></div>
+              </div>
+
+              <div
+                class="mines-route"
+                id="minesRoute"
+                aria-label="Ordine delle celle suggerite"
+              ></div>
+            </section>
+
+            <p class="mines-result-note">
+              Pattern dimostrativo: non identifica né prevede
+              la posizione reale delle mine. L’esito dipende dal caso.
+            </p>
+
+            <button
+              class="mines-new-button"
+              id="minesNewButton"
+              type="button"
+            >
+              GENERA NUOVO PATTERN
+            </button>
+          </div>
         </section>
 
         <nav
